@@ -1,0 +1,6 @@
+[submodule "libs/azure-iot-middleware-freertos"]
+	path = libs/azure-iot-middleware-freertos
+	url = https://github.com/Azure/azure-iot-middleware-freertos.git
+[submodule "libs/FreeRTOS"]
+	path = libs/FreeRTOS
+	url = https://github.com/FreeRTOS/FreeRTOS.git
