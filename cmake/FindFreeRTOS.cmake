@@ -1,6 +1,6 @@
 if(NOT FreeRTOS_FIND_COMPONENTS)
     set(FreeRTOS_FIND_COMPONENTS
-        ARM_CM0 ARM_CM3 ARM_CM4F ARM_CM7
+        ARM_CM0 ARM_CM3 ARM_CM4F ARM_CM7 Posix
     )
 endif()
 list(REMOVE_DUPLICATES FreeRTOS_FIND_COMPONENTS)
@@ -72,7 +72,7 @@ foreach(PORT ${FreeRTOS_FIND_COMPONENTS})
     find_path(FreeRTOS_${PORT}_PATH
         NAMES portmacro.h
         PATHS "${FREERTOS_PATH}" "${FREERTOS_PATH}/FreeRTOS" 
-        PATH_SUFFIXES "Source/portable/GCC/${PORT}"  "Source/portable/GCC/${PORT}/r0p1"
+        PATH_SUFFIXES "Source/portable/GCC/${PORT}"  "Source/portable/GCC/${PORT}/r0p1" "Source/portable/ThirdParty/GCC/${PORT}"
         NO_DEFAULT_PATH
     )
     list(APPEND FreeRTOS_INCLUDE_DIRS "${FreeRTOS_${PORT}_PATH}")
@@ -82,6 +82,12 @@ foreach(PORT ${FreeRTOS_FIND_COMPONENTS})
         PATHS "${FreeRTOS_${PORT}_PATH}"
         NO_DEFAULT_PATH
     )
+
+    if ("${PORT}" STREQUAL "Posix")
+        file(GLOB FreeRTOS_${PORT}_ADDITIONAL_SOURCE ${FreeRTOS_${PORT}_PATH}/utils/*.c)
+        list(APPEND FreeRTOS_${PORT}_SOURCE "${FreeRTOS_${PORT}_ADDITIONAL_SOURCE}")
+    endif()
+
     if(NOT (TARGET FreeRTOS::${PORT}))
         add_library(FreeRTOS::${PORT} INTERFACE IMPORTED)
         target_link_libraries(FreeRTOS::${PORT} INTERFACE FreeRTOS)

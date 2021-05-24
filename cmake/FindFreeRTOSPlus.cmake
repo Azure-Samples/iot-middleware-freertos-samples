@@ -117,8 +117,26 @@ if(NOT (TARGET FreeRTOSPlus::ThirdParty::mbedtls))
         MBEDTLS_CONFIG_FILE="mbedtls_config.h")
 endif()
 
+if(NOT (TARGET FreeRTOSPlus::TCPIP))
+    add_library(FreeRTOSPlus::TCPIP INTERFACE IMPORTED)
+    target_sources(FreeRTOSPlus::TCPIP INTERFACE
+        ${FreeRTOSPlus_PATH}/Source/FreeRTOS-Plus-TCP/FreeRTOS_DNS.c
+        ${FreeRTOSPlus_PATH}/Source/FreeRTOS-Plus-TCP/FreeRTOS_DHCP.c
+        ${FreeRTOSPlus_PATH}/Source/FreeRTOS-Plus-TCP/FreeRTOS_ARP.c
+        ${FreeRTOSPlus_PATH}/Source/FreeRTOS-Plus-TCP/FreeRTOS_TCP_WIN.c
+        ${FreeRTOSPlus_PATH}/Source/FreeRTOS-Plus-TCP/FreeRTOS_Stream_Buffer.c
+        ${FreeRTOSPlus_PATH}/Source/FreeRTOS-Plus-TCP/FreeRTOS_IP.c
+        ${FreeRTOSPlus_PATH}/Source/FreeRTOS-Plus-TCP/FreeRTOS_TCP_IP.c
+        ${FreeRTOSPlus_PATH}/Source/FreeRTOS-Plus-TCP/FreeRTOS_UDP_IP.c
+        ${FreeRTOSPlus_PATH}/Source/FreeRTOS-Plus-TCP/FreeRTOS_Sockets.c)
+    target_include_directories(FreeRTOSPlus::TCPIP INTERFACE
+        ${FreeRTOSPlus_PATH}/Source/FreeRTOS-Plus-TCP/include/
+        ${FreeRTOSPlus_PATH}/Source/FreeRTOS-Plus-TCP/portable/Compiler/GCC/)
+endif()
+
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(FreeRTOSPlus
+    REQUIRED_VARS FreeRTOSPlus_PATH
     FOUND_VAR FreeRTOSPlus_FOUND
     HANDLE_COMPONENTS
 )
