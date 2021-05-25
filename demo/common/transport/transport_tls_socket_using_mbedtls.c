@@ -714,6 +714,7 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pNetworkContext,
                                                        sizeof( receiveTimeoutMs ) ) !=  0 ) )
         {
             LogError( ( "Failed to set receive timeout on socket %d.", socketStatus ) );
+            returnStatus = TLS_TRANSPORT_INTERNAL_ERROR;
         }
         else if ( ( socketStatus = SOCKETS_SetSockOpt( pTlsTransportParams->tcpSocket,
                                                        SOCKETS_SO_SNDTIMEO,
@@ -721,6 +722,7 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pNetworkContext,
                                                        sizeof( sendTimeoutMs ) ) !=  0 ) )
         {
             LogError( ( "Failed to set send timeout on socket %d.", socketStatus ) );
+            returnStatus = TLS_TRANSPORT_INTERNAL_ERROR;
         }
         else if ( ( socketStatus = Sockets_Connect( pTlsTransportParams->tcpSocket ,
                                                     pHostName,
@@ -730,7 +732,6 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pNetworkContext,
                         pHostName,
                         socketStatus ) );
             returnStatus = TLS_TRANSPORT_CONNECT_FAILURE;
-            //* set ops
         }
         else if ( ( returnStatus = initMbedtls( &( pxSSLContext->entropyContext ),
                                                 &( pxSSLContext->ctrDrgbContext ) ) ) != TLS_TRANSPORT_SUCCESS )
