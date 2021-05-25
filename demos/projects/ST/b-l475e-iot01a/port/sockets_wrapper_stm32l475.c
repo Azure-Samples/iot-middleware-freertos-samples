@@ -235,14 +235,14 @@ static uint32_t prvGetHostByName( const char * pcHostName )
 
 /*-----------------------------------------------------------*/
 
-Socket_t Sockets_Open()
+SocketHandle Sockets_Open()
 {
-    return ( Socket_t ) prvGetFreeSocket();
+    return ( SocketHandle ) prvGetFreeSocket();
 }
 
 /*-----------------------------------------------------------*/
 
-BaseType_t Sockets_Close( Socket_t tcpSocket )
+BaseType_t Sockets_Close( SocketHandle tcpSocket )
 {
     uint32_t ulSocketNumber = ( uint32_t ) tcpSocket;
 
@@ -255,7 +255,7 @@ BaseType_t Sockets_Close( Socket_t tcpSocket )
 }
 /*-----------------------------------------------------------*/
 
-BaseType_t Sockets_Connect( Socket_t tcpSocket,
+BaseType_t Sockets_Connect( SocketHandle tcpSocket,
                             const char * pHostName,
                             uint16_t usPort )
 {
@@ -311,7 +311,7 @@ BaseType_t Sockets_Connect( Socket_t tcpSocket,
 
 /*-----------------------------------------------------------*/
 
-void Sockets_Disconnect( Socket_t tcpSocket )
+void Sockets_Disconnect( SocketHandle tcpSocket )
 {
     uint32_t ulSocketNumber = ( uint32_t ) tcpSocket;
     STSecureSocket_t * pxSecureSocket;
@@ -343,7 +343,7 @@ void Sockets_Disconnect( Socket_t tcpSocket )
 
 /*-----------------------------------------------------------*/
 
-BaseType_t Sockets_Send( Socket_t tcpSocket,
+BaseType_t Sockets_Send( SocketHandle tcpSocket,
                          const unsigned char * pucData,
                          size_t xDataLength )
 {
@@ -434,7 +434,7 @@ BaseType_t Sockets_Send( Socket_t tcpSocket,
 
 /*-----------------------------------------------------------*/
 
-BaseType_t Sockets_Recv( Socket_t tcpSocket,
+BaseType_t Sockets_Recv( SocketHandle tcpSocket,
                          unsigned char * pucReceiveBuffer,
                          size_t xReceiveBufferLength )
 {
@@ -585,7 +585,7 @@ BaseType_t SOCKETS_Init()
 }
 /*-----------------------------------------------------------*/
 
-int32_t SOCKETS_SetSockOpt( Socket_t tcpSocket,
+int32_t SOCKETS_SetSockOpt( SocketHandle tcpSocket,
                             int32_t lOptionName,
                             const void * pvOptionValue,
                             size_t xOptionLength )

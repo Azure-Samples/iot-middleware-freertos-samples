@@ -1,6 +1,3 @@
-set(MCU_C_FLAGS "-m32" CACHE INTERNAL "MCU build flags")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${MCU_C_FLAGS}")
-
 # set parent scope path
 set(BOARD_DEMO_CONFIG_PATH ${CMAKE_CURRENT_SOURCE_DIR}/config CACHE INTERNAL "Config path")
 set(BOARD_DEMO_FREERTOS_PORT_PATH ${FreeRTOS_Posix_PATH} CACHE INTERNAL "FreeRTOS Port used ")

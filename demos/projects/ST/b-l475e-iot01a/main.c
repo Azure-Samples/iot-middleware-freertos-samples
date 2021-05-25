@@ -90,6 +90,7 @@ xSemaphoreHandle xWifiSemaphoreHandle;
 static UART_HandleTypeDef xConsoleUart;
 /* Use by the pseudo random number generator. */
 static UBaseType_t ulNextRand;
+static uint64_t ulGlobalEntryTime = 1639093301;
 
 /* Private function prototypes -----------------------------------------------*/
 static void SystemClock_Config( void );
@@ -100,6 +101,11 @@ static void RTC_Init( void );
  * Prototypes for the demos that can be started from this project.
  */
 extern void vStartDemoTask( void );
+
+/*
+ * Get board specific unix time.
+ */
+uint64_t ullGetUnixTime( void );
 
 /**
  * @brief Initializes the STM32L475 IoT node board.
@@ -743,5 +749,24 @@ int mbedtls_platform_entropy_poll( void * data,
   *olen = sizeof(uint32_t);
   
   return 0;
+}
+/*-----------------------------------------------------------*/
+
+uint64_t ullGetUnixTime( void )
+{
+    TickType_t xTickCount = 0;
+    uint64_t ulTime = 0UL;
+
+    /* Get the current tick count. */
+    xTickCount = xTaskGetTickCount();
+
+    /* Convert the ticks to milliseconds. */
+    ulTime = ( uint64_t ) xTickCount / configTICK_RATE_HZ;
+
+    /* Reduce ulGlobalEntryTimeMs from obtained time so as to always return the
+     * elapsed time in the application. */
+    ulTime = ( uint64_t ) ( ulTime + ulGlobalEntryTime );
+
+    return ulTime;
 }
 /*-----------------------------------------------------------*/

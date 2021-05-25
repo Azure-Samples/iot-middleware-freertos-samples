@@ -17,8 +17,8 @@ include_directories("${FreeRTOSPlus_PATH}/Source/Utilities/logging")
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/demos)
 
 # Add MCU flags, set using board cmake
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${MCU_C_FLAGS}")
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${MCU_LINKER_FLAGS}")
+set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} ${MCU_C_FLAGS})
+set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} ${MCU_LINKER_FLAGS})
 
 # Set middleware specific path's
 set(FREERTOS_DIRECTORY ${FREERTOS_PATH} CACHE STRING "FreeRTOS Path")

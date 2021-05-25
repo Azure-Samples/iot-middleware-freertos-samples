@@ -65,3 +65,5 @@ target_link_libraries(iot-middleware-sample PRIVATE
     LWIP
     HAL::STM32::H7::M7::ETH
     BSP::STM32::H7::M7::LAN8742)
+
+target_link_options(iot-middleware-sample PRIVATE -Xlinker -Map=output.map)

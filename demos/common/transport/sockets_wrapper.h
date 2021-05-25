@@ -39,6 +39,8 @@
 
 typedef void * SocketHandle;
 
+#define SOCKETS_MAX_HOST_NAME_LENGTH     ( 64 )
+
 #define SOCKETS_ERROR_NONE               ( 0 )     /*!< No error. */
 #define SOCKETS_SOCKET_ERROR             ( -1 )    /*!< Catch-all sockets error code. */
 #define SOCKETS_EWOULDBLOCK              ( -11 )   /*!< A resource is temporarily unavailable. */
