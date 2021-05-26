@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation. All rights reserved.
+# SPDX-License-Identifier: MIT
+
 stm32_fetch_cube(H7)
 
 set(LWIP_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../../../../libs/lwip)
@@ -32,13 +35,13 @@ set(PROJECT_SOURCES
 
 stm32_add_linker_script(CMSIS::STM32::H7::M7 INTERFACE
     "${CMAKE_CURRENT_SOURCE_DIR}/STM32H745XIHX_FLASH.ld")
-add_executable(iot-middleware-sample ${PROJECT_SOURCES})
-target_include_directories(iot-middleware-sample PUBLIC
+add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
+target_include_directories(${PROJECT_NAME} PUBLIC
     config st_code .
     ${SAMPLE_TRANSPORT_USING_MBEDTLS_INC_PATH}
     st_code/lwip/App
     st_code/lwip/Target)
-target_link_libraries(iot-middleware-sample PRIVATE
+target_link_libraries(${PROJECT_NAME} PRIVATE
     FreeRTOS::Timers
     FreeRTOS::Heap::5
     FreeRTOS::ARM_CM7
@@ -66,4 +69,11 @@ target_link_libraries(iot-middleware-sample PRIVATE
     HAL::STM32::H7::M7::ETH
     BSP::STM32::H7::M7::LAN8742)
 
-target_link_options(iot-middleware-sample PRIVATE -Xlinker -Map=output.map)
+target_link_options(${PROJECT_NAME} PRIVATE -Xlinker -Map=output.map)
+
+add_custom_command(TARGET ${PROJECT_NAME}
+    # Run after all other rules within the target have been executed
+    POST_BUILD
+    COMMAND ${CMAKE_OBJCOPY} -Obinary $<TARGET_FILE:${PROJECT_NAME}> ${PROJECT_NAME}.bin
+    COMMENT "Generate Bin file"
+    VERBATIM)

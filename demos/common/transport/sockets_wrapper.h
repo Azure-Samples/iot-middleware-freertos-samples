@@ -39,8 +39,14 @@
 
 typedef void * SocketHandle;
 
-#define SOCKETS_MAX_HOST_NAME_LENGTH     ( 64 )
+#ifndef SOCKETS_MAX_HOST_NAME_LENGTH
+    #define SOCKETS_MAX_HOST_NAME_LENGTH     ( 64 )
+#endif
 
+/**
+ * @brief Error codes
+ * 
+ */
 #define SOCKETS_ERROR_NONE               ( 0 )     /*!< No error. */
 #define SOCKETS_SOCKET_ERROR             ( -1 )    /*!< Catch-all sockets error code. */
 #define SOCKETS_EWOULDBLOCK              ( -11 )   /*!< A resource is temporarily unavailable. */
@@ -55,32 +61,106 @@ typedef void * SocketHandle;
 
 #define SOCKETS_INVALID_SOCKET           ( ( SocketHandle ) ~0U )
 
+/**
+ * @brief Option Names supported via SOCKETS_SetSockOpt API.
+ * 
+ */
 #define SOCKETS_SO_RCVTIMEO              ( 0 )  /**< Set the receive timeout. */
 #define SOCKETS_SO_SNDTIMEO              ( 1 )  /**< Set the send timeout. */
 
+/**
+ * @brief Initialize the sockets
+ * 
+ * @return A #BaseType_t with the result of the operation.
+ *        - On success returns SOCKETS_ERROR_NONE
+ */
+BaseType_t SOCKETS_Init();
+
+/**
+ * @brief DeInitialize the sockets.
+ * 
+ * @return A #BaseType_t with the result of the operation.
+ *        - On success returns SOCKETS_ERROR_NONE
+ */
+BaseType_t SOCKETS_DeInit();
+
+/**
+ * @brief Open a socket and return socket handle.
+ * 
+ * @return A #SocketHandle SocketHandle
+ *         - On failure it returns SOCKETS_INVALID_SOCKET
+ */
 SocketHandle Sockets_Open();
 
-BaseType_t Sockets_Close( SocketHandle tcpSocket );
+/**
+ * @brief Closes socket handle.
+ * 
+ * @param[in] xSocket The #SocketHandle use for this call.
+ * @return A #BaseType_t with the result of the operation.
+ *        - On success returns SOCKETS_ERROR_NONE
+ */
+BaseType_t Sockets_Close( SocketHandle xSocket );
 
-BaseType_t Sockets_Connect( SocketHandle tcpSocket,
-                            const char * pHostName,
-                            uint16_t port );
+/**
+ * @brief Connect the socket to hostname and port.
+ * 
+ * @param[in] xSocket The #SocketHandle use for this call.
+ * @param[in] pcHostName `NULL` terminated hostname
+ * @param[in] usPort Connecting port.
+ * @return A #BaseType_t with the result of the operation.
+ *        - On success returns SOCKETS_ERROR_NONE
+ */
+BaseType_t Sockets_Connect( SocketHandle xSocket,
+                            const char * pcHostName,
+                            uint16_t usPort );
 
-void Sockets_Disconnect( SocketHandle tcpSocket );
+/**
+ * @brief Disconnect socket handle.
+ * 
+ * @param[in] xSocket The #SocketHandle use for this call.
+ */
+void Sockets_Disconnect( SocketHandle xSocket );
 
-BaseType_t Sockets_Recv( SocketHandle tcpSocket,
-                         unsigned char * pucReceiveBuffer,
+/**
+ * @brief Receive data from socket handle.
+ * 
+ * @param[in] xSocket The #SocketHandle use for this call.
+ * @param[in,out] pucReceiveBuffer Buffer used for receiving data.
+ * @param[in] xReceiveBufferLength Length of the buffer.
+ * @return A #BaseType_t with the result of the operation.
+ *        - On success returns number of bytes copied.
+ *        - On failure return neagtive error code.
+ */
+BaseType_t Sockets_Recv( SocketHandle xSocket,
+                         uint8_t * pucReceiveBuffer,
                          size_t xReceiveBufferLength );
 
-BaseType_t Sockets_Send( SocketHandle tcpSocket,
-                         const unsigned char * pucData,
+/**
+ * @brief Send data to socket handle.
+ * 
+ * @param[in] xSocket The #SocketHandle use for this call.
+ * @param[in] pucData Buffer that contains data to be sent.
+ * @param[in] xDataLength Length of the data to be sent.
+ * @return A #BaseType_t with the result of the operation.
+ *        - On success returns number of bytes sent.
+ */
+BaseType_t Sockets_Send( SocketHandle xSocket,
+                         const uint8_t * pucData,
                          size_t xDataLength );
 
-BaseType_t SOCKETS_SetSockOpt( SocketHandle tcpSocket,
+/**
+ * @brief Set option for socket handle.
+ * 
+ * @param[in] xSocket The #SocketHandle use for this call.
+ * @param[in] lOptionName Option name.
+ * @param[in] pvOptionValue Pointer to option value.
+ * @param[in] xOptionLength Lenght of option value.
+* @return A #BaseType_t with the result of the operation.
+ *        - On success returns SOCKETS_ERROR_NONE
+ */
+BaseType_t SOCKETS_SetSockOpt( SocketHandle xSocket,
                                int32_t lOptionName,
                                const void * pvOptionValue,
                                size_t xOptionLength );
-
-BaseType_t SOCKETS_Init();
 
 #endif /* SOCKETS_WRAPPER_H */

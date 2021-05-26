@@ -142,6 +142,18 @@ uint32_t prvGetHostByName( const char * pcHostName )
 }
 /*-----------------------------------------------------------*/
 
+BaseType_t SOCKETS_Init()
+{
+    return SOCKETS_ERROR_NONE;
+}
+/*-----------------------------------------------------------*/
+
+BaseType_t SOCKETS_DeInit()
+{
+    return SOCKETS_ERROR_NONE;
+}
+/*-----------------------------------------------------------*/
+
 SocketHandle Sockets_Open()
 {
     int32_t ulSocketNumber = lwip_socket( AF_INET, SOCK_STREAM, IP_PROTO_TCP );
@@ -160,32 +172,32 @@ SocketHandle Sockets_Open()
 }
 /*-----------------------------------------------------------*/
 
-BaseType_t Sockets_Close( SocketHandle tcpSocket )
+BaseType_t Sockets_Close( SocketHandle xSocket )
 {
-    return ( BaseType_t ) lwip_close( ( uint32_t ) tcpSocket );
+    return ( BaseType_t ) lwip_close( ( uint32_t ) xSocket );
 }
 /*-----------------------------------------------------------*/
 
-BaseType_t Sockets_Connect( SocketHandle tcpSocket,
-                            const char * pHostName,
-                            uint16_t port )
+BaseType_t Sockets_Connect( SocketHandle xSocket,
+                            const char * pcHostName,
+                            uint16_t usPort )
 {
-    uint32_t ulSocketNumber = ( uint32_t ) tcpSocket;
+    uint32_t ulSocketNumber = ( uint32_t ) xSocket;
     int32_t lRetVal = SOCKETS_ERROR_NONE;
     uint32_t ulIPAddres = 0;
-    struct sockaddr_in sa_addr = { 0 };
+    struct sockaddr_in xSaAddr = { 0 };
 
-    if( ( ulIPAddres = prvGetHostByName( pHostName ) ) == 0 )
+    if( ( ulIPAddres = prvGetHostByName( pcHostName ) ) == 0 )
     {
         lRetVal = SOCKETS_SOCKET_ERROR;
     }
     else
     {
-        sa_addr.sin_family = AF_INET;
-        sa_addr.sin_addr.s_addr = ulIPAddres;
-        sa_addr.sin_port = lwip_htons( port );
+        xSaAddr.sin_family = AF_INET;
+        xSaAddr.sin_addr.s_addr = ulIPAddres;
+        xSaAddr.sin_port = lwip_htons( usPort );
 
-        if( lwip_connect( ulSocketNumber, ( struct sockaddr * ) &sa_addr, sizeof( sa_addr ) ) < 0 )
+        if( lwip_connect( ulSocketNumber, ( struct sockaddr * ) &xSaAddr, sizeof( xSaAddr ) ) < 0 )
         {
             lRetVal = SOCKETS_SOCKET_ERROR;
         }
@@ -195,40 +207,23 @@ BaseType_t Sockets_Connect( SocketHandle tcpSocket,
 }
 /*-----------------------------------------------------------*/
 
-void Sockets_Disconnect( SocketHandle tcpSocket )
+void Sockets_Disconnect( SocketHandle xSocket )
 {
-    uint32_t ulSocketNumber = ( uint32_t ) tcpSocket;
-
-    lwip_close( ulSocketNumber );
+    lwip_close( ( uint32_t ) xSocket );
 }
 /*-----------------------------------------------------------*/
 
-BaseType_t Sockets_Send( SocketHandle tcpSocket,
-                         const unsigned char * pucData,
-                         size_t xDataLength )
-{
-    uint32_t ulSocketNumber = ( uint32_t ) tcpSocket;
-    int ret = lwip_send( ulSocketNumber,
-                         pucData,
-                         xDataLength,
-                         0 );
-
-    return ( BaseType_t ) ret;
-}
-/*-----------------------------------------------------------*/
-
-BaseType_t Sockets_Recv( SocketHandle tcpSocket,
-                         unsigned char * pucReceiveBuffer,
+BaseType_t Sockets_Recv( SocketHandle xSocket,
+                         uint8_t * pucReceiveBuffer,
                          size_t xReceiveBufferLength )
 {
-    uint32_t ulSocketNumber = ( uint32_t ) tcpSocket;
+    uint32_t ulSocketNumber = ( uint32_t ) xSocket;
+    int lRetVal = lwip_recv( ulSocketNumber,
+                             pucReceiveBuffer,
+                             xReceiveBufferLength,
+                             0 );
 
-    int ret = lwip_recv( ulSocketNumber,
-                         pucReceiveBuffer,
-                         xReceiveBufferLength,
-                         0 );
-
-    if( -1 == ret )
+    if( lRetVal == -1 )
     {
         /*
          * 1. EWOULDBLOCK if the socket is NON-blocking, but there is no data
@@ -250,21 +245,32 @@ BaseType_t Sockets_Recv( SocketHandle tcpSocket,
         }
     }
 
-    if( ( 0 == ret ) && ( errno == ENOTCONN ) )
+    if( ( lRetVal == 0 ) && ( errno == ENOTCONN ) )
     {
-        ret = SOCKETS_ECLOSED;
+        lRetVal = SOCKETS_ECLOSED;
     }
 
-    return ( BaseType_t ) ret;
+    return ( BaseType_t ) lRetVal;
 }
 /*-----------------------------------------------------------*/
 
-BaseType_t SOCKETS_SetSockOpt( SocketHandle tcpSocket,
+BaseType_t Sockets_Send( SocketHandle xSocket,
+                         const uint8_t * pucData,
+                         size_t xDataLength )
+{
+    return ( BaseType_t ) lwip_send( ( uint32_t ) xSocket,
+                                     pucData,
+                                     xDataLength,
+                                     0 );
+}
+/*-----------------------------------------------------------*/
+
+BaseType_t SOCKETS_SetSockOpt( SocketHandle xSocket,
                                int32_t lOptionName,
                                const void * pvOptionValue,
                                size_t xOptionLength )
 {
-    uint32_t ulSocketNumber = ( uint32_t ) tcpSocket;
+    uint32_t ulSocketNumber = ( uint32_t ) xSocket;
     BaseType_t xRetVal;
     int ulRet = 0;
 

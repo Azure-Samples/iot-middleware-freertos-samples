@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation. All rights reserved.
+# SPDX-License-Identifier: MIT
+
 # set parent scope path
 set(BOARD_DEMO_CONFIG_PATH ${CMAKE_CURRENT_SOURCE_DIR}/config CACHE INTERNAL "Config path")
 set(BOARD_DEMO_FREERTOS_PORT_PATH ${FreeRTOS_Posix_PATH} CACHE INTERNAL "FreeRTOS Port used ")
@@ -15,11 +18,11 @@ set(PROJECT_SOURCES
     ${SAMPLE_TRANSPORT_USING_MBEDTLS_SOURCE_PATH}
     main.c)
 
-add_executable(iot-middleware-sample ${PROJECT_SOURCES})
-target_include_directories(iot-middleware-sample PUBLIC
+add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
+target_include_directories(${PROJECT_NAME} PUBLIC
     ${SAMPLE_TRANSPORT_USING_MBEDTLS_INC_PATH}
     ${FreeRTOSPlus_PATH}/Source/FreeRTOS-Plus-TCP/portable/NetworkInterface/linux/)
-target_link_libraries(iot-middleware-sample PRIVATE
+target_link_libraries(${PROJECT_NAME} PRIVATE
     FreeRTOS::Timers
     FreeRTOS::Heap::3
     FreeRTOS::EventGroups
@@ -31,4 +34,4 @@ target_link_libraries(iot-middleware-sample PRIVATE
     az::iot_middleware::freertos
     pthread
     pcap)
-target_link_options(iot-middleware-sample PRIVATE -Xlinker -Map=output.map)
+target_link_options(${PROJECT_NAME} PRIVATE -Xlinker -Map=output.map)

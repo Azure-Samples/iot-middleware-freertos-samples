@@ -55,19 +55,19 @@ typedef struct NetworkCredentials
      * (https://aws.amazon.com/blogs/iot/mqtt-with-tls-client-authentication-on-port-443-why-it-is-useful-and-how-it-works/)
      * for more information.
      */
-    const char ** pAlpnProtos;
+    const char ** ppcAlpnProtos;
 
     /**
      * @brief Disable server name indication (SNI) for a TLS session.
      */
-    BaseType_t disableSni;
+    BaseType_t xDisableSni;
 
-    const uint8_t * pRootCa;     /**< @brief String representing a trusted server root certificate. */
-    size_t rootCaSize;           /**< @brief Size associated with #NetworkCredentials.pRootCa. */
-    const uint8_t * pClientCert; /**< @brief String representing the client certificate. */
-    size_t clientCertSize;       /**< @brief Size associated with #NetworkCredentials.pClientCert. */
-    const uint8_t * pPrivateKey; /**< @brief String representing the client certificate's private key. */
-    size_t privateKeySize;       /**< @brief Size associated with #NetworkCredentials.pPrivateKey. */
+    const uint8_t * pucRootCa;      /**< @brief String representing a trusted server root certificate. */
+    size_t xRootCaSize;             /**< @brief Size associated with #NetworkCredentials.pRootCa. */
+    const uint8_t * pucClientCert;  /**< @brief String representing the client certificate. */
+    size_t xClientCertSize;         /**< @brief Size associated with #NetworkCredentials.pClientCert. */
+    const uint8_t * pucPrivateKey;  /**< @brief String representing the client certificate's private key. */
+    size_t xPrivateKeySize;         /**< @brief Size associated with #NetworkCredentials.pPrivateKey. */
 } NetworkCredentials_t;
 
 /**
@@ -84,17 +84,49 @@ typedef enum TlsTransportStatus
     TLS_TRANSPORT_CONNECT_FAILURE      /**< Initial connection to the server failed. */
 } TlsTransportStatus_t;
 
-TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pNetworkContext,
-                                         const char * pHostName, uint16_t port,
-                                         const NetworkCredentials_t * pNetworkCredentials,
-                                         uint32_t receiveTimeoutMs, uint32_t sendTimeoutMs );
+/**
+ * @brief Connect to tls endpoint
+ * 
+ * @param[in] pxNetworkContext Pointer to the Network context.
+ * @param[in] pcHostName Pointer to NULL terminated hostname.
+ * @param[in] usPort Port to connect to.
+ * @param[in] pxNetworkCredentials Pointer to network credentials. 
+ * @param[in] ulReceiveTimeoutMs Receive timeout.
+ * @param[in] ulSendTimeoutMs Send timeout.
+ * @return A #TlsTransportStatus_t with the result of the operation.
+ */
+TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pxNetworkContext,
+                                         const char * pcHostName, uint16_t usPort,
+                                         const NetworkCredentials_t * pxNetworkCredentials,
+                                         uint32_t ulReceiveTimeoutMs, uint32_t ulSendTimeoutMs );
 
-void TLS_Socket_Disconnect( NetworkContext_t * pNetworkContext );
+/**
+ * @brief Disconnect the tls connection
+ * 
+ * @param[in] pxNetworkContext Pointer to the Network context.
+ */
+void TLS_Socket_Disconnect( NetworkContext_t * pxNetworkContext );
 
-int32_t TLS_Socket_Recv( NetworkContext_t * pNetworkContext,
-                         void * pBuffer,
-                         size_t bytesToRecv );
+/**
+ * @brief Receive data from tls.
+ * 
+ * @param pxNetworkContext Pointer to the Network context.
+ * @param pvBuffer Buffer used for receiving data. 
+ * @param xBytesToRecv Sizze of the buffer.
+ * @return An #int32_t number of bytes copied.
+ */
+int32_t TLS_Socket_Recv( NetworkContext_t * pxNetworkContext,
+                         void * pvBuffer,
+                         size_t xBytesToRecv );
 
-int32_t TLS_Socket_Send( NetworkContext_t * pNetworkContext,
-                         const void * pBuffer,
-                         size_t bytesToSend );
+/**
+ * @brief Send data using tls. 
+ * 
+ * @param pxNetworkContext Pointer to the Network context.
+ * @param pvBuffer Buffer that contains data to be sent. 
+ * @param xBytesToSend Length of the data to be sent.
+ * @return An #int32_t number of bytes successfully sent. 
+ */
+int32_t TLS_Socket_Send( NetworkContext_t * pxNetworkContext,
+                         const void * pvBuffer,
+                         size_t xBytesToSend );

@@ -209,7 +209,6 @@ static BaseType_t prvIsValidSocket( uint32_t ulSocketNumber )
 
     return xValid;
 }
-
 /*-----------------------------------------------------------*/
 
 static uint32_t prvGetHostByName( const char * pcHostName )
@@ -232,19 +231,41 @@ static uint32_t prvGetHostByName( const char * pcHostName )
 
     return ulIPAddres;
 }
+/*-----------------------------------------------------------*/
 
+BaseType_t SOCKETS_Init()
+{
+    uint32_t ulIndex;
+
+    /* Mark all the sockets as free and closed. */
+    for( ulIndex = 0; ulIndex < ( uint32_t ) wificonfigMAX_SOCKETS; ulIndex++ )
+    {
+        xSockets[ ulIndex ].ucInUse = 0;
+        xSockets[ ulIndex ].ulFlags = 0;
+
+        xSockets[ ulIndex ].ulFlags |= stsecuresocketsSOCKET_READ_CLOSED_FLAG;
+        xSockets[ ulIndex ].ulFlags |= stsecuresocketsSOCKET_WRITE_CLOSED_FLAG;
+    }
+
+    return SOCKETS_ERROR_NONE;
+}
+/*-----------------------------------------------------------*/
+
+BaseType_t SOCKETS_DeInit()
+{
+    return SOCKETS_ERROR_NONE;
+}
 /*-----------------------------------------------------------*/
 
 SocketHandle Sockets_Open()
 {
     return ( SocketHandle ) prvGetFreeSocket();
 }
-
 /*-----------------------------------------------------------*/
 
-BaseType_t Sockets_Close( SocketHandle tcpSocket )
+BaseType_t Sockets_Close( SocketHandle xSocket )
 {
-    uint32_t ulSocketNumber = ( uint32_t ) tcpSocket;
+    uint32_t ulSocketNumber = ( uint32_t ) xSocket;
 
     if ( prvIsValidSocket( ulSocketNumber ) )
     {
@@ -255,11 +276,11 @@ BaseType_t Sockets_Close( SocketHandle tcpSocket )
 }
 /*-----------------------------------------------------------*/
 
-BaseType_t Sockets_Connect( SocketHandle tcpSocket,
-                            const char * pHostName,
+BaseType_t Sockets_Connect( SocketHandle xSocket,
+                            const char * pcHostName,
                             uint16_t usPort )
 {
-    uint32_t ulSocketNumber = ( uint32_t ) tcpSocket;
+    uint32_t ulSocketNumber = ( uint32_t ) xSocket;
     STSecureSocket_t * pxSecureSocket;
     int32_t lRetVal = SOCKETS_ERROR_NONE;
     uint32_t ulIPAddres = 0;
@@ -275,7 +296,7 @@ BaseType_t Sockets_Connect( SocketHandle tcpSocket,
         pxSecureSocket->ulSendTimeout = socketsconfigDEFAULT_SEND_TIMEOUT;
         pxSecureSocket->ulReceiveTimeout = socketsconfigDEFAULT_RECV_TIMEOUT;
 
-        if( ( ulIPAddres = prvGetHostByName( pHostName ) ) == 0 )
+        if( ( ulIPAddres = prvGetHostByName( pcHostName ) ) == 0 )
         {
             lRetVal = SOCKETS_SOCKET_ERROR;
         }
@@ -308,12 +329,11 @@ BaseType_t Sockets_Connect( SocketHandle tcpSocket,
     
     return lRetVal;
 }
-
 /*-----------------------------------------------------------*/
 
-void Sockets_Disconnect( SocketHandle tcpSocket )
+void Sockets_Disconnect( SocketHandle xSocket )
 {
-    uint32_t ulSocketNumber = ( uint32_t ) tcpSocket;
+    uint32_t ulSocketNumber = ( uint32_t ) xSocket;
     STSecureSocket_t * pxSecureSocket;
 
     /* Ensure that a valid socket was passed. */
@@ -340,105 +360,13 @@ void Sockets_Disconnect( SocketHandle tcpSocket )
         prvReturnSocket( ulSocketNumber );
     }
 }
-
 /*-----------------------------------------------------------*/
 
-BaseType_t Sockets_Send( SocketHandle tcpSocket,
-                         const unsigned char * pucData,
-                         size_t xDataLength )
-{
-    uint32_t ulSocketNumber = ( uint32_t ) tcpSocket;
-    STSecureSocket_t * pxSecureSocket;
-    uint16_t usSentBytes = 0;
-    BaseType_t xRetVal = SOCKETS_SOCKET_ERROR;
-    WIFI_Status_t xWiFiResult = WIFI_STATUS_OK;
-
-    /* Shortcut for easy access. */
-    pxSecureSocket = &( xSockets[ ulSocketNumber ] );
-
-    /* Try to acquire the semaphore. */
-    if( xSemaphoreTake( xWifiSemaphoreHandle, xSemaphoreWaitTicks ) == pdTRUE )
-    {
-        // /* Since WiFi module has only one timeout, this needs
-        //  * to be set per send and receive operation to the
-        //  * respective send or receive timeout. Also, this
-        //  * must be done after acquiring the semaphore as the
-        //  * xWiFiModule is a shared object.*/
-        // if( pxSecureSocket->ulSendTimeout == 0 )
-        // {
-        //     /* Set the SPI timeout to the maximum uint32_t value.
-        //      * This is a little over 49 days. */
-        //     xWiFiModule.xWifiObject.Timeout = 0xFFFFFFFF;
-        // }
-        // else
-        // {
-        //     /* The maximum timeout for Inventek module is 30 seconds.
-        //      * This timeout is about 65 seconds, so the module should
-        //      * timeout before the SPI. */
-        //     xWiFiModule.xWifiObject.Timeout = ES_WIFI_TIMEOUT;
-        // }
-
-        /* Send the data. */
-        xWiFiResult = WIFI_SendData( ( uint8_t ) ulSocketNumber,
-                                     ( uint8_t * ) pucData, /*lint !e9005 STM function does not use const. */
-                                     ( uint16_t ) xDataLength,
-                                     &( usSentBytes ),
-                                     pxSecureSocket->ulSendTimeout );
-
-        if( xWiFiResult == WIFI_STATUS_OK )
-        {
-            /* If the data was successfully sent, return the actual
-             * number of bytes sent. Otherwise return SOCKETS_SOCKET_ERROR. */
-            xRetVal = ( BaseType_t ) usSentBytes;
-        }
-
-        /* Return the semaphore. */
-        ( void ) xSemaphoreGive( xWifiSemaphoreHandle );
-    }
-
-    /* The following code attempts to revive the Inventek WiFi module
-     * from its unusable state.*/
-    if( xWiFiResult == WIFI_STATUS_ERROR )
-    {
-        /* Reset the WiFi Module. Since the WIFI_Reset function
-         * acquires the same semaphore, we must not acquire
-         * it. */
-        if( WIFI_ResetModule() == WIFI_STATUS_OK )
-        {
-            /* Try to acquire the semaphore. */
-            if( xSemaphoreTake( xWifiSemaphoreHandle, portMAX_DELAY ) == pdTRUE )
-            {
-                /* Reinitialize the socket structures which
-                 * marks all sockets as closed and free. */
-                SOCKETS_Init();
-
-                /* Return the semaphore. */
-                ( void ) xSemaphoreGive( xWifiSemaphoreHandle );
-            }
-
-            /* Set the error code to indicate that
-             * WiFi needs to be reconnected to network. */
-            xRetVal = SOCKETS_PERIPHERAL_RESET;
-        }
-    }
-
-    /* To allow other tasks of equal priority that are using this API to run as
-     * a switch to an equal priority task that is waiting for the mutex will
-     * only otherwise occur in the tick interrupt - at which point the mutex
-     * might have been taken again by the currently running task.
-     */
-    taskYIELD();
-
-    return xRetVal;
-}
-
-/*-----------------------------------------------------------*/
-
-BaseType_t Sockets_Recv( SocketHandle tcpSocket,
-                         unsigned char * pucReceiveBuffer,
+BaseType_t Sockets_Recv( SocketHandle xSocket,
+                         uint8_t * pucReceiveBuffer,
                          size_t xReceiveBufferLength )
 {
-    uint32_t ulSocketNumber = ( uint32_t ) tcpSocket;
+    uint32_t ulSocketNumber = ( uint32_t ) xSocket;
     STSecureSocket_t * pxSecureSocket;
     uint16_t usReceivedBytes = 0;
     BaseType_t xRetVal;
@@ -563,34 +491,104 @@ BaseType_t Sockets_Recv( SocketHandle tcpSocket,
 
     return xRetVal;
 }
-
 /*-----------------------------------------------------------*/
 
-BaseType_t SOCKETS_Init()
+BaseType_t Sockets_Send( SocketHandle xSocket,
+                         const uint8_t * pucData,
+                         size_t xDataLength )
 {
-    uint32_t ulIndex;
+    uint32_t ulSocketNumber = ( uint32_t ) xSocket;
+    STSecureSocket_t * pxSecureSocket;
+    uint16_t usSentBytes = 0;
+    BaseType_t xRetVal = SOCKETS_SOCKET_ERROR;
+    WIFI_Status_t xWiFiResult = WIFI_STATUS_OK;
 
-    /* Mark all the sockets as free and closed. */
-    for( ulIndex = 0; ulIndex < ( uint32_t ) wificonfigMAX_SOCKETS; ulIndex++ )
+    /* Shortcut for easy access. */
+    pxSecureSocket = &( xSockets[ ulSocketNumber ] );
+
+    /* Try to acquire the semaphore. */
+    if( xSemaphoreTake( xWifiSemaphoreHandle, xSemaphoreWaitTicks ) == pdTRUE )
     {
-        xSockets[ ulIndex ].ucInUse = 0;
-        xSockets[ ulIndex ].ulFlags = 0;
+        // /* Since WiFi module has only one timeout, this needs
+        //  * to be set per send and receive operation to the
+        //  * respective send or receive timeout. Also, this
+        //  * must be done after acquiring the semaphore as the
+        //  * xWiFiModule is a shared object.*/
+        // if( pxSecureSocket->ulSendTimeout == 0 )
+        // {
+        //     /* Set the SPI timeout to the maximum uint32_t value.
+        //      * This is a little over 49 days. */
+        //     xWiFiModule.xWifiObject.Timeout = 0xFFFFFFFF;
+        // }
+        // else
+        // {
+        //     /* The maximum timeout for Inventek module is 30 seconds.
+        //      * This timeout is about 65 seconds, so the module should
+        //      * timeout before the SPI. */
+        //     xWiFiModule.xWifiObject.Timeout = ES_WIFI_TIMEOUT;
+        // }
 
-        xSockets[ ulIndex ].ulFlags |= stsecuresocketsSOCKET_READ_CLOSED_FLAG;
-        xSockets[ ulIndex ].ulFlags |= stsecuresocketsSOCKET_WRITE_CLOSED_FLAG;
+        /* Send the data. */
+        xWiFiResult = WIFI_SendData( ( uint8_t ) ulSocketNumber,
+                                     ( uint8_t * ) pucData, /*lint !e9005 STM function does not use const. */
+                                     ( uint16_t ) xDataLength,
+                                     &( usSentBytes ),
+                                     pxSecureSocket->ulSendTimeout );
+
+        if( xWiFiResult == WIFI_STATUS_OK )
+        {
+            /* If the data was successfully sent, return the actual
+             * number of bytes sent. Otherwise return SOCKETS_SOCKET_ERROR. */
+            xRetVal = ( BaseType_t ) usSentBytes;
+        }
+
+        /* Return the semaphore. */
+        ( void ) xSemaphoreGive( xWifiSemaphoreHandle );
     }
 
-    /* Empty initialization for ST board. */
-    return pdPASS;
+    /* The following code attempts to revive the Inventek WiFi module
+     * from its unusable state.*/
+    if( xWiFiResult == WIFI_STATUS_ERROR )
+    {
+        /* Reset the WiFi Module. Since the WIFI_Reset function
+         * acquires the same semaphore, we must not acquire
+         * it. */
+        if( WIFI_ResetModule() == WIFI_STATUS_OK )
+        {
+            /* Try to acquire the semaphore. */
+            if( xSemaphoreTake( xWifiSemaphoreHandle, portMAX_DELAY ) == pdTRUE )
+            {
+                /* Reinitialize the socket structures which
+                 * marks all sockets as closed and free. */
+                SOCKETS_Init();
+
+                /* Return the semaphore. */
+                ( void ) xSemaphoreGive( xWifiSemaphoreHandle );
+            }
+
+            /* Set the error code to indicate that
+             * WiFi needs to be reconnected to network. */
+            xRetVal = SOCKETS_PERIPHERAL_RESET;
+        }
+    }
+
+    /* To allow other tasks of equal priority that are using this API to run as
+     * a switch to an equal priority task that is waiting for the mutex will
+     * only otherwise occur in the tick interrupt - at which point the mutex
+     * might have been taken again by the currently running task.
+     */
+    taskYIELD();
+
+    return xRetVal;
 }
 /*-----------------------------------------------------------*/
 
-int32_t SOCKETS_SetSockOpt( SocketHandle tcpSocket,
+int32_t SOCKETS_SetSockOpt( SocketHandle xSocket,
                             int32_t lOptionName,
                             const void * pvOptionValue,
                             size_t xOptionLength )
 {
-    uint32_t ulSocketNumber = ( uint32_t ) tcpSocket;
+    uint32_t ulSocketNumber = ( uint32_t ) xSocket;
     BaseType_t xRetVal;
     STSecureSocket_t * pxSecureSocket;
 

@@ -1,11 +1,6 @@
 /* Copyright (c) Microsoft Corporation. All rights reserved. */
 /* SPDX-License-Identifier: MIT */
 
-/**
- * @file 
- * @brief 
- */
-
 #include <stdio.h>
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
@@ -33,5 +28,5 @@ uint32_t Crypto_HMAC( const uint8_t * pucKey, uint32_t ulKeyLength,
                       uint8_t * pucOutput, uint32_t ulOutputLength,
                       uint32_t * pulBytesCopied )
 {
-    return 0;
+    return -1;
 }
