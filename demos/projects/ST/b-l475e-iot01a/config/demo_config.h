@@ -183,6 +183,6 @@ extern void vLoggingPrintf( const char * pcFormatString,
 /**
  * @brief IoTHub endpoint port.
  */
-#define democonfigMQTT_BROKER_PORT          ( 8883 )
+#define democonfigIOTHUB_PORT          ( 8883 )
 
 #endif /* DEMO_CONFIG_H */

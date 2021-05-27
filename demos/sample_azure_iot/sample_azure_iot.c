@@ -1,4 +1,3 @@
-
 /* Copyright (c) Microsoft Corporation. All rights reserved. */
 /* SPDX-License-Identifier: MIT */
 
@@ -13,7 +12,7 @@
 /* Demo Specific configs. */
 #include "demo_config.h"
 
-/* Azure Provisioning/IoTHub library includes */
+/* Azure Provisioning/IoT Hub library includes */
 #include "azure_iot_hub_client.h"
 #include "azure_iot_provisioning_client.h"
 
@@ -37,7 +36,7 @@
 #endif
 
 #ifndef democonfigROOT_CA_PEM
-    #error "Please define Root CA certificate of the MQTT broker(democonfigROOT_CA_PEM) in demo_config.h."
+    #error "Please define Root CA certificate of the IoT Hub(democonfigROOT_CA_PEM) in demo_config.h."
 #endif
 
 #if defined( democonfigDEVICE_SYMMETRIC_KEY ) && defined( democonfigCLIENT_CERTIFICATE_PEM )
@@ -70,17 +69,17 @@
 /**
  * @brief Timeout for receiving CONNACK packet in milliseconds.
  */
-#define sampleazureiotCONNACK_RECV_TIMEOUT_MS                 ( 1000U )
+#define sampleazureiotCONNACK_RECV_TIMEOUT_MS                 ( 10 * 1000U )
 
 /**
  * @brief The Telemetry message published in this example.
  */
-#define sampleazureiotMESSAGE                                 "Hello World!"
+#define sampleazureiotMESSAGE                                 "Hello World : %lu !"
 
 /**
  * @brief The reported property payload to send to IoT Hub
  */
-#define sampleazureiotTWIN_PROPERTY                           "{ \"hello\": \"world\" }"
+#define sampleazureiotTWIN_PROPERTY                           "{ \"TwinIterationForCurrentConnection\": \"%lu\" }"
 
 /**
  * @brief Time in ticks to wait between each cycle of the demo implemented
@@ -113,9 +112,9 @@
 #define sampleazureiotProvisioning_Registration_TIMEOUT_MS    ( 20U )
 
 /**
- * @brief Use for blocking the call forever.
+ * @brief Wait timeout for subscribe to finish.
  */
-#define sampleazureiotWAIT_FOREVER                            ( uint32_t )0xFFFFFFFF
+#define sampleazureiotSUBSCRIBE_TIMEOUT                       ( 10 * 1000U )
 /*-----------------------------------------------------------*/
 
 /**
@@ -126,7 +125,7 @@
 uint64_t ullGetUnixTime( void );
 /*-----------------------------------------------------------*/
 
-/* Define buffer for IoTHub info.  */
+/* Define buffer for IoT Hub info.  */
 #ifdef democonfigENABLE_DPS_SAMPLE
     static uint8_t ucSampleIotHubHostname[ 128 ];
     static uint8_t ucSampleIotHubDeviceId[ 128 ];
@@ -134,6 +133,7 @@ uint64_t ullGetUnixTime( void );
 #endif /* democonfigENABLE_DPS_SAMPLE */
 
 static uint8_t ucPropertyBuffer[ 32 ];
+static uint8_t ucScratchBuffer[ 128 ];
 
 /* Each compilation unit must define the NetworkContext struct. */
 struct NetworkContext
@@ -147,13 +147,14 @@ static AzureIoTHubClient_t xAzureIoTHubClient;
 #ifdef democonfigENABLE_DPS_SAMPLE
 
 /**
- * @brief Gets the IoTHub endpoint and deviceId from Provisioning service.
- *
+ * @brief Gets the IoT Hub endpoint and deviceId from Provisioning service.
+ *   This function will block for Provisioning service for result or return failure.
+ * 
  * @param[in] pXNetworkCredentials  Network credential used to connect to Provisioning service
- * @param[out] ppucIothubHostname  Pointer to uint8_t* IoTHub hostname return from Provisioning Service
- * @param[inout] pulIothubHostnameLength  Length of hostname
+ * @param[out] ppucIothubHostname  Pointer to uint8_t* IoT Hub hostname return from Provisioning Service
+ * @param[in,out] pulIothubHostnameLength  Length of hostname
  * @param[out] ppucIothubDeviceId  Pointer to uint8_t* deviceId return from Provisioning Service
- * @param[inout] pulIothubDeviceIdLength  Length of deviceId
+ * @param[in,out] pulIothubDeviceIdLength  Length of deviceId
  */
     static uint32_t prvIoTHubInfoGet( NetworkCredentials_t * pXNetworkCredentials,
                                       uint8_t ** ppucIothubHostname,
@@ -171,28 +172,29 @@ static AzureIoTHubClient_t xAzureIoTHubClient;
  */
 static void prvAzureDemoTask( void * pvParameters );
 
-
 /**
- * @brief Connect to MQTT broker with reconnection retries.
- *
+ * @brief Connect to IoT Hub with reconnection retries.
+ * 
  * If connection fails, retry is attempted after a timeout.
  * Timeout value will exponentially increase until maximum
  * timeout value is reached or the number of attempts are exhausted.
- *
- * @param[out] pxNetworkContext The parameter to return the created network context.
- *
- * @return The status of the final connection attempt.
+ * 
+ * @param pcHostName Hostname of the endpoint to connect to.
+ * @param ulPort Endpoint port.
+ * @param pxNetworkCredentials Pointer to Network credentials.
+ * @param pxNetworkContext Point to Network context created.
+ * @return uint32_t The status of the final connection attempt.
  */
-static TlsTransportStatus_t prvConnectToServerWithBackoffRetries( const char * pcHostName,
-                                                                  uint32_t ulPort,
-                                                                  NetworkCredentials_t * pxNetworkCredentials,
-                                                                  NetworkContext_t * pxNetworkContext );
+static uint32_t prvConnectToServerWithBackoffRetries( const char * pcHostName,
+                                                      uint32_t ulPort,
+                                                      NetworkCredentials_t * pxNetworkCredentials,
+                                                      NetworkContext_t * pxNetworkContext );
 /*-----------------------------------------------------------*/
 
 /**
  * @brief Static buffer used to hold MQTT messages being sent and received.
  */
-static uint8_t ucSharedBuffer[ democonfigNETWORK_BUFFER_SIZE ];
+static uint8_t ucMQTTMessageBuffer[ democonfigNETWORK_BUFFER_SIZE ];
 
 /*-----------------------------------------------------------*/
 
@@ -283,16 +285,17 @@ static uint32_t prvSetupNetworkCredentials( NetworkCredentials_t * pxNetworkCred
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Azure IoT demo task.
+ * @brief Azure IoT demo task that gets started in the platform specific project.
+ *  In this demo task, middleware API's are used to connect to Azure IoT Hub.
  */
 static void prvAzureDemoTask( void * pvParameters )
 {
     uint32_t ulPublishCount = 0U;
+    uint32_t ulScratchBufferLength = 0U;
     const uint32_t ulMaxPublishCount = 5UL;
     NetworkCredentials_t xNetworkCredentials = { 0 };
     AzureIoTTransportInterface_t xTransport;
     NetworkContext_t xNetworkContext = { 0 };
-    TlsTransportStatus_t xNetworkStatus;
     TlsTransportParams_t xTlsTransportParams = { 0 };
     AzureIoTHubClientResult_t xResult;
     uint32_t ulStatus;
@@ -314,6 +317,7 @@ static void prvAzureDemoTask( void * pvParameters )
 
     ( void ) pvParameters;
 
+    /* Initialize Azure IoT Middleware.  */
     configASSERT( AzureIoT_Init() == eAzureIoTSuccess );
 
     ulStatus = prvSetupNetworkCredentials( &xNetworkCredentials );
@@ -334,16 +338,16 @@ static void prvAzureDemoTask( void * pvParameters )
 
     for( ; ; )
     {
-        /* Attempt to establish TLS session with MQTT broker. If connection fails,
+        /* Attempt to establish TLS session with IoT Hub. If connection fails,
          * retry after a timeout. Timeout value will be exponentially increased
          * until  the maximum number of attempts are reached or the maximum timeout
          * value is reached. The function returns a failure status if the TCP
-         * connection cannot be established to the broker after the configured
+         * connection cannot be established to the IoT Hub after the configured
          * number of attempts. */
-        xNetworkStatus = prvConnectToServerWithBackoffRetries( ( const char * ) pucIotHubHostname,
-                                                               democonfigMQTT_BROKER_PORT,
-                                                               &xNetworkCredentials, &xNetworkContext );
-        configASSERT( xNetworkStatus == TLS_TRANSPORT_SUCCESS );
+        ulStatus = prvConnectToServerWithBackoffRetries( ( const char * ) pucIotHubHostname,
+                                                          democonfigIOTHUB_PORT,
+                                                          &xNetworkCredentials, &xNetworkContext );
+        configASSERT( ulStatus == 0 );
 
         /* Fill in Transport Interface send and receive function pointers. */
         xTransport.pxNetworkContext = &xNetworkContext;
@@ -361,7 +365,7 @@ static void prvAzureDemoTask( void * pvParameters )
                                           pucIotHubHostname, pulIothubHostnameLength,
                                           pucIotHubDeviceId, pulIothubDeviceIdLength,
                                           &xHubOptions,
-                                          ucSharedBuffer, sizeof( ucSharedBuffer ),
+                                          ucMQTTMessageBuffer, sizeof( ucMQTTMessageBuffer ),
                                           ullGetUnixTime,
                                           &xTransport );
         configASSERT( xResult == eAzureIoTHubClientSuccess );
@@ -384,18 +388,18 @@ static void prvAzureDemoTask( void * pvParameters )
         configASSERT( xResult == eAzureIoTHubClientSuccess );
 
         xResult = AzureIoTHubClient_SubscribeCloudToDeviceMessage( &xAzureIoTHubClient, prvHandleCloudMessage,
-                                                                   &xAzureIoTHubClient, sampleazureiotWAIT_FOREVER );
+                                                                   &xAzureIoTHubClient, sampleazureiotSUBSCRIBE_TIMEOUT );
         configASSERT( xResult == eAzureIoTHubClientSuccess );
 
         xResult = AzureIoTHubClient_SubscribeDirectMethod( &xAzureIoTHubClient, prvHandleDirectMethod,
-                                                           &xAzureIoTHubClient, sampleazureiotWAIT_FOREVER );
+                                                           &xAzureIoTHubClient, sampleazureiotSUBSCRIBE_TIMEOUT );
         configASSERT( xResult == eAzureIoTHubClientSuccess );
 
         xResult = AzureIoTHubClient_SubscribeDeviceTwin( &xAzureIoTHubClient, prvHandleDeviceTwinMessage,
-                                                         &xAzureIoTHubClient, sampleazureiotWAIT_FOREVER );
+                                                         &xAzureIoTHubClient, sampleazureiotSUBSCRIBE_TIMEOUT );
         configASSERT( xResult == eAzureIoTHubClientSuccess );
 
-        /* Get the device twin on boot */
+        /* Get twin document after initial connection */
         xResult = AzureIoTHubClient_GetDeviceTwin( &xAzureIoTHubClient );
         configASSERT( xResult == eAzureIoTHubClientSuccess );
 
@@ -410,13 +414,14 @@ static void prvAzureDemoTask( void * pvParameters )
         /* Publish messages with QoS1, send and process Keep alive messages. */
         for( ulPublishCount = 0; ulPublishCount < ulMaxPublishCount; ulPublishCount++ )
         {
+            ulScratchBufferLength = snprintf( ( char * ) ucScratchBuffer, sizeof( ucScratchBuffer ),
+                                              sampleazureiotMESSAGE, ulPublishCount );
             xResult = AzureIoTHubClient_SendTelemetry( &xAzureIoTHubClient,
-                                                       ( const uint8_t * ) sampleazureiotMESSAGE,
-                                                       sizeof( sampleazureiotMESSAGE ) - 1,
+                                                       ucScratchBuffer, ulScratchBufferLength,
                                                        &xPropertyBag, eAzureIoTHubMessageQoS1, NULL );
             configASSERT( xResult == eAzureIoTHubClientSuccess );
 
-            LogInfo( ( "Attempt to receive publish message from IoTHub.\r\n" ) );
+            LogInfo( ( "Attempt to receive publish message from IoT Hub.\r\n" ) );
             xResult = AzureIoTHubClient_ProcessLoop( &xAzureIoTHubClient,
                                                      sampleazureiotPROCESS_LOOP_TIMEOUT_MS );
             configASSERT( xResult == eAzureIoTHubClientSuccess );
@@ -424,9 +429,10 @@ static void prvAzureDemoTask( void * pvParameters )
             if( ulPublishCount % 2 == 0 )
             {
                 /* Send reported property every other cycle */
+                ulScratchBufferLength = snprintf( ( char * ) ucScratchBuffer, sizeof( ucScratchBuffer ),
+                                                  sampleazureiotTWIN_PROPERTY, ulPublishCount/2 + 1 );
                 xResult = AzureIoTHubClient_SendDeviceTwinReported( &xAzureIoTHubClient,
-                                                                    ( const uint8_t * ) sampleazureiotTWIN_PROPERTY,
-                                                                    sizeof( sampleazureiotTWIN_PROPERTY ) - 1,
+                                                                    ucScratchBuffer, ulScratchBufferLength,
                                                                     NULL );
                 configASSERT( xResult == eAzureIoTHubClientSuccess );
             }
@@ -456,7 +462,7 @@ static void prvAzureDemoTask( void * pvParameters )
         TLS_Socket_Disconnect( &xNetworkContext );
 
         /* Wait for some time between two iterations to ensure that we do not
-         * bombard the broker. */
+         * bombard the IoT Hub. */
         LogInfo( ( "Demo completed successfully.\r\n" ) );
         LogInfo( ( "Short delay before starting the next iteration.... \r\n\r\n" ) );
         vTaskDelay( sampleazureiotDELAY_BETWEEN_DEMO_ITERATIONS_TICKS );
@@ -467,7 +473,8 @@ static void prvAzureDemoTask( void * pvParameters )
 #ifdef democonfigENABLE_DPS_SAMPLE
 
     /**
-    * @brief Get IoTHub endpoint and device Id info, when Provisioning service is used.
+    * @brief Get IoT Hub endpoint and device Id info, when Provisioning service is used.
+    *   This function will block for Provisioning service for result or return failure.
     */
     static uint32_t prvIoTHubInfoGet( NetworkCredentials_t * pXNetworkCredentials,
                                       uint8_t ** ppucIothubHostname,
@@ -477,18 +484,18 @@ static void prvAzureDemoTask( void * pvParameters )
     {
         NetworkContext_t xNetworkContext = { 0 };
         TlsTransportParams_t xTlsTransportParams = { 0 };
-        TlsTransportStatus_t xNetworkStatus;
         AzureIoTProvisioningClientResult_t xResult;
         AzureIoTTransportInterface_t xTransport;
         uint32_t ucSamplepIothubHostnameLength = sizeof( ucSampleIotHubHostname );
         uint32_t ucSamplepIothubDeviceIdLength = sizeof( ucSampleIotHubDeviceId );
+        uint32_t ulStatus;
 
         /* Set the pParams member of the network context with desired transport. */
         xNetworkContext.pParams = &xTlsTransportParams;
 
-        xNetworkStatus = prvConnectToServerWithBackoffRetries( democonfigENDPOINT, democonfigMQTT_BROKER_PORT,
-                                                               pXNetworkCredentials, &xNetworkContext );
-        configASSERT( xNetworkStatus == TLS_TRANSPORT_SUCCESS );
+        ulStatus = prvConnectToServerWithBackoffRetries( democonfigENDPOINT, democonfigIOTHUB_PORT,
+                                                         pXNetworkCredentials, &xNetworkContext );
+        configASSERT( ulStatus == 0 );
 
         /* Fill in Transport Interface send and receive function pointers. */
         xTransport.pxNetworkContext = &xNetworkContext;
@@ -502,7 +509,7 @@ static void prvAzureDemoTask( void * pvParameters )
                                                    sizeof( democonfigID_SCOPE ) - 1,
                                                    ( const uint8_t * ) democonfigREGISTRATION_ID,
                                                    sizeof( democonfigREGISTRATION_ID ) - 1,
-                                                   NULL, ucSharedBuffer, sizeof( ucSharedBuffer ),
+                                                   NULL, ucMQTTMessageBuffer, sizeof( ucMQTTMessageBuffer ),
                                                    ullGetUnixTime,
                                                    &xTransport );
         configASSERT( xResult == eAzureIoTProvisioningSuccess );
@@ -547,10 +554,10 @@ static void prvAzureDemoTask( void * pvParameters )
 /**
 * @brief Connect to server with backoff retries.
 */
-static TlsTransportStatus_t prvConnectToServerWithBackoffRetries( const char * pcHostName,
-                                                                  uint32_t port,
-                                                                  NetworkCredentials_t * pxNetworkCredentials,
-                                                                  NetworkContext_t * pxNetworkContext )
+static uint32_t prvConnectToServerWithBackoffRetries( const char * pcHostName,
+                                                      uint32_t port,
+                                                      NetworkCredentials_t * pxNetworkCredentials,
+                                                      NetworkContext_t * pxNetworkContext )
 {
     TlsTransportStatus_t xNetworkStatus;
     BackoffAlgorithmStatus_t xBackoffAlgStatus = BackoffAlgorithmSuccess;
@@ -563,7 +570,7 @@ static TlsTransportStatus_t prvConnectToServerWithBackoffRetries( const char * p
                                        sampleazureiotRETRY_MAX_BACKOFF_DELAY_MS,
                                        sampleazureiotRETRY_MAX_ATTEMPTS );
 
-    /* Attempt to connect to MQTT broker. If connection fails, retry after
+    /* Attempt to connect to IoT Hub. If connection fails, retry after
      * a timeout. Timeout value will exponentially increase till maximum
      * attempts are reached.
      */
@@ -588,18 +595,19 @@ static TlsTransportStatus_t prvConnectToServerWithBackoffRetries( const char * p
 
             if( xBackoffAlgStatus == BackoffAlgorithmRetriesExhausted )
             {
-                LogError( ( "Connection to the broker failed, all attempts exhausted." ) );
+                LogError( ( "Connection to the IoT Hub failed, all attempts exhausted." ) );
             }
             else if( xBackoffAlgStatus == BackoffAlgorithmSuccess )
             {
-                LogWarn( ( "Connection to the broker failed. "
-                           "Retrying connection with backoff and jitter." ) );
+                LogWarn( ( "Connection to the IoT Hub failed [%d]. "
+                           "Retrying connection with backoff and jitter [%d]ms.",
+                           xNetworkStatus, usNextRetryBackOff ) );
                 vTaskDelay( pdMS_TO_TICKS( usNextRetryBackOff ) );
             }
         }
     } while( ( xNetworkStatus != TLS_TRANSPORT_SUCCESS ) && ( xBackoffAlgStatus == BackoffAlgorithmSuccess ) );
 
-    return xNetworkStatus;
+    return xNetworkStatus != TLS_TRANSPORT_SUCCESS ? 0 : 1;
 }
 /*-----------------------------------------------------------*/
 
@@ -609,7 +617,7 @@ static TlsTransportStatus_t prvConnectToServerWithBackoffRetries( const char * p
 void vStartDemoTask( void )
 {
     /* This example uses a single application task, which in turn is used to
-     * connect, subscribe, publish, unsubscribe and disconnect from the IotHub */
+     * connect, subscribe, publish, unsubscribe and disconnect from the IoT Hub */
     xTaskCreate( prvAzureDemoTask,         /* Function that implements the task. */
                  "AzureDemoTask",          /* Text name for the task - only used for debugging. */
                  democonfigDEMO_STACKSIZE, /* Size of stack (in words, not bytes) to allocate for the task. */
