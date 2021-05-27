@@ -38,3 +38,6 @@ binary_exists "build_st_stm32h745i_discovery" "iot-middleware-sample.elf"
 
 build "PC" "linux" "build_pc_linux"
 binary_exists "build_pc_linux" "iot-middleware-sample.elf"
+
+build "NXP" "mimxrt1060" "build_pc_mimxrt1060"
+binary_exists "build_pc_mimxrt1060" "iot-middleware-sample.elf"

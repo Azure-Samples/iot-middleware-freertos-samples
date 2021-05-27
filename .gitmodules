@@ -4,3 +4,6 @@
 [submodule "libs/FreeRTOS"]
 	path = libs/FreeRTOS
 	url = https://github.com/FreeRTOS/FreeRTOS.git
+[submodule "libs/mcux-sdk"]
+	path = libs/mcux-sdk
+	url = https://github.com/NXPmicro/mcux-sdk.git

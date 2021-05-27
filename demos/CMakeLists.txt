@@ -8,6 +8,7 @@ if (NOT BOARD)
 endif()
 
 string(TOLOWER ${BOARD} BOARD_L)
+string(TOUPPER ${BOARD} BOARD_U)
 
 # Sample path set
 set(SAMPLE_AZURE_IOT_SOURCE_PATH
@@ -27,6 +28,8 @@ if(BOARD_L STREQUAL "b-l475e-iot01a")
     set(BOARD_SOURCE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/projects/ST/${BOARD_L})
 elseif(BOARD_L STREQUAL "stm32h745i_discovery")
     set(BOARD_SOURCE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/projects/ST/${BOARD_L}/cm7)
+elseif(BOARD_L STREQUAL "mimxrt1060")
+    set(BOARD_SOURCE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/projects/NXP/${BOARD_L})
 elseif(BOARD_L STREQUAL "linux")
     set(BOARD_SOURCE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/projects/PC/${BOARD_L})
 else()
