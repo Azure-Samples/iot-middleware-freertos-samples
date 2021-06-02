@@ -207,8 +207,6 @@ BaseType_t Sockets_SetSockOpt( SocketHandle xSocket,
             {
                 xRetVal = SOCKETS_ERROR_NONE;
             }
-            
-            break;
         }
         break;
 

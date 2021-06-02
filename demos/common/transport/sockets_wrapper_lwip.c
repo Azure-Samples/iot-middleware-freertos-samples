@@ -50,9 +50,9 @@
 #include "task.h"
 /*-----------------------------------------------------------*/
 
-#define lwip_dns_resolver_MAX_WAIT_CYCLES       ( 5 )
-#define lwip_dns_resolver_LOOP_DELAY_TICKS      ( 10 )
-#define lwip_dns_resolver_MAX_WAIT_SECONDS      ( lwip_dns_resolver_MAX_WAIT_CYCLES * lwip_dns_resolver_LOOP_DELAY_TICKS )
+#define lwipdnsresolverMAX_WAIT_CYCLES       ( 5 )
+#define lwipdnsresolverLOOP_DELAY_TICKS      ( 10 )
+#define lwipdnsresolverMAX_WAIT_SECONDS      ( lwipdnsresolverMAX_WAIT_CYCLES * lwipdnsresolverLOOP_DELAY_TICKS )
 
 /*
  * convert from system ticks to seconds.
@@ -117,13 +117,13 @@ uint32_t prvGetHostByName( const char * pcHostName )
                  */
                 do
                 {
-                    vTaskDelay( lwip_dns_resolver_LOOP_DELAY_TICKS );
-                }   while( ( ulDnsResolutionWaitCycles++ < lwip_dns_resolver_MAX_WAIT_CYCLES ) && ulAddr == 0 );
+                    vTaskDelay( lwipdnsresolverLOOP_DELAY_TICKS );
+                }   while( ( ulDnsResolutionWaitCycles++ < lwipdnsresolverMAX_WAIT_CYCLES ) && ulAddr == 0 );
 
                 if( ulAddr == 0 )
                 {
                     configPRINTF( ( "Unable to resolve (%s) within (%ul) seconds",
-                                    pcHostName, lwip_dns_resolver_MAX_WAIT_SECONDS ) );
+                                    pcHostName, lwipdnsresolverMAX_WAIT_SECONDS ) );
                 }
 
                 break;
@@ -187,7 +187,7 @@ BaseType_t Sockets_Connect( SocketHandle xSocket,
     uint32_t ulSocketNumber = ( uint32_t ) xSocket;
     int32_t lRetVal = SOCKETS_ERROR_NONE;
     uint32_t ulIPAddres = 0;
-    struct sockaddr_in xSaAddr = { 0 };
+    struct sockaddr_in xSockAddr = { 0 };
 
     if( ( ulIPAddres = prvGetHostByName( pcHostName ) ) == 0 )
     {
@@ -195,11 +195,11 @@ BaseType_t Sockets_Connect( SocketHandle xSocket,
     }
     else
     {
-        xSaAddr.sin_family = AF_INET;
-        xSaAddr.sin_addr.s_addr = ulIPAddres;
-        xSaAddr.sin_port = lwip_htons( usPort );
+        xSockAddr.sin_family = AF_INET;
+        xSockAddr.sin_addr.s_addr = ulIPAddres;
+        xSockAddr.sin_port = lwip_htons( usPort );
 
-        if( lwip_connect( ulSocketNumber, ( struct sockaddr * ) &xSaAddr, sizeof( xSaAddr ) ) < 0 )
+        if( lwip_connect( ulSocketNumber, ( struct sockaddr * ) &xSockAddr, sizeof( xSockAddr ) ) < 0 )
         {
             lRetVal = SOCKETS_SOCKET_ERROR;
         }

@@ -43,7 +43,7 @@ typedef struct TlsTransportParams
 } TlsTransportParams_t;
 
 /**
- * @brief Contains the credentials necessary for tls connection setup.
+ * @brief Contains the credentials necessary for TLS connection setup.
  */
 typedef struct NetworkCredentials
 {
@@ -71,17 +71,17 @@ typedef struct NetworkCredentials
  */
 typedef enum TlsTransportStatus
 {
-    TLS_TRANSPORT_SUCCESS = 0,         /**< Function successfully completed. */
-    TLS_TRANSPORT_INVALID_PARAMETER,   /**< At least one parameter was invalid. */
-    TLS_TRANSPORT_INSUFFICIENT_MEMORY, /**< Insufficient memory required to establish connection. */
-    TLS_TRANSPORT_INVALID_CREDENTIALS, /**< Provided credentials were invalid. */
-    TLS_TRANSPORT_HANDSHAKE_FAILED,    /**< Performing TLS handshake with server failed. */
-    TLS_TRANSPORT_INTERNAL_ERROR,      /**< A call to a system API resulted in an internal error. */
-    TLS_TRANSPORT_CONNECT_FAILURE      /**< Initial connection to the server failed. */
+    eTLSTransportSuccess = 0,         /**< Function successfully completed. */
+    eTLSTransportInvalidParameter,   /**< At least one parameter was invalid. */
+    eTLSTransportInSufficientMemory,  /**< Insufficient memory required to establish connection. */
+    eTLSTransportInvalidCredentials,  /**< Provided credentials were invalid. */
+    eTLSTransportHandshakeFailed,     /**< Performing TLS handshake with server failed. */
+    eTLSTransportInternalError,       /**< A call to a system API resulted in an internal error. */
+    eTLSTransportConnectFailure       /**< Initial connection to the server failed. */
 } TlsTransportStatus_t;
 
 /**
- * @brief Connect to tls endpoint
+ * @brief Connect to TLS endpoint
  * 
  * @param[in] pxNetworkContext Pointer to the Network context.
  * @param[in] pcHostName Pointer to NULL terminated hostname.
@@ -97,18 +97,18 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pxNetworkContext,
                                          uint32_t ulReceiveTimeoutMs, uint32_t ulSendTimeoutMs );
 
 /**
- * @brief Disconnect the tls connection
+ * @brief Disconnect the TLS connection
  * 
  * @param[in] pxNetworkContext Pointer to the Network context.
  */
 void TLS_Socket_Disconnect( NetworkContext_t * pxNetworkContext );
 
 /**
- * @brief Receive data from tls.
+ * @brief Receive data from TLS.
  * 
  * @param pxNetworkContext Pointer to the Network context.
  * @param pvBuffer Buffer used for receiving data. 
- * @param xBytesToRecv Sizze of the buffer.
+ * @param xBytesToRecv Size of the buffer.
  * @return An #int32_t number of bytes copied.
  */
 int32_t TLS_Socket_Recv( NetworkContext_t * pxNetworkContext,
@@ -116,7 +116,7 @@ int32_t TLS_Socket_Recv( NetworkContext_t * pxNetworkContext,
                          size_t xBytesToRecv );
 
 /**
- * @brief Send data using tls. 
+ * @brief Send data using TLS. 
  * 
  * @param pxNetworkContext Pointer to the Network context.
  * @param pvBuffer Buffer that contains data to be sent. 

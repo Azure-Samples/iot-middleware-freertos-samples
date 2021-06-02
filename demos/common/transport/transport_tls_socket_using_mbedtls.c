@@ -110,13 +110,13 @@ struct NetworkContext
  * @brief Represents string to be logged when mbedTLS returned error
  * does not contain a high-level code.
  */
-static const char * pNoHighLevelMbedTlsCodeStr = "<No-High-Level-Code>";
+static const char * pcNoHighLevelMbedTlsCodeStr = "<No-High-Level-Code>";
 
 /**
  * @brief Represents string to be logged when mbedTLS returned error
  * does not contain a low-level code.
  */
-static const char * pNoLowLevelMbedTlsCodeStr = "<No-Low-Level-Code>";
+static const char * pcNoLowLevelMbedTlsCodeStr = "<No-Low-Level-Code>";
 
 /**
  * @brief Utility for converting the high-level code in an mbedTLS error to string,
@@ -124,7 +124,7 @@ static const char * pNoLowLevelMbedTlsCodeStr = "<No-Low-Level-Code>";
  */
 #define mbedtlsHighLevelCodeOrDefault( mbedTlsCode )        \
     ( mbedtls_strerror_highlevel( mbedTlsCode ) != NULL ) ? \
-    mbedtls_strerror_highlevel( mbedTlsCode ) : pNoHighLevelMbedTlsCodeStr
+    mbedtls_strerror_highlevel( mbedTlsCode ) : pcNoHighLevelMbedTlsCodeStr
 
 /**
  * @brief Utility for converting the level-level code in an mbedTLS error to string,
@@ -132,7 +132,7 @@ static const char * pNoLowLevelMbedTlsCodeStr = "<No-Low-Level-Code>";
  */
 #define mbedtlsLowLevelCodeOrDefault( mbedTlsCode )        \
     ( mbedtls_strerror_lowlevel( mbedTlsCode ) != NULL ) ? \
-    mbedtls_strerror_lowlevel( mbedTlsCode ) : pNoLowLevelMbedTlsCodeStr
+    mbedtls_strerror_lowlevel( mbedTlsCode ) : pcNoLowLevelMbedTlsCodeStr
 
 /*-----------------------------------------------------------*/
 
@@ -228,8 +228,8 @@ static void setOptionalConfigurations( MbedSSLContext_t * pxSslContext,
  * @param[in] pcHostName Remote host name, used for server name indication.
  * @param[in] pxNetworkCredentials TLS setup parameters.
  *
- * @return #TLS_TRANSPORT_SUCCESS, #TLS_TRANSPORT_INSUFFICIENT_MEMORY, #TLS_TRANSPORT_INVALID_CREDENTIALS,
- * or #TLS_TRANSPORT_INTERNAL_ERROR.
+ * @return #eTLSTransportSuccess, #eTLSTransportInSufficientMemory, #eTLSTransportInvalidCredentials,
+ * or #eTLSTransportInternalError.
  */
 static TlsTransportStatus_t tlsSetup( NetworkContext_t * pxNetworkContext,
                                       const char * pcHostName,
@@ -241,7 +241,7 @@ static TlsTransportStatus_t tlsSetup( NetworkContext_t * pxNetworkContext,
  * @param[in] pxNetworkContext Network context.
  * @param[in] pxNetworkCredentials TLS setup parameters.
  *
- * @return #TLS_TRANSPORT_SUCCESS, #TLS_TRANSPORT_HANDSHAKE_FAILED, or #TLS_TRANSPORT_INTERNAL_ERROR.
+ * @return #eTLSTransportSuccess, #eTLSTransportHandshakeFailed, or #eTLSTransportInternalError.
  */
 static TlsTransportStatus_t tlsHandshake( NetworkContext_t * pxNetworkContext,
                                           const NetworkCredentials_t * pxNetworkCredentials );
@@ -252,7 +252,7 @@ static TlsTransportStatus_t tlsHandshake( NetworkContext_t * pxNetworkContext,
  * @param[out] entropyContext mbed TLS entropy context for generation of random numbers.
  * @param[out] ctrDrgbContext mbed TLS CTR DRBG context for generation of random numbers.
  *
- * @return #TLS_TRANSPORT_SUCCESS, or #TLS_TRANSPORT_INTERNAL_ERROR.
+ * @return #eTLSTransportSuccess, or #eTLSTransportInternalError.
  */
 static TlsTransportStatus_t initMbedtls( mbedtls_entropy_context * pxEntropyContext,
                                          mbedtls_ctr_drbg_context * pxCtrDrgbContext );
@@ -485,7 +485,7 @@ static TlsTransportStatus_t tlsSetup( NetworkContext_t * pxNetworkContext,
                                       const NetworkCredentials_t * pxNetworkCredentials )
 {
     TlsTransportParams_t * pxTlsTransportParams = NULL;
-    TlsTransportStatus_t xRetVal = TLS_TRANSPORT_SUCCESS;
+    TlsTransportStatus_t xRetVal = eTLSTransportSuccess;
     int32_t lMbedtlsError = 0;
     MbedSSLContext_t * pxSSLContext = NULL;
 
@@ -514,17 +514,17 @@ static TlsTransportStatus_t tlsSetup( NetworkContext_t * pxNetworkContext,
                     mbedtlsLowLevelCodeOrDefault( lMbedtlsError ) ) );
 
         /* Per mbed TLS docs, mbedtls_ssl_config_defaults only fails on memory allocation. */
-        xRetVal = TLS_TRANSPORT_INSUFFICIENT_MEMORY;
+        xRetVal = eTLSTransportInSufficientMemory;
     }
 
-    if( xRetVal == TLS_TRANSPORT_SUCCESS )
+    if( xRetVal == eTLSTransportSuccess )
     {
         lMbedtlsError = setCredentials( pxSSLContext,
                                         pxNetworkCredentials );
 
         if( lMbedtlsError != 0 )
         {
-            xRetVal = TLS_TRANSPORT_INVALID_CREDENTIALS;
+            xRetVal = eTLSTransportInvalidCredentials;
         }
         else
         {
@@ -543,7 +543,7 @@ static TlsTransportStatus_t tlsHandshake( NetworkContext_t * pxNetworkContext,
                                           const NetworkCredentials_t * pxNetworkCredentials )
 {
     TlsTransportParams_t * pxTlsTransportParams = NULL;
-    TlsTransportStatus_t xRetVal = TLS_TRANSPORT_SUCCESS;
+    TlsTransportStatus_t xRetVal = eTLSTransportSuccess;
     int32_t lMbedtlsError = 0;
     MbedSSLContext_t * pxSSLContext = NULL;
 
@@ -565,7 +565,7 @@ static TlsTransportStatus_t tlsHandshake( NetworkContext_t * pxNetworkContext,
                     mbedtlsHighLevelCodeOrDefault( lMbedtlsError ),
                     mbedtlsLowLevelCodeOrDefault( lMbedtlsError ) ) );
 
-        xRetVal = TLS_TRANSPORT_INTERNAL_ERROR;
+        xRetVal = eTLSTransportInternalError;
     }
     else
     {
@@ -583,7 +583,7 @@ static TlsTransportStatus_t tlsHandshake( NetworkContext_t * pxNetworkContext,
                              NULL );
     }
 
-    if( xRetVal == TLS_TRANSPORT_SUCCESS )
+    if( xRetVal == eTLSTransportSuccess )
     {
         /* Perform the TLS handshake. */
         do
@@ -598,7 +598,7 @@ static TlsTransportStatus_t tlsHandshake( NetworkContext_t * pxNetworkContext,
                         mbedtlsHighLevelCodeOrDefault( lMbedtlsError ),
                         mbedtlsLowLevelCodeOrDefault( lMbedtlsError ) ) );
 
-            xRetVal = TLS_TRANSPORT_HANDSHAKE_FAILED;
+            xRetVal = eTLSTransportHandshakeFailed;
         }
         else
         {
@@ -614,7 +614,7 @@ static TlsTransportStatus_t tlsHandshake( NetworkContext_t * pxNetworkContext,
 static TlsTransportStatus_t initMbedtls( mbedtls_entropy_context * pxEntropyContext,
                                          mbedtls_ctr_drbg_context * pxCtrDrgbContext )
 {
-    TlsTransportStatus_t xRetVal = TLS_TRANSPORT_SUCCESS;
+    TlsTransportStatus_t xRetVal = eTLSTransportSuccess;
     int32_t lMbedtlsError = 0;
 
     /* Set the mutex functions for mbed TLS thread safety. */
@@ -639,10 +639,10 @@ static TlsTransportStatus_t initMbedtls( mbedtls_entropy_context * pxEntropyCont
         LogError( ( "Failed to add entropy source: lMbedtlsError= %s : %s.",
                     mbedtlsHighLevelCodeOrDefault( lMbedtlsError ),
                     mbedtlsLowLevelCodeOrDefault( lMbedtlsError ) ) );
-        xRetVal = TLS_TRANSPORT_INTERNAL_ERROR;
+        xRetVal = eTLSTransportInternalError;
     }
 
-    if( xRetVal == TLS_TRANSPORT_SUCCESS )
+    if( xRetVal == eTLSTransportSuccess )
     {
         /* Seed the random number generator. */
         lMbedtlsError = mbedtls_ctr_drbg_seed( pxCtrDrgbContext,
@@ -656,11 +656,11 @@ static TlsTransportStatus_t initMbedtls( mbedtls_entropy_context * pxEntropyCont
             LogError( ( "Failed to seed PRNG: lMbedtlsError= %s : %s.",
                         mbedtlsHighLevelCodeOrDefault( lMbedtlsError ),
                         mbedtlsLowLevelCodeOrDefault( lMbedtlsError ) ) );
-            xRetVal = TLS_TRANSPORT_INTERNAL_ERROR;
+            xRetVal = eTLSTransportInternalError;
         }
     }
 
-    if( xRetVal == TLS_TRANSPORT_SUCCESS )
+    if( xRetVal == eTLSTransportSuccess )
     {
         LogDebug( ( "Successfully initialized mbedTLS." ) );
     }
@@ -675,7 +675,7 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pxNetworkContext,
                                          uint32_t ulReceiveTimeoutMs, uint32_t ulSendTimeoutMs )
 {
     TlsTransportParams_t * pxTlsTransportParams = NULL;
-    TlsTransportStatus_t xRetVal = TLS_TRANSPORT_SUCCESS;
+    TlsTransportStatus_t xRetVal = eTLSTransportSuccess;
     BaseType_t xSocketStatus = 0;
     MbedSSLContext_t * pxSSLContext;
 
@@ -689,17 +689,17 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pxNetworkContext,
                     pxNetworkCredentials,
                     pcHostName,
                     pxNetworkCredentials ) );
-        xRetVal = TLS_TRANSPORT_INVALID_PARAMETER;
+        xRetVal = eTLSTransportInvalidParameter;
     }
     else if( ( pxNetworkCredentials->pucRootCa == NULL ) )
     {
         LogError( ( "pucRootCa cannot be NULL." ) );
-        xRetVal = TLS_TRANSPORT_INVALID_PARAMETER;
+        xRetVal = eTLSTransportInvalidParameter;
     }
     else if ( ( pxSSLContext =  pvPortMalloc( sizeof( MbedSSLContext_t ) ) ) == NULL )
     {
         LogError( ( "Failed to allocate mbed ssl context memmory ." ) );
-        xRetVal = TLS_TRANSPORT_INSUFFICIENT_MEMORY;
+        xRetVal = eTLSTransportInSufficientMemory;
     }
     else
     {
@@ -709,7 +709,7 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pxNetworkContext,
         if ( ( pxTlsTransportParams->xTCPSocket = Sockets_Open() ) == SOCKETS_INVALID_SOCKET )
         {
             LogError( ( "Failed to open socket." ) );
-            xRetVal = TLS_TRANSPORT_CONNECT_FAILURE;
+            xRetVal = eTLSTransportConnectFailure;
         }
         else if ( ( xSocketStatus = SOCKETS_SetSockOpt( pxTlsTransportParams->xTCPSocket,
                                                         SOCKETS_SO_RCVTIMEO,
@@ -717,7 +717,7 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pxNetworkContext,
                                                         sizeof( ulReceiveTimeoutMs ) ) !=  0 ) )
         {
             LogError( ( "Failed to set receive timeout on socket %d.", xSocketStatus ) );
-            xRetVal = TLS_TRANSPORT_INTERNAL_ERROR;
+            xRetVal = eTLSTransportInternalError;
         }
         else if ( ( xSocketStatus = SOCKETS_SetSockOpt( pxTlsTransportParams->xTCPSocket,
                                                         SOCKETS_SO_SNDTIMEO,
@@ -725,7 +725,7 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pxNetworkContext,
                                                         sizeof( ulSendTimeoutMs ) ) !=  0 ) )
         {
             LogError( ( "Failed to set send timeout on socket %d.", xSocketStatus ) );
-            xRetVal = TLS_TRANSPORT_INTERNAL_ERROR;
+            xRetVal = eTLSTransportInternalError;
         }
         else if ( ( xSocketStatus = Sockets_Connect( pxTlsTransportParams->xTCPSocket ,
                                                      pcHostName,
@@ -734,19 +734,19 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pxNetworkContext,
             LogError( ( "Failed to connect to %s with error %d.",
                         pcHostName,
                         xSocketStatus ) );
-            xRetVal = TLS_TRANSPORT_CONNECT_FAILURE;
+            xRetVal = eTLSTransportConnectFailure;
         }
         else if ( ( xRetVal = initMbedtls( &( pxSSLContext->entropyContext ),
-                                           &( pxSSLContext->ctrDrgbContext ) ) ) != TLS_TRANSPORT_SUCCESS )
+                                           &( pxSSLContext->ctrDrgbContext ) ) ) != eTLSTransportSuccess )
         {
             LogError( ( "Failed to initialize Mbedtls %d.", xRetVal ) );
         }
         else if ( ( xRetVal = tlsSetup( pxNetworkContext, pcHostName,
-                                        pxNetworkCredentials ) ) != TLS_TRANSPORT_SUCCESS )
+                                        pxNetworkCredentials ) ) != eTLSTransportSuccess )
         {
             LogError( ( "Failed to setup Mbedtls %d.", xRetVal ) );
         }
-        else if ( ( xRetVal = tlsHandshake( pxNetworkContext, pxNetworkCredentials ) ) != TLS_TRANSPORT_SUCCESS )
+        else if ( ( xRetVal = tlsHandshake( pxNetworkContext, pxNetworkCredentials ) ) != eTLSTransportSuccess )
         {
             LogError( ( "Failed to do TLS handshake %d.", xRetVal ) );
         }
@@ -758,7 +758,7 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pxNetworkContext,
         }
 
         /* Clean up on failure. */
-        if( xRetVal != TLS_TRANSPORT_SUCCESS )
+        if( xRetVal != eTLSTransportSuccess )
         {
             if( ( pxNetworkContext != NULL ) && ( pxNetworkContext->pParams != NULL ) )
             {
