@@ -607,7 +607,7 @@ static uint32_t prvConnectToServerWithBackoffRetries( const char * pcHostName,
         }
     } while( ( xNetworkStatus != TLS_TRANSPORT_SUCCESS ) && ( xBackoffAlgStatus == BackoffAlgorithmSuccess ) );
 
-    return xNetworkStatus != TLS_TRANSPORT_SUCCESS ? 0 : 1;
+    return xNetworkStatus == TLS_TRANSPORT_SUCCESS ? 0 : 1;
 }
 /*-----------------------------------------------------------*/
 

@@ -321,6 +321,12 @@ Some MCU allow computing and verifying the IP, UDP, TCP and ICMP checksums by ha
  */
 #define DEFAULT_ACCEPTMBOX_SIZE 12
 
+#define LWIP_DNS 1
+#define LWIP_DHCP 1
+#define LWIP_NETIF_API 1
+#define LWIP_SO_RCVTIMEO 1
+#define LWIP_SO_SNDTIMEO 1
+
 #if (LWIP_DNS || LWIP_IGMP || LWIP_IPV6) && !defined(LWIP_RAND)
 /* When using IGMP or IPv6, LWIP_RAND() needs to be defined to a random-function returning an u32_t random value*/
 #include "lwip/arch.h"
@@ -328,6 +334,14 @@ Some MCU allow computing and verifying the IP, UDP, TCP and ICMP checksums by ha
  #define rand    uxRand
 #endif
 
+/* Define random number generator function */
+#define LWIP_RAND() ((u32_t)rand())
+
+/* Debug */
+/*#define LWIP_DEBUG 1
+#define ETHARP_DEBUG LWIP_DBG_ON
+#define DHCP_DEBUG LWIP_DBG_ON
+#define IP_DEBUG LWIP_DBG_ON*/
 #endif /* __LWIPOPTS_H__ */
 
 /*****END OF FILE****/

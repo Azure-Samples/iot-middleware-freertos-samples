@@ -4,7 +4,6 @@
 stm32_fetch_cube(H7)
 
 set(LWIP_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../../../../libs/lwip)
-set(LWIP_PATH_OS ${CMAKE_CURRENT_SOURCE_DIR}/../../../../../libs/lwip_freertos)
 
 find_package(CMSIS COMPONENTS STM32H7 STM32H7_M7 REQUIRED)
 find_package(HAL COMPONENTS STM32H7_M7 REQUIRED)
@@ -24,6 +23,7 @@ file(GLOB STCODE_SOURCES st_code/*.c)
 file(GLOB LWIP_PORT_SOURCES
     st_code/lwip/App/*.c
     st_code/lwip/Target/*.c
+    st_code/lwip/system/*.c
     ../../../../common/transport/sockets_wrapper_lwip.c)
 
 set(PROJECT_SOURCES
@@ -40,7 +40,8 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     config st_code .
     ${SAMPLE_TRANSPORT_USING_MBEDTLS_INC_PATH}
     st_code/lwip/App
-    st_code/lwip/Target)
+    st_code/lwip/Target
+    st_code/lwip/system)
 target_link_libraries(${PROJECT_NAME} PRIVATE
     FreeRTOS::Timers
     FreeRTOS::Heap::5

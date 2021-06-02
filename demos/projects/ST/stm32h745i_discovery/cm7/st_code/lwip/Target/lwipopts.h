@@ -118,7 +118,7 @@
 #define LWIP_NETIF_API 1
 #define LWIP_SO_RCVTIMEO 1
 #define LWIP_SO_SNDTIMEO 1
-#define LWIP_TIMEVAL_PRIVATE (0)
+//#define LWIP_TIMEVAL_PRIVATE (0)
 
  extern int uxRand();
  #define rand    uxRand

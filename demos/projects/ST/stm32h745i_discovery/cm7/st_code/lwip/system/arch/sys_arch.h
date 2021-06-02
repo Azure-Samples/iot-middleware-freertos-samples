@@ -29,39 +29,44 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
-#ifndef __ARCH_SYS_ARCH_H__
-#define __ARCH_SYS_ARCH_H__
+#ifndef __SYS_ARCH_H__
+#define __SYS_ARCH_H__
 
-#include "FreeRTOS.h"
-#include "task.h"
-#include "queue.h"
-#include "semphr.h"
+#include "lwip/opt.h"
 
-#define SYS_MBOX_NULL                     ( ( QueueHandle_t ) NULL )
-#define SYS_SEM_NULL                      ( ( SemaphoreHandle_t ) NULL )
-#define SYS_DEFAULT_THREAD_STACK_DEPTH    configMINIMAL_STACK_SIZE
+#if (NO_SYS != 0)
+#error "NO_SYS need to be set to 0 to use threaded API"
+#endif
 
-typedef SemaphoreHandle_t   sys_sem_t;
-typedef SemaphoreHandle_t   sys_mutex_t;
-typedef TaskHandle_t        sys_thread_t;
+#include "cmsis_os.h"
 
-struct sys_mbox
-{
-    QueueHandle_t xMbox;
-    TaskHandle_t xTask;
-};
-typedef struct sys_mbox sys_mbox_t;
+#ifdef  __cplusplus
+extern "C" {
+#endif
 
-#define sys_mbox_valid( x )          ( ( ( ( x ) == NULL ) || ( ( x )->xMbox == NULL ) ) ? pdFALSE : pdTRUE )
-#define sys_mbox_set_invalid( x )    do { if( ( x ) != NULL ) { ( x )->xMbox = NULL; ( x )->xTask = NULL; } } while( 0 )
-#define sys_sem_valid( x )           ( ( ( * x ) == NULL ) ? pdFALSE : pdTRUE )
-#define sys_sem_set_invalid( x )     ( ( * x ) = NULL )
+#if (osCMSIS < 0x20000U)
 
-#if LWIP_NETCONN_SEM_PER_THREAD
-    sys_sem_t * sys_arch_netconn_sem_get( void );
-    #define LWIP_NETCONN_THREAD_SEM_GET()    sys_arch_netconn_sem_get()
-    #define LWIP_NETCONN_THREAD_SEM_ALLOC()
-    #define LWIP_NETCONN_THREAD_SEM_FREE()
-#endif /* LWIP_NETCONN_SEM_PER_THREAD */
+#define SYS_MBOX_NULL (osMessageQId)0
+#define SYS_SEM_NULL  (osSemaphoreId)0
 
-#endif /* __ARCH_SYS_ARCH_H__ */
+typedef osSemaphoreId sys_sem_t;
+typedef osSemaphoreId sys_mutex_t;
+typedef osMessageQId  sys_mbox_t;
+typedef osThreadId    sys_thread_t;
+#else
+
+#define SYS_MBOX_NULL (osMessageQueueId_t)0
+#define SYS_SEM_NULL  (osSemaphoreId_t)0
+
+typedef osSemaphoreId_t     sys_sem_t;
+typedef osSemaphoreId_t     sys_mutex_t;
+typedef osMessageQueueId_t  sys_mbox_t;
+typedef osThreadId_t        sys_thread_t;
+#endif
+
+#ifdef  __cplusplus
+}
+#endif
+
+#endif /* __SYS_ARCH_H__ */
+
