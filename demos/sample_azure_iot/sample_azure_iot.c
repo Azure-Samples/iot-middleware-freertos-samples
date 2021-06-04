@@ -74,12 +74,12 @@
 /**
  * @brief The Telemetry message published in this example.
  */
-#define sampleazureiotMESSAGE                                 "Hello World : %lu !"
+#define sampleazureiotMESSAGE                                 "Hello World : %d !"
 
 /**
  * @brief The reported property payload to send to IoT Hub
  */
-#define sampleazureiotTWIN_PROPERTY                           "{ \"TwinIterationForCurrentConnection\": \"%lu\" }"
+#define sampleazureiotTWIN_PROPERTY                           "{ \"TwinIterationForCurrentConnection\": \"%d\" }"
 
 /**
  * @brief Time in ticks to wait between each cycle of the demo implemented
@@ -269,7 +269,7 @@ static void prvHandleDeviceTwinMessage( AzureIoTHubClientTwinResponse_t * pxMess
  */
 static uint32_t prvSetupNetworkCredentials( NetworkCredentials_t * pxNetworkCredentials )
 {
-    pxNetworkCredentials->xDisableSni = democonfigDISABLE_SNI;
+    pxNetworkCredentials->xDisableSni = pdTRUE;
     /* Set the credentials for establishing a TLS connection. */
     pxNetworkCredentials->pucRootCa = ( const unsigned char * ) democonfigROOT_CA_PEM;
     pxNetworkCredentials->xRootCaSize = sizeof( democonfigROOT_CA_PEM );
@@ -290,9 +290,9 @@ static uint32_t prvSetupNetworkCredentials( NetworkCredentials_t * pxNetworkCred
  */
 static void prvAzureDemoTask( void * pvParameters )
 {
-    uint32_t ulPublishCount = 0U;
+    int lPublishCount = 0;
     uint32_t ulScratchBufferLength = 0U;
-    const uint32_t ulMaxPublishCount = 5UL;
+    const int lMaxPublishCount = 5;
     NetworkCredentials_t xNetworkCredentials = { 0 };
     AzureIoTTransportInterface_t xTransport;
     NetworkContext_t xNetworkContext = { 0 };
@@ -412,10 +412,10 @@ static void prvAzureDemoTask( void * pvParameters )
         configASSERT( xResult == eAzureIoTHubClientSuccess );
 
         /* Publish messages with QoS1, send and process Keep alive messages. */
-        for( ulPublishCount = 0; ulPublishCount < ulMaxPublishCount; ulPublishCount++ )
+        for( lPublishCount = 0; lPublishCount < lMaxPublishCount; lPublishCount++ )
         {
             ulScratchBufferLength = snprintf( ( char * ) ucScratchBuffer, sizeof( ucScratchBuffer ),
-                                              sampleazureiotMESSAGE, ulPublishCount );
+                                              sampleazureiotMESSAGE, lPublishCount );
             xResult = AzureIoTHubClient_SendTelemetry( &xAzureIoTHubClient,
                                                        ucScratchBuffer, ulScratchBufferLength,
                                                        &xPropertyBag, eAzureIoTHubMessageQoS1, NULL );
@@ -426,11 +426,11 @@ static void prvAzureDemoTask( void * pvParameters )
                                                      sampleazureiotPROCESS_LOOP_TIMEOUT_MS );
             configASSERT( xResult == eAzureIoTHubClientSuccess );
 
-            if( ulPublishCount % 2 == 0 )
+            if( lPublishCount % 2 == 0 )
             {
                 /* Send reported property every other cycle */
                 ulScratchBufferLength = snprintf( ( char * ) ucScratchBuffer, sizeof( ucScratchBuffer ),
-                                                  sampleazureiotTWIN_PROPERTY, ulPublishCount/2 + 1 );
+                                                  sampleazureiotTWIN_PROPERTY, lPublishCount/2 + 1 );
                 xResult = AzureIoTHubClient_SendDeviceTwinReported( &xAzureIoTHubClient,
                                                                     ucScratchBuffer, ulScratchBufferLength,
                                                                     NULL );
@@ -584,7 +584,7 @@ static uint32_t prvConnectToServerWithBackoffRetries( const char * pcHostName,
                                              sampleazureiotTRANSPORT_SEND_RECV_TIMEOUT_MS,
                                              sampleazureiotTRANSPORT_SEND_RECV_TIMEOUT_MS );
 
-        if( xNetworkStatus != TLS_TRANSPORT_SUCCESS )
+        if( xNetworkStatus != eTLSTransportSuccess )
         {
             /* Generate a random number and calculate backoff value (in milliseconds) for
              * the next connection retry.
@@ -605,9 +605,9 @@ static uint32_t prvConnectToServerWithBackoffRetries( const char * pcHostName,
                 vTaskDelay( pdMS_TO_TICKS( usNextRetryBackOff ) );
             }
         }
-    } while( ( xNetworkStatus != TLS_TRANSPORT_SUCCESS ) && ( xBackoffAlgStatus == BackoffAlgorithmSuccess ) );
+    } while( ( xNetworkStatus != eTLSTransportSuccess ) && ( xBackoffAlgStatus == BackoffAlgorithmSuccess ) );
 
-    return xNetworkStatus == TLS_TRANSPORT_SUCCESS ? 0 : 1;
+    return xNetworkStatus == eTLSTransportSuccess ? 0 : 1;
 }
 /*-----------------------------------------------------------*/
 

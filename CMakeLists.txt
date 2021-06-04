@@ -14,8 +14,8 @@ include(common/utilities)
 
 # Set FreeRTOS path
 if(NOT FREERTOS_PATH)
-    free_rtos_fetch()
     message(STATUS "No FREERTOS_PATH specified: Fetching FreeRTOS to path <${FREERTOS_PATH}>")
+    free_rtos_fetch()
 endif()
 
 find_package(FreeRTOS REQUIRED)

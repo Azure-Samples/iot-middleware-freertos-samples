@@ -92,6 +92,7 @@ extern void vLoggingPrintf( const char * pcFormatString,
 /**
  * @brief IoTHub module Id.
  *
+ * @note This is optional argument for IoTHub
  */
 #define democonfigMODULE_ID                 ""
 /**
@@ -145,33 +146,8 @@ extern void vLoggingPrintf( const char * pcFormatString,
 "-----END CERTIFICATE-----\r\n"
 
 /**
- * @brief An option to disable Server Name Indication.
- *
- * @note When using a local Mosquitto server setup, SNI needs to be disabled
- * for an MQTT broker that only has an IP address but no hostname. However,
- * SNI should be enabled whenever possible.
- */
-#define democonfigDISABLE_SNI              ( pdFALSE )
-
-/**
- * @brief The name of the operating system that the application is running on.
- * The current value is given as an example. Please update for your specific
- * operating system.
- */
-#define democonfigOS_NAME                   "FreeRTOS"
-
-/**
- * @brief The version of the operating system that the application is running
- * on. The current value is given as an example. Please update for your specific
- * operating system version.
- */
-#define democonfigOS_VERSION                tskKERNEL_VERSION_NUMBER
-
-/**
  * @brief Set the stack size of the main demo task.
  *
- * In the Windows port, this stack only holds a structure. The actual
- * stack is created by an operating system thread.
  */
 #define democonfigDEMO_STACKSIZE            ( 2 * 1024U)
 
