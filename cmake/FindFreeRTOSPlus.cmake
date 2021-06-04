@@ -134,6 +134,10 @@ if(NOT (TARGET FreeRTOSPlus::TCPIP))
         ${FreeRTOSPlus_PATH}/Source/FreeRTOS-Plus-TCP/portable/Compiler/GCC/)
 endif()
 
+if(NOT (TARGET FreeRTOSPlus::TCPIP::PORT))
+    add_library(FreeRTOSPlus::TCPIP::PORT INTERFACE IMPORTED)
+endif()
+
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(FreeRTOSPlus
     REQUIRED_VARS FreeRTOSPlus_PATH

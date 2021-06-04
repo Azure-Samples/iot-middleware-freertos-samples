@@ -10,18 +10,24 @@ endif()
 string(TOLOWER ${BOARD} BOARD_L)
 string(TOUPPER ${BOARD} BOARD_U)
 
-# Sample path set
-set(SAMPLE_AZURE_IOT_SOURCE_PATH
-    ${CMAKE_CURRENT_SOURCE_DIR}/${SAMPLE_AZURE_IOT}/${SAMPLE_AZURE_IOT}.c)
+# Target for sample task
+if(NOT (TARGET SAMPLE::AZUREIOT))
+    add_library(SAMPLE::AZUREIOT INTERFACE IMPORTED)
+    target_sources(SAMPLE::AZUREIOT INTERFACE 
+        ${CMAKE_CURRENT_SOURCE_DIR}/sample_azure_iot/sample_azure_iot.c)
+endif()
 
-# Transport using Mbedtls
-set(SAMPLE_TRANSPORT_USING_MBEDTLS_SOURCE_PATH
-    ${CMAKE_CURRENT_SOURCE_DIR}/common/transport/transport_tls_socket_using_mbedtls.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/common/utilities/crypto_using_mbedtls.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/common/utilities/mbedtls_freertos_port.c)
-set(SAMPLE_TRANSPORT_USING_MBEDTLS_INC_PATH
-    ${CMAKE_CURRENT_SOURCE_DIR}/common/transport/
-    ${CMAKE_CURRENT_SOURCE_DIR}/common/utilities/)
+# Target for transport using Mbedtls
+if(NOT (TARGET SAMPLE::TRANSPORT::MBEDTLS))
+    add_library(SAMPLE::TRANSPORT::MBEDTLS INTERFACE IMPORTED)
+    target_sources(SAMPLE::TRANSPORT::MBEDTLS INTERFACE 
+        ${CMAKE_CURRENT_SOURCE_DIR}/common/transport/transport_tls_socket_using_mbedtls.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/common/utilities/crypto_using_mbedtls.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/common/utilities/mbedtls_freertos_port.c)
+    target_include_directories(SAMPLE::TRANSPORT::MBEDTLS INTERFACE
+        ${CMAKE_CURRENT_SOURCE_DIR}/common/transport/
+        ${CMAKE_CURRENT_SOURCE_DIR}/common/utilities/)
+endif()
 
 # Add board specific demo
 if(BOARD_L STREQUAL "b-l475e-iot01a")

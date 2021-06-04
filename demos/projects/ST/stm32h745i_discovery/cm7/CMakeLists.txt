@@ -10,12 +10,11 @@ find_package(HAL COMPONENTS STM32H7_M7 REQUIRED)
 find_package(BSP COMPONENTS STM32H745XI_M7 REQUIRED)
 find_package(LWIP)
 
-set(MCU_C_FLAGS "-mcpu=cortex-m7 -mfpu=fpv5-sp-d16 -mfloat-abi=hard" CACHE INTERNAL "MCU build flags")
-set(MCU_LINKER_FLAGS "-Wl,--gc-sections -Xlinker -Map=output.map" CACHE INTERNAL "MCU build flags")
-
 # set parent scope path
 set(BOARD_DEMO_CONFIG_PATH ${CMAKE_CURRENT_SOURCE_DIR}/config CACHE INTERNAL "Config path")
 set(BOARD_DEMO_FREERTOS_PORT_PATH ${FreeRTOS_ARM_CM7_PATH} CACHE INTERNAL "FreeRTOS Port used ")
+
+include(${CMAKE_CURRENT_SOURCE_DIR}/gcc_flags.cmake)
 
 include_directories(${BOARD_DEMO_CONFIG_PATH})
 
@@ -27,8 +26,6 @@ file(GLOB LWIP_PORT_SOURCES
     ../../../../common/transport/sockets_wrapper_lwip.c)
 
 set(PROJECT_SOURCES
-    ${SAMPLE_AZURE_IOT_SOURCE_PATH}
-    ${SAMPLE_TRANSPORT_USING_MBEDTLS_SOURCE_PATH}
     ${LWIP_PORT_SOURCES}
     ${STCODE_SOURCES}
     main.c)
@@ -37,8 +34,7 @@ stm32_add_linker_script(CMSIS::STM32::H7::M7 INTERFACE
     "${CMAKE_CURRENT_SOURCE_DIR}/STM32H745XIHX_FLASH.ld")
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
 target_include_directories(${PROJECT_NAME} PUBLIC
-    config st_code .
-    ${SAMPLE_TRANSPORT_USING_MBEDTLS_INC_PATH}
+    st_code .
     st_code/lwip/App
     st_code/lwip/Target
     st_code/lwip/system)
@@ -68,9 +64,9 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     az::iot_middleware::freertos
     LWIP
     HAL::STM32::H7::M7::ETH
-    BSP::STM32::H7::M7::LAN8742)
-
-target_link_options(${PROJECT_NAME} PRIVATE -Xlinker -Map=output.map)
+    BSP::STM32::H7::M7::LAN8742
+    SAMPLE::AZUREIOT
+    SAMPLE::TRANSPORT::MBEDTLS)
 
 add_custom_command(TARGET ${PROJECT_NAME}
     # Run after all other rules within the target have been executed

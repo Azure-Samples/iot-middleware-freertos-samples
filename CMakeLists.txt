@@ -7,9 +7,18 @@ set(CMAKE_TOOLCHAIN_FILE cmake/${VENDOR}_gcc.cmake)
 project(iot-middleware-sample C ASM)
 set(CMAKE_INCLUDE_CURRENT_DIR TRUE)
 
-# Fetch freertos and set 
-#free_rtos_fetch()
-set(FREERTOS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/libs/FreeRTOS CACHE STRING "Path to FreeRTOS")
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+
+# include common utilities
+include(common/utilities)
+
+# Set FreeRTOS path
+if(NOT FREERTOS_PATH)
+    #free_rtos_fetch()
+    set(FREERTOS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/libs/FreeRTOS CACHE STRING "Path to FreeRTOS")
+    message(STATUS "No FREERTOS_PATH specified fetching freertos to path: ${FREERTOS_PATH}")
+endif()
+
 find_package(FreeRTOS REQUIRED)
 find_package(FreeRTOSPlus REQUIRED)
 

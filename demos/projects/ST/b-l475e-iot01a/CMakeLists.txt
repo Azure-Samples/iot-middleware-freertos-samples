@@ -13,12 +13,12 @@ set(MCU_C_FLAGS "-mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard" CACHE INTER
 set(BOARD_DEMO_CONFIG_PATH ${CMAKE_CURRENT_SOURCE_DIR}/config CACHE INTERNAL "Config path")
 set(BOARD_DEMO_FREERTOS_PORT_PATH ${FreeRTOS_ARM_CM4F_PATH} CACHE INTERNAL "FreeRTOS Port used ")
 
+include(${CMAKE_CURRENT_SOURCE_DIR}/gcc_flags.cmake)
+
 include_directories(${BOARD_DEMO_CONFIG_PATH})
 
 file(GLOB STCODE_SOURCES st_code/*.c)
 set(PROJECT_SOURCES
-    ${SAMPLE_AZURE_IOT_SOURCE_PATH}
-    ${SAMPLE_TRANSPORT_USING_MBEDTLS_SOURCE_PATH}
     ${STCODE_SOURCES}
     port/sockets_wrapper_stm32l475.c
     main.c)
@@ -27,8 +27,7 @@ stm32_add_linker_script(CMSIS::STM32::L4 INTERFACE
     "${CMAKE_CURRENT_SOURCE_DIR}/STM32L475VGTx_FLASH.ld")
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
 target_include_directories(${PROJECT_NAME} PUBLIC
-    config st_code .
-    ${SAMPLE_TRANSPORT_USING_MBEDTLS_INC_PATH})
+    st_code .)
 target_link_libraries(${PROJECT_NAME} PRIVATE
     FreeRTOS::Timers
     FreeRTOS::Heap::5
@@ -52,9 +51,9 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     CMSIS::STM32::L475xx
     BSP::STM32::STM32L475E_IOT01
     STM32::NoSys
-    az::iot_middleware::freertos)
-
-target_link_options(${PROJECT_NAME} PRIVATE -Xlinker -Map=output.map)
+    az::iot_middleware::freertos
+    SAMPLE::AZUREIOT
+    SAMPLE::TRANSPORT::MBEDTLS)
 
 add_custom_command(TARGET ${PROJECT_NAME}
     # Run after all other rules within the target have been executed
