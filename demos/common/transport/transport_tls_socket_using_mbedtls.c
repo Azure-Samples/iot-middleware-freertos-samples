@@ -711,7 +711,7 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pxNetworkContext,
             LogError( ( "Failed to open socket." ) );
             xRetVal = eTLSTransportConnectFailure;
         }
-        else if ( ( xSocketStatus = SOCKETS_SetSockOpt( pxTlsTransportParams->xTCPSocket,
+        else if ( ( xSocketStatus = Sockets_SetSockOpt( pxTlsTransportParams->xTCPSocket,
                                                         SOCKETS_SO_RCVTIMEO,
                                                         &ulReceiveTimeoutMs,
                                                         sizeof( ulReceiveTimeoutMs ) ) !=  0 ) )
@@ -719,7 +719,7 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pxNetworkContext,
             LogError( ( "Failed to set receive timeout on socket %d.", xSocketStatus ) );
             xRetVal = eTLSTransportInternalError;
         }
-        else if ( ( xSocketStatus = SOCKETS_SetSockOpt( pxTlsTransportParams->xTCPSocket,
+        else if ( ( xSocketStatus = Sockets_SetSockOpt( pxTlsTransportParams->xTCPSocket,
                                                         SOCKETS_SO_SNDTIMEO,
                                                         &ulSendTimeoutMs,
                                                         sizeof( ulSendTimeoutMs ) ) !=  0 ) )
