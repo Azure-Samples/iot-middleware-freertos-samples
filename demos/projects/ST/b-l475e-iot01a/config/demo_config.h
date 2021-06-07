@@ -89,7 +89,7 @@ extern void vLoggingPrintf( const char * pcFormatString,
 
 /**
  * @brief IoTHub module Id.
- *
+ * 
  * @note This is optional argument for IoTHub
  */
 #define democonfigMODULE_ID                 ""
@@ -118,7 +118,7 @@ extern void vLoggingPrintf( const char * pcFormatString,
 // #define democonfigCLIENT_PRIVATE_KEY_PEM    "<YOUR DEVICE PRIVATE KEY HERE>"
 
 /**
- * @brief Baltimore Trusted RooT CA.
+ * @brief Baltimore Trusted Root CA.
  *
  */
 #define democonfigROOT_CA_PEM "-----BEGIN CERTIFICATE-----\r\n" \
@@ -158,5 +158,28 @@ extern void vLoggingPrintf( const char * pcFormatString,
  * @brief IoTHub endpoint port.
  */
 #define democonfigIOTHUB_PORT          ( 8883 )
+
+/**
+ * @brief Wifi SSID
+ * 
+ */
+#define WIFI_SSID   "<SSID>"
+
+/**
+ * @brief Wifi Password
+ * 
+ */
+#define WIFI_PASSWORD "<Password>"
+
+/**
+ * @brief WIFI Security type, the security types are defined in wifi.h.
+ * 
+ *  WIFI_ECN_OPEN = 0x00,        
+ *  WIFI_ECN_WEP = 0x01,         
+ *  WIFI_ECN_WPA_PSK = 0x02,     
+ *  WIFI_ECN_WPA2_PSK = 0x03,    
+ *  WIFI_ECN_WPA_WPA2_PSK = 0x04 
+ */
+#define WIFI_SECURITY_TYPE  WIFI_ECN_WPA2_PSK
 
 #endif /* DEMO_CONFIG_H */
