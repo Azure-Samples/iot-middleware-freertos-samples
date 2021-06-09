@@ -49,3 +49,7 @@ exit_if_binary_does_not_exist "build_pc_linux" "iot-middleware-sample.elf"
 echo -e "::group::Building sample for ST b-l475e-iot01a port"
 sample_build "ST" "b-l475e-iot01a" "build_st_b-l475e-iot01a"
 exit_if_binary_does_not_exist "build_st_b-l475e-iot01a" "iot-middleware-sample.elf"
+
+echo -e "::group::Building sample for NXP mimxrt1060 port"
+sample_build "NXP" "mimxrt1060" "build_nxp_mimxrt1060"
+exit_if_binary_does_not_exist "build_nxp_mimxrt1060" "iot-middleware-sample.elf"

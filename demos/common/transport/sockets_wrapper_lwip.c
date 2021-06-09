@@ -50,9 +50,18 @@
 #include "task.h"
 /*-----------------------------------------------------------*/
 
-#define lwipdnsresolverMAX_WAIT_CYCLES       ( 5 )
-#define lwipdnsresolverLOOP_DELAY_TICKS      ( 10 )
-#define lwipdnsresolverMAX_WAIT_SECONDS      ( lwipdnsresolverMAX_WAIT_CYCLES * lwipdnsresolverLOOP_DELAY_TICKS )
+/*
+ * DNS timeouts.
+ */
+#ifndef lwipdnsresolverMAX_WAIT_SECONDS
+#define lwipdnsresolverMAX_WAIT_SECONDS    ( 20 )
+#endif
+
+#define lwipdnsresolverLOOP_DELAY_MS       ( 250 )
+#define lwipdnsresolverLOOP_DELAY_TICKS    ( ( TickType_t ) lwipdnsresolverLOOP_DELAY_MS / portTICK_PERIOD_MS )
+#define lwipdnsresolverMAX_WAIT_CYCLES \
+    ( ( ( lwipdnsresolverMAX_WAIT_SECONDS ) * 1000 ) / \
+      ( lwipdnsresolverLOOP_DELAY_MS ) )
 
 /*
  * convert from system ticks to seconds.
@@ -122,7 +131,7 @@ uint32_t prvGetHostByName( const char * pcHostName )
 
                 if( ulAddr == 0 )
                 {
-                    configPRINTF( ( "Unable to resolve (%s) within (%ul) seconds",
+                    configPRINTF( ( "Unable to resolve (%s) within (%lu) seconds",
                                     pcHostName, lwipdnsresolverMAX_WAIT_SECONDS ) );
                 }
 
