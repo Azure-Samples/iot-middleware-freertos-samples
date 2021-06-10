@@ -678,6 +678,8 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pxNetworkContext,
     TlsTransportStatus_t xRetVal = eTLSTransportSuccess;
     BaseType_t xSocketStatus = 0;
     MbedSSLContext_t * pxSSLContext;
+    TickType_t xRecvTimeout = pdMS_TO_TICKS( ulReceiveTimeoutMs );
+    TickType_t xSendTimeout = pdMS_TO_TICKS( ulSendTimeoutMs );
 
     if( ( pxNetworkContext == NULL ) ||
         ( pxNetworkContext->pParams == NULL ) ||
@@ -713,16 +715,16 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pxNetworkContext,
         }
         else if ( ( xSocketStatus = Sockets_SetSockOpt( pxTlsTransportParams->xTCPSocket,
                                                         SOCKETS_SO_RCVTIMEO,
-                                                        &ulReceiveTimeoutMs,
-                                                        sizeof( ulReceiveTimeoutMs ) ) !=  0 ) )
+                                                        &xRecvTimeout,
+                                                        sizeof( xRecvTimeout ) ) !=  0 ) )
         {
             LogError( ( "Failed to set receive timeout on socket %d.", xSocketStatus ) );
             xRetVal = eTLSTransportInternalError;
         }
         else if ( ( xSocketStatus = Sockets_SetSockOpt( pxTlsTransportParams->xTCPSocket,
                                                         SOCKETS_SO_SNDTIMEO,
-                                                        &ulSendTimeoutMs,
-                                                        sizeof( ulSendTimeoutMs ) ) !=  0 ) )
+                                                        &xSendTimeout,
+                                                        sizeof( xSendTimeout ) ) !=  0 ) )
         {
             LogError( ( "Failed to set send timeout on socket %d.", xSocketStatus ) );
             xRetVal = eTLSTransportInternalError;
