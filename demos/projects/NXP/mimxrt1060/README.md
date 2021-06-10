@@ -6,7 +6,7 @@
 
 * USB 2.0 A male to Micro USB male cable
 
-* Wired Ethernet access
+* Wired Ethernet access with DHCP
 
 * Ethernet cable
 
@@ -53,7 +53,7 @@ git submodule update --init --recursive --depth 1
 ```
 
 ## Prepare the device
-To connect the STM DevKit to Azure, you'll modify a configuration file for Wi-Fi and Azure IoT settings, rebuild the image, and flash the image to the device.
+To connect the STM DevKit to Azure, you'll modify a configuration file for Azure IoT settings, rebuild the image, and flash the image to the device.
 
 Update the file `iot-middleware-freertos-samples/demos/projects/NXP/mimxrt1060/config/demo_config.h` with your configuration values.
 
@@ -95,6 +95,8 @@ After the build completes, confirm that a folder named `/mimxrt1060/` was create
 3. In File Explorer, find the NXP EVK device connected to your computer. The device appears as a drive on your system with the drive label RT1060-EVK.
 
 4. Paste the binary file into the root folder of the NXP EVK. Flashing starts automatically and completes in a few seconds.
+
+1. Reset the device once flashing completes.
 
 ## Confirm device connection details
 
