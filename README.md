@@ -4,16 +4,11 @@
 [![Linux CI Tests](https://github.com/Azure-Samples/iot-middleware-freertos-samples/actions/workflows/ci_tests_linux.yml/badge.svg)](https://github.com/Azure-Samples/iot-middleware-freertos-samples/actions/workflows/ci_tests_linux.yml)
 <!-- markdown-link-check-enable-->
 
-These samples show how to connect to Azure IoT using Azure IoT Middleware for FreeRTOS.
-
 ## Getting Started
 
-```bash
-git clone https://github.com/Azure-Samples/iot-middleware-freertos-samples.git
-git submodule update --init --recursive
-```
+Here you will find samples for development kits and simulators showing how to use the Azure IoT Middleware for FreeRTOS
 
-The following boards are currently supported:
+The following development kits are currently supported:
 
 * STMicroelectronics:
   * [B-L475E-IOT01A](demos/projects/ST/b-l475e-iot01a/)
