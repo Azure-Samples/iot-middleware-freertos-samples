@@ -10,6 +10,20 @@ FetchContent_Declare(
         GIT_PROGRESS   TRUE
     )
 
+FetchContent_Declare(
+    NXP_MCUX_SDK
+    GIT_REPOSITORY https://github.com/NXPmicro/mcux-sdk.git
+    GIT_TAG        a0764538cb37f65907155b2aa6cd514cee8e3442
+    GIT_PROGRESS   TRUE
+)
+
+FetchContent_Declare(
+    LWIP
+    GIT_REPOSITORY https://github.com/lwip-tcpip/lwip.git
+    GIT_TAG        STABLE-2_1_2_RELEASE
+    GIT_PROGRESS   TRUE
+)
+
 function(free_rtos_fetch)
     if(FREERTOS_PATH)
         message(INFO "FREERTOS_PATH specified: {FREERTOS_PATH}, skipping fetch for FreeRTOS")
@@ -23,5 +37,37 @@ function(free_rtos_fetch)
 
         set(FREERTOS_PATH ${freertos_SOURCE_DIR} PARENT_SCOPE)
         message(INFO "FREERTOS_PATH set to ${FREERTOS_PATH}")
+    endif()
+endfunction()
+
+function(nxp_mcux_sdk_fetch)
+    if(NXP_MCUX_SDK_PATH)
+        message(INFO "NXP_MCUX_SDK_PATH specified: {NXP_MCUX_SDK_PATH}, skipping fetch for NXP MCUX SDK")
+    else()
+        FetchContent_GetProperties(NXP_MCUX_SDK)
+
+        if(NOT NXP_MCUX_SDK_POPULATED)
+            set(FETCHCONTENT_QUIET FALSE) # To see progress
+            FetchContent_Populate(NXP_MCUX_SDK)
+        endif()
+
+        set(NXP_MCUX_SDK_PATH ${nxp_mcux_sdk_SOURCE_DIR} PARENT_SCOPE)
+        message(INFO "NXP_MCUX_SDK_PATH set to ${NXP_MCUX_SDK_PATH}")
+    endif()
+endfunction()
+
+function(lwip_fetch)
+    if(LWIP_PATH)
+        message(INFO "LWIP_PATH specified: {LWIP_PATH}, skipping fetch for LWIP")
+    else()
+        FetchContent_GetProperties(LWIP)
+
+        if(NOT LWIP_POPULATED)
+            set(FETCHCONTENT_QUIET FALSE) # To see progress
+            FetchContent_Populate(LWIP)
+        endif()
+
+        set(LWIP_PATH ${lwip_SOURCE_DIR} PARENT_SCOPE)
+        message(INFO "LWIP_PATH set to ${LWIP_PATH}")
     endif()
 endfunction()
