@@ -6,9 +6,14 @@
 
 ## Getting Started
 
-Here you will find samples for development kits and simulators showing how to use the Azure IoT Middleware for FreeRTOS
+The Azure IoT Middleware for FreeRTOS simplifies the connection of devices running FreeRTOS to Azure IoT services. It implements a modular approach that brings flexibility to IoT developers by allowing them to bring their own network stack (MQTT, TLS and Socket).
 
-The following development kits are currently supported:
+The [Azure IoT Middleware for FreeRTOS repo](https://github.com/Azure/azure-iot-middleware-freertos) has the core functionalities of the middleware and no external dependencies, however to implement working samples we need to bring a network stack which is the objective of this repo. 
+
+Here you will find samples for development kits and simulators showing how to use the Azure IoT Middleware for FreeRTOS. The following development kits are currently supported:
+
+* NXP:
+  * [MIMXRT1060-EVK](demos/projects/NXP/mimxrt1060/)
 
 * STMicroelectronics:
   * [B-L475E-IOT01A](demos/projects/ST/b-l475e-iot01a/)
