@@ -53,7 +53,7 @@ git submodule update --init --recursive --depth 1
 ```
 
 ## Prepare the device
-To connect the STM DevKit to Azure, you'll modify a configuration file for Azure IoT settings, rebuild the image, and flash the image to the device.
+To connect the MIMXRT1060-EVK to Azure, you'll modify a configuration file for Azure IoT settings, rebuild the image, and flash the image to the device.
 
 Update the file `iot-middleware-freertos-samples/demos/projects/NXP/mimxrt1060/config/demo_config.h` with your configuration values.
 
