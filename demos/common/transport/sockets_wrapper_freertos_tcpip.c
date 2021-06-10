@@ -146,8 +146,6 @@ void Sockets_Disconnect( SocketHandle xSocket )
                 break;
             }
         }
-
-        ( void ) FreeRTOS_closesocket( xTcpSocket );
     }
 }
 /*-----------------------------------------------------------*/
