@@ -20,7 +20,7 @@ To initialize the repo, run the following command:
 
 ## Install Prerequisites
 
-* [CMake](https://cmake.org/download/) (Version 3.20 or higher)
+* [CMake](https://cmake.org/download/) (Version 3.13 or higher)
 
 * Execute the installation script for additional prerequisites:
 
