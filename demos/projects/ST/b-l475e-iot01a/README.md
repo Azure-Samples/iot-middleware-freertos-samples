@@ -83,8 +83,8 @@ Parameter | Value
 To build the device image, navigate to the `iot-middleware-freertos-samples` directory and run the following commands:
 
   ```bash
-  cmake -G Ninja -DVENDOR=ST -DBOARD=stm32h745i_discovery -Bstm32h745i_discovery .
-cmake --build stm32h745i_discovery
+    cmake -G Ninja -DVENDOR=ST -DBOARD=b-l475e-iot01a -Bb-l475e-iot01a .
+    cmake --build b-l475e-iot01a
   ```
 
 After the build completes, confirm that a folder named `/b-l475e-iot01a/` was created and it contains a file named `iot-middleware-sample.bin`. 
