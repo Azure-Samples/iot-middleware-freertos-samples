@@ -1,0 +1,58 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Linux",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/linux/demos/projects/PC/linux/iot-middleware-sample.elf",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "${workspaceFolder}/.vscode/sudo_gdb.sh",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "Build Linux"
+        },
+        {
+            "name": "STM L475E: Local OpenOCD",
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "openocd",
+            "device": "STM32L475VG",
+            "runToMain": true,
+            "executable": "${workspaceFolder}/b-l475e-iot01a/demos/projects/ST/b-l475e-iot01a/iot-middleware-sample.elf",
+            "svdFile": "${workspaceFolder}/.vscode/STM32L4x5.svd",
+            "cwd": "${workspaceRoot}",
+            "configFiles": [
+                "board/stm32l4discovery.cfg"
+            ]
+        },
+        {
+            "name": "NXP: Local J-Link",
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype":"jlink",
+            "runToMain": true,
+            "executable": "${workspaceFolder}/mimxrt1060/demos/projects/NXP/mimxrt1060/iot-middleware-sample.elf",
+            "device": "MIMXRT1062xxx6A",
+            "svdFile": "${workspaceFolder}/.vscode/MIMXRT1062.svd"
+        }
+    ],
+    "inputs": [
+        {
+            "id": "device.host",
+            "type": "promptString",
+            "default": "localhost:3333",
+            "description": "The local hostname with port for GDB to connect to"
+        }
+    ]
+}
