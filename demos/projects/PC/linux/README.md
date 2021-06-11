@@ -7,14 +7,14 @@ Clone the following repo to download all sample device code, setup scripts, and 
 **If you previously cloned this repo in another sample, you don't need to do it again.**
 
 ```bash
-git clone https://github.com/Azure-Samples/iot-middleware-freertos-samples.git
+    git clone https://github.com/Azure-Samples/iot-middleware-freertos-samples.git
 ```
 
 To initialize the repo, run the following command:
 
 ```bash
-cd iot-middleware-freertos-samples
-git submodule update --init --recursive --depth 1
+    cd iot-middleware-freertos-samples
+    git submodule update --init --recursive --depth 1
 ```
 
 
@@ -22,15 +22,15 @@ git submodule update --init --recursive --depth 1
 
 * [CMake](https://cmake.org/download/) (Version 3.20 or higher)
 
-* Execute the installation script 
+* Execute the installation script for additional prerequisites:
 
 ```bash
-sudo ./.github/scripts/install_software.sh
+    sudo ./.github/scripts/install_software.sh
 ```
 
-* Execute the Network setup script 
+* Execute the Network setup script which will create virtual interfaces veth0 and veth1:
 ```bash
-sudo .github/scripts/init_linux_port_vm_network.sh
+    sudo .github/scripts/init_linux_port_vm_network.sh
 ```
 
 * To run this sample you can use a device previously created in your IoT Hub or have the Azure IoT Middleware for FreeRTOS provision your device automatically using DPS.
@@ -49,7 +49,7 @@ To connect the simulated device to Azure, you'll modify a configuration file for
 Update the file `demo_config.h` with your configuration values.
 
 ```bash
-sudo nano demos/projects/PC/linux/config/demo_config.h
+    nano demos/projects/PC/linux/config/demo_config.h
 ```
 
 If you're using a device previously created in your **IoT Hub** with SAS authentication, comment out line #53 (`#define democonfigENABLE_DPS_SAMPLE`) and set the following parameters:
@@ -80,7 +80,7 @@ Look for line #138 and update configNETWORK_INTERFACE_TO_USE with the number you
 **Example**: if you got ``4.veth1 [Up, Running]`` in the previous step, you'll update line #138 to look like this ``#define configNETWORK_INTERFACE_TO_USE (4L)``
 
 ```bash
-sudo nano demos/projects/PC/linux/config/FreeRTOSConfig.h
+    nano demos/projects/PC/linux/config/FreeRTOSConfig.h
 ```
 
 ## Build the image
