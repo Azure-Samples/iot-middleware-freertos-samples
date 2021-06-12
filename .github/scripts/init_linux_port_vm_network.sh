@@ -24,7 +24,7 @@ EOT
 sh -c "cat > /etc/default/isc-dhcp-server" <<EOT
 INTERFACES="veth0"
 EOT
-systemctl restart isc-dhcp-server
+service isc-dhcp-server restart
 
 sysctl net.ipv4.ip_forward=1
 iptables -F
