@@ -100,7 +100,7 @@
 /**
  * @brief Date-time to use for the model id
  */
-#define sampleazureiotDATE_TIME_FORMAT                    "%Y-%m-%dT%H:%M:%S%z"
+#define sampleazureiotDATE_TIME_FORMAT                    "%Y-%m-%dT%H:%M:%S.000Z"
 
 /**
  * @brief Telemetry values
@@ -135,7 +135,7 @@ static uint8_t ucCommandEndTimeValueBuffer[ 32 ];
 /**
  *@brief The Telemetry message published in this example.
  */
-#define sampleazureiotMESSAGE                        "Hello World : %u !"
+#define sampleazureiotMESSAGE                        "{\"" sampleazureiotTELEMETRY_NAME "\":%0.2f}"
 
 /**
  * @brief The reported property payload to send to IoT Hub
@@ -312,18 +312,15 @@ int32_t prvInvokeMaxMinCommand( const uint8_t * pucPayload,
 
     AzureIoTJSONWriter_t xWriter;
 
-    configASSERT( AzureIoTJSONWriter_Init( &xWriter, ucCommandPayloadBuffer, sizeof( ucCommandPayloadBuffer ) ) == eAzureIoTSuccess );
-    configASSERT( AzureIoTJSONWriter_AppendBeginObject( &xWriter ) == eAzureIoTSuccess );
-    configASSERT( AzureIoTJSONWriter_AppendPropertyWithDoubleValue( &xWriter, sampleazureiotCOMMAND_MAX_TEMP, xDeviceMaximumTemperature, sampleazureiotDOUBLE_DECIMAL_PLACE_DIGITS )
-                  == eAzureIoTSuccess );
-    configASSERT( AzureIoTJSONWriter_AppendPropertyWithDoubleValue( &xWriter, sampleazureiotCOMMAND_MIN_TEMP, xDeviceMinimumTemperature, sampleazureiotDOUBLE_DECIMAL_PLACE_DIGITS )
-                  == eAzureIoTSuccess );
-    configASSERT( AzureIoTJSONWriter_AppendPropertyWithDoubleValue( &xWriter, sampleazureiotCOMMAND_AV_TEMP, xDeviceAverageTemperature, sampleazureiotDOUBLE_DECIMAL_PLACE_DIGITS )
-                  == eAzureIoTSuccess );
-    configASSERT( AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, sampleazureiotCOMMAND_START_TIME, ucCommandStartTimeValueBuffer, ulSinceTimeLength ) == eAzureIoTSuccess );
-    configASSERT( AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, sampleazureiotCOMMAND_END_TIME, ucCommandEndTimeValueBuffer, xEndTimeLength ) == eAzureIoTSuccess );
+    AzureIoTJSONWriter_Init( &xWriter, ucCommandPayloadBuffer, sizeof( ucCommandPayloadBuffer ) );
+    AzureIoTJSONWriter_AppendBeginObject( &xWriter );
+    AzureIoTJSONWriter_AppendPropertyWithDoubleValue( &xWriter, sampleazureiotCOMMAND_MAX_TEMP, strlen(sampleazureiotCOMMAND_MAX_TEMP), xDeviceMaximumTemperature, sampleazureiotDOUBLE_DECIMAL_PLACE_DIGITS );
+    AzureIoTJSONWriter_AppendPropertyWithDoubleValue( &xWriter, sampleazureiotCOMMAND_MIN_TEMP, strlen(sampleazureiotCOMMAND_MIN_TEMP), xDeviceMinimumTemperature, sampleazureiotDOUBLE_DECIMAL_PLACE_DIGITS );
+    AzureIoTJSONWriter_AppendPropertyWithDoubleValue( &xWriter, sampleazureiotCOMMAND_AV_TEMP, strlen(sampleazureiotCOMMAND_AV_TEMP), xDeviceAverageTemperature, sampleazureiotDOUBLE_DECIMAL_PLACE_DIGITS );
+    AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, sampleazureiotCOMMAND_START_TIME, strlen(sampleazureiotCOMMAND_START_TIME), ucCommandStartTimeValueBuffer, ulSinceTimeLength );
+    AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, sampleazureiotCOMMAND_END_TIME, strlen(sampleazureiotCOMMAND_END_TIME), ucCommandEndTimeValueBuffer, xEndTimeLength );
 
-    configASSERT( AzureIoTJSONWriter_AppendEndObject( &xWriter ) == eAzureIoTSuccess );
+    AzureIoTJSONWriter_AppendEndObject( &xWriter );
 
     return AzureIoTJSONWriter_GetBytesUsed( &xWriter );
 }
@@ -356,7 +353,7 @@ static void prvHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
 
     AzureIoTHubClient_t * xHandle = ( AzureIoTHubClient_t * ) pvContext;
 
-    if( strncmp( sampleazureiotCOMMAND_MAX_MIN_REPORT, pxMessage->pucCommandName, strlen( sampleazureiotCOMMAND_MAX_MIN_REPORT ) ) )
+    if( strncmp( sampleazureiotCOMMAND_MAX_MIN_REPORT, pxMessage->pucCommandName, strlen( sampleazureiotCOMMAND_MAX_MIN_REPORT ) ) == 0 )
     {
         /* Is for max min report */
         ulCommandPayloadLength = prvInvokeMaxMinCommand( pxMessage->pvMessagePayload, pxMessage->ulPayloadLength );
@@ -770,22 +767,14 @@ static void prvAzureDemoTask( void * pvParameters )
         xResult = AzureIoTHubClient_GetProperties( &xAzureIoTHubClient );
         configASSERT( xResult == eAzureIoTSuccess );
 
-        /* Create a bag of properties for the telemetry */
-        xResult = AzureIoT_MessagePropertiesInit( &xPropertyBag, ucPropertyBuffer, 0, sizeof( xPropertyBag ) );
-        configASSERT( xResult == eAzureIoTSuccess );
-
-        xResult = AzureIoT_MessagePropertiesAppend( &xPropertyBag, ( uint8_t * ) "name", sizeof( "name" ) - 1,
-                                                    ( uint8_t * ) "value", sizeof( "value" ) - 1 );
-        configASSERT( xResult == eAzureIoTSuccess );
-
         /* Publish messages with QoS1, send and process Keep alive messages. */
         for( ulPublishCount = 0; ulPublishCount < ulMaxPublishCount; ulPublishCount++ )
         {
             ulScratchBufferLength = snprintf( ( char * ) ucScratchBuffer, sizeof( ucScratchBuffer ),
-                                              sampleazureiotMESSAGE, ulPublishCount );
+                                              sampleazureiotMESSAGE, xDeviceCurrentTemperature );
             xResult = AzureIoTHubClient_SendTelemetry( &xAzureIoTHubClient,
                                                        ucScratchBuffer, ulScratchBufferLength,
-                                                       &xPropertyBag, eAzureIoTHubMessageQoS1, NULL );
+                                                       NULL, eAzureIoTHubMessageQoS1, NULL );
             configASSERT( xResult == eAzureIoTSuccess );
 
             LogInfo( ( "Attempt to receive publish message from IoT Hub.\r\n" ) );
