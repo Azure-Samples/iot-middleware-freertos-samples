@@ -13,8 +13,8 @@ if(NOT (TARGET SAMPLE::AZUREIOT))
     add_library(SAMPLE::AZUREIOT INTERFACE IMPORTED)
     target_sources(SAMPLE::AZUREIOT INTERFACE 
         ${CMAKE_CURRENT_SOURCE_DIR}/sample_azure_iot/sample_azure_iot.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/common/hfsm/az_hfsm.c )
-#TODO:        ${CMAKE_CURRENT_SOURCE_DIR}/common/hfsm/az_iot_hfsm.c)
+        ${CMAKE_CURRENT_SOURCE_DIR}/common/hfsm/az_hfsm.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/common/hfsm/az_iot_hfsm.c)
     target_include_directories(SAMPLE::AZUREIOT INTERFACE 
         ${CMAKE_CURRENT_SOURCE_DIR}/common/hfsm)
 endif()

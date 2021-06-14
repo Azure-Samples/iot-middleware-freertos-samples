@@ -6,7 +6,10 @@
  * @brief Hierarchical Finite State Machine implementation.
  */
 
+// The following two required for configASSERT:
 #include "FreeRTOS.h"
+#include "task.h"
+
 #include "az_hfsm.h"
 
 const hfsm_event hfsm_entry_event = { HFSM_ENTRY, NULL };

@@ -1,17 +1,28 @@
 @startuml
 
 state AzureIot {
+    state Idle
+    
     state Provisioning
-    Provisioning: <i>See IoT Provisioning HFSM</i>
+    Provisioning: <b>entry/</b>
+    Provisioning: \t startSeconds = startstopwatch()
+    Provisioning: <b>exit/</b>
+    Provisioning: \t totalTicks = getticks() - startTicks
 
     state RetryProvisioning
-    RetryProvisioning : <b>ERROR/</b>
+    RetryProvisioning : <b>entry/</b>
+    RetryProvisioning : \t initialize delayTimer
+    RetryProvisioning : 
+    RetryProvisioning : <b>exit/</b>
+    RetryProvisioning : \t destroy delayTimer
+    RetryProvisioning : 
+    RetryProvisioning : <b>AZ_IOT_PROVISIONING_ERROR/</b>
     RetryProvisioning : \t if (retriable_error()) {
     RetryProvisioning : \t\t start delayTimer(calculate_retry_delay())
     RetryProvisioning : \t }
     RetryProvisioning : \t else {
     RetryProvisioning : \t\t rotate_dps_credentials(credential_idx)
-    RetryProvisioning : \t\t ^^AZ_IOT_PROVISIONING_START
+    RetryProvisioning : \t\t ^AZ_IOT_PROVISIONING_START
     RetryProvisioning : \t }
     RetryProvisioning :
     RetryProvisioning : <b>TIMEOUT/</b>
@@ -25,7 +36,13 @@ state AzureIot {
     Hub: <i>See IoT Hub HFSM</i>
 
     state RetryHub
-    RetryHub : <b>ERROR/</b>
+    RetryHub : <b>entry/</b>
+    RetryHub : \t initialize delayTimer
+    RetryHub : 
+    RetryHub : <b>exit/</b>
+    RetryHub : \t destroy delayTimer
+    RetryHub : 
+    RetryHub : <b>AZ_IOT_HUB_ERROR/</b>
     RetryHub : \t if (retriable_error) {
     RetryHub : \t\t start(delayTimer(calculate_retry_delay))
     RetryHub : \t }
@@ -42,14 +59,15 @@ state AzureIot {
     RetryHub :
     RetryHub : <b>RETRY_TIMEOUT/</b>
     RetryHub : \t stop(delayTimer)
-    RetryHub : \t ^^AZ_IOT_HUB_START
+    RetryHub : \t ^AZ_IOT_HUB_START
 
-    [*] -> Provisioning : AZ_IOT_PROVISIONING_START
+    [*] -> Idle
+    Idle --> Provisioning : AZ_IOT_PROVISIONING_START
     Provisioning --> Hub : AZ_IOT_HUB_START
-    Provisioning -> RetryProvisioning : ERROR, TIMEOUT
+    Provisioning -> RetryProvisioning : AZ_IOT_PROVISIONING_ERROR, TIMEOUT
 
     RetryProvisioning -> Provisioning : AZ_IOT_PROVISIONING_START
-    Hub -> RetryHub : ERROR, TIMEOUT
+    Hub -> RetryHub : AZ_IOT_HUB_ERROR, TIMEOUT
     RetryHub -> Hub : AZ_IOT_HUB_START
     RetryHub -> Provisioning : AZ_IOT_PROVISIONING_START
 }
