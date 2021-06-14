@@ -204,6 +204,8 @@ static BaseType_t prvInitializeWifi( void )
                         ((bsp_version >> 24U) & 0xFF), ((bsp_version >> 16U) & 0xFF),
                         ((bsp_version >> 8U) & 0xFF), (bsp_version & 0xFF)) );
 
+        configPRINTF( ( "ES-WIFI Connecting ... \r\n" ) );
+
         if( WIFI_GetMAC_Address( MAC_Addr ) != WIFI_STATUS_OK )
         {          
             configPRINTF( ( "!!!ERROR: ES-WIFI Get MAC Address Failed.\r\n") );
@@ -216,11 +218,11 @@ static BaseType_t prvInitializeWifi( void )
         }
         else
         {
+            configPRINTF( ( "ES-WIFI Connected.\r\n" ) );
+
             configPRINTF( ( "ES-WIFI MAC Address: %X:%X:%X:%X:%X:%X\r\n",     
                           MAC_Addr[0], MAC_Addr[1], MAC_Addr[2],
                           MAC_Addr[3], MAC_Addr[4], MAC_Addr[5] ) );
-            
-            configPRINTF( ( "ES-WIFI Connected.\r\n" ) );
 
             if( WIFI_GetIP_Address( IP_Addr ) == WIFI_STATUS_OK )
             {
@@ -514,15 +516,17 @@ static void RTC_Init( void )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief  This function is executed in case of error occurrence.
+ * @brief  This function is executed in case of errors during hardware initialization.
  */
 void Error_Handler( void )
 {
-    while( 1 )
+    for ( int32_t ledSignal = 0; ledSignal < 10; ledSignal++ )
     {
         BSP_LED_Toggle( LED_GREEN );
         HAL_Delay( 200 );
     }
+
+    NVIC_SystemReset();
 }
 /*-----------------------------------------------------------*/
 

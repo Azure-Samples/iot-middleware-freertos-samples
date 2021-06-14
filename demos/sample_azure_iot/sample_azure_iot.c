@@ -156,7 +156,7 @@ static AzureIoTHubClient_t xAzureIoTHubClient;
  * @param[out] ppucIothubDeviceId  Pointer to uint8_t* deviceId return from Provisioning Service
  * @param[in,out] pulIothubDeviceIdLength  Length of deviceId
  */
-    static uint32_t prvIoTHubInfoGet( NetworkCredentials_t * pXNetworkCredentials,
+    static uint32_t prvDeviceProvisioningRun( NetworkCredentials_t * pXNetworkCredentials,
                                       uint8_t ** ppucIothubHostname,
                                       uint32_t * pulIothubHostnameLength,
                                       uint8_t ** ppucIothubDeviceId,
@@ -325,7 +325,7 @@ static void prvAzureDemoTask( void * pvParameters )
 
     #ifdef democonfigENABLE_DPS_SAMPLE
         /* Run DPS.  */
-        if( ( ulStatus = prvIoTHubInfoGet( &xNetworkCredentials, &pucIotHubHostname,
+        if( ( ulStatus = prvDeviceProvisioningRun( &xNetworkCredentials, &pucIotHubHostname,
                                            &pulIothubHostnameLength, &pucIotHubDeviceId,
                                            &pulIothubDeviceIdLength ) ) != 0 )
         {
@@ -476,7 +476,7 @@ static void prvAzureDemoTask( void * pvParameters )
     * @brief Get IoT Hub endpoint and device Id info, when Provisioning service is used.
     *   This function will block for Provisioning service for result or return failure.
     */
-    static uint32_t prvIoTHubInfoGet( NetworkCredentials_t * pXNetworkCredentials,
+    static uint32_t prvDeviceProvisioningRun( NetworkCredentials_t * pXNetworkCredentials,
                                       uint8_t ** ppucIothubHostname,
                                       uint32_t * pulIothubHostnameLength,
                                       uint8_t ** ppucIothubDeviceId,
