@@ -1,0 +1,9 @@
+{
+    "image": "tizho/azurertos-regression",
+	"runArgs": [ "--cap-add=NET_ADMIN"],
+	"postStartCommand": "/init_vm_network.sh",
+	"extensions": [
+		"ms-vscode.cpptools",
+		"ms-vscode.cmake-tools"
+	]
+}
