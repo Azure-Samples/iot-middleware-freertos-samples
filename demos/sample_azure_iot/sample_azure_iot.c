@@ -309,11 +309,10 @@ static uint32_t prvSetupNetworkCredentials( NetworkCredentials_t * pxNetworkCred
  */
 static void prvAzureDemoTask( void * pvParameters )
 {
+    NetworkCredentials_t xNetworkCredentials = { 0 };
+
     uint32_t ulStatus;
     configASSERT( !az_iot_hfsm_initialize(&prvIoTHfsm) );
-
-    
-    NetworkCredentials_t xNetworkCredentials = { 0 };
 
     #ifdef democonfigENABLE_DPS_SAMPLE
         uint8_t * pucIotHubHostname = NULL;
