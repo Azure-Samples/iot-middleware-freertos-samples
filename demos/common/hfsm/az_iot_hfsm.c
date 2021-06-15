@@ -14,7 +14,44 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
+#include "az_hfsm.h"
 #include "az_iot_hfsm.h"
+
+/**************************************************/
+/******* DO NOT CHANGE the following order ********/
+/**************************************************/
+
+/* Include logging header files and define logging macros in the following order:
+ * 1. Include the header file "logging_levels.h".
+ * 2. Define the LIBRARY_LOG_NAME and LIBRARY_LOG_LEVEL macros depending on
+ * the logging configuration for DEMO.
+ * 3. Include the header file "logging_stack.h", if logging is enabled for DEMO.
+ */
+
+#include "logging_levels.h"
+
+/* Logging configuration for the Demo. */
+#ifndef LIBRARY_LOG_NAME
+    #define LIBRARY_LOG_NAME    "IoT_HFSM"
+#endif
+
+#ifndef LIBRARY_LOG_LEVEL
+    #define LIBRARY_LOG_LEVEL    LOG_INFO
+#endif
+
+/* 
+ * The function prints to the console before the network is connected;
+ * then a UDP port after the network has connected. */
+extern void vLoggingPrintf( const char * pcFormatString,
+                            ... );
+
+/* Map the SdkLog macro to the logging function to enable logging */
+#ifndef SdkLog
+    #define SdkLog( message )    vLoggingPrintf message
+#endif
+
+#include "logging_stack.h"
+
 
 #define USE_PROVISIONING  // Comment out if Azure IoT Provisioning is not used.
 
@@ -22,10 +59,8 @@ static int azure_iot(hfsm* me, hfsm_event event);
 static int idle(hfsm* me, hfsm_event event);
 #ifdef USE_PROVISIONING
 static int provisioning(hfsm* me, hfsm_event event);
-static int retry_provisioning(hfsm* me, hfsm_event event);
 #endif
 static int hub(hfsm* me, hfsm_event event);
-static int retry_hub(hfsm* me, hfsm_event event);
 
 // Hardcoded AzureIoT hierarchy structure
 static state_handler azure_iot_hfsm_get_parent(state_handler child_state)
@@ -38,9 +73,9 @@ static state_handler azure_iot_hfsm_get_parent(state_handler child_state)
   }
   else if (
 #ifdef USE_PROVISIONING
-      (child_state == provisioning) || (child_state == retry_provisioning) ||
+      (child_state == provisioning) ||
 #endif
-      (child_state == hub) || (child_state == retry_hub) || (child_state == idle)
+      (child_state == hub) || (child_state == idle)
     )
   {
     parent_state = azure_iot;
@@ -58,20 +93,22 @@ static state_handler azure_iot_hfsm_get_parent(state_handler child_state)
 static int azure_iot(hfsm* me, hfsm_event event)
 {
   int ret = 0;
+  az_iot_hfsm_type* thisiothfsm = (az_iot_hfsm_type*)me;
 
   switch ((int)event.type)
   {
     case HFSM_ENTRY:
-      ((az_iot_hfsm_type*)me)->_credential_idx = 0;
-      ret = hfsm_transition_substate(me, azure_iot, idle);
+      LogInfo( ("AzureIoT: Entry") );
+      thisiothfsm->_credential_idx = 0;
       break;
 
     case HFSM_EXIT:
     case ERROR:
     case TIMEOUT:
     default:
+      LogInfo( ("AzureIoT: PANIC!") );
       // Critical error: (memory corruption likely) reboot device.
-      //az_iot_hfsm_pal_critical();
+      //TODO: az_iot_hfsm_pal_critical();
       configASSERT(0);
       break;
   }
@@ -82,17 +119,21 @@ static int azure_iot(hfsm* me, hfsm_event event)
 static int idle(hfsm* me, hfsm_event event)
 {
   int ret = 0;
+  az_iot_hfsm_type* thisiothfsm = (az_iot_hfsm_type*)me;
 
   switch ((int)event.type)
   {
     case HFSM_ENTRY:
+      LogInfo( ("idle: Entry") );
       break;
 
     case HFSM_EXIT:
+      LogInfo( ("idle: Exit") );
       break;
 
-  #ifdef USE_PROVISIONING
+#ifdef USE_PROVISIONING
     case AZ_IOT_PROVISIONING_START:
+      az_iot_hfsm_pal_provisioning_start(thisiothfsm->_provisioning_handle);
       ret = hfsm_transition_substate(me, azure_iot, provisioning);
       break;
 #else
@@ -113,62 +154,35 @@ static int idle(hfsm* me, hfsm_event event)
 static int provisioning(hfsm* me, hfsm_event event)
 {
   int ret = 0;
+  az_iot_hfsm_type* thisiothfsm = (az_iot_hfsm_type*)me;
 
   switch ((int)event.type)
   {
     case HFSM_ENTRY:
-      // ret = init_provisioning(credential_idx);
+      LogInfo( ("provisioning: Entry") );
+      thisiothfsm->_retry_count = 0;
+      thisiothfsm->_start_seconds = az_iot_hfsm_pal_timer_get_seconds();
+      thisiothfsm->_timer_handle = az_iot_hfsm_pal_timer_create();
       break;
 
     case HFSM_EXIT:
-      // ret = deinit_provisioning();
+      LogInfo( ("provisioning: Exit") );
+      az_iot_hfsm_pal_timer_destroy(thisiothfsm->_timer_handle);
       break;
 
-    case AZ_IOT_PROVISIONING_START:
-      // ret = start_provisioning();
-      break;
+    case AZ_IOT_ERROR:
+      // TODO: error_data = 
 
-    case AZ_IOT_HUB_START:
-      // TODO: pass-through the hfsm_event event:
-      ret = hfsm_transition_peer(me, provisioning, hub);
-      break;
+      thisiothfsm->_retry_count++;
+      int elapsedSeconds = az_iot_hfsm_pal_timer_get_seconds() - thisiothfsm->_start_seconds;
+      int retry_delay = 0; // TODO : calculate retry delay.
 
-    case ERROR:
-    case TIMEOUT:
-      // TODO: pass-through the hfsm_event event:
-      ret = hfsm_transition_peer(me, provisioning, retry_provisioning);
-      break;
-
-    default:
-      ret = HFSM_RET_HANDLE_BY_SUPERSTATE;
-  }
-
-  return ret;
-}
-
-// AzureIoT/RetryProvisioning
-static int retry_provisioning(hfsm* me, hfsm_event event)
-{
-  int ret = 0;
-
-  switch ((int)event.type)
-  {
-    case HFSM_ENTRY:
-      break;
-
-    case HFSM_EXIT:
-      break;
-
-    case AZ_IOT_PROVISIONING_START:
-      ret = hfsm_transition_peer(me, retry_provisioning, provisioning);
-      break;
-
-    case ERROR:
-      // TODO:
-
+      // TODO: retriable error, start timers
       break;
 
     case TIMEOUT:
+      thisiothfsm->_start_seconds = az_iot_hfsm_pal_timer_get_seconds();
+      az_iot_hfsm_pal_provisioning_start(thisiothfsm->_provisioning_handle);
       break;
 
     default:
@@ -183,19 +197,31 @@ static int retry_provisioning(hfsm* me, hfsm_event event)
 static int hub(hfsm* me, hfsm_event event)
 {
   int ret = 0;
+  az_iot_hfsm_type* thisiothfsm = (az_iot_hfsm_type*)me;
 
   switch ((int)event.type)
   {
     case HFSM_ENTRY:
+      LogInfo( ("hub: Entry") );
+      thisiothfsm->_retry_count = 0;
+      thisiothfsm->_start_seconds = az_iot_hfsm_pal_timer_get_seconds();
+      thisiothfsm->_timer_handle = az_iot_hfsm_pal_timer_create();
       break;
 
     case HFSM_EXIT:
+      LogInfo( ("hub: Exit") );
+      az_iot_hfsm_pal_timer_destroy(thisiothfsm->_timer_handle);
       break;
 
-    case ERROR:
+    case AZ_IOT_ERROR:
+      // TODO: error_data = 
+      //TODO:  if retriable
+
+      break;
+
     case TIMEOUT:
-      // TODO: pass-through the hfsm_event event:
-      ret = hfsm_transition_peer(me, hub, retry_hub);
+      thisiothfsm->_start_seconds = az_iot_hfsm_pal_timer_get_seconds();
+      az_iot_hfsm_pal_hub_start(thisiothfsm->_iothub_handle);
       break;
 
     default:
@@ -205,36 +231,33 @@ static int hub(hfsm* me, hfsm_event event)
   return ret;
 }
 
-// AzureIoT/RetryHub
-static int retry_hub(hfsm* me, hfsm_event event)
-{
-  int ret = 0;
-
-  switch ((int)event.type)
-  {
-    case HFSM_ENTRY:
-      break;
-
-    case HFSM_EXIT:
-      break;
-
-    case AZ_IOT_HUB_START:
-      // TODO: pass-through the hfsm_event event:
-      ret = hfsm_transition_peer(me, hub, retry_hub);
-      break;
-
-    default:
-      ret = HFSM_RET_HANDLE_BY_SUPERSTATE;
-  }
-
-  return ret;
-}
-
+/**
+ * @brief 
+ * 
+ * @param handle 
+ * @return int 
+ */
 int az_iot_hfsm_initialize(az_iot_hfsm_type* handle)
 {
-  return hfsm_init((hfsm*)(handle), azure_iot, azure_iot_hfsm_get_parent);
+  int ret = 0;
+  ret = hfsm_init((hfsm*)(handle), azure_iot, azure_iot_hfsm_get_parent);
+  
+  // Transition to initial state.
+  if (!ret)
+  {
+    ret = hfsm_transition_substate((hfsm*)(handle), azure_iot, idle);
+  }
+
+  return ret;
 }
 
+/**
+ * @brief 
+ * 
+ * @param handle 
+ * @param event 
+ * @return int 
+ */
 int az_iot_hfsm_post_sync(az_iot_hfsm_type* handle, hfsm_event event)
 {
   return hfsm_post_event((hfsm*)(&handle), event);

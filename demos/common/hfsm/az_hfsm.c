@@ -19,14 +19,14 @@ const hfsm_event hfsm_exit_event = { HFSM_EXIT, NULL };
  * @brief Initializes the HFSM.
  * 
  * @param[in] h The HFSM handle.
- * @param initial_state The initial state for this HFSM.
+ * @param root_state The root state for this HFSM.
  * @param get_parent_func The function describing the HFSM structure.
  * @return int 
  */
-int hfsm_init(hfsm* h, state_handler initial_state, get_parent get_parent_func)
+int hfsm_init(hfsm* h, state_handler root_state, get_parent get_parent_func)
 {
   configASSERT(h != NULL);
-  h->current_state = initial_state;
+  h->current_state = root_state;
   h->get_parent_func = get_parent_func;
   return h->current_state(h, hfsm_entry_event);
 }

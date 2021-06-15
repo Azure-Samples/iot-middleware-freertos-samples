@@ -1,0 +1,39 @@
+@startuml Azure IoT HFSM without Provisioning
+
+state AzureIot {
+    state Idle
+    
+    state Hub
+    Hub : <b>entry/</b>
+    Hub : \t retryCount = 0
+    Hub : \t startSeconds = startstopwatch()
+    Hub : \t initialize timer
+    Hub :
+    Hub : <b>exit/</b>
+    Hub : \t destroy timer
+    Hub : 
+    Hub : <b>AZ_IOT_ERROR/</b>
+    Hub : \t retryCount++
+    Hub : \t elapsedSeconds = getSeconds() - startSeconds
+    Hub : \t if (retriable_error) {
+    Hub : \t\t start(delayTimer(calculate_retry_delay(elapsedSeconds, retryCount)))
+    Hub : \t }
+    Hub : \t else {
+    Hub : \t\t credential_index = rotate_hub_credentials()
+    Hub : \t\t start_hub
+    Hub : \t }
+    Hub :
+    Hub : <b>TIMEOUT/</b>
+    Hub : \t startSeconds = startstopwatch()
+    Hub : \t start_hub()
+    
+    [*] -> Idle
+    Idle --> Hub : AZ_IOT_START / start_hub()
+}
+
+AzureIot : <b>entry/</b> 
+AzureIot : \t credential_idx = 0
+AzureIot :
+AzureIot : <b>ERROR/</b> reboot
+
+@enduml

@@ -13,13 +13,19 @@
 #include <azure/az_core.h>
 #include "az_hfsm.h"
 
-// Devices should always be provisioned with at least 2 credentials to prevent them
-// from loosing connectivity with the cloud and firmware update systems.
-#define CREDENTIAL_COUNT 2
+#ifndef AZ_IOT_HFSM_CREDENTIAL_COUNT
+#define AZ_IOT_HFSM_CREDENTIAL_COUNT 1
+#endif
+
 typedef struct
 {
   hfsm hfsm;
   int _credential_idx;
+  int _retry_count;
+  int _start_seconds;
+  void* _timer_handle;
+  void* _provisioning_handle;
+  void* _iothub_handle;
 } az_iot_hfsm_type;
 
 // AzIoTHFSM-specific events.
@@ -27,8 +33,10 @@ typedef enum
 {
   ERROR = HFSM_EVENT(1),
   TIMEOUT = HFSM_EVENT(2),
-  AZ_IOT_PROVISIONING_START = HFSM_EVENT(3),
-  AZ_IOT_HUB_START = HFSM_EVENT(4),
+  AZ_IOT_ERROR = HFSM_EVENT(3),
+  AZ_IOT_START = HFSM_EVENT(4),
+  AZ_IOT_PROVISIONING_DONE = HFSM_EVENT(5),
+
 } az_iot_hfsm_event_type;
 
 int az_iot_hfsm_initialize(az_iot_hfsm_type* handle);
@@ -38,20 +46,13 @@ int az_iot_hfsm_post_sync(az_iot_hfsm_type* handle, hfsm_event event);
 
 // az_iot_hfsm_pal_timer
 void* az_iot_hfsm_pal_timer_create();
-void az_iot_hfsm_pal_timer_start(void* timer_handle, int32_t seconds);
-void az_iot_hfsm_pal_timer_stop(void* timer_handle);
+int az_iot_hfsm_pal_timer_start(void* timer_handle, int32_t seconds);
+int az_iot_hfsm_pal_timer_stop(void* timer_handle);
 void az_iot_hfsm_pal_timer_destroy(void* timer_handle);
-int32_t az_iot_hfsm_pal_get_seconds();
+int32_t az_iot_hfsm_pal_timer_get_seconds();
 
-// az_iot_hfsm_pal_provisioning
-void* az_iot_hfsm_pal_provisioning_init();
-void az_iot_hfsm_pal_provisioning_start(void* provisioning_handle);
-void az_iot_hfsm_pal_provisioning_deinit(void* provisioning_handle);
-
-// az_iot_hfsm_pal_hub
-void* az_iot_hfsm_pal_hub_init();
-void az_iot_hfsm_pal_hub_start(void* hub_handle);
-void az_iot_hfsm_pal_hub_deinit(void* hub_handle);
+int az_iot_hfsm_pal_provisioning_start(void* provisioning_handle);
+int az_iot_hfsm_pal_hub_start(void* hub_handle);
 
 // az_iot_hfsm_pal_critical
 void az_iot_hfsm_pal_critical();
