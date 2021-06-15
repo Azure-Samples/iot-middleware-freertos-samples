@@ -314,11 +314,11 @@ int32_t prvInvokeMaxMinCommand( const uint8_t * pucPayload,
 
     AzureIoTJSONWriter_Init( &xWriter, ucCommandPayloadBuffer, sizeof( ucCommandPayloadBuffer ) );
     AzureIoTJSONWriter_AppendBeginObject( &xWriter );
-    AzureIoTJSONWriter_AppendPropertyWithDoubleValue( &xWriter, sampleazureiotCOMMAND_MAX_TEMP, strlen(sampleazureiotCOMMAND_MAX_TEMP), xDeviceMaximumTemperature, sampleazureiotDOUBLE_DECIMAL_PLACE_DIGITS );
-    AzureIoTJSONWriter_AppendPropertyWithDoubleValue( &xWriter, sampleazureiotCOMMAND_MIN_TEMP, strlen(sampleazureiotCOMMAND_MIN_TEMP), xDeviceMinimumTemperature, sampleazureiotDOUBLE_DECIMAL_PLACE_DIGITS );
-    AzureIoTJSONWriter_AppendPropertyWithDoubleValue( &xWriter, sampleazureiotCOMMAND_AV_TEMP, strlen(sampleazureiotCOMMAND_AV_TEMP), xDeviceAverageTemperature, sampleazureiotDOUBLE_DECIMAL_PLACE_DIGITS );
-    AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, sampleazureiotCOMMAND_START_TIME, strlen(sampleazureiotCOMMAND_START_TIME), ucCommandStartTimeValueBuffer, ulSinceTimeLength );
-    AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, sampleazureiotCOMMAND_END_TIME, strlen(sampleazureiotCOMMAND_END_TIME), ucCommandEndTimeValueBuffer, xEndTimeLength );
+    AzureIoTJSONWriter_AppendPropertyWithDoubleValue( &xWriter, sampleazureiotCOMMAND_MAX_TEMP, strlen( sampleazureiotCOMMAND_MAX_TEMP ), xDeviceMaximumTemperature, sampleazureiotDOUBLE_DECIMAL_PLACE_DIGITS );
+    AzureIoTJSONWriter_AppendPropertyWithDoubleValue( &xWriter, sampleazureiotCOMMAND_MIN_TEMP, strlen( sampleazureiotCOMMAND_MIN_TEMP ), xDeviceMinimumTemperature, sampleazureiotDOUBLE_DECIMAL_PLACE_DIGITS );
+    AzureIoTJSONWriter_AppendPropertyWithDoubleValue( &xWriter, sampleazureiotCOMMAND_AV_TEMP, strlen( sampleazureiotCOMMAND_AV_TEMP ), xDeviceAverageTemperature, sampleazureiotDOUBLE_DECIMAL_PLACE_DIGITS );
+    AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, sampleazureiotCOMMAND_START_TIME, strlen( sampleazureiotCOMMAND_START_TIME ), ucCommandStartTimeValueBuffer, ulSinceTimeLength );
+    AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, sampleazureiotCOMMAND_END_TIME, strlen( sampleazureiotCOMMAND_END_TIME ), ucCommandEndTimeValueBuffer, xEndTimeLength );
 
     AzureIoTJSONWriter_AppendEndObject( &xWriter );
 
@@ -554,6 +554,7 @@ static void prvAckIncomingTemperature( double xUpdatedTemperature,
     }
     else
     {
+        LogDebug( ( "Sending acknowledged writable property. Payload: %.*s", lBytesWritten, ucPropertyPayloadBuffer ) );
         xResult = AzureIoTHubClient_SendPropertiesReported( &xAzureIoTHubClient, ucPropertyPayloadBuffer, lBytesWritten, NULL );
 
         if( xResult != eAzureIoTSuccess )
@@ -587,6 +588,10 @@ static void prvHandleProperties( AzureIoTHubClientPropertiesResponse_t * pxMessa
                 prvUpdateLocalProperties( xIncomingTemperature, ulVersion, &xWasMaxTemperatureChanged );
                 prvAckIncomingTemperature( xIncomingTemperature, ulVersion );
             }
+            else
+            {
+              LogDebug(("There was an error processing incoming properties"));
+            }
 
             if( xWasMaxTemperatureChanged )
             {
@@ -603,6 +608,10 @@ static void prvHandleProperties( AzureIoTHubClientPropertiesResponse_t * pxMessa
             {
                 prvUpdateLocalProperties( xIncomingTemperature, ulVersion, &xWasMaxTemperatureChanged );
                 prvAckIncomingTemperature( xIncomingTemperature, ulVersion );
+            }
+            else
+            {
+              LogDebug(("There was an error processing incoming properties"));
             }
 
             if( xWasMaxTemperatureChanged )
