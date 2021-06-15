@@ -99,7 +99,7 @@ static int azure_iot(hfsm* me, hfsm_event event)
   {
     case HFSM_ENTRY:
       LogInfo( ("AzureIoT: Entry") );
-      thisiothfsm->_credential_idx = 0;
+      thisiothfsm->_use_secondary_credentials = false;
       break;
 
     case HFSM_EXIT:
@@ -130,17 +130,16 @@ static int idle(hfsm* me, hfsm_event event)
     case HFSM_EXIT:
       LogInfo( ("idle: Exit") );
       break;
-
+    
+    case AZ_IOT_START:
 #ifdef USE_PROVISIONING
-    case AZ_IOT_PROVISIONING_START:
-      az_iot_hfsm_pal_provisioning_start(thisiothfsm->_provisioning_handle);
+      az_iot_hfsm_pal_provisioning_start(me, thisiothfsm->_provisioning_handle, thisiothfsm->_use_secondary_credentials);
       ret = hfsm_transition_substate(me, azure_iot, provisioning);
-      break;
 #else
-    case AZ_IOT_HUB_START:
+      az_iot_hfsm_pal_hub_start();
       ret = hfsm_transition_substate(me, azure_iot, hub);
-      break;
 #endif
+      break;
 
     default:
       ret = HFSM_RET_HANDLE_BY_SUPERSTATE;
@@ -182,7 +181,7 @@ static int provisioning(hfsm* me, hfsm_event event)
 
     case TIMEOUT:
       thisiothfsm->_start_seconds = az_iot_hfsm_pal_timer_get_seconds();
-      az_iot_hfsm_pal_provisioning_start(thisiothfsm->_provisioning_handle);
+      az_iot_hfsm_pal_provisioning_start(me, thisiothfsm->_provisioning_handle, thisiothfsm->_use_secondary_credentials);
       break;
 
     default:
@@ -205,7 +204,7 @@ static int hub(hfsm* me, hfsm_event event)
       LogInfo( ("hub: Entry") );
       thisiothfsm->_retry_count = 0;
       thisiothfsm->_start_seconds = az_iot_hfsm_pal_timer_get_seconds();
-      thisiothfsm->_timer_handle = az_iot_hfsm_pal_timer_create();
+      thisiothfsm->_timer_handle = az_iot_hfsm_pal_timer_create(me);
       break;
 
     case HFSM_EXIT:
@@ -221,7 +220,7 @@ static int hub(hfsm* me, hfsm_event event)
 
     case TIMEOUT:
       thisiothfsm->_start_seconds = az_iot_hfsm_pal_timer_get_seconds();
-      az_iot_hfsm_pal_hub_start(thisiothfsm->_iothub_handle);
+      az_iot_hfsm_pal_hub_start(me, thisiothfsm->_iothub_handle, thisiothfsm->_use_secondary_credentials);
       break;
 
     default:

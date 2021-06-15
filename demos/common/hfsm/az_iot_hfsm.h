@@ -10,17 +10,17 @@
 #ifndef AZ_IOT_HFSM_H
 #define AZ_IOT_HFSM_H
 
-#include <azure/az_core.h>
-#include "az_hfsm.h"
+#include <stdint.h>
+#include <stdbool.h>
 
-#ifndef AZ_IOT_HFSM_CREDENTIAL_COUNT
-#define AZ_IOT_HFSM_CREDENTIAL_COUNT 1
-#endif
+#include <azure/az_core.h>
+#include <azure/iot/az_iot_common.h>
+#include "az_hfsm.h"
 
 typedef struct
 {
   hfsm hfsm;
-  int _credential_idx;
+  bool _use_secondary_credentials;
   int _retry_count;
   int _start_seconds;
   void* _timer_handle;
@@ -39,22 +39,41 @@ typedef enum
 
 } az_iot_hfsm_event_type;
 
+typedef struct {
+   bool is_communications;
+   bool is_security;
+   bool is_azure_iot;
+   az_iot_status iot_status;
+} az_iot_hfsm_event_data_error;
+
 int az_iot_hfsm_initialize(az_iot_hfsm_type* handle);
 int az_iot_hfsm_post_sync(az_iot_hfsm_type* handle, hfsm_event event);
 
 // Platform Adaptation Layer (PAL)
 
-// az_iot_hfsm_pal_timer
-void* az_iot_hfsm_pal_timer_create();
-int az_iot_hfsm_pal_timer_start(void* timer_handle, int32_t seconds);
-int az_iot_hfsm_pal_timer_stop(void* timer_handle);
-void az_iot_hfsm_pal_timer_destroy(void* timer_handle);
-int32_t az_iot_hfsm_pal_timer_get_seconds();
+/**
+ * @brief 
+ * 
+ * @param me The calling HFSM object.
+ * @param provisioning_handle 
+ * @return int 
+ */
+int az_iot_hfsm_pal_provisioning_start(hfsm* caller, void* provisioning_handle, bool use_secondary_credentials);
 
-int az_iot_hfsm_pal_provisioning_start(void* provisioning_handle);
-int az_iot_hfsm_pal_hub_start(void* hub_handle);
+/**
+ * @brief 
+ * 
+ * @param me The calling HFSM object.
+ * @param hub_handle 
+ * @return int 
+ */
+int az_iot_hfsm_pal_hub_start(hfsm* caller, void* hub_handle, bool use_secondary_credentials);
 
-// az_iot_hfsm_pal_critical
-void az_iot_hfsm_pal_critical();
+/**
+ * @brief Critical error. This function should not return.
+ * 
+ * @param me The calling HFSM object.
+ */
+void az_iot_hfsm_pal_critical(hfsm* caller, az_iot_hfsm_event_data_error error);
 
 #endif //AZ_IOT_HFSM_H

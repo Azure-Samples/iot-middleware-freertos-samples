@@ -118,8 +118,6 @@
 #define sampleazureiotSUBSCRIBE_TIMEOUT                       ( 10 * 1000U )
 /*-----------------------------------------------------------*/
 
-static az_iot_hfsm_type prvIoTHfsm;
-
 /**
  * @brief Unix time.
  *
@@ -137,6 +135,17 @@ uint64_t ullGetUnixTime( void );
 
 static uint8_t ucPropertyBuffer[ 32 ];
 static uint8_t ucScratchBuffer[ 128 ];
+
+// The retry Hierarchical Finite State Machine object.
+static az_iot_hfsm_type prvIoTHfsm;
+
+typedef enum
+{
+    DO_PROVISIONING,
+    DO_IOT_HUB,
+    DO_SLEEP
+} SAMPLE_OPERATIONS;
+static SAMPLE_OPERATIONS next_operation;
 
 /* Each compilation unit must define the NetworkContext struct. */
 struct NetworkContext
@@ -286,22 +295,74 @@ static void prvHandleDeviceTwinMessage( AzureIoTHubClientTwinResponse_t * pxMess
 /**
  * @brief Setup transport credentials.
  */
-static uint32_t prvSetupNetworkCredentials( NetworkCredentials_t * pxNetworkCredentials )
+static uint32_t prvSetupNetworkCredentials( NetworkCredentials_t * pxNetworkCredentials, bool use_secondary )
 {
     pxNetworkCredentials->xDisableSni = pdFALSE;
     /* Set the credentials for establishing a TLS connection. */
     pxNetworkCredentials->pucRootCa = ( const unsigned char * ) democonfigROOT_CA_PEM;
     pxNetworkCredentials->xRootCaSize = sizeof( democonfigROOT_CA_PEM );
+    
     #ifdef democonfigCLIENT_CERTIFICATE_PEM
-        pxNetworkCredentials->pucClientCert = ( const unsigned char * ) democonfigCLIENT_CERTIFICATE_PEM;
-        pxNetworkCredentials->xClientCertSize = sizeof( democonfigCLIENT_CERTIFICATE_PEM );
-        pxNetworkCredentials->pucPrivateKey = ( const unsigned char * ) democonfigCLIENT_PRIVATE_KEY_PEM;
-        pxNetworkCredentials->xPrivateKeySize = sizeof( democonfigCLIENT_PRIVATE_KEY_PEM );
+        #ifdef democonfigSECONDARY_CREDENTIALS
+        if (!use_secondary)
+        {
+        #endif // democonfigSECONDARY_CREDENTIALS
+            pxNetworkCredentials->pucClientCert = ( const unsigned char * ) democonfigCLIENT_CERTIFICATE_PEM;
+            pxNetworkCredentials->xClientCertSize = sizeof( democonfigCLIENT_CERTIFICATE_PEM );
+            pxNetworkCredentials->pucPrivateKey = ( const unsigned char * ) democonfigCLIENT_PRIVATE_KEY_PEM;
+            pxNetworkCredentials->xPrivateKeySize = sizeof( democonfigCLIENT_PRIVATE_KEY_PEM );
+        #ifdef democonfigSECONDARY_CREDENTIALS
+        }
+        else
+        {
+            pxNetworkCredentials->pucClientCert = ( const unsigned char * ) democonfigSECONDARY_CLIENT_CERTIFICATE_PEM;
+            pxNetworkCredentials->xClientCertSize = sizeof( democonfigSECONDARY_CLIENT_CERTIFICATE_PEM );
+            pxNetworkCredentials->pucPrivateKey = ( const unsigned char * ) democonfigSECONDARY_CLIENT_PRIVATE_KEY_PEM;
+            pxNetworkCredentials->xPrivateKeySize = sizeof( democonfigSECONDARY_CLIENT_PRIVATE_KEY_PEM );
+        }
+        #endif // democonfigSECONDARY_CREDENTIALS
     #endif
 
     return 0;
 }
 /*-----------------------------------------------------------*/
+
+/**
+ * @brief 
+ * 
+ * @param me The calling HFSM object.
+ * @param provisioning_handle 
+ * @return int 
+ */
+int az_iot_hfsm_pal_provisioning_start(hfsm* caller, void* provisioning_handle, bool use_secondary_credentials)
+{
+    LogInfo( ("Provisioning not implemented") );
+    return 0;
+}
+
+/**
+ * @brief 
+ * 
+ * @param me The calling HFSM object.
+ * @param hub_handle 
+ * @return int 
+ */
+int az_iot_hfsm_pal_hub_start(hfsm* caller, void* hub_handle, bool use_secondary_credentials)
+{
+    LogInfo( ("Hub not implemented") );
+    return 0;
+}
+
+/**
+ * @brief Critical error. This function should not return.
+ * 
+ * @param me The calling HFSM object.
+ */
+void az_iot_hfsm_pal_critical(hfsm* caller, az_iot_hfsm_event_data_error error)
+{
+    LogInfo( ("Hub not implemented") );
+}
+
 
 /**
  * @brief Azure IoT demo task that gets started in the platform specific project.
@@ -312,7 +373,6 @@ static void prvAzureDemoTask( void * pvParameters )
     NetworkCredentials_t xNetworkCredentials = { 0 };
 
     uint32_t ulStatus;
-    configASSERT( !az_iot_hfsm_initialize(&prvIoTHfsm) );
 
     #ifdef democonfigENABLE_DPS_SAMPLE
         uint8_t * pucIotHubHostname = NULL;
@@ -330,6 +390,33 @@ static void prvAzureDemoTask( void * pvParameters )
 
     /* Initialize Azure IoT Middleware.  */
     configASSERT( AzureIoT_Init() == eAzureIoTSuccess );
+
+    configASSERT( !az_iot_hfsm_initialize(&prvIoTHfsm) );
+    
+    hfsm_event az_iot_hfsm_event_iot_start = { AZ_IOT_START, NULL };
+    az_iot_hfsm_post_sync(&prvIoTHfsm, az_iot_hfsm_event_iot_start);
+
+    az_iot_hfsm_event_data_error unknown_error = { false, false, false, AZ_IOT_STATUS_UNKNOWN };
+
+    for ( ; ; )
+    {
+        switch (next_operation)
+        {
+            case DO_PROVISIONING:
+                break;
+
+            case DO_IOT_HUB:
+                break;
+
+            case DO_SLEEP:
+                break;
+
+            default:
+                az_iot_hfsm_pal_critical((hfsm*)(&prvIoTHfsm), unknown_error);
+        }
+    }
+
+#if 0
 
     ulStatus = prvSetupNetworkCredentials( &xNetworkCredentials );
     configASSERT( ulStatus == 0 );
@@ -361,6 +448,7 @@ static void prvAzureDemoTask( void * pvParameters )
         LogInfo( ( "Short delay before starting the next iteration.... \r\n\r\n" ) );
         vTaskDelay( sampleazureiotDELAY_BETWEEN_DEMO_ITERATIONS_TICKS );
     }
+#endif 
 }
 
 /*-----------------------------------------------------------*/
