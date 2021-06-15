@@ -28,7 +28,7 @@ void* az_hfsm_pal_timer_create(hfsm me);
  * @param oneshot 
  * @return int 
  */
-int az_hfsm_pal_timer_start(hfsm me, void* timer_handle, int32_t seconds, bool oneshot);
+int az_hfsm_pal_timer_start(hfsm me, void* timer_handle, uint32_t seconds, bool oneshot);
 
 /**
  * @brief 
@@ -52,4 +52,4 @@ void az_hfsm_pal_timer_destroy(hfsm me, void* timer_handle);
  * 
  * @return int32_t 
  */
-int32_t az_hfsm_pal_timer_get_seconds();
+int32_t az_hfsm_pal_timer_get_miliseconds();

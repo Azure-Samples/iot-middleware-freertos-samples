@@ -36,6 +36,8 @@ typedef struct hfsm_event hfsm_event;
 
 extern const hfsm_event hfsm_entry_event;
 extern const hfsm_event hfsm_exit_event;
+extern const hfsm_event hfsm_timeout_event;
+extern const hfsm_event hfsm_errork_unknown_event;
 
 typedef struct hfsm hfsm;
 typedef int (*state_handler)(hfsm* me, hfsm_event event);

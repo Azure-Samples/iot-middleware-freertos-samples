@@ -24,19 +24,14 @@ typedef struct
   int _retry_count;
   int _start_seconds;
   void* _timer_handle;
-  void* _provisioning_handle;
-  void* _iothub_handle;
 } az_iot_hfsm_type;
 
 // AzIoTHFSM-specific events.
 typedef enum
 {
-  ERROR = HFSM_EVENT(1),
-  TIMEOUT = HFSM_EVENT(2),
-  AZ_IOT_ERROR = HFSM_EVENT(3),
-  AZ_IOT_START = HFSM_EVENT(4),
+  AZ_IOT_ERROR = HFSM_EVENT(4),
+  AZ_IOT_START = HFSM_EVENT(5),
   AZ_IOT_PROVISIONING_DONE = HFSM_EVENT(5),
-
 } az_iot_hfsm_event_type;
 
 typedef struct {
@@ -58,7 +53,7 @@ int az_iot_hfsm_post_sync(az_iot_hfsm_type* handle, hfsm_event event);
  * @param provisioning_handle 
  * @return int 
  */
-int az_iot_hfsm_pal_provisioning_start(hfsm* caller, void* provisioning_handle, bool use_secondary_credentials);
+int az_iot_hfsm_pal_provisioning_start(hfsm* caller, bool use_secondary_credentials);
 
 /**
  * @brief 
@@ -67,7 +62,7 @@ int az_iot_hfsm_pal_provisioning_start(hfsm* caller, void* provisioning_handle, 
  * @param hub_handle 
  * @return int 
  */
-int az_iot_hfsm_pal_hub_start(hfsm* caller, void* hub_handle, bool use_secondary_credentials);
+int az_iot_hfsm_pal_hub_start(hfsm* caller, bool use_secondary_credentials);
 
 /**
  * @brief Critical error. This function should not return.

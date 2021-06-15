@@ -160,7 +160,7 @@ static int provisioning(hfsm* me, hfsm_event event)
     case HFSM_ENTRY:
       LogInfo( ("provisioning: Entry") );
       thisiothfsm->_retry_count = 0;
-      thisiothfsm->_start_seconds = az_iot_hfsm_pal_timer_get_seconds();
+      thisiothfsm->_start_seconds = az_hfsm_pal_timer_get_miliseconds();
       thisiothfsm->_timer_handle = az_iot_hfsm_pal_timer_create();
       break;
 
@@ -203,7 +203,7 @@ static int hub(hfsm* me, hfsm_event event)
     case HFSM_ENTRY:
       LogInfo( ("hub: Entry") );
       thisiothfsm->_retry_count = 0;
-      thisiothfsm->_start_seconds = az_iot_hfsm_pal_timer_get_seconds();
+      thisiothfsm->_start_seconds = az_hfsm_pal_timer_get_miliseconds();
       thisiothfsm->_timer_handle = az_iot_hfsm_pal_timer_create(me);
       break;
 
