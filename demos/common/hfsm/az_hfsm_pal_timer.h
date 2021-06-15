@@ -47,6 +47,8 @@ int az_hfsm_pal_timer_stop(hfsm me, void* timer_handle);
  */
 void az_hfsm_pal_timer_destroy(hfsm me, void* timer_handle);
 
+inline void az_hfsm_
+
 /**
  * @brief 
  * 

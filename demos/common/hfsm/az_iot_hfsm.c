@@ -103,8 +103,8 @@ static int azure_iot(hfsm* me, hfsm_event event)
       break;
 
     case HFSM_EXIT:
-    case ERROR:
-    case TIMEOUT:
+    case HFSM_ERROR:
+    case HFSM_TIMEOUT:
     default:
       LogInfo( ("AzureIoT: PANIC!") );
       // Critical error: (memory corruption likely) reboot device.
@@ -133,7 +133,7 @@ static int idle(hfsm* me, hfsm_event event)
     
     case AZ_IOT_START:
 #ifdef USE_PROVISIONING
-      az_iot_hfsm_pal_provisioning_start(me, thisiothfsm->_provisioning_handle, thisiothfsm->_use_secondary_credentials);
+      az_iot_hfsm_pal_provisioning_start(me, thisiothfsm->_use_secondary_credentials);
       ret = hfsm_transition_substate(me, azure_iot, provisioning);
 #else
       az_iot_hfsm_pal_hub_start();
@@ -179,9 +179,9 @@ static int provisioning(hfsm* me, hfsm_event event)
       // TODO: retriable error, start timers
       break;
 
-    case TIMEOUT:
+    case HFSM_TIMEOUT:
       thisiothfsm->_start_seconds = az_iot_hfsm_pal_timer_get_seconds();
-      az_iot_hfsm_pal_provisioning_start(me, thisiothfsm->_provisioning_handle, thisiothfsm->_use_secondary_credentials);
+      az_iot_hfsm_pal_provisioning_start(me, thisiothfsm->_use_secondary_credentials);
       break;
 
     default:
@@ -218,9 +218,9 @@ static int hub(hfsm* me, hfsm_event event)
 
       break;
 
-    case TIMEOUT:
+    case HFSM_TIMEOUT:
       thisiothfsm->_start_seconds = az_iot_hfsm_pal_timer_get_seconds();
-      az_iot_hfsm_pal_hub_start(me, thisiothfsm->_iothub_handle, thisiothfsm->_use_secondary_credentials);
+      az_iot_hfsm_pal_hub_start(me, thisiothfsm->_use_secondary_credentials);
       break;
 
     default:
