@@ -580,7 +580,7 @@ static void prvHandleProperties( AzureIoTHubClientPropertiesResponse_t * pxMessa
     {
         case eAzureIoTHubPropertiesGetMessage:
             LogInfo( ( "Device property document GET received" ) );
-            xResult = prvProcessProperties( pxMessage, eAzureIoTHubClientPropertyWriteable, &xIncomingTemperature, &ulVersion );
+            xResult = prvProcessProperties( pxMessage, eAzureIoTHubClientPropertyWritable, &xIncomingTemperature, &ulVersion );
 
             if( xResult == eAzureIoTSuccess )
             {
@@ -595,9 +595,9 @@ static void prvHandleProperties( AzureIoTHubClientPropertiesResponse_t * pxMessa
 
             break;
 
-        case eAzureIoTHubPropertiesWriteablePropertyMessage:
+        case eAzureIoTHubPropertiesWritablePropertyMessage:
             LogInfo( ( "Device writeable property received" ) );
-            xResult = prvProcessProperties( pxMessage, eAzureIoTHubClientPropertyWriteable, &xIncomingTemperature, &ulVersion );
+            xResult = prvProcessProperties( pxMessage, eAzureIoTHubClientPropertyWritable, &xIncomingTemperature, &ulVersion );
 
             if( xResult == eAzureIoTSuccess )
             {
