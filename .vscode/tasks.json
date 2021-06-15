@@ -1,0 +1,47 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build and Deploy b-l475e-iot01a",
+            "type": "shell",
+            "command": "openocd -f board/stm32l4discovery.cfg -c \"program b-l475e-iot01a/demos/projects/ST/b-l475e-iot01a/iot-middleware-sample.elf verify\" -c \"reset halt\" -c shutdown",
+            "windows": {
+                "options": {
+                  "shell": {
+                      "executable": "cmd.exe",
+                      "args": ["/c"]
+                  }
+                }
+              },
+            "problemMatcher": [],
+            "dependsOn": [ "Build b-l475e-iot01a" ]
+        },
+        {
+            "label": "Download FreeRTOS",
+            "type": "shell",
+            "isBackground": false,
+            "command": "bash -c .github/scripts/fetch_freertos.sh libs/FreeRTOS"
+        },
+        {
+            "label": "Build b-l475e-iot01a",
+            "type": "shell",
+            "command": "cmake -G Ninja -DFREERTOS_PATH=${workspaceRoot}/libs/FreeRTOS -DVENDOR=ST -DBOARD=b-l475e-iot01a -DCMAKE_BUILD_TYPE=Debug -Bb-l475e-iot01a ${workspaceRoot}; cmake --build b-l475e-iot01a",
+            "dependsOn": [ "Download FreeRTOS" ],
+            "dependsOrder": "sequence"
+        },
+        {
+            "label": "Build NXP mimxrt1060",
+            "type": "shell",
+            "command": "cmake -G Ninja -DFREERTOS_PATH=${workspaceRoot}/libs/FreeRTOS -DBOARD=mimxrt1060 -DVENDOR=NXP -Bmimxrt1060 -DCMAKE_BUILD_TYPE=Debug ${workspaceRoot}; cmake --build mimxrt1060",
+            "dependsOn": [ "Download FreeRTOS" ],
+            "dependsOrder": "sequence"
+        },
+        {
+            "label": "Build Linux",
+            "type": "shell",
+            "command": "cmake -G Ninja -DFREERTOS_PATH=${workspaceRoot}/libs/FreeRTOS -DBOARD=linux -DVENDOR=PC -DCMAKE_BUILD_TYPE=Debug -Blinux ${workspaceRoot} && cmake --build linux",
+            "dependsOn": [ "Download FreeRTOS" ],
+            "dependsOrder": "sequence"
+        }
+    ]
+}

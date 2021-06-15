@@ -7,18 +7,9 @@ set -o errexit # Exit if command failed.
 set -o nounset # Exit if variable not set.
 set -o pipefail # Exit if pipe failed.
 
-echo -e "::group::FreeRTOS Source"
-TEST_FREERTOS_COMMIT_ID=c8fa483b68c6c1149c2a7a8bc1e901b38860ec9b
-
-if [ ! -d "libs/FreeRTOS" ]; then
-    git clone https://github.com/FreeRTOS/FreeRTOS.git libs/FreeRTOS
-    pushd libs/FreeRTOS
-    git checkout -b ${TEST_FREERTOS_COMMIT_ID}
-    git submodule sync
-    git submodule update --init --recursive --depth=1
-    popd
-fi
+TEST_SCRIPT_DIR=`dirname "$0"`
 TEST_FREERTOS_SRC=`pwd`/libs/FreeRTOS
+$TEST_SCRIPT_DIR/fetch_freertos.sh $TEST_FREERTOS_SRC
 
 function exit_if_binary_does_not_exist()
 {
