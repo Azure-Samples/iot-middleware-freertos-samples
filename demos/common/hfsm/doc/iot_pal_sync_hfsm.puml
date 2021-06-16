@@ -1,0 +1,19 @@
+@startuml Azure IoT HFSM Sync PAL layer
+
+state Top {
+    state Idle
+
+    state Running
+    Running : <b>DO_WORK</b>
+    
+    state Timeout
+    
+    [*] -> Idle
+    Idle -> Running : AZ_IOT_START / SetupNetworkCredentials
+    Running -> Timeout
+    Timeout -> Idle
+    Running -> Idle
+    
+}
+
+@enduml
