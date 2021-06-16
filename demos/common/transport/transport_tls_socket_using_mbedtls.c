@@ -765,6 +765,7 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pxNetworkContext,
             if( ( pxNetworkContext != NULL ) && ( pxNetworkContext->pParams != NULL ) )
             {
                 sslContextFree( pxSSLContext );
+                vPortFree( pxSSLContext );
                 pxTlsTransportParams->xSSLContext = NULL;
 
                 if( pxTlsTransportParams->xTCPSocket != SOCKETS_INVALID_SOCKET )
@@ -826,6 +827,7 @@ void TLS_Socket_Disconnect( NetworkContext_t * pxNetworkContext )
 
         /* Free mbed TLS contexts. */
         sslContextFree( pxSSLContext );
+        vPortFree( pxSSLContext );
     }
 
     /* Clear the mutex functions for mbed TLS thread safety. */
