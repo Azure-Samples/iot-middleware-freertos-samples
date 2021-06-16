@@ -590,7 +590,7 @@ static void prvHandleProperties( AzureIoTHubClientPropertiesResponse_t * pxMessa
             }
             else
             {
-              LogDebug(("There was an error processing incoming properties"));
+                LogDebug( ( "There was an error processing incoming properties" ) );
             }
 
             if( xWasMaxTemperatureChanged )
@@ -611,7 +611,7 @@ static void prvHandleProperties( AzureIoTHubClientPropertiesResponse_t * pxMessa
             }
             else
             {
-              LogDebug(("There was an error processing incoming properties"));
+                LogDebug( ( "There was an error processing incoming properties" ) );
             }
 
             if( xWasMaxTemperatureChanged )
@@ -886,6 +886,15 @@ static void prvAzureDemoTask( void * pvParameters )
             xResult = AzureIoTProvisioningClient_Register( &xAzureIoTProvisioningClient,
                                                            sampleazureiotProvisioning_Registration_TIMEOUT_MS );
         } while( xResult == eAzureIoTErrorPending );
+
+        if( xResult == eAzureIoTSuccess )
+        {
+            LogInfo( ( "Successfully acquired IoT Hub name and Device ID" ) );
+        }
+        else
+        {
+            LogInfo( ( "Error geting IoT Hub name and Device ID: 0x%08", xResult ) );
+        }
 
         configASSERT( xResult == eAzureIoTSuccess );
 

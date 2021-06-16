@@ -6,7 +6,7 @@ set(CMAKE_TOOLCHAIN_FILE cmake/${VENDOR}_gcc.cmake)
 
 project(iot-middleware-sample C ASM)
 set(CMAKE_INCLUDE_CURRENT_DIR TRUE)
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m32")
+# set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m32")
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
