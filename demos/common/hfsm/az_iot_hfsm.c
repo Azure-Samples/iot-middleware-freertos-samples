@@ -15,7 +15,9 @@
 #include "task.h"
 
 #include "az_hfsm.h"
+#include "az_hfsm_pal_timer.h"
 #include "az_iot_hfsm.h"
+
 
 /**************************************************/
 /******* DO NOT CHANGE the following order ********/
@@ -52,14 +54,12 @@ extern void vLoggingPrintf( const char * pcFormatString,
 
 #include "logging_stack.h"
 
-
-#define USE_PROVISIONING  // Comment out if Azure IoT Provisioning is not used.
+const hfsm_event hfsm_event_az_iot_start = { AZ_IOT_START, NULL };
+const hfsm_event hfsm_event_az_iot_provisioning_done = { AZ_IOT_PROVISIONING_DONE, NULL };
 
 static int azure_iot(hfsm* me, hfsm_event event);
 static int idle(hfsm* me, hfsm_event event);
-#ifdef USE_PROVISIONING
 static int provisioning(hfsm* me, hfsm_event event);
-#endif
 static int hub(hfsm* me, hfsm_event event);
 
 // Hardcoded AzureIoT hierarchy structure
@@ -72,9 +72,7 @@ static state_handler azure_iot_hfsm_get_parent(state_handler child_state)
     parent_state = NULL;
   }
   else if (
-#ifdef USE_PROVISIONING
       (child_state == provisioning) ||
-#endif
       (child_state == hub) || (child_state == idle)
     )
   {
@@ -93,13 +91,52 @@ static state_handler azure_iot_hfsm_get_parent(state_handler child_state)
 static int azure_iot(hfsm* me, hfsm_event event)
 {
   int ret = 0;
-  az_iot_hfsm_type* thisiothfsm = (az_iot_hfsm_type*)me;
+  int32_t operation_msec;
+
+  az_iot_hfsm_type* this_iothfsm = (az_iot_hfsm_type*)me;
 
   switch ((int)event.type)
   {
     case HFSM_ENTRY:
       LogInfo( ("AzureIoT: Entry") );
-      thisiothfsm->_use_secondary_credentials = false;
+      this_iothfsm->_use_secondary_credentials = false;
+      break;
+
+    case AZ_IOT_ERROR:
+      operation_msec = az_hfsm_pal_timer_get_miliseconds() - this_iothfsm->_start_time_msec;
+
+      this_iothfsm->_retry_attempt++;
+      az_iot_hfsm_event_data_error* error_data = (az_iot_hfsm_event_data_error*)(event.data);
+
+      bool should_retry = false;
+      if (error_data->is_azure_iot)
+      {
+        should_retry = az_iot_status_retriable(error_data->iot_status);
+      }
+      else if (error_data->is_communications)
+      {
+        should_retry = true;
+      }
+
+      if (should_retry)
+      {
+        int random_jitter_msec = az_iot_hfsm_pal_get_random_jitter_msec(me);
+
+        int retry_delay_msec = az_iot_calculate_retry_delay(
+          operation_msec, 
+          this_iothfsm->_retry_attempt,
+          MIN_RETRY_DELAY_MSEC,
+          MAX_RETRY_DELAY_MSEC,
+          random_jitter_msec);
+
+        ret = az_hfsm_pal_timer_start(me, this_iothfsm->_timer_handle, retry_delay_msec, true);
+      }
+      else
+      {
+        this_iothfsm->_use_secondary_credentials = !this_iothfsm->_use_secondary_credentials;
+        this_iothfsm->_start_time_msec = az_hfsm_pal_timer_get_miliseconds();
+        ret = hfsm_post_event(this_iothfsm->_provisioning_hfsm, hfsm_event_az_iot_start);
+      }
       break;
 
     case HFSM_EXIT:
@@ -107,9 +144,8 @@ static int azure_iot(hfsm* me, hfsm_event event)
     case HFSM_TIMEOUT:
     default:
       LogInfo( ("AzureIoT: PANIC!") );
-      // Critical error: (memory corruption likely) reboot device.
-      //TODO: az_iot_hfsm_pal_critical();
-      configASSERT(0);
+      az_iot_hfsm_pal_critical(me);
+      configASSERT(0); // Should never reach here.
       break;
   }
 
@@ -119,7 +155,7 @@ static int azure_iot(hfsm* me, hfsm_event event)
 static int idle(hfsm* me, hfsm_event event)
 {
   int ret = 0;
-  az_iot_hfsm_type* thisiothfsm = (az_iot_hfsm_type*)me;
+  az_iot_hfsm_type* this_iothfsm = (az_iot_hfsm_type*)me;
 
   switch ((int)event.type)
   {
@@ -132,13 +168,7 @@ static int idle(hfsm* me, hfsm_event event)
       break;
     
     case AZ_IOT_START:
-#ifdef USE_PROVISIONING
-      az_iot_hfsm_pal_provisioning_start(me, thisiothfsm->_use_secondary_credentials);
-      ret = hfsm_transition_substate(me, azure_iot, provisioning);
-#else
-      az_iot_hfsm_pal_hub_start();
-      ret = hfsm_transition_substate(me, azure_iot, hub);
-#endif
+      hfsm_post_event(this_iothfsm->_provisioning_hfsm, hfsm_event_az_iot_start);
       break;
 
     default:
@@ -148,40 +178,29 @@ static int idle(hfsm* me, hfsm_event event)
   return ret;
 }
 
-#ifdef USE_PROVISIONING
 // AzureIoT/Provisioning
 static int provisioning(hfsm* me, hfsm_event event)
 {
   int ret = 0;
-  az_iot_hfsm_type* thisiothfsm = (az_iot_hfsm_type*)me;
+  az_iot_hfsm_type* this_iothfsm = (az_iot_hfsm_type*)me;
 
   switch ((int)event.type)
   {
     case HFSM_ENTRY:
       LogInfo( ("provisioning: Entry") );
-      thisiothfsm->_retry_count = 0;
-      thisiothfsm->_start_seconds = az_hfsm_pal_timer_get_miliseconds();
-      thisiothfsm->_timer_handle = az_iot_hfsm_pal_timer_create();
+      this_iothfsm->_retry_attempt = 0;
+      this_iothfsm->_start_time_msec = az_hfsm_pal_timer_get_miliseconds();
+      this_iothfsm->_timer_handle = az_hfsm_pal_timer_create(me);
       break;
 
     case HFSM_EXIT:
       LogInfo( ("provisioning: Exit") );
-      az_iot_hfsm_pal_timer_destroy(thisiothfsm->_timer_handle);
-      break;
-
-    case AZ_IOT_ERROR:
-      // TODO: error_data = 
-
-      thisiothfsm->_retry_count++;
-      int elapsedSeconds = az_iot_hfsm_pal_timer_get_seconds() - thisiothfsm->_start_seconds;
-      int retry_delay = 0; // TODO : calculate retry delay.
-
-      // TODO: retriable error, start timers
+      az_hfsm_pal_timer_destroy(me, this_iothfsm->_timer_handle);
       break;
 
     case HFSM_TIMEOUT:
-      thisiothfsm->_start_seconds = az_iot_hfsm_pal_timer_get_seconds();
-      az_iot_hfsm_pal_provisioning_start(me, thisiothfsm->_use_secondary_credentials);
+      this_iothfsm->_start_time_msec = az_hfsm_pal_timer_get_miliseconds();
+      ret = hfsm_post_event(this_iothfsm->_provisioning_hfsm, hfsm_event_az_iot_start);
       break;
 
     default:
@@ -190,37 +209,30 @@ static int provisioning(hfsm* me, hfsm_event event)
 
   return ret;
 }
-#endif //USE_PROVISIONING
 
 // AzureIoT/Hub
 static int hub(hfsm* me, hfsm_event event)
 {
   int ret = 0;
-  az_iot_hfsm_type* thisiothfsm = (az_iot_hfsm_type*)me;
+  az_iot_hfsm_type* this_iothfsm = (az_iot_hfsm_type*)me;
 
   switch ((int)event.type)
   {
     case HFSM_ENTRY:
       LogInfo( ("hub: Entry") );
-      thisiothfsm->_retry_count = 0;
-      thisiothfsm->_start_seconds = az_hfsm_pal_timer_get_miliseconds();
-      thisiothfsm->_timer_handle = az_iot_hfsm_pal_timer_create(me);
+      this_iothfsm->_retry_attempt = 0;
+      this_iothfsm->_start_time_msec = az_hfsm_pal_timer_get_miliseconds();
+      this_iothfsm->_timer_handle = az_hfsm_pal_timer_create(me);
       break;
 
     case HFSM_EXIT:
       LogInfo( ("hub: Exit") );
-      az_iot_hfsm_pal_timer_destroy(thisiothfsm->_timer_handle);
-      break;
-
-    case AZ_IOT_ERROR:
-      // TODO: error_data = 
-      //TODO:  if retriable
-
+      az_hfsm_pal_timer_destroy(me, this_iothfsm->_timer_handle);
       break;
 
     case HFSM_TIMEOUT:
-      thisiothfsm->_start_seconds = az_iot_hfsm_pal_timer_get_seconds();
-      az_iot_hfsm_pal_hub_start(me, thisiothfsm->_use_secondary_credentials);
+      this_iothfsm->_start_time_msec = az_hfsm_pal_timer_get_miliseconds();
+      ret = hfsm_post_event(this_iothfsm->_iothub_hfsm, hfsm_event_az_iot_start);
       break;
 
     default:
@@ -233,18 +245,23 @@ static int hub(hfsm* me, hfsm_event event)
 /**
  * @brief 
  * 
- * @param handle 
+ * @param iot_hfsm 
+ * @param provisioning_hfsm 
+ * @param hub_hfsm 
  * @return int 
  */
-int az_iot_hfsm_initialize(az_iot_hfsm_type* handle)
+int az_iot_hfsm_initialize(az_iot_hfsm_type* iot_hfsm, hfsm* provisioning_hfsm, hfsm* hub_hfsm)
 {
   int ret = 0;
-  ret = hfsm_init((hfsm*)(handle), azure_iot, azure_iot_hfsm_get_parent);
-  
+
+  iot_hfsm->_provisioning_hfsm = provisioning_hfsm;
+  iot_hfsm->_iothub_hfsm = hub_hfsm;
+  ret = hfsm_init((hfsm*)(iot_hfsm), azure_iot, azure_iot_hfsm_get_parent);
+
   // Transition to initial state.
   if (!ret)
   {
-    ret = hfsm_transition_substate((hfsm*)(handle), azure_iot, idle);
+    ret = hfsm_transition_substate((hfsm*)(iot_hfsm), azure_iot, idle);
   }
 
   return ret;

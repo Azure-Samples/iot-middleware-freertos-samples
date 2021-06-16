@@ -93,7 +93,7 @@ uint64_t ullGetUnixTime( void );
 
 uint64_t az_hfsm_pal_timer_get_miliseconds()
 {
-    return ullGetUnixTime() / 1000;
+    return ullGetUnixTime();
 }
 
 static int do_provisioning()

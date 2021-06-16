@@ -49,7 +49,8 @@ struct hfsm
   get_parent get_parent_func;
 };
 
-#define HFSM_RET_HANDLE_BY_SUPERSTATE -1
+// ASCII "SUPR"
+#define HFSM_RET_HANDLE_BY_SUPERSTATE 0x53555052
 
 /**
  * @brief Initializes the HFSM.

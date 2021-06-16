@@ -9,6 +9,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "az_hfsm.h"
+
 // az_iot_hfsm_pal_timer
 
 /**
@@ -17,7 +19,7 @@
  * @param me 
  * @return void* 
  */
-void* az_hfsm_pal_timer_create(hfsm me);
+void* az_hfsm_pal_timer_create(hfsm* src);
 
 /**
  * @brief 
@@ -28,7 +30,7 @@ void* az_hfsm_pal_timer_create(hfsm me);
  * @param oneshot 
  * @return int 
  */
-int az_hfsm_pal_timer_start(hfsm me, void* timer_handle, uint32_t seconds, bool oneshot);
+int az_hfsm_pal_timer_start(hfsm* src, void* timer_handle, int32_t milliseconds, bool oneshot);
 
 /**
  * @brief 
@@ -37,7 +39,7 @@ int az_hfsm_pal_timer_start(hfsm me, void* timer_handle, uint32_t seconds, bool 
  * @param timer_handle 
  * @return int 
  */
-int az_hfsm_pal_timer_stop(hfsm me, void* timer_handle);
+int az_hfsm_pal_timer_stop(hfsm* src, void* timer_handle);
 
 /**
  * @brief 
@@ -45,13 +47,11 @@ int az_hfsm_pal_timer_stop(hfsm me, void* timer_handle);
  * @param me 
  * @param timer_handle 
  */
-void az_hfsm_pal_timer_destroy(hfsm me, void* timer_handle);
+void az_hfsm_pal_timer_destroy(hfsm* src, void* timer_handle);
 
-inline void az_hfsm_
+inline int az_hfsm_pal_timer_notify(hfsm* dst)
+{
+    return hfsm_post_event(dst, hfsm_timeout_event);
+}
 
-/**
- * @brief 
- * 
- * @return int32_t 
- */
-int32_t az_hfsm_pal_timer_get_miliseconds();
+uint64_t az_hfsm_pal_timer_get_miliseconds();

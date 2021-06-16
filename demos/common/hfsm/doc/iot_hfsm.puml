@@ -12,18 +12,6 @@ state AzureIot {
     Provisioning : <b>exit/</b>
     Provisioning : \t destroy timer
     Provisioning :
-    Provisioning : <b>AZ_IOT_ERROR/</b>
-    Provisioning :  \t retryCount++
-    Provisioning :  \t elapsedSeconds = getSeconds() - startSeconds
-    Provisioning : \t if (retriable_error()) {
-    Provisioning : \t\t start timer(calculate_retry_delay(elapsedSeconds, retryCount))
-    Provisioning : \t }
-    Provisioning : \t else {
-    Provisioning : \t\t credential_idx = rotate_dps_credentials()
-    Provisioning:  \t\t startSeconds = startstopwatch()
-    Provisioning : \t\t start_provisioning()
-    Provisioning : \t }
-    Provisioning :
     Provisioning : <b>TIMEOUT/</b>
     Provisioning :  \t startSeconds = startstopwatch()
     Provisioning : \t start_provisioning()
@@ -37,17 +25,6 @@ state AzureIot {
     Hub : <b>exit/</b>
     Hub : \t destroy timer
     Hub : 
-    Hub : <b>AZ_IOT_ERROR/</b>
-    Hub : \t retryCount++
-    Hub : \t elapsedSeconds = getSeconds() - startSeconds
-    Hub : \t if (retriable_error) {
-    Hub : \t\t start(delayTimer(calculate_retry_delay(elapsedSeconds, retryCount)))
-    Hub : \t }
-    Hub : \t else {
-    Hub : \t\t start_provisioning()
-    Hub : \t\t ^^AZ_IOT_START
-    Hub : \t }
-    Hub :
     Hub : <b>TIMEOUT/</b>
     Hub : \t startSeconds = startstopwatch()
     Hub : \t start_hub()
@@ -61,6 +38,19 @@ state AzureIot {
 
 AzureIot : <b>entry/</b> 
 AzureIot : \t credential_idx = 0
+AzureIot :
+AzureIot : <b>AZ_IOT_ERROR/</b>
+AzureIot :  \t retryCount++
+AzureIot :  \t elapsedSeconds = getSeconds() - startSeconds
+AzureIot : \t if (retriable_error()) {
+AzureIot : \t\t start timer(calculate_retry_delay(elapsedSeconds, retryCount))
+AzureIot : \t }
+AzureIot : \t else {
+AzureIot : \t\t credential_idx = rotate_dps_credentials()
+AzureIot:  \t\t startSeconds = startstopwatch()
+AzureIot : \t\t start_provisioning()
+AzureIot : \t }
+AzureIot :
 AzureIot :
 AzureIot : <b>ERROR/</b> reboot
 
