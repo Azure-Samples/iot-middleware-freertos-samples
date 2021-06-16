@@ -724,7 +724,6 @@ static void prvAzureDemoTask( void * pvParameters )
     AzureIoTResult_t xResult;
     uint32_t ulStatus;
     AzureIoTHubClientOptions_t xHubOptions = { 0 };
-    AzureIoTMessageProperties_t xPropertyBag;
     bool xSessionPresent;
 
     #ifdef democonfigENABLE_DPS_SAMPLE

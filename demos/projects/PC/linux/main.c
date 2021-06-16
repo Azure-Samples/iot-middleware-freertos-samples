@@ -330,7 +330,7 @@ extern uint32_t ulApplicationGetNextSequenceNumber( uint32_t ulSourceAddress,
     ( void ) ulDestinationAddress;
     ( void ) usDestinationPort;
 
-    return configRAND32();
+    return (uint32_t) configRAND32();
 }
 /*-----------------------------------------------------------*/
 
@@ -345,7 +345,7 @@ extern uint32_t ulApplicationGetNextSequenceNumber( uint32_t ulSourceAddress,
  */
 BaseType_t xApplicationGetRandomNumber( uint32_t * pulNumber )
 {
-    *pulNumber = configRAND32();
+    *pulNumber = (uint32_t) configRAND32();
     return pdTRUE;
 }
 /*-----------------------------------------------------------*/
