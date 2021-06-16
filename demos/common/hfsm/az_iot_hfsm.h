@@ -69,7 +69,7 @@ int az_iot_hfsm_initialize(az_iot_hfsm_type* iot_hfsm, hfsm* provisioning_hfsm, 
  * 
  * @param me The calling HFSM object.
  */
-void az_iot_hfsm_pal_critical(hfsm* hfsm);
+void az_iot_hfsm_pal_critical_error(hfsm* hfsm);
 
 /**
  * @brief Get random jitter in milliseconds.

@@ -146,7 +146,7 @@ static int azure_iot(hfsm* me, hfsm_event event)
     case HFSM_TIMEOUT:
     default:
       LogInfo( ("AzureIoT: PANIC!") );
-      az_iot_hfsm_pal_critical(me);
+      az_iot_hfsm_pal_critical_error(me);
       configASSERT(0); // Should never reach here.
       break;
   }

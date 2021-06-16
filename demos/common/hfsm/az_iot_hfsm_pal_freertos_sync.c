@@ -281,7 +281,7 @@ void Error_Handler( void );
  * 
  * @param me The calling HFSM object.
  */
-void az_iot_hfsm_pal_critical(hfsm* caller)
+void az_iot_hfsm_pal_critical_error(hfsm* caller)
 {
     (void) caller;
     Error_Handler();
