@@ -112,9 +112,18 @@ uint32_t prvDeviceProvisioningRun();
 
 static int azure_iot_sync(hfsm* me, hfsm_event event)
 {
-  // Control should never reach this azure_iot_sync state.
-  LogInfo( ("azure_iot_sync: PANIC!") );
-  configASSERT(0);
+  switch ((int)event.type)
+  {
+    case HFSM_ENTRY:
+    case HFSM_EXIT:
+      break;
+    
+    default:
+      // Control should never reach this azure_iot_sync state.
+      LogInfo( ("azure_iot_sync: PANIC!") );
+      configASSERT(0);
+  }
+
   return 0;
 }
 
@@ -124,6 +133,11 @@ static int idle(hfsm* me, hfsm_event event)
 
   switch ((int)event.type)
   {
+    case HFSM_ENTRY:
+    case HFSM_EXIT:
+    case DO_WORK:
+      break;
+
     case AZ_IOT_START:
         LogInfo( ("idle: AZ_IOT_START") );
 
@@ -131,6 +145,8 @@ static int idle(hfsm* me, hfsm_event event)
         // TODO: remove internals access by moving to the start event data.
         prvSetupNetworkCredentials( iot_hfsm._use_secondary_credentials );
         ret = hfsm_transition_peer(me, idle, running);
+        break;
+        
     default:
       ret = HFSM_RET_HANDLE_BY_SUPERSTATE;
   }
@@ -200,6 +216,10 @@ static int timeout(hfsm* me, hfsm_event event)
 
   switch ((int)event.type)
   {
+    case HFSM_ENTRY:
+    case HFSM_EXIT:
+      break;
+
     case DO_WORK:
       LogInfo( ("timeout: DO_WORK") );
       vTaskDelay (pdMS_TO_TICKS(delay_milliseconds));
