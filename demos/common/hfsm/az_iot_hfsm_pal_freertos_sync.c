@@ -77,7 +77,7 @@ static hfsm_event hfsm_event_error = { AZ_IOT_ERROR, &error_data };
 
 static int32_t delay_milliseconds;
 
-static int top(hfsm* me, hfsm_event event);
+static int azure_iot_sync(hfsm* me, hfsm_event event);
 static int idle(hfsm* me, hfsm_event event);
 static int running(hfsm* me, hfsm_event event);
 static int timeout(hfsm* me, hfsm_event event);
@@ -86,13 +86,13 @@ static state_handler pal_get_parent(state_handler child_state)
 {
   state_handler parent_state;
 
-  if ((child_state == top))
+  if ((child_state == azure_iot_sync))
   {
     parent_state = NULL;
   }
   else 
   {
-    parent_state = top;
+    parent_state = azure_iot_sync;
   }
 
   return parent_state;
@@ -110,10 +110,10 @@ void prvSetupNetworkCredentials( bool use_secondary );
 uint32_t prvIoTHubRun();
 uint32_t prvDeviceProvisioningRun();
 
-static int top(hfsm* me, hfsm_event event)
+static int azure_iot_sync(hfsm* me, hfsm_event event)
 {
-  // Control should never reach this top state.
-  LogInfo( ("top: PANIC!") );
+  // Control should never reach this azure_iot_sync state.
+  LogInfo( ("azure_iot_sync: PANIC!") );
   configASSERT(0);
   return 0;
 }
@@ -132,7 +132,7 @@ static int idle(hfsm* me, hfsm_event event)
         prvSetupNetworkCredentials( iot_hfsm._use_secondary_credentials );
         ret = hfsm_transition_peer(me, idle, running);
     default:
-      break;
+      ret = HFSM_RET_HANDLE_BY_SUPERSTATE;
   }
 
   return ret;
@@ -144,6 +144,10 @@ static int running(hfsm* me, hfsm_event event)
 
   switch ((int)event.type)
   {
+    case HFSM_ENTRY:
+    case HFSM_EXIT:
+     break;
+
     case DO_WORK:
       LogInfo( ("running: DO_WORK") );
       if (me == &provisioning_hfsm)
@@ -184,7 +188,7 @@ static int running(hfsm* me, hfsm_event event)
       break;
 
     default:
-      break;
+      ret = HFSM_RET_HANDLE_BY_SUPERSTATE;
   }
 
   return ret;
@@ -203,14 +207,8 @@ static int timeout(hfsm* me, hfsm_event event)
       hfsm_transition_peer(me, timeout, idle);
       break;
 
-    case AZ_IOT_START:
-      LogInfo( ("timeout: AZ_IOT_START") );
-      active_hfsm = me;
-      ret = hfsm_transition_peer(me, timeout, running);
-      break;
-
     default:
-      break;
+      ret = HFSM_RET_HANDLE_BY_SUPERSTATE;
   }
 
   return ret;
@@ -248,7 +246,7 @@ int az_hfsm_pal_timer_start(hfsm* src, void* timer_handle, int32_t milliseconds,
     return 0;
 }
 
-int az_hfsm_pal_timer_stop(hfsm* src, void* timer_handle)
+int az_hfsm_pal_timer_sazure_iot_sync(hfsm* src, void* timer_handle)
 {
     (void) src;
     (void) timer_handle;

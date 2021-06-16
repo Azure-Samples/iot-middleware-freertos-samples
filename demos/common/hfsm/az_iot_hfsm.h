@@ -50,6 +50,7 @@ extern const hfsm_event hfsm_event_az_iot_provisioning_done;
 
 typedef enum
 {
+  AZ_IOT_OK,
   AZ_IOT_ERROR_TYPE_NETWORK,
   AZ_IOT_ERROR_TYPE_SECURITY,
   AZ_IOT_ERROR_TYPE_SERVICE,
