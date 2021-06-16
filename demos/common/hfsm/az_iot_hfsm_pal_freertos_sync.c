@@ -19,6 +19,41 @@
 // TODO: 
 #include "transport_tls_socket.h"
 
+/**************************************************/
+/******* DO NOT CHANGE the following order ********/
+/**************************************************/
+
+/* Include logging header files and define logging macros in the following order:
+ * 1. Include the header file "logging_levels.h".
+ * 2. Define the LIBRARY_LOG_NAME and LIBRARY_LOG_LEVEL macros depending on
+ * the logging configuration for DEMO.
+ * 3. Include the header file "logging_stack.h", if logging is enabled for DEMO.
+ */
+
+#include "logging_levels.h"
+
+/* Logging configuration for the Demo. */
+#ifndef LIBRARY_LOG_NAME
+    #define LIBRARY_LOG_NAME    "IoT_HFSM_PAL"
+#endif
+
+#ifndef LIBRARY_LOG_LEVEL
+    #define LIBRARY_LOG_LEVEL    LOG_INFO
+#endif
+
+/* 
+ * The function prints to the console before the network is connected;
+ * then a UDP port after the network has connected. */
+extern void vLoggingPrintf( const char * pcFormatString,
+                            ... );
+
+/* Map the SdkLog macro to the logging function to enable logging */
+#ifndef SdkLog
+    #define SdkLog( message )    vLoggingPrintf message
+#endif
+
+#include "logging_stack.h"
+
 // The retry Hierarchical Finite State Machine object.
 static az_iot_hfsm_type iot_hfsm;
 
@@ -42,13 +77,25 @@ static hfsm_event hfsm_event_error = { AZ_IOT_ERROR, &error_data };
 
 static int32_t delay_milliseconds;
 
+static int top(hfsm* me, hfsm_event event);
 static int idle(hfsm* me, hfsm_event event);
 static int running(hfsm* me, hfsm_event event);
 static int timeout(hfsm* me, hfsm_event event);
 
 static state_handler pal_get_parent(state_handler child_state)
 {
-   return NULL;
+  state_handler parent_state;
+
+  if ((child_state == top))
+  {
+    parent_state = NULL;
+  }
+  else 
+  {
+    parent_state = top;
+  }
+
+  return parent_state;
 }
 
 void az_iot_hfsm_pal_freertos_sync_initialize()
@@ -63,6 +110,14 @@ void prvSetupNetworkCredentials( bool use_secondary );
 uint32_t prvIoTHubRun();
 uint32_t prvDeviceProvisioningRun();
 
+static int top(hfsm* me, hfsm_event event)
+{
+  // Control should never reach this top state.
+  LogInfo( ("top: PANIC!") );
+  configASSERT(0);
+  return 0;
+}
+
 static int idle(hfsm* me, hfsm_event event)
 {
   int ret = 0;
@@ -70,6 +125,8 @@ static int idle(hfsm* me, hfsm_event event)
   switch ((int)event.type)
   {
     case AZ_IOT_START:
+        LogInfo( ("idle: AZ_IOT_START") );
+
         active_hfsm = me;
         // TODO: remove internals access by moving to the start event data.
         prvSetupNetworkCredentials( iot_hfsm._use_secondary_credentials );
@@ -88,18 +145,19 @@ static int running(hfsm* me, hfsm_event event)
   switch ((int)event.type)
   {
     case DO_WORK:
+      LogInfo( ("running: DO_WORK") );
       if (me == &provisioning_hfsm)
       {
         if (!prvDeviceProvisioningRun())
         {
-            // TODO: get actual error.
-            error_data.type = AZ_IOT_ERROR_TYPE_NETWORK;
-            error_data.iot_status = AZ_IOT_STATUS_UNKNOWN;
-            ret = hfsm_post_event((hfsm*)(&iot_hfsm), hfsm_event_error);
+            ret = hfsm_post_event((hfsm*)(&iot_hfsm), hfsm_event_az_iot_provisioning_done);
         }
         else
         {
-            ret = hfsm_post_event((hfsm*)(&iot_hfsm), hfsm_event_az_iot_provisioning_done);
+            // TODO: get actual error using AzureIoTProvisioningClient_GetExtendedCode
+            error_data.type = AZ_IOT_ERROR_TYPE_NETWORK;
+            error_data.iot_status = AZ_IOT_STATUS_UNKNOWN;
+            ret = hfsm_post_event((hfsm*)(&iot_hfsm), hfsm_event_error);
         }
       }
       else
@@ -114,9 +172,11 @@ static int running(hfsm* me, hfsm_event event)
         }
       }
       
+      hfsm_transition_peer(me, running, idle);
       break;
 
     case DO_DELAY:
+      LogInfo( ("running: DO_DELAY") );
       ret = hfsm_transition_peer(me, running, timeout);
       break;
 
@@ -134,12 +194,16 @@ static int timeout(hfsm* me, hfsm_event event)
   switch ((int)event.type)
   {
     case DO_WORK:
+      LogInfo( ("timeout: DO_WORK") );
       vTaskDelay (pdMS_TO_TICKS(delay_milliseconds));
       ret = hfsm_post_event((hfsm*)(&iot_hfsm), hfsm_timeout_event);
+      hfsm_transition_peer(me, timeout, idle);
       break;
 
     case AZ_IOT_START:
-      ret = hfsm_transition_peer(me, idle, running);
+      LogInfo( ("timeout: AZ_IOT_START") );
+      active_hfsm = me;
+      ret = hfsm_transition_peer(me, timeout, running);
       break;
 
     default:
@@ -159,8 +223,7 @@ void az_iot_hfsm_pal_freertos_sync_do_work()
 
     for ( ; ; )
     {
-        hfsm_post_event(&provisioning_hfsm, hfsm_event_do_work);
-        hfsm_post_event(&hub_hfsm, hfsm_event_do_work);
+        hfsm_post_event(active_hfsm, hfsm_event_do_work);
     }
 }
 

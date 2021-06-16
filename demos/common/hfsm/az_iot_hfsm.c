@@ -65,7 +65,7 @@ static int hub(hfsm* me, hfsm_event event);
 // Hardcoded AzureIoT hierarchy structure
 static state_handler azure_iot_hfsm_get_parent(state_handler child_state)
 {
-   state_handler parent_state;
+  state_handler parent_state;
 
   if ((child_state == azure_iot))
   {
@@ -103,6 +103,7 @@ static int azure_iot(hfsm* me, hfsm_event event)
       break;
 
     case AZ_IOT_ERROR:
+      LogInfo( ("AzureIoT: AZ_IOT_ERROR") );
       operation_msec = az_hfsm_pal_timer_get_miliseconds() - this_iothfsm->_start_time_msec;
 
       this_iothfsm->_retry_attempt++;
@@ -169,6 +170,7 @@ static int idle(hfsm* me, hfsm_event event)
       break;
     
     case AZ_IOT_START:
+      LogInfo( ("idle: AZ_IOT_START") );
       ret = hfsm_post_event(this_iothfsm->_provisioning_hfsm, hfsm_event_az_iot_start);
       configASSERT(!ret);
       ret = hfsm_transition_peer(me, idle, provisioning);
@@ -202,11 +204,14 @@ static int provisioning(hfsm* me, hfsm_event event)
       break;
 
     case HFSM_TIMEOUT:
+      LogInfo( ("provisioning: Timeout") );
       this_iothfsm->_start_time_msec = az_hfsm_pal_timer_get_miliseconds();
       ret = hfsm_post_event(this_iothfsm->_provisioning_hfsm, hfsm_event_az_iot_start);
       break;
     
     case AZ_IOT_PROVISIONING_DONE:
+      LogInfo( ("provisioning: Done") );
+      ret = hfsm_post_event(this_iothfsm->_iothub_hfsm, hfsm_event_az_iot_start);
       ret = hfsm_transition_peer(me, provisioning, hub);
       break;
 
@@ -238,6 +243,7 @@ static int hub(hfsm* me, hfsm_event event)
       break;
 
     case HFSM_TIMEOUT:
+      LogInfo( ("hub: Timeout") );
       this_iothfsm->_start_time_msec = az_hfsm_pal_timer_get_miliseconds();
       ret = hfsm_post_event(this_iothfsm->_iothub_hfsm, hfsm_event_az_iot_start);
       break;
