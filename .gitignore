@@ -348,3 +348,9 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+
+# Build directories
+/build
+/mimxrt1060
+/build_linux
+/b-l475e-iot01a
