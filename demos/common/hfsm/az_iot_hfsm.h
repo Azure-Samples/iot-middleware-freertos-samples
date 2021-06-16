@@ -39,23 +39,27 @@ typedef struct
 // AzIoTHFSM-specific events.
 typedef enum
 {
-  AZ_IOT_ERROR = HFSM_EVENT(4),
-  AZ_IOT_START = HFSM_EVENT(5),
-  AZ_IOT_PROVISIONING_DONE = HFSM_EVENT(5),
+  AZ_IOT_ERROR = HFSM_EVENT(1),
+  AZ_IOT_START = HFSM_EVENT(2),
+  AZ_IOT_PROVISIONING_DONE = HFSM_EVENT(3),
 } az_iot_hfsm_event_type;
 
 extern const hfsm_event hfsm_event_az_iot_start;
 extern const hfsm_event hfsm_event_az_iot_provisioning_done;
 
+typedef enum
+{
+  AZ_IOT_ERROR_TYPE_NETWORK,
+  AZ_IOT_ERROR_TYPE_SECURITY,
+  AZ_IOT_ERROR_TYPE_SERVICE,
+} az_iot_hfsm_event_data_error_type;
+
 typedef struct {
-   bool is_communications;
-   bool is_security;
-   bool is_azure_iot;
-   az_iot_status iot_status;
+  az_iot_hfsm_event_data_error_type type;
+  az_iot_status iot_status;
 } az_iot_hfsm_event_data_error;
 
 int az_iot_hfsm_initialize(az_iot_hfsm_type* iot_hfsm, hfsm* provisioning_hfsm, hfsm* hub_hfsm);
-int az_iot_hfsm_post_sync(az_iot_hfsm_type* iot_hfsm, hfsm_event event);
 
 // Platform Adaptation Layer (PAL)
 

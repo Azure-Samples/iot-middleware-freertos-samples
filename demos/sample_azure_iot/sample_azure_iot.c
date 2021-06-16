@@ -145,7 +145,7 @@ struct NetworkContext
 static AzureIoTHubClient_t xAzureIoTHubClient;
 /*-----------------------------------------------------------*/
 
-static NetworkCredentials_t xNetworkCredentials = { 0 };
+NetworkCredentials_t xNetworkCredentials = { 0 };
 
 #ifdef democonfigENABLE_DPS_SAMPLE
     static uint8_t * pucIotHubHostname = NULL;
@@ -166,11 +166,11 @@ static NetworkCredentials_t xNetworkCredentials = { 0 };
  * @brief Gets the IoT Hub endpoint and deviceId from Provisioning service.
  *   This function will block for Provisioning service for result or return failure.
  */
-static uint32_t prvDeviceProvisioningRun();
+uint32_t prvDeviceProvisioningRun();
 
 #endif /* democonfigENABLE_DPS_SAMPLE */
 
-static uint32_t prvIoTHubRun();
+uint32_t prvIoTHubRun();
 
 /**
  * @brief The task used to demonstrate the MQTT API.
@@ -275,8 +275,11 @@ static void prvHandleDeviceTwinMessage( AzureIoTHubClientTwinResponse_t * pxMess
 /**
  * @brief Setup transport credentials.
  */
-static uint32_t prvSetupNetworkCredentials( NetworkCredentials_t * pxNetworkCredentials, bool use_secondary )
+void prvSetupNetworkCredentials( bool use_secondary )
 {
+    // TODO: 
+    NetworkCredentials_t* pxNetworkCredentials = &xNetworkCredentials;
+
     pxNetworkCredentials->xDisableSni = pdFALSE;
     /* Set the credentials for establishing a TLS connection. */
     pxNetworkCredentials->pucRootCa = ( const unsigned char * ) democonfigROOT_CA_PEM;
@@ -302,10 +305,12 @@ static uint32_t prvSetupNetworkCredentials( NetworkCredentials_t * pxNetworkCred
         }
         #endif // democonfigSECONDARY_CREDENTIALS
     #endif
-
-    return 0;
 }
 /*-----------------------------------------------------------*/
+
+// TODO:
+void az_iot_hfsm_pal_freertos_sync_initialize();
+void az_iot_hfsm_pal_freertos_sync_do_work();
 
 /**
  * @brief Azure IoT demo task that gets started in the platform specific project.
@@ -318,14 +323,15 @@ static void prvAzureDemoTask( void * pvParameters )
     /* Initialize Azure IoT Middleware.  */
     configASSERT( AzureIoT_Init() == eAzureIoTSuccess );
 
-    //az_iot_hfsm_pal_freertos_sync_initialize();
+    az_iot_hfsm_pal_freertos_sync_initialize();
 
     // This function will never exit.
-    //az_iot_hfsm_pal_freertos_sync_do_work();
+    az_iot_hfsm_pal_freertos_sync_do_work();
     
+    #if 0
     uint32_t ulStatus;
 
-    ulStatus = prvSetupNetworkCredentials( &xNetworkCredentials, false );
+    ulStatus = prvSetupNetworkCredentials( false );
     configASSERT( ulStatus == 0 );
 
     #ifdef democonfigENABLE_DPS_SAMPLE
@@ -351,6 +357,7 @@ static void prvAzureDemoTask( void * pvParameters )
         LogInfo( ( "Short delay before starting the next iteration.... \r\n\r\n" ) );
         vTaskDelay( sampleazureiotDELAY_BETWEEN_DEMO_ITERATIONS_TICKS );
     }
+    #endif 
 
 }
 
@@ -362,7 +369,7 @@ static void prvAzureDemoTask( void * pvParameters )
     * @brief Get IoT Hub endpoint and device Id info, when Provisioning service is used.
     *   This function will block for Provisioning service for result or return failure.
     */
-    static uint32_t prvDeviceProvisioningRun()
+    uint32_t prvDeviceProvisioningRun()
     {
         NetworkContext_t xNetworkContext = { 0 };
         TlsTransportParams_t xTlsTransportParams = { 0 };
@@ -437,11 +444,7 @@ static void prvAzureDemoTask( void * pvParameters )
  * @brief Azure IoT demo task that gets started in the platform specific project.
  *  In this demo task, middleware API's are used to connect to Azure IoT Hub.
  */
-static uint32_t prvIoTHubRun( NetworkCredentials_t * pXNetworkCredentials,
-                                      uint8_t *  pucIotHubHostname,
-                                      uint32_t * pulIotHubHostnameLength,
-                                      uint8_t *  pucIotHubDeviceId,
-                                      uint32_t * pulIotHubDeviceIdLength )
+uint32_t prvIoTHubRun( )
 {
     
     AzureIoTTransportInterface_t xTransport;
@@ -466,7 +469,7 @@ static uint32_t prvIoTHubRun( NetworkCredentials_t * pXNetworkCredentials,
         * number of attempts. */
     ulStatus = prvConnectToServerWithBackoffRetries( ( const char * ) pucIotHubHostname,
                                                         democonfigIOTHUB_PORT,
-                                                        pXNetworkCredentials, &xNetworkContext );
+                                                        &xNetworkCredentials, &xNetworkContext );
     configASSERT( ulStatus == 0 );
 
     /* Fill in Transport Interface send and receive function pointers. */
@@ -482,8 +485,8 @@ static uint32_t prvIoTHubRun( NetworkCredentials_t * pXNetworkCredentials,
     xHubOptions.ulModuleIDLength = sizeof( democonfigMODULE_ID ) - 1;
 
     xResult = AzureIoTHubClient_Init( &xAzureIoTHubClient,
-                                        pucIotHubHostname, *pulIotHubHostnameLength,
-                                        pucIotHubDeviceId, *pulIotHubDeviceIdLength,
+                                        pucIotHubHostname, ulIothubHostnameLength,
+                                        pucIotHubDeviceId, ulIothubDeviceIdLength,
                                         &xHubOptions,
                                         ucMQTTMessageBuffer, sizeof( ucMQTTMessageBuffer ),
                                         ullGetUnixTime,

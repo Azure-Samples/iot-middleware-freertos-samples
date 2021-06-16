@@ -109,11 +109,11 @@ static int azure_iot(hfsm* me, hfsm_event event)
       az_iot_hfsm_event_data_error* error_data = (az_iot_hfsm_event_data_error*)(event.data);
 
       bool should_retry = false;
-      if (error_data->is_azure_iot)
+      if (error_data->type == AZ_IOT_ERROR_TYPE_SERVICE)
       {
         should_retry = az_iot_status_retriable(error_data->iot_status);
       }
-      else if (error_data->is_communications)
+      else if (error_data->type == AZ_IOT_ERROR_TYPE_NETWORK)
       {
         should_retry = true;
       }
@@ -136,6 +136,7 @@ static int azure_iot(hfsm* me, hfsm_event event)
         this_iothfsm->_use_secondary_credentials = !this_iothfsm->_use_secondary_credentials;
         this_iothfsm->_start_time_msec = az_hfsm_pal_timer_get_miliseconds();
         ret = hfsm_post_event(this_iothfsm->_provisioning_hfsm, hfsm_event_az_iot_start);
+        ret = hfsm_transition_substate(me, azure_iot, provisioning);
       }
       break;
 
@@ -168,7 +169,9 @@ static int idle(hfsm* me, hfsm_event event)
       break;
     
     case AZ_IOT_START:
-      hfsm_post_event(this_iothfsm->_provisioning_hfsm, hfsm_event_az_iot_start);
+      ret = hfsm_post_event(this_iothfsm->_provisioning_hfsm, hfsm_event_az_iot_start);
+      configASSERT(!ret);
+      ret = hfsm_transition_peer(me, idle, provisioning);
       break;
 
     default:
@@ -201,6 +204,10 @@ static int provisioning(hfsm* me, hfsm_event event)
     case HFSM_TIMEOUT:
       this_iothfsm->_start_time_msec = az_hfsm_pal_timer_get_miliseconds();
       ret = hfsm_post_event(this_iothfsm->_provisioning_hfsm, hfsm_event_az_iot_start);
+      break;
+    
+    case AZ_IOT_PROVISIONING_DONE:
+      ret = hfsm_transition_peer(me, provisioning, hub);
       break;
 
     default:
@@ -265,16 +272,4 @@ int az_iot_hfsm_initialize(az_iot_hfsm_type* iot_hfsm, hfsm* provisioning_hfsm, 
   }
 
   return ret;
-}
-
-/**
- * @brief 
- * 
- * @param handle 
- * @param event 
- * @return int 
- */
-int az_iot_hfsm_post_sync(az_iot_hfsm_type* handle, hfsm_event event)
-{
-  return hfsm_post_event((hfsm*)(&handle), event);
 }
