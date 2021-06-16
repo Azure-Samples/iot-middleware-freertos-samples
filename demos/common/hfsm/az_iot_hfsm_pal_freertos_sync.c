@@ -16,20 +16,53 @@
 #include "az_iot_hfsm.h"
 #include "az_hfsm_pal_timer.h"
 
-
-int (*next_operation)(void);
-
 // The retry Hierarchical Finite State Machine object.
-static az_iot_hfsm_type prvIoTHfsm;
+static az_iot_hfsm_type iot_hfsm;
 
-/**
- * @brief 
- * 
- */
+// PAL HFSMs for Provisioning and Hub operations.
+static hfsm provisioning_hfsm;
+static hfsm hub_hfsm;
+static int pal_freertos_mainstate(hfsm* me, hfsm_event event);
+
+static state_handler get_parent(state_handler child_state)
+{
+   return NULL;
+}
+
 void az_iot_hfsm_pal_freertos_sync_initialize()
 {
-    configASSERT( !az_iot_hfsm_initialize(&prvIoTHfsm) );
+    configASSERT(!hfsm_init(&provisioning_hfsm, pal_freertos_mainstate));
+    configASSERT(!hfsm_init(&hub_hfsm, pal_freertos_mainstate)) ;
+
+    configASSERT(!az_iot_hfsm_initialize(&iot_hfsm, &provisioning_hfsm, &hub_hfsm));
 }
+
+// PAL HFSM state function shared between Provisioning and Hub.
+static int pal_freertos_mainstate(hfsm* me, hfsm_event event)
+{
+  int ret = 0;
+
+  switch ((int)event.type)
+  {
+    case HFSM_ENTRY:
+      break;
+
+    case AZ_IOT_START:
+      if (me == provisioning_hfsm)
+      {
+
+      }
+      else
+      {
+          configASSERT ( me == hub_hfsm );
+      }
+      break;
+
+    case 
+
+}
+
+
 
 /**
  * @brief Message pump for syncronous operations.
