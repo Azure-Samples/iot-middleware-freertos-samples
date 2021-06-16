@@ -29,6 +29,7 @@ typedef struct
 {
   hfsm hfsm;
   bool _use_secondary_credentials;
+  // TODO: check ovf.
   int16_t _retry_attempt;
   uint64_t _start_time_msec;
   void* _timer_handle;

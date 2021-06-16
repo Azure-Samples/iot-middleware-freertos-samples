@@ -163,13 +163,16 @@ static int running(hfsm* me, hfsm_event event)
       else
       {
         configASSERT(me == &hub_hfsm);
-        while (!prvIoTHubRun())
+        
+        do
         {
-            // TODO: get actual error.
-            error_data.type = AZ_IOT_ERROR_TYPE_NETWORK;
-            error_data.iot_status = AZ_IOT_STATUS_UNKNOWN;
-            ret = hfsm_post_event((hfsm*)(&iot_hfsm), hfsm_event_error);
-        }
+            ret = prvIoTHubRun();
+        } while (!ret);
+
+        // TODO: get actual error.
+        error_data.type = AZ_IOT_ERROR_TYPE_NETWORK;
+        error_data.iot_status = AZ_IOT_STATUS_UNKNOWN;
+        ret = hfsm_post_event((hfsm*)(&iot_hfsm), hfsm_event_error);
       }
       
       hfsm_transition_peer(me, running, idle);
