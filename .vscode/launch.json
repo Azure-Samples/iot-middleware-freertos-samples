@@ -34,7 +34,8 @@
             "cwd": "${workspaceRoot}",
             "configFiles": [
                 "board/stm32l4discovery.cfg"
-            ]
+            ],
+            "preLaunchTask": "Build b-l475e-iot01a"
         },
         {
             "name": "NXP: Local J-Link",
