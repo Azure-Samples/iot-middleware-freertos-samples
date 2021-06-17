@@ -6,10 +6,10 @@
  * @brief Hierarchical Finite State Machine implementation.
  */
 
-#ifndef AZ_HFSM_H
-#define AZ_HFSM_H
+#ifndef _az_HFSM_H
+#define _az_HFSM_H
 
-#include "FreeRTOS.h"
+#include <stdint.h>
 
 /**
  * @brief hfsm event type.
@@ -17,71 +17,62 @@
  */
 typedef enum
 {
-  HFSM_ENTRY = 1,
-  HFSM_EXIT = 2,
-  HFSM_ERROR = 3,
-  HFSM_TIMEOUT = 4,
-  HFSM_EVENT_BASE = 10,
-} hfsm_event_type;
+  AZ_HFSM_ENTRY = 1,
+  AZ_HFSM_EXIT = 2,
+  AZ_HFSM_ERROR = 3,
+  AZ_HFSM_TIMEOUT = 4,
+  AZ_HFSM_EVENT_BASE = 10,
+} az_hfsm_event_type;
 
-#define HFSM_EVENT(id) ((int32_t)(HFSM_EVENT_BASE + id))
+#define AZ_HFSM_EVENT(id) ((int32_t)(AZ_HFSM_EVENT_BASE + id))
 
-struct hfsm_event
+struct az_hfsm_event
 {
-  hfsm_event_type type;
+  az_hfsm_event_type type;
   void* data;
 };
 
-typedef struct hfsm_event hfsm_event;
+typedef struct az_hfsm_event az_hfsm_event;
 
-extern const hfsm_event hfsm_entry_event;
-extern const hfsm_event hfsm_exit_event;
-extern const hfsm_event hfsm_timeout_event;
-extern const hfsm_event hfsm_errork_unknown_event;
+extern const az_hfsm_event az_hfsm_entry_event;
+extern const az_hfsm_event az_hfsm_exit_event;
+extern const az_hfsm_event az_hfsm_timeout_event;
+extern const az_hfsm_event az_hfsm_errork_unknown_event;
 
-typedef struct hfsm hfsm;
-typedef int (*state_handler)(hfsm* me, hfsm_event event);
-typedef state_handler (*get_parent)(state_handler child_state);
+typedef struct az_hfsm az_hfsm;
+typedef int32_t (*az_hfsm_state_handler)(az_hfsm* me, az_hfsm_event event);
+typedef az_hfsm_state_handler (*az_hfsm_get_parent)(az_hfsm_state_handler child_state);
 
-struct hfsm
+struct az_hfsm
 {
-  state_handler current_state;
-  get_parent get_parent_func;
+  az_hfsm_state_handler current_state;
+  az_hfsm_get_parent get_parent_func;
 };
 
 // ASCII "SUPR"
-#define HFSM_RET_HANDLE_BY_SUPERSTATE 0x53555052
+#define AZ_HFSM_RET_HANDLE_BY_SUPERSTATE 0x53555052
 
-/**
- * @brief Initializes the HFSM.
- * 
- * @param[in] h The HFSM handle.
- * @param initial_state The initial state for this HFSM.
- * @param get_parent_func The function describing the HFSM structure.
- * @return int 
- */
-int hfsm_init(
-    hfsm* h,
-    state_handler initial_state,
-    get_parent get_parent_func);
+int32_t az_hfsm_init(
+    az_hfsm* h,
+    az_hfsm_state_handler initial_state,
+    az_hfsm_get_parent get_parent_func);
 
+int32_t az_hfsm_transition_peer(
+    az_hfsm* h,
+    az_hfsm_state_handler source_state,
+    az_hfsm_state_handler destination_state);
 
-int hfsm_transition_peer(
-    hfsm* h,
-    state_handler source_state,
-    state_handler destination_state);
-
-int hfsm_transition_substate(
-    hfsm* h,
-    state_handler source_state,
-    state_handler destination_state);
+int32_t az_hfsm_transition_substate(
+    az_hfsm* h,
+    az_hfsm_state_handler source_state,
+    az_hfsm_state_handler destination_state);
 
 
-int hfsm_transition_superstate(
-    hfsm* h,
-    state_handler source_state,
-    state_handler destination_state);
+int32_t az_hfsm_transition_superstate(
+    az_hfsm* h,
+    az_hfsm_state_handler source_state,
+    az_hfsm_state_handler destination_state);
 
-int hfsm_post_event(hfsm* h, hfsm_event event);
+int32_t az_hfsm_post_event(az_hfsm* h, az_hfsm_event event);
 
-#endif //AZ_HFSM_H
+#endif //_az_HFSM_H

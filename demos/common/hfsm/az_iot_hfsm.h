@@ -7,8 +7,8 @@
  * 
  * @details Implements fault handling for Device Provisioning + IoT Hub operations
  */
-#ifndef AZ_IOT_HFSM_H
-#define AZ_IOT_HFSM_H
+#ifndef _az_IOT_HFSM_H
+#define _az_IOT_HFSM_H
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -27,26 +27,26 @@
 
 typedef struct
 {
-  hfsm hfsm;
+  az_hfsm hfsm;
   bool _use_secondary_credentials;
   // TODO: check ovf.
   int16_t _retry_attempt;
   uint64_t _start_time_msec;
   void* _timer_handle;
-  hfsm* _provisioning_hfsm;
-  hfsm* _iothub_hfsm;
+  az_hfsm* _provisioning_hfsm;
+  az_hfsm* _iothub_hfsm;
 } az_iot_hfsm_type;
 
 // AzIoTHFSM-specific events.
 typedef enum
 {
-  AZ_IOT_ERROR = HFSM_EVENT(1),
-  AZ_IOT_START = HFSM_EVENT(2),
-  AZ_IOT_PROVISIONING_DONE = HFSM_EVENT(3),
+  AZ_IOT_ERROR = AZ_HFSM_EVENT(1),
+  AZ_IOT_START = AZ_HFSM_EVENT(2),
+  AZ_IOT_PROVISIONING_DONE = AZ_HFSM_EVENT(3),
 } az_iot_hfsm_event_type;
 
-extern const hfsm_event hfsm_event_az_iot_start;
-extern const hfsm_event hfsm_event_az_iot_provisioning_done;
+extern const az_hfsm_event az_hfsm_event_az_iot_start;
+extern const az_hfsm_event az_hfsm_event_az_iot_provisioning_done;
 
 typedef enum
 {
@@ -61,7 +61,7 @@ typedef struct {
   az_iot_status iot_status;
 } az_iot_hfsm_event_data_error;
 
-int az_iot_hfsm_initialize(az_iot_hfsm_type* iot_hfsm, hfsm* provisioning_hfsm, hfsm* hub_hfsm);
+int32_t az_iot_hfsm_initialize(az_iot_hfsm_type* iot_hfsm, az_hfsm* provisioning_hfsm, az_hfsm* hub_hfsm);
 
 // Platform Adaptation Layer (PAL)
 
@@ -70,7 +70,7 @@ int az_iot_hfsm_initialize(az_iot_hfsm_type* iot_hfsm, hfsm* provisioning_hfsm, 
  * 
  * @param me The calling HFSM object.
  */
-void az_iot_hfsm_pal_critical_error(hfsm* hfsm);
+void az_iot_hfsm_pal_critical_error(az_hfsm* hfsm);
 
 /**
  * @brief Get random jitter in milliseconds.
@@ -81,6 +81,6 @@ void az_iot_hfsm_pal_critical_error(hfsm* hfsm);
  * @param hfsm The requesting HFSM.
  * @return int32_t The random jitter in milliseconds.
  */
-int32_t az_iot_hfsm_pal_get_random_jitter_msec(hfsm* hfsm);
+int32_t az_iot_hfsm_pal_get_random_jitter_msec(az_hfsm* hfsm);
 
-#endif //AZ_IOT_HFSM_H
+#endif //_az_IOT_HFSM_H

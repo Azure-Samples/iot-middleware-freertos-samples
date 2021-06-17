@@ -11,7 +11,7 @@
 
 /* Demo Specific configs. */
 #include "demo_config.h"
-#include "az_iot_hfsm.h"
+#include "az_iot_hfsm_sync_adapter.h"
 
 /* Azure Provisioning/IoT Hub library includes */
 #include "azure_iot_hub_client.h"
@@ -308,9 +308,68 @@ void prvSetupNetworkCredentials( bool use_secondary )
 }
 /*-----------------------------------------------------------*/
 
-// TODO:
-void az_iot_hfsm_pal_freertos_sync_initialize();
-void az_iot_hfsm_pal_freertos_sync_do_work();
+// PAL implementation
+void az_iot_hfsm_sync_adapter_pal_set_credentials( bool use_secondary )
+{
+    prvSetupNetworkCredentials( use_secondary );
+}
+
+az_iot_hfsm_event_data_error az_iot_hfsm_sync_adapter_pal_run_provisioning( )
+{
+    az_iot_hfsm_event_data_error ret = { AZ_IOT_OK, AZ_IOT_STATUS_OK };
+    if(!prvDeviceProvisioningRun())
+    {
+            ret.type = AZ_IOT_ERROR_TYPE_NETWORK;
+            ret.iot_status = AZ_IOT_STATUS_UNKNOWN;
+    }
+
+    return ret;
+}
+
+az_iot_hfsm_event_data_error az_iot_hfsm_sync_adapter_pal_run_hub( )
+{
+    az_iot_hfsm_event_data_error ret = { AZ_IOT_OK, AZ_IOT_STATUS_OK };
+    if(!prvIoTHubRun())
+    {
+            ret.type = AZ_IOT_ERROR_TYPE_NETWORK;
+            ret.iot_status = AZ_IOT_STATUS_UNKNOWN;
+    }
+
+    return ret;
+}
+
+void az_iot_hfsm_sync_adapter_sleep( int32_t milliseconds )
+{
+    vTaskDelay (pdMS_TO_TICKS(milliseconds));
+}
+
+uint64_t az_hfsm_pal_timer_get_miliseconds()
+{
+    return ullGetUnixTime();
+}
+
+/**
+ * @brief BSP error handler.
+ * 
+ */
+void Error_Handler( void );
+
+/**
+ * @brief Critical error. This function should not return.
+ * 
+ * @param me The calling HFSM object.
+ */
+void az_iot_hfsm_pal_critical_error(az_hfsm* caller)
+{
+    (void) caller;
+    Error_Handler();
+}
+
+int32_t az_iot_hfsm_pal_get_random_jitter_msec(az_hfsm* hfsm)
+{
+    // TODO get random.
+    return 0;
+}
 
 /**
  * @brief Azure IoT demo task that gets started in the platform specific project.
@@ -323,42 +382,11 @@ static void prvAzureDemoTask( void * pvParameters )
     /* Initialize Azure IoT Middleware.  */
     configASSERT( AzureIoT_Init() == eAzureIoTSuccess );
 
-    az_iot_hfsm_pal_freertos_sync_initialize();
+    configASSERT ( !az_iot_hfsm_sync_adapter_sync_initialize() );
 
     // This function will never exit.
-    az_iot_hfsm_pal_freertos_sync_do_work();
-    
-    #if 0
-    uint32_t ulStatus;
-
-    ulStatus = prvSetupNetworkCredentials( false );
-    configASSERT( ulStatus == 0 );
-
-    #ifdef democonfigENABLE_DPS_SAMPLE
-        /* Run DPS.  */
-        if( ( ulStatus = prvDeviceProvisioningRun() ) != 0 )
-        {
-            LogError( ( "Failed on sample_dps_entry!: error code = 0x%08x\r\n", ulStatus ) );
-            return;
-        }
-    #endif /* democonfigENABLE_DPS_SAMPLE */
-
-    for( ; ; )
-    {
-        if ( (ulStatus = prvIoTHubRun() ) != 0 )        
-        {
-            LogError( ( "Failed on iot_hub_entry!: error code = 0x%08x\r\n", ulStatus ) );
-            return;
-        }
-
-        /* Wait for some time between two iterations to ensure that we do not
-         * bombard the IoT Hub. */
-        LogInfo( ( "Demo completed successfully.\r\n" ) );
-        LogInfo( ( "Short delay before starting the next iteration.... \r\n\r\n" ) );
-        vTaskDelay( sampleazureiotDELAY_BETWEEN_DEMO_ITERATIONS_TICKS );
-    }
-    #endif 
-
+    az_iot_hfsm_sync_adapter_sync_do_work();
+    configASSERT(0);
 }
 
 /*-----------------------------------------------------------*/

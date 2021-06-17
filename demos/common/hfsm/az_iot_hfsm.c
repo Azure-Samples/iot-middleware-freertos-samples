@@ -10,15 +10,11 @@
 
 #include <stdint.h>
 
-// The following two required for configASSERT:
-#include "FreeRTOS.h"
-#include "task.h"
-
 #include "az_hfsm.h"
 #include "az_hfsm_pal_timer.h"
 #include "az_iot_hfsm.h"
 
-
+// TODO: change logging to az_log_internal.
 /**************************************************/
 /******* DO NOT CHANGE the following order ********/
 /**************************************************/
@@ -53,19 +49,20 @@ extern void vLoggingPrintf( const char * pcFormatString,
 #endif
 
 #include "logging_stack.h"
+/**************************************************/
 
-const hfsm_event hfsm_event_az_iot_start = { AZ_IOT_START, NULL };
-const hfsm_event hfsm_event_az_iot_provisioning_done = { AZ_IOT_PROVISIONING_DONE, NULL };
+const az_hfsm_event az_hfsm_event_az_iot_start = { AZ_IOT_START, NULL };
+const az_hfsm_event az_hfsm_event_az_iot_provisioning_done = { AZ_IOT_PROVISIONING_DONE, NULL };
 
-static int azure_iot(hfsm* me, hfsm_event event);
-static int idle(hfsm* me, hfsm_event event);
-static int provisioning(hfsm* me, hfsm_event event);
-static int hub(hfsm* me, hfsm_event event);
+static int32_t azure_iot(az_hfsm* me, az_hfsm_event event);
+static int32_t idle(az_hfsm* me, az_hfsm_event event);
+static int32_t provisioning(az_hfsm* me, az_hfsm_event event);
+static int32_t hub(az_hfsm* me, az_hfsm_event event);
 
 // Hardcoded AzureIoT hierarchy structure
-static state_handler azure_iot_hfsm_get_parent(state_handler child_state)
+static az_hfsm_state_handler azure_iot_hfsm_get_parent(az_hfsm_state_handler child_state)
 {
-  state_handler parent_state;
+  az_hfsm_state_handler parent_state;
 
   if ((child_state == azure_iot))
   {
@@ -80,7 +77,7 @@ static state_handler azure_iot_hfsm_get_parent(state_handler child_state)
   }
   else {
     // Unknown state.
-    configASSERT(0);
+    az_iot_hfsm_pal_critical_error(NULL);
     parent_state = NULL;
   }
 
@@ -88,16 +85,16 @@ static state_handler azure_iot_hfsm_get_parent(state_handler child_state)
 }
 
 // AzureIoT
-static int azure_iot(hfsm* me, hfsm_event event)
+static int32_t azure_iot(az_hfsm* me, az_hfsm_event event)
 {
-  int ret = 0;
+  int32_t ret = 0;
   int32_t operation_msec;
 
   az_iot_hfsm_type* this_iothfsm = (az_iot_hfsm_type*)me;
 
-  switch ((int)event.type)
+  switch ((int32_t)event.type)
   {
-    case HFSM_ENTRY:
+    case AZ_HFSM_ENTRY:
       LogInfo( ("AzureIoT: Entry") );
       this_iothfsm->_use_secondary_credentials = false;
       break;
@@ -121,9 +118,9 @@ static int azure_iot(hfsm* me, hfsm_event event)
 
       if (should_retry)
       {
-        int random_jitter_msec = az_iot_hfsm_pal_get_random_jitter_msec(me);
+        int32_t random_jitter_msec = az_iot_hfsm_pal_get_random_jitter_msec(me);
 
-        int retry_delay_msec = az_iot_calculate_retry_delay(
+        int32_t retry_delay_msec = az_iot_calculate_retry_delay(
           operation_msec, 
           this_iothfsm->_retry_attempt,
           MIN_RETRY_DELAY_MSEC,
@@ -136,120 +133,125 @@ static int azure_iot(hfsm* me, hfsm_event event)
       {
         this_iothfsm->_use_secondary_credentials = !this_iothfsm->_use_secondary_credentials;
         this_iothfsm->_start_time_msec = az_hfsm_pal_timer_get_miliseconds();
-        ret = hfsm_post_event(this_iothfsm->_provisioning_hfsm, hfsm_event_az_iot_start);
-        ret = hfsm_transition_substate(me, azure_iot, provisioning);
+        ret = az_hfsm_post_event(this_iothfsm->_provisioning_hfsm, az_hfsm_event_az_iot_start);
+        ret = az_hfsm_transition_substate(me, azure_iot, provisioning);
       }
       break;
 
-    case HFSM_EXIT:
-    case HFSM_ERROR:
-    case HFSM_TIMEOUT:
+    case AZ_HFSM_EXIT:
+    case AZ_HFSM_ERROR:
+    case AZ_HFSM_TIMEOUT:
     default:
       LogInfo( ("AzureIoT: PANIC!") );
       az_iot_hfsm_pal_critical_error(me);
-      configASSERT(0); // Should never reach here.
       break;
   }
 
   return ret;
 }
 
-static int idle(hfsm* me, hfsm_event event)
+static int32_t idle(az_hfsm* me, az_hfsm_event event)
 {
-  int ret = 0;
+  int32_t ret = 0;
   az_iot_hfsm_type* this_iothfsm = (az_iot_hfsm_type*)me;
 
-  switch ((int)event.type)
+  switch ((int32_t)event.type)
   {
-    case HFSM_ENTRY:
+    case AZ_HFSM_ENTRY:
       LogInfo( ("idle: Entry") );
       break;
 
-    case HFSM_EXIT:
+    case AZ_HFSM_EXIT:
       LogInfo( ("idle: Exit") );
       break;
     
     case AZ_IOT_START:
       LogInfo( ("idle: AZ_IOT_START") );
-      ret = hfsm_post_event(this_iothfsm->_provisioning_hfsm, hfsm_event_az_iot_start);
-      configASSERT(!ret);
-      ret = hfsm_transition_peer(me, idle, provisioning);
+      if(az_hfsm_post_event(this_iothfsm->_provisioning_hfsm, az_hfsm_event_az_iot_start))
+      {
+        LogError( ("idle: az_hfsm_post_event to _provisioning_hfsm failed.") );
+        ret = az_hfsm_post_event(me, az_hfsm_errork_unknown_event);
+      }
+      else
+      {
+        ret = az_hfsm_transition_peer(me, idle, provisioning);
+      }
       break;
 
     default:
-      ret = HFSM_RET_HANDLE_BY_SUPERSTATE;
+      ret = AZ_HFSM_RET_HANDLE_BY_SUPERSTATE;
   }
 
   return ret;
 }
 
 // AzureIoT/Provisioning
-static int provisioning(hfsm* me, hfsm_event event)
+static int32_t provisioning(az_hfsm* me, az_hfsm_event event)
 {
-  int ret = 0;
+  int32_t ret = 0;
   az_iot_hfsm_type* this_iothfsm = (az_iot_hfsm_type*)me;
 
-  switch ((int)event.type)
+  switch ((int32_t)event.type)
   {
-    case HFSM_ENTRY:
+    case AZ_HFSM_ENTRY:
       LogInfo( ("provisioning: Entry") );
       this_iothfsm->_retry_attempt = 0;
       this_iothfsm->_start_time_msec = az_hfsm_pal_timer_get_miliseconds();
       this_iothfsm->_timer_handle = az_hfsm_pal_timer_create(me);
       break;
 
-    case HFSM_EXIT:
+    case AZ_HFSM_EXIT:
       LogInfo( ("provisioning: Exit") );
       az_hfsm_pal_timer_destroy(me, this_iothfsm->_timer_handle);
       break;
 
-    case HFSM_TIMEOUT:
+    case AZ_HFSM_TIMEOUT:
       LogInfo( ("provisioning: Timeout") );
       this_iothfsm->_start_time_msec = az_hfsm_pal_timer_get_miliseconds();
-      ret = hfsm_post_event(this_iothfsm->_provisioning_hfsm, hfsm_event_az_iot_start);
+      ret = az_hfsm_post_event(this_iothfsm->_provisioning_hfsm, az_hfsm_event_az_iot_start);
       break;
     
     case AZ_IOT_PROVISIONING_DONE:
       LogInfo( ("provisioning: Done") );
-      ret = hfsm_post_event(this_iothfsm->_iothub_hfsm, hfsm_event_az_iot_start);
-      ret = hfsm_transition_peer(me, provisioning, hub);
+      ret = az_hfsm_post_event(this_iothfsm->_iothub_hfsm, az_hfsm_event_az_iot_start);
+      ret = az_hfsm_transition_peer(me, provisioning, hub);
       break;
 
     default:
-      ret = HFSM_RET_HANDLE_BY_SUPERSTATE;
+      ret = AZ_HFSM_RET_HANDLE_BY_SUPERSTATE;
   }
 
   return ret;
 }
 
 // AzureIoT/Hub
-static int hub(hfsm* me, hfsm_event event)
+static int32_t hub(az_hfsm* me, az_hfsm_event event)
 {
-  int ret = 0;
+  int32_t ret = 0;
   az_iot_hfsm_type* this_iothfsm = (az_iot_hfsm_type*)me;
 
-  switch ((int)event.type)
+  switch ((int32_t)event.type)
   {
-    case HFSM_ENTRY:
+    case AZ_HFSM_ENTRY:
       LogInfo( ("hub: Entry") );
       this_iothfsm->_retry_attempt = 0;
       this_iothfsm->_start_time_msec = az_hfsm_pal_timer_get_miliseconds();
       this_iothfsm->_timer_handle = az_hfsm_pal_timer_create(me);
       break;
 
-    case HFSM_EXIT:
+    case AZ_HFSM_EXIT:
       LogInfo( ("hub: Exit") );
       az_hfsm_pal_timer_destroy(me, this_iothfsm->_timer_handle);
       break;
 
-    case HFSM_TIMEOUT:
+    case AZ_HFSM_TIMEOUT:
       LogInfo( ("hub: Timeout") );
       this_iothfsm->_start_time_msec = az_hfsm_pal_timer_get_miliseconds();
-      ret = hfsm_post_event(this_iothfsm->_iothub_hfsm, hfsm_event_az_iot_start);
+      ret = az_hfsm_post_event(this_iothfsm->_iothub_hfsm, az_hfsm_event_az_iot_start);
       break;
 
     default:
-      ret = HFSM_RET_HANDLE_BY_SUPERSTATE;
+      ret = AZ_HFSM_RET_HANDLE_BY_SUPERSTATE;
   }
 
   return ret;
@@ -261,20 +263,20 @@ static int hub(hfsm* me, hfsm_event event)
  * @param iot_hfsm 
  * @param provisioning_hfsm 
  * @param hub_hfsm 
- * @return int 
+ * @return int32_t 
  */
-int az_iot_hfsm_initialize(az_iot_hfsm_type* iot_hfsm, hfsm* provisioning_hfsm, hfsm* hub_hfsm)
+int32_t az_iot_hfsm_initialize(az_iot_hfsm_type* iot_hfsm, az_hfsm* provisioning_hfsm, az_hfsm* hub_hfsm)
 {
-  int ret = 0;
+  int32_t ret = 0;
 
   iot_hfsm->_provisioning_hfsm = provisioning_hfsm;
   iot_hfsm->_iothub_hfsm = hub_hfsm;
-  ret = hfsm_init((hfsm*)(iot_hfsm), azure_iot, azure_iot_hfsm_get_parent);
+  ret = az_hfsm_init((az_hfsm*)(iot_hfsm), azure_iot, azure_iot_hfsm_get_parent);
 
   // Transition to initial state.
   if (!ret)
   {
-    ret = hfsm_transition_substate((hfsm*)(iot_hfsm), azure_iot, idle);
+    ret = az_hfsm_transition_substate((az_hfsm*)(iot_hfsm), azure_iot, idle);
   }
 
   return ret;

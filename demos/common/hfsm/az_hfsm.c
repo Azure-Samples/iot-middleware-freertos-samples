@@ -6,16 +6,16 @@
  * @brief Hierarchical Finite State Machine implementation.
  */
 
-// The following two required for configASSERT:
-#include "FreeRTOS.h"
-#include "task.h"
+#include <stdint.h>
+#include <stddef.h>
+#include <azure/core/internal/az_precondition_internal.h>
 
 #include "az_hfsm.h"
 
-const hfsm_event hfsm_entry_event = { HFSM_ENTRY, NULL };
-const hfsm_event hfsm_exit_event = { HFSM_EXIT, NULL };
-const hfsm_event hfsm_timeout_event = { HFSM_TIMEOUT, NULL };
-const hfsm_event hfsm_errork_unknown_event = { HFSM_ERROR, NULL };
+const az_hfsm_event az_hfsm_entry_event = { AZ_HFSM_ENTRY, NULL };
+const az_hfsm_event az_hfsm_exit_event = { AZ_HFSM_EXIT, NULL };
+const az_hfsm_event az_hfsm_timeout_event = { AZ_HFSM_TIMEOUT, NULL };
+const az_hfsm_event az_hfsm_errork_unknown_event = { AZ_HFSM_ERROR, NULL };
 
 /**
  * @brief Initializes the HFSM.
@@ -23,34 +23,34 @@ const hfsm_event hfsm_errork_unknown_event = { HFSM_ERROR, NULL };
  * @param[in] h The HFSM handle.
  * @param root_state The root state for this HFSM.
  * @param get_parent_func The function describing the HFSM structure.
- * @return int 
+ * @return int32_t 
  */
-int hfsm_init(hfsm* h, state_handler root_state, get_parent get_parent_func)
+int32_t az_hfsm_init(az_hfsm* h, az_hfsm_state_handler root_state, az_hfsm_get_parent get_parent_func)
 {
-  configASSERT(h != NULL);
+  _az_PRECONDITION_NOT_NULL(h);
   h->current_state = root_state;
   h->get_parent_func = get_parent_func;
-  return h->current_state(h, hfsm_entry_event);
+  return h->current_state(h, az_hfsm_entry_event);
 }
 
-static int _hfsm_recursive_exit(
-    hfsm* h,
-    state_handler source_state)
+static int32_t _az_hfsm_recursive_exit(
+    az_hfsm* h,
+    az_hfsm_state_handler source_state)
 {
-  configASSERT(h != NULL);
-  configASSERT(source_state != NULL);
+  _az_PRECONDITION_NOT_NULL(h);
+  _az_PRECONDITION_NOT_NULL(source_state);
 
-  int ret = 0;
+  int32_t ret = 0;
   // Super-state handler making a transition must exit all substates:
   while (source_state != h->current_state)
   {
     // The current state cannot be null while walking the hierarchy chain from an sub-state to the
     // super-state:
-    configASSERT(h->current_state != NULL);
+    _az_PRECONDITION_NOT_NULL(h->current_state);
 
-    ret = h->current_state(h, hfsm_exit_event);
-    state_handler super_state = h->get_parent_func(h->current_state);
-    configASSERT(super_state != NULL);
+    ret = h->current_state(h, az_hfsm_exit_event);
+    az_hfsm_state_handler super_state = h->get_parent_func(h->current_state);
+    _az_PRECONDITION_NOT_NULL(super_state);
 
     if (ret)
     {
@@ -72,27 +72,27 @@ static int _hfsm_recursive_exit(
  * @param[in] h The HFSM handle.
  * @param source_state The source state.
  * @param destination_state The destination state.
- * @return int Non-zero return on error.
+ * @return int32_t Non-zero return on error.
  */
-int hfsm_transition_peer(hfsm* h, state_handler source_state, state_handler destination_state)
+int32_t az_hfsm_transition_peer(az_hfsm* h, az_hfsm_state_handler source_state, az_hfsm_state_handler destination_state)
 {
-  configASSERT(h != NULL);
-  configASSERT(source_state != NULL);
-  configASSERT(destination_state != NULL);
+  _az_PRECONDITION_NOT_NULL(h);
+  _az_PRECONDITION_NOT_NULL(source_state);
+  _az_PRECONDITION_NOT_NULL(destination_state);
 
-  int ret = 0;
+  int32_t ret = 0;
   // Super-state handler making a transition must exit all inner states:
-  ret = _hfsm_recursive_exit(h, source_state);
+  ret = _az_hfsm_recursive_exit(h, source_state);
 
   if (source_state == h->current_state)
   {
     // Exit the source state.
-    ret = h->current_state(h, hfsm_exit_event);
+    ret = h->current_state(h, az_hfsm_exit_event);
     if (!ret)
     {
       // Enter the destination state:
       h->current_state = destination_state;
-      ret = h->current_state(h, hfsm_entry_event);
+      ret = h->current_state(h, az_hfsm_entry_event);
     }
   }
 
@@ -108,27 +108,27 @@ int hfsm_transition_peer(hfsm* h, state_handler source_state, state_handler dest
  * @param h The HFSM handle.
  * @param source_state The source state.
  * @param destination_state The destination state.
- * @return int Non-zero return on error.
+ * @return int32_t Non-zero return on error.
  */
-int hfsm_transition_substate(
-    hfsm* h,
-    state_handler source_state,
-    state_handler destination_state)
+int32_t az_hfsm_transition_substate(
+    az_hfsm* h,
+    az_hfsm_state_handler source_state,
+    az_hfsm_state_handler destination_state)
 {
-  configASSERT(h != NULL);
-  configASSERT(h->current_state != NULL);
-  configASSERT(source_state != NULL);
-  configASSERT(destination_state != NULL);
+  _az_PRECONDITION_NOT_NULL(h);
+  _az_PRECONDITION_NOT_NULL(h->current_state);
+  _az_PRECONDITION_NOT_NULL(source_state);
+  _az_PRECONDITION_NOT_NULL(destination_state);
 
-  int ret;
+  int32_t ret;
   // Super-state handler making a transition must exit all inner states:
-  ret = _hfsm_recursive_exit(h, source_state);
+  ret = _az_hfsm_recursive_exit(h, source_state);
 
   if (source_state == h->current_state)
   {
     // Transitions to sub-states will not exit the super-state:
     h->current_state = destination_state;
-    ret = h->current_state(h, hfsm_entry_event);
+    ret = h->current_state(h, az_hfsm_entry_event);
   }
 
   return ret;
@@ -146,24 +146,24 @@ int hfsm_transition_substate(
  * @param destination_state The destination state.
  * @return int Non-zero return on error.
  */
-int hfsm_transition_superstate(
-    hfsm* h,
-    state_handler source_state,
-    state_handler destination_state)
+int32_t hfsm_transition_superstate(
+    az_hfsm* h,
+    az_hfsm_state_handler source_state,
+    az_hfsm_state_handler destination_state)
 {
-  configASSERT(h != NULL);
-  configASSERT(h->current_state != NULL);
-  configASSERT(source_state != NULL);
-  configASSERT(destination_state != NULL);
+  _az_PRECONDITION_NOT_NULL(h);
+  _az_PRECONDITION_NOT_NULL(h->current_state);
+  _az_PRECONDITION_NOT_NULL(source_state);
+  _az_PRECONDITION_NOT_NULL(destination_state);
 
-  int ret;
+  int32_t ret;
   // Super-state handler making a transition must exit all inner states:
-  ret = _hfsm_recursive_exit(h, source_state);
+  ret = _az_hfsm_recursive_exit(h, source_state);
 
   if (source_state == h->current_state)
   {
     // Transitions to super states will exit the substate but not enter the superstate again:
-    ret = h->current_state(h, hfsm_exit_event);
+    ret = h->current_state(h, az_hfsm_exit_event);
     h->current_state = destination_state;
   }
 
@@ -177,18 +177,18 @@ int hfsm_transition_superstate(
  * @param event The posted event.
  * @return int Non-zero return on error.
  */
-int hfsm_post_event(hfsm* h, hfsm_event event)
+int32_t az_hfsm_post_event(az_hfsm* h, az_hfsm_event event)
 {
-  configASSERT(h != NULL);
-  int ret;
+  _az_PRECONDITION_NOT_NULL(h);
+  int32_t ret;
 
   ret = h->current_state(h, event);
 
-  state_handler current = h->current_state;
-  while (ret == HFSM_RET_HANDLE_BY_SUPERSTATE)
+  az_hfsm_state_handler current = h->current_state;
+  while (ret == AZ_HFSM_RET_HANDLE_BY_SUPERSTATE)
   {
-    state_handler super = h->get_parent_func(current);
-    configASSERT(super != NULL);
+    az_hfsm_state_handler super = h->get_parent_func(current);
+    _az_PRECONDITION_NOT_NULL(super);
     current = super;
     ret = current(h, event);
   }
