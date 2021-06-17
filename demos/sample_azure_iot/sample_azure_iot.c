@@ -317,7 +317,7 @@ void az_iot_hfsm_sync_adapter_pal_set_credentials( bool use_secondary )
 az_iot_hfsm_event_data_error az_iot_hfsm_sync_adapter_pal_run_provisioning( )
 {
     az_iot_hfsm_event_data_error ret = { AZ_IOT_OK, AZ_IOT_STATUS_OK };
-    if(!prvDeviceProvisioningRun())
+    if(prvDeviceProvisioningRun())
     {
             ret.type = AZ_IOT_ERROR_TYPE_NETWORK;
             ret.iot_status = AZ_IOT_STATUS_UNKNOWN;
@@ -329,7 +329,7 @@ az_iot_hfsm_event_data_error az_iot_hfsm_sync_adapter_pal_run_provisioning( )
 az_iot_hfsm_event_data_error az_iot_hfsm_sync_adapter_pal_run_hub( )
 {
     az_iot_hfsm_event_data_error ret = { AZ_IOT_OK, AZ_IOT_STATUS_OK };
-    if(!prvIoTHubRun())
+    if(prvIoTHubRun())
     {
             ret.type = AZ_IOT_ERROR_TYPE_NETWORK;
             ret.iot_status = AZ_IOT_STATUS_UNKNOWN;

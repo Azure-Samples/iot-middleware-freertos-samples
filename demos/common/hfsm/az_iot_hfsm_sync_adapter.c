@@ -166,11 +166,10 @@ static int32_t running(az_hfsm* me, az_hfsm_event event)
         {
             status = az_iot_hfsm_sync_adapter_pal_run_hub();
         } while (status.type == AZ_IOT_OK);
-
-        az_hfsm_sync_event_error.data = &status;
-        ret = az_hfsm_post_event((az_hfsm*)(&iot_hfsm), az_hfsm_sync_event_error);
       }
-      
+
+      az_hfsm_sync_event_error.data = &status;
+      ret = az_hfsm_post_event((az_hfsm*)(&iot_hfsm), az_hfsm_sync_event_error);
       az_hfsm_transition_peer(me, running, idle);
       break;
 
