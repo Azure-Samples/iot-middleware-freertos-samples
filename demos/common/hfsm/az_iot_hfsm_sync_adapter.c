@@ -157,6 +157,10 @@ static int32_t running(az_hfsm* me, az_hfsm_event event)
       if (me == &provisioning_hfsm)
       {
         status = az_iot_hfsm_sync_adapter_pal_run_provisioning();
+        if (status.type == AZ_IOT_OK)
+        {
+          ret = az_hfsm_post_event((az_hfsm*)(&iot_hfsm), az_hfsm_event_az_iot_provisioning_done);
+        }
       }
       else
       {
@@ -168,8 +172,12 @@ static int32_t running(az_hfsm* me, az_hfsm_event event)
         } while (status.type == AZ_IOT_OK);
       }
 
-      az_hfsm_sync_event_error.data = &status;
-      ret = az_hfsm_post_event((az_hfsm*)(&iot_hfsm), az_hfsm_sync_event_error);
+      if (status.type != AZ_IOT_OK)
+      {
+        az_hfsm_sync_event_error.data = &status;
+        ret = az_hfsm_post_event((az_hfsm*)(&iot_hfsm), az_hfsm_sync_event_error);
+      }
+
       az_hfsm_transition_peer(me, running, idle);
       break;
 
