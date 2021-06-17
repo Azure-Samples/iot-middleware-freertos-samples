@@ -75,7 +75,7 @@ Execute the command below to find which index you got for the ``veth1`` (index i
 ```bash
     sudo tcpdump --list-interfaces
 ```
-Look for line #138 and update configNETWORK_INTERFACE_TO_USE with the number you got in the previous step. 
+Look for line #138 in `FreeRTOSConfig.h` and update `configNETWORK_INTERFACE_TO_USE` with the number you got in the previous step. 
 
 **Example**: if you got ``4.veth1 [Up, Running]`` in the previous step, you'll update line #138 to look like this ``#define configNETWORK_INTERFACE_TO_USE (4L)``
 
@@ -88,10 +88,8 @@ Look for line #138 and update configNETWORK_INTERFACE_TO_USE with the number you
 To build the device image, run the following commands from the folder where you cloned the Repo:
 
   ```bash
-    mkdir build_linux
-    cd build_linux
-    cmake -G Ninja -DVENDOR=PC -DBOARD=linux ..
-    cmake --build .  
+    cmake -G Ninja -DVENDOR=PC -DBOARD=linux -Bbuild_linux ..
+    cmake --build build_linux
   ```
 
 ## Confirm simulated device connection details
@@ -99,5 +97,5 @@ To build the device image, run the following commands from the folder where you 
 To monitor communication and confirm that your device is set up correctly, execute the command below.
 
 ```Bash
-    sudo demos/projects/PC/linux/iot-middleware-sample.elf
+    sudo ./build_linux/demos/projects/PC/linux/iot-middleware-sample.elf
 ```
