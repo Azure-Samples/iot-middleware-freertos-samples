@@ -737,10 +737,10 @@ uint64_t ullGetUnixTime( void )
     /* Get the current tick count. */
     xTickCount = xTaskGetTickCount();
 
-    /* Convert the ticks to milliseconds. */
+    /* Convert the ticks to seconds.. */
     ulTime = ( uint64_t ) xTickCount / configTICK_RATE_HZ;
 
-    /* Reduce ulGlobalEntryTimeMs from obtained time so as to always return the
+    /* Reduce ulGlobalEntryTime from obtained time so as to always return the
      * elapsed time in the application. */
     ulTime = ( uint64_t ) ( ulTime + ulGlobalEntryTime );
 

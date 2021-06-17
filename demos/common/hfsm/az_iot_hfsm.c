@@ -9,6 +9,7 @@
  */
 
 #include <stdint.h>
+#include <inttypes.h>
 
 #include "az_hfsm.h"
 #include "az_hfsm_pal_timer.h"
@@ -101,7 +102,7 @@ static int32_t azure_iot(az_hfsm* me, az_hfsm_event event)
 
     case AZ_IOT_ERROR:
       LogInfo( ("AzureIoT: AZ_IOT_ERROR") );
-      operation_msec = az_hfsm_pal_timer_get_miliseconds() - this_iothfsm->_start_time_msec;
+      operation_msec = az_hfsm_pal_timer_get_milliseconds() - this_iothfsm->_start_time_msec;
 
       this_iothfsm->_retry_attempt++;
       az_iot_hfsm_event_data_error* error_data = (az_iot_hfsm_event_data_error*)(event.data);
@@ -123,16 +124,17 @@ static int32_t azure_iot(az_hfsm* me, az_hfsm_event event)
         int32_t retry_delay_msec = az_iot_calculate_retry_delay(
           operation_msec, 
           this_iothfsm->_retry_attempt,
-          MIN_RETRY_DELAY_MSEC,
-          MAX_RETRY_DELAY_MSEC,
+          AZ_IOT_HFSM_MIN_RETRY_DELAY_MSEC,
+          AZ_IOT_HFSM_MAX_RETRY_DELAY_MSEC,
           random_jitter_msec);
 
+        LogWarn( ("AzureIoT: AZ_IOT_ERROR retrying after %" PRId32 "ms", retry_delay_msec) );
         ret = az_hfsm_pal_timer_start(me, this_iothfsm->_timer_handle, retry_delay_msec, true);
       }
       else
       {
         this_iothfsm->_use_secondary_credentials = !this_iothfsm->_use_secondary_credentials;
-        this_iothfsm->_start_time_msec = az_hfsm_pal_timer_get_miliseconds();
+        this_iothfsm->_start_time_msec = az_hfsm_pal_timer_get_milliseconds();
         ret = az_hfsm_post_event(this_iothfsm->_provisioning_hfsm, az_hfsm_event_az_iot_start);
         ret = az_hfsm_transition_substate(me, azure_iot, provisioning);
       }
@@ -196,7 +198,7 @@ static int32_t provisioning(az_hfsm* me, az_hfsm_event event)
     case AZ_HFSM_ENTRY:
       LogInfo( ("provisioning: Entry") );
       this_iothfsm->_retry_attempt = 0;
-      this_iothfsm->_start_time_msec = az_hfsm_pal_timer_get_miliseconds();
+      this_iothfsm->_start_time_msec = az_hfsm_pal_timer_get_milliseconds();
       this_iothfsm->_timer_handle = az_hfsm_pal_timer_create(me);
       break;
 
@@ -207,7 +209,7 @@ static int32_t provisioning(az_hfsm* me, az_hfsm_event event)
 
     case AZ_HFSM_TIMEOUT:
       LogInfo( ("provisioning: Timeout") );
-      this_iothfsm->_start_time_msec = az_hfsm_pal_timer_get_miliseconds();
+      this_iothfsm->_start_time_msec = az_hfsm_pal_timer_get_milliseconds();
       ret = az_hfsm_post_event(this_iothfsm->_provisioning_hfsm, az_hfsm_event_az_iot_start);
       break;
     
@@ -235,7 +237,7 @@ static int32_t hub(az_hfsm* me, az_hfsm_event event)
     case AZ_HFSM_ENTRY:
       LogInfo( ("hub: Entry") );
       this_iothfsm->_retry_attempt = 0;
-      this_iothfsm->_start_time_msec = az_hfsm_pal_timer_get_miliseconds();
+      this_iothfsm->_start_time_msec = az_hfsm_pal_timer_get_milliseconds();
       this_iothfsm->_timer_handle = az_hfsm_pal_timer_create(me);
       break;
 
@@ -246,7 +248,7 @@ static int32_t hub(az_hfsm* me, az_hfsm_event event)
 
     case AZ_HFSM_TIMEOUT:
       LogInfo( ("hub: Timeout") );
-      this_iothfsm->_start_time_msec = az_hfsm_pal_timer_get_miliseconds();
+      this_iothfsm->_start_time_msec = az_hfsm_pal_timer_get_milliseconds();
       ret = az_hfsm_post_event(this_iothfsm->_iothub_hfsm, az_hfsm_event_az_iot_start);
       break;
 

@@ -17,12 +17,16 @@
 #include <azure/iot/az_iot_common.h>
 #include "az_hfsm.h"
 
-#ifndef MIN_RETRY_DELAY_MSEC
-#define MIN_RETRY_DELAY_MSEC 1000
+#ifndef AZ_IOT_HFSM_MIN_RETRY_DELAY_MSEC
+#define AZ_IOT_HFSM_MIN_RETRY_DELAY_MSEC 1000
 #endif 
 
-#ifndef MAX_RETRY_DELAY_MSEC
-#define MAX_RETRY_DELAY_MSEC 100000
+#ifndef AZ_IOT_HFSM_MAX_RETRY_DELAY_MSEC
+#define AZ_IOT_HFSM_MAX_RETRY_DELAY_MSEC 100000
+#endif 
+
+#ifndef AZ_IOT_HFSM_MAX_RETRY_JITTER_MSEC
+#define AZ_IOT_HFSM_MAX_RETRY_JITTER_MSEC 5000
 #endif 
 
 typedef struct

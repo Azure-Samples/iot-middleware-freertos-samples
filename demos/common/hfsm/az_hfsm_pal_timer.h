@@ -25,6 +25,6 @@ AZ_INLINE int32_t az_hfsm_pal_timer_notify(az_hfsm* dst)
     return az_hfsm_post_event(dst, az_hfsm_timeout_event);
 }
 
-uint64_t az_hfsm_pal_timer_get_miliseconds();
+uint64_t az_hfsm_pal_timer_get_milliseconds();
 
 #endif //_az_IOT_HFSM_PAL_TIMER_H
