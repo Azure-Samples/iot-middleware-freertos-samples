@@ -88,7 +88,7 @@ Look for line #138 in `FreeRTOSConfig.h` and update `configNETWORK_INTERFACE_TO_
 To build the device image, run the following commands from the folder where you cloned the Repo:
 
   ```bash
-    cmake -G Ninja -DVENDOR=PC -DBOARD=linux -Bbuild_linux ..
+    cmake -G Ninja -DVENDOR=PC -DBOARD=linux -Bbuild_linux .
     cmake --build build_linux
   ```
 
