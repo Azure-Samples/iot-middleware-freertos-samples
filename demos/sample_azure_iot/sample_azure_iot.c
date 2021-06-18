@@ -345,6 +345,7 @@ void az_iot_hfsm_sync_adapter_pal_set_credentials( bool use_secondary )
     prvSetupNetworkCredentials( use_secondary );
 }
 
+#ifdef democonfigENABLE_DPS_SAMPLE
 /**
  * @brief Run Device Provisioning syncrhonously.
  * 
@@ -354,6 +355,7 @@ az_iot_hfsm_event_data_error az_iot_hfsm_sync_adapter_pal_run_provisioning( )
 {
     return prvDeviceProvisioningRun();
 }
+#endif
 
 /**
  * @brief Run IoT Hub operations synchronously.
@@ -427,6 +429,7 @@ az_iot_hfsm_event_data_error_type error_adapter_tlstransportstatus(TlsTransportS
     return ret;
 }
 
+#ifdef democonfigENABLE_DPS_SAMPLE
 az_iot_hfsm_event_data_error_type error_adapter_azureiotprovisioningclientresult(AzureIoTProvisioningClientResult_t status)
 {
     az_iot_hfsm_event_data_error_type ret;
@@ -458,6 +461,7 @@ az_iot_hfsm_event_data_error_type error_adapter_azureiotprovisioningclientresult
 
     return ret;
 }
+#endif
 
 az_iot_hfsm_event_data_error_type error_adapter_azureiothubclientresult(AzureIoTHubClientResult_t status)
 {
