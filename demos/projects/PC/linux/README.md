@@ -29,7 +29,7 @@ To initialize the repo, run the following command:
 ```
 
 * Execute the Network setup script which will create virtual interfaces veth0 and veth1:
-*** Needed to add: sudo apt install net-tools   (didn't have ifconfig yet installed, recent WSL2 download)
+
 ```bash
     sudo .github/scripts/init_linux_port_vm_network.sh
 ```
@@ -66,7 +66,7 @@ If you're using **DPS** with an individual enrollment with SAS authentication, s
 Parameter | Value
 ---------|----------
  `democonfigID_SCOPE` | _{Your ID scope value}_
- `democonfigDEVICE_ID` | _{Your Device ID value}_
+ `democonfigREGISTRATION_ID` | _{Your Device Registration ID value}_
  `democonfigDEVICE_SYMMETRIC_KEY` | _{Your Primary Key value}_
 
 ### Set the Virtual Ethernet Interface
@@ -93,8 +93,7 @@ To build the device image, run the following commands from the root of the clone
     cmake -G Ninja -DVENDOR=PC -DBOARD=linux -Bbuild_linux ..
     cmake --build build_linux
   ```
-*** add note about extended time (5 minutes?) on ninja cmake step (?)
-*** add note about possible warnings appearing, but look for Linking executable .elf file on final line (?)
+
 ## Confirm simulated device connection details
 
 To monitor communication and confirm that your device is set up correctly, execute the command below.
