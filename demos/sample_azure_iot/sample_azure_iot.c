@@ -167,7 +167,7 @@ NetworkCredentials_t xNetworkCredentials = { 0 };
 #endif /* democonfigENABLE_DPS_SAMPLE */
 
 #ifdef democonfigDEVICE_SYMMETRIC_KEY
-    static uint8_t * pucSymmetricKey = democonfigDEVICE_SYMMETRIC_KEY;
+    static uint8_t * pucSymmetricKey = (uint8_t *) democonfigDEVICE_SYMMETRIC_KEY;
     static uint32_t ulSymmetricKeyLength = sizeof( democonfigDEVICE_SYMMETRIC_KEY ) - 1;
 #endif
 
@@ -319,13 +319,13 @@ void prvSetupNetworkCredentials( bool use_secondary )
         if (!use_secondary)
         {
         #endif // democonfigSECONDARY_CREDENTIALS
-            pucSymmetricKey = democonfigDEVICE_SYMMETRIC_KEY;
+            pucSymmetricKey = ( uint8_t * ) democonfigDEVICE_SYMMETRIC_KEY;
             ulSymmetricKeyLength = sizeof( democonfigDEVICE_SYMMETRIC_KEY ) - 1;
         #ifdef democonfigSECONDARY_CREDENTIALS
         }
         else
         {
-            pucSymmetricKey = democonfigSECONDARY_DEVICE_SYMMETRIC_KEY;
+            pucSymmetricKey = ( uint8_t * ) democonfigSECONDARY_DEVICE_SYMMETRIC_KEY;
             ulSymmetricKeyLength = sizeof( democonfigSECONDARY_DEVICE_SYMMETRIC_KEY ) - 1;
         }
         #endif // democonfigSECONDARY_CREDENTIALS

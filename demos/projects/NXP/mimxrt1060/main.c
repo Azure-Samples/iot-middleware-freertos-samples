@@ -132,6 +132,8 @@ static ethernetif_config_t xEnetConfig =
 };
 static uint64_t ulGlobalEntryTime = 1639093301;
 
+void Error_Handler(void);
+
 /*
  * Prototypes for the demos that can be started from this project.
  */
@@ -490,7 +492,7 @@ static void prvNetworkUp( void )
     if( pxDHCP->state != DHCP_STATE_BOUND )
     {
         configPRINTF( ( "DHCP failed \r\n" ) );
-        configASSERT( false );
+        Error_Handler();
     }
 
     configPRINTF( ( "\r\n IPv4 Address : %u.%u.%u.%u\r\n", ( ( u8_t * ) &xNetif.ip_addr.addr )[ 0 ],
@@ -502,6 +504,10 @@ static void prvNetworkUp( void )
     {
         configPRINTF( ( "\r\n DNS : %u.%u.%u.%u\r\n", ( ( u8_t * ) &pxIP->addr )[ 0 ],
                         ( ( u8_t * ) &pxIP->addr )[ 1 ], ( ( u8_t * ) &pxIP->addr )[ 2 ], ( ( u8_t * ) &pxIP->addr )[ 3 ] ) );
+    }
+    else
+    {
+        Error_Handler();
     }
 
     configPRINTF( ( "\r\n" ) );
@@ -556,6 +562,15 @@ int iMainRand32( void )
     uxlNextRand = ( ulMultiplier * uxlNextRand ) + ulIncrement;
 
     return( ( int ) ( uxlNextRand >> 16UL ) & 0x7fffUL );
+}
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief  This function is executed in case of errors during hardware initialization.
+ */
+void Error_Handler( void )
+{
+    NVIC_SystemReset();
 }
 /*-----------------------------------------------------------*/
 

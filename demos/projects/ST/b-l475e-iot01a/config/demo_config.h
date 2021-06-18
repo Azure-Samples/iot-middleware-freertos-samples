@@ -127,13 +127,13 @@ extern void vLoggingPrintf( const char * pcFormatString,
  * @brief Client's secondary X509 Certificate.
  *
  */
-#define democonfigSECONDARY_CLIENT_CERTIFICATE_PEM     "<YOUR DEVICE SECONDARY CERT HERE>"
+// #define democonfigSECONDARY_CLIENT_CERTIFICATE_PEM     "<YOUR DEVICE SECONDARY CERT HERE>"
 
 /**
  * @brief Client's secondary private key.
  * 
  */
-#define democonfigSECONDARY_CLIENT_PRIVATE_KEY_PEM    "<YOUR DEVICE SECONDARY PRIVATE KEY HERE>"
+// #define democonfigSECONDARY_CLIENT_PRIVATE_KEY_PEM    "<YOUR DEVICE SECONDARY PRIVATE KEY HERE>"
 
 /**
  * @brief Trusted CA Store
