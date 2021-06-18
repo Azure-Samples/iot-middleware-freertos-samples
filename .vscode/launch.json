@@ -38,14 +38,18 @@
             "preLaunchTask": "Build and Deploy b-l475e-iot01a"
         },
         {
-            "name": "NXP: Local J-Link",
+            "name": "NXP mimxrt1060: Local J-Link",
             "type": "cortex-debug",
             "request": "launch",
             "servertype":"jlink",
-            "runToMain": true,
+            "postStartSessionCommands": ["monitor reset"],
+            // TODO: Currently debuger fails with runToMain true.
+            //"runToMain": true,
+            "rtos": "FreeRTOS",
             "executable": "${workspaceFolder}/mimxrt1060/demos/projects/NXP/mimxrt1060/iot-middleware-sample.elf",
             "device": "MIMXRT1062xxx6A",
-            "svdFile": "${workspaceFolder}/.vscode/MIMXRT1062.svd"
+            "svdFile": "${workspaceFolder}/.vscode/MIMXRT1062.svd",
+            "preLaunchTask": "Build NXP mimxrt1060"
         }
     ],
     "inputs": [
