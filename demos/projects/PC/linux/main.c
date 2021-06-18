@@ -31,6 +31,7 @@
 /* Standard includes. */
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdbool.h>
 #include <time.h>
 #include <strings.h>
@@ -53,6 +54,8 @@
 
 #define mainHOST_NAME           "RTOSDemo"
 #define mainDEVICE_NICK_NAME    "linux_demo"
+
+void Error_Handler(void);
 
 /*
  * Prototypes for the demos that can be started from this project.  Note the
@@ -151,7 +154,15 @@ int main( void )
      * vApplicationIPNetworkEventHook() below).  The address values passed in here
      * are used if ipconfigUSE_DHCP is set to 0, or if ipconfigUSE_DHCP is set to 1
      * but a DHCP server cannot be contacted. */
-    FreeRTOS_IPInit( ucIPAddress, ucNetMask, ucGatewayAddress, ucDNSServerAddress, ucMACAddress );
+    if (pdPASS != FreeRTOS_IPInit( 
+        ucIPAddress,
+        ucNetMask,
+        ucGatewayAddress, 
+        ucDNSServerAddress, 
+        ucMACAddress ))
+    {
+        Error_Handler();
+    }
 
     /* Start the RTOS scheduler. */
     vTaskStartScheduler();
@@ -457,5 +468,13 @@ int iMainRand32( void )
     uxlNextRand = ( ulMultiplier * uxlNextRand ) + ulIncrement;
 
     return( ( int ) ( uxlNextRand >> 16UL ) & 0x7fffUL );
+}
+/*-----------------------------------------------------------*/
+/**
+ * @brief  This function is executed in case of errors during hardware initialization.
+ */
+void Error_Handler( void )
+{
+    exit(-1);
 }
 /*-----------------------------------------------------------*/

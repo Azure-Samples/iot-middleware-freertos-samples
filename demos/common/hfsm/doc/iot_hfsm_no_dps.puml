@@ -1,0 +1,53 @@
+@startuml Azure IoT HFSM
+
+state AzureIot {
+    state Idle
+    
+    state Hub
+    Hub : <b>entry/</b>
+    Hub : \t _retry_attempt = 0
+    Hub : \t _start_time_msec = get_miliseconds()
+    Hub : \t _timer_handle = timer_create()
+    Hub :
+    Hub : <b>exit/</b>
+    Hub : \t timer_destroy(_timer_handle)
+    Hub : 
+    Hub : <b>TIMEOUT/</b>
+    Hub : \t _start_time_msec = get_miliseconds()
+    Hub : \t start_hub()
+    
+    [*] -> Idle
+    Idle --> Hub : AZ_IOT_START / post_event(hfsm_hub, AZ_IOT_START)
+}
+
+AzureIot : <b>entry/</b> 
+AzureIot : \t _use_secondary_credentials = false
+AzureIot :
+AzureIot : <b>AZ_IOT_ERROR/</b>
+AzureIot : \t _retry_attempt++
+AzureIot : \t operation_msec = get_miliseconds() - _start_time_msec
+AzureIot : \t should_retry = false;
+AzureIot : \t if (error_type == NETWORK || ((error_type == SERVICE) && az_iot_status_retriable(status)))
+AzureIot : \t {
+AzureIot : \t\t should_retry = true;
+AzureIot : \t {
+AzureIot: 
+AzureIot : \t if (should_retry) {
+AzureIot : \t\t retry_delay_msec = az_iot_calculate_retry_delay(operation_msec, _retry_attempt, ...)
+AzureIot : \t\t timer_start(_timer_handle)
+AzureIot : \t\t
+AzureIot : \t }
+AzureIot : \t else {
+AzureIot : \t\t _use_secondary_credentials = !_use_secondary_credentials
+AzureIot:  \t\t operation_msec = get_miliseconds() - _start_time_msec
+AzureIot : \t\t post_event(hfsm_hub, AZ_IOT_START)
+AzureIot : \t\t transition(hub)
+AzureIot : \t }
+AzureIot :
+AzureIot :
+AzureIot : <b>exit/</b>
+AzureIot : <b>TIMEOUT/</b>
+AzureIot : <b>ERROR/</b>
+AzureIot : \t critical_error()
+
+@enduml

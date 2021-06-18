@@ -350,7 +350,7 @@ MigrationBackup/
 .ionide/
 
 # Build directories
-/build
+/build*
 /mimxrt1060
 /build_linux
 /b-l475e-iot01a

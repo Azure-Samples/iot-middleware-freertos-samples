@@ -12,7 +12,12 @@ string(TOUPPER ${BOARD} BOARD_U)
 if(NOT (TARGET SAMPLE::AZUREIOT))
     add_library(SAMPLE::AZUREIOT INTERFACE IMPORTED)
     target_sources(SAMPLE::AZUREIOT INTERFACE 
-        ${CMAKE_CURRENT_SOURCE_DIR}/sample_azure_iot/sample_azure_iot.c)
+        ${CMAKE_CURRENT_SOURCE_DIR}/sample_azure_iot/sample_azure_iot.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/common/hfsm/az_hfsm.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/common/hfsm/az_iot_hfsm.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/common/hfsm/az_iot_hfsm_sync_adapter.c)
+    target_include_directories(SAMPLE::AZUREIOT INTERFACE 
+        ${CMAKE_CURRENT_SOURCE_DIR}/common/hfsm)
 endif()
 
 # Target for freertos tcpip socket

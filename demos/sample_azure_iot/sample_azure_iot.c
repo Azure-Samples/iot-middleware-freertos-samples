@@ -11,6 +11,7 @@
 
 /* Demo Specific configs. */
 #include "demo_config.h"
+#include "az_iot_hfsm_sync_adapter.h"
 
 /* Azure Provisioning/IoT Hub library includes */
 #include "azure_iot_hub_client.h"
@@ -125,6 +126,13 @@
 uint64_t ullGetUnixTime( void );
 /*-----------------------------------------------------------*/
 
+/**
+ * @brief BSP error handler.
+ * 
+ */
+void Error_Handler( void );
+/*-----------------------------------------------------------*/
+
 /* Define buffer for IoT Hub info.  */
 #ifdef democonfigENABLE_DPS_SAMPLE
     static uint8_t ucSampleIotHubHostname[ 128 ];
@@ -144,25 +152,36 @@ struct NetworkContext
 static AzureIoTHubClient_t xAzureIoTHubClient;
 /*-----------------------------------------------------------*/
 
+NetworkCredentials_t xNetworkCredentials = { 0 };
+
+#ifdef democonfigENABLE_DPS_SAMPLE
+    static uint8_t * pucIotHubHostname = NULL;
+    static uint8_t * pucIotHubDeviceId = NULL;
+    static uint32_t ulIothubHostnameLength = 0;
+    static uint32_t ulIothubDeviceIdLength = 0;
+#else
+    static uint8_t * pucIotHubHostname = ( uint8_t * ) democonfigHOSTNAME;
+    static uint8_t * pucIotHubDeviceId = ( uint8_t * ) democonfigDEVICE_ID;
+    static uint32_t ulIothubHostnameLength = sizeof( democonfigHOSTNAME ) - 1;
+    static uint32_t ulIothubDeviceIdLength = sizeof( democonfigDEVICE_ID ) - 1;
+#endif /* democonfigENABLE_DPS_SAMPLE */
+
+#ifdef democonfigDEVICE_SYMMETRIC_KEY
+    static uint8_t * pucSymmetricKey = (uint8_t *) democonfigDEVICE_SYMMETRIC_KEY;
+    static uint32_t ulSymmetricKeyLength = sizeof( democonfigDEVICE_SYMMETRIC_KEY ) - 1;
+#endif
+
 #ifdef democonfigENABLE_DPS_SAMPLE
 
 /**
  * @brief Gets the IoT Hub endpoint and deviceId from Provisioning service.
  *   This function will block for Provisioning service for result or return failure.
- * 
- * @param[in] pXNetworkCredentials  Network credential used to connect to Provisioning service
- * @param[out] ppucIothubHostname  Pointer to uint8_t* IoT Hub hostname return from Provisioning Service
- * @param[in,out] pulIothubHostnameLength  Length of hostname
- * @param[out] ppucIothubDeviceId  Pointer to uint8_t* deviceId return from Provisioning Service
- * @param[in,out] pulIothubDeviceIdLength  Length of deviceId
  */
-    static uint32_t prvIoTHubInfoGet( NetworkCredentials_t * pXNetworkCredentials,
-                                      uint8_t ** ppucIothubHostname,
-                                      uint32_t * pulIothubHostnameLength,
-                                      uint8_t ** ppucIothubDeviceId,
-                                      uint32_t * pulIothubDeviceIdLength );
+az_iot_hfsm_event_data_error prvDeviceProvisioningRun();
 
 #endif /* democonfigENABLE_DPS_SAMPLE */
+
+az_iot_hfsm_event_data_error prvIoTHubRun();
 
 /**
  * @brief The task used to demonstrate the MQTT API.
@@ -185,7 +204,7 @@ static void prvAzureDemoTask( void * pvParameters );
  * @param pxNetworkContext Point to Network context created.
  * @return uint32_t The status of the final connection attempt.
  */
-static uint32_t prvConnectToServerWithBackoffRetries( const char * pcHostName,
+static TlsTransportStatus_t prvConnectToServerWithBackoffRetries( const char * pcHostName,
                                                       uint32_t ulPort,
                                                       NetworkCredentials_t * pxNetworkCredentials,
                                                       NetworkContext_t * pxNetworkContext );
@@ -267,88 +286,376 @@ static void prvHandleDeviceTwinMessage( AzureIoTHubClientTwinResponse_t * pxMess
 /**
  * @brief Setup transport credentials.
  */
-static uint32_t prvSetupNetworkCredentials( NetworkCredentials_t * pxNetworkCredentials )
+void prvSetupNetworkCredentials( bool use_secondary )
 {
-    pxNetworkCredentials->xDisableSni = pdFALSE;
+    xNetworkCredentials.xDisableSni = pdFALSE;
     /* Set the credentials for establishing a TLS connection. */
-    pxNetworkCredentials->pucRootCa = ( const unsigned char * ) democonfigROOT_CA_PEM;
-    pxNetworkCredentials->xRootCaSize = sizeof( democonfigROOT_CA_PEM );
+    xNetworkCredentials.pucRootCa = ( const unsigned char * ) democonfigROOT_CA_PEM;
+    xNetworkCredentials.xRootCaSize = sizeof( democonfigROOT_CA_PEM );
+    
     #ifdef democonfigCLIENT_CERTIFICATE_PEM
-        pxNetworkCredentials->pucClientCert = ( const unsigned char * ) democonfigCLIENT_CERTIFICATE_PEM;
-        pxNetworkCredentials->xClientCertSize = sizeof( democonfigCLIENT_CERTIFICATE_PEM );
-        pxNetworkCredentials->pucPrivateKey = ( const unsigned char * ) democonfigCLIENT_PRIVATE_KEY_PEM;
-        pxNetworkCredentials->xPrivateKeySize = sizeof( democonfigCLIENT_PRIVATE_KEY_PEM );
-    #endif
+        #ifdef democonfigSECONDARY_CREDENTIALS
+        if (!use_secondary)
+        {
+        #endif // democonfigSECONDARY_CREDENTIALS
+            xNetworkCredentials.pucClientCert = ( const unsigned char * ) democonfigCLIENT_CERTIFICATE_PEM;
+            xNetworkCredentials.xClientCertSize = sizeof( democonfigCLIENT_CERTIFICATE_PEM );
+            xNetworkCredentials.pucPrivateKey = ( const unsigned char * ) democonfigCLIENT_PRIVATE_KEY_PEM;
+            xNetworkCredentials.xPrivateKeySize = sizeof( democonfigCLIENT_PRIVATE_KEY_PEM );
+        #ifdef democonfigSECONDARY_CREDENTIALS
+        }
+        else
+        {
+            xNetworkCredentials.pucClientCert = ( const unsigned char * ) democonfigSECONDARY_CLIENT_CERTIFICATE_PEM;
+            xNetworkCredentials.xClientCertSize = sizeof( democonfigSECONDARY_CLIENT_CERTIFICATE_PEM );
+            xNetworkCredentials.pucPrivateKey = ( const unsigned char * ) democonfigSECONDARY_CLIENT_PRIVATE_KEY_PEM;
+            xNetworkCredentials.xPrivateKeySize = sizeof( democonfigSECONDARY_CLIENT_PRIVATE_KEY_PEM );
+        }
+        #endif // democonfigSECONDARY_CREDENTIALS
+    #endif // democonfigCLIENT_CERTIFICATE_PEM
 
-    return 0;
+    #ifdef democonfigDEVICE_SYMMETRIC_KEY
+        #ifdef democonfigSECONDARY_CREDENTIALS
+        if (!use_secondary)
+        {
+        #endif // democonfigSECONDARY_CREDENTIALS
+            pucSymmetricKey = ( uint8_t * ) democonfigDEVICE_SYMMETRIC_KEY;
+            ulSymmetricKeyLength = sizeof( democonfigDEVICE_SYMMETRIC_KEY ) - 1;
+        #ifdef democonfigSECONDARY_CREDENTIALS
+        }
+        else
+        {
+            pucSymmetricKey = ( uint8_t * ) democonfigSECONDARY_DEVICE_SYMMETRIC_KEY;
+            ulSymmetricKeyLength = sizeof( democonfigSECONDARY_DEVICE_SYMMETRIC_KEY ) - 1;
+        }
+        #endif // democonfigSECONDARY_CREDENTIALS
+    #endif
 }
 /*-----------------------------------------------------------*/
 
+// AzureIoT HFSM Sync PAL implementation
+
+/**
+ * @brief Configure credentials
+ * 
+ * @param use_secondary true if the secondary credentials should be used.
+ */
+void az_iot_hfsm_sync_adapter_pal_set_credentials( bool use_secondary )
+{
+    prvSetupNetworkCredentials( use_secondary );
+}
+
+#ifdef democonfigENABLE_DPS_SAMPLE
+/**
+ * @brief Run Device Provisioning syncrhonously.
+ * 
+ * @return az_iot_hfsm_event_data_error 
+ */
+az_iot_hfsm_event_data_error az_iot_hfsm_sync_adapter_pal_run_provisioning( )
+{
+    return prvDeviceProvisioningRun();
+}
+#endif
+
+/**
+ * @brief Run IoT Hub operations synchronously.
+ * 
+ * @return az_iot_hfsm_event_data_error 
+ */
+az_iot_hfsm_event_data_error az_iot_hfsm_sync_adapter_pal_run_hub( )
+{
+    return prvIoTHubRun();
+}
+
+/**
+ * @brief Sleep
+ * 
+ * @param milliseconds time the task should be blocked.
+ */
+void az_iot_hfsm_sync_adapter_sleep( int32_t milliseconds )
+{
+    vTaskDelay (pdMS_TO_TICKS(milliseconds));
+}
+
+/**
+ * @brief Get the number of milliseconds elapsed.
+ * 
+ * @return uint64_t the number of milliseconds.
+ */
+uint64_t az_hfsm_pal_timer_get_milliseconds()
+{
+    return ullGetUnixTime() * 1000;
+}
+
+/**
+ * @brief Critical error. This function should not return.
+ * 
+ * @param me The calling HFSM object.
+ */
+void az_iot_hfsm_pal_critical_error(az_hfsm* caller)
+{
+    (void) caller;
+    Error_Handler();
+}
+
+int32_t az_iot_hfsm_pal_get_random_jitter_msec(az_hfsm* hfsm)
+{
+    return configRAND32() % AZ_IOT_HFSM_MAX_RETRY_JITTER_MSEC;
+}
+
+az_iot_hfsm_event_data_error_type error_adapter_tlstransportstatus(TlsTransportStatus_t status)
+{
+    az_iot_hfsm_event_data_error_type ret;
+
+    switch (status)
+    {
+        case eTLSTransportSuccess:
+            ret = AZ_IOT_OK;
+            break;
+  
+        case eTLSTransportConnectFailure:
+            ret = AZ_IOT_ERROR_TYPE_NETWORK;
+            break;
+  
+        case eTLSTransportInvalidParameter:
+        case eTLSTransportInSufficientMemory:
+        case eTLSTransportInvalidCredentials:
+        case eTLSTransportHandshakeFailed:
+        case eTLSTransportInternalError:
+        default:
+            ret = AZ_IOT_ERROR_TYPE_SECURITY;
+    }
+
+    return ret;
+}
+
+#ifdef democonfigENABLE_DPS_SAMPLE
+az_iot_hfsm_event_data_error_type error_adapter_azureiotprovisioningclientresult(AzureIoTProvisioningClientResult_t status)
+{
+    az_iot_hfsm_event_data_error_type ret;
+
+    switch (status)
+    {
+        case eAzureIoTProvisioningSuccess:
+          ret = AZ_IOT_OK;
+          break;
+        
+        case eAzureIoTProvisioningServerError:
+          ret = AZ_IOT_ERROR_TYPE_SERVICE;
+          break;
+
+        case eAzureIoTProvisioningSubscribeFailed:
+        case eAzureIoTProvisioningPublishFailed:
+          ret = AZ_IOT_ERROR_TYPE_NETWORK;
+          break;
+
+        case eAzureIoTProvisioningInvalidArgument:
+        case eAzureIoTProvisioningPending:
+        case eAzureIoTProvisioningOutOfMemory:
+        case eAzureIoTProvisioningInitFailed:
+        case eAzureIoTProvisioningTokenGenerationFailed:
+        case eAzureIoTProvisioningFailed:
+        default:
+          ret = AZ_IOT_ERROR_TYPE_SECURITY;
+    }
+
+    return ret;
+}
+#endif
+
+az_iot_hfsm_event_data_error_type error_adapter_azureiothubclientresult(AzureIoTHubClientResult_t status)
+{
+    az_iot_hfsm_event_data_error_type ret;
+
+    switch (status)
+    {
+        case eAzureIoTHubClientSuccess:
+          ret = AZ_IOT_OK;
+          break;
+        
+        case eAzureIoTHubClientSubackWaitTimeout:
+        case eAzureIoTHubClientTopicNotSubscribed:
+        case eAzureIoTHubClientPublishFailed:
+        case eAzureIoTHubClientSubscribeFailed:
+        case eAzureIoTHubClientUnsubscribeFailed:
+        case eAzureIoTHubClientTopicNoMatch:
+          ret = AZ_IOT_ERROR_TYPE_NETWORK;
+          break;
+
+        case eAzureIoTHubClientInvalidArgument:
+        case eAzureIoTHubClientPending:
+        case eAzureIoTHubClientOutOfMemory:
+        case eAzureIoTHubClientInitFailed:
+        case eAzureIoTHubClientFailed:
+        default:
+          ret = AZ_IOT_ERROR_TYPE_SECURITY;
+    }
+
+    return ret;
+}
+
+/*-----------------------------------------------------------*/
 /**
  * @brief Azure IoT demo task that gets started in the platform specific project.
  *  In this demo task, middleware API's are used to connect to Azure IoT Hub.
  */
 static void prvAzureDemoTask( void * pvParameters )
 {
-    int lPublishCount = 0;
-    uint32_t ulScratchBufferLength = 0U;
-    const int lMaxPublishCount = 5;
-    NetworkCredentials_t xNetworkCredentials = { 0 };
-    AzureIoTTransportInterface_t xTransport;
-    NetworkContext_t xNetworkContext = { 0 };
-    TlsTransportParams_t xTlsTransportParams = { 0 };
-    AzureIoTHubClientResult_t xResult;
-    uint32_t ulStatus;
-    AzureIoTHubClientOptions_t xHubOptions = { 0 };
-    AzureIoTMessageProperties_t xPropertyBag;
-    bool xSessionPresent;
-
-    #ifdef democonfigENABLE_DPS_SAMPLE
-        uint8_t * pucIotHubHostname = NULL;
-        uint8_t * pucIotHubDeviceId = NULL;
-        uint32_t pulIothubHostnameLength = 0;
-        uint32_t pulIothubDeviceIdLength = 0;
-    #else
-        uint8_t * pucIotHubHostname = ( uint8_t * ) democonfigHOSTNAME;
-        uint8_t * pucIotHubDeviceId = ( uint8_t * ) democonfigDEVICE_ID;
-        uint32_t pulIothubHostnameLength = sizeof( democonfigHOSTNAME ) - 1;
-        uint32_t pulIothubDeviceIdLength = sizeof( democonfigDEVICE_ID ) - 1;
-    #endif /* democonfigENABLE_DPS_SAMPLE */
-
     ( void ) pvParameters;
 
     /* Initialize Azure IoT Middleware.  */
     configASSERT( AzureIoT_Init() == eAzureIoTSuccess );
 
-    ulStatus = prvSetupNetworkCredentials( &xNetworkCredentials );
-    configASSERT( ulStatus == 0 );
+    configASSERT ( !az_iot_hfsm_sync_adapter_sync_initialize() );
 
-    #ifdef democonfigENABLE_DPS_SAMPLE
-        /* Run DPS.  */
-        if( ( ulStatus = prvIoTHubInfoGet( &xNetworkCredentials, &pucIotHubHostname,
-                                           &pulIothubHostnameLength, &pucIotHubDeviceId,
-                                           &pulIothubDeviceIdLength ) ) != 0 )
-        {
-            LogError( ( "Failed on sample_dps_entry!: error code = 0x%08x\r\n", ulStatus ) );
-            return;
-        }
-    #endif /* democonfigENABLE_DPS_SAMPLE */
+    // This function will never exit.
+    az_iot_hfsm_sync_adapter_sync_do_work();
+    configASSERT(0);
+}
 
+/*-----------------------------------------------------------*/
+
+#ifdef democonfigENABLE_DPS_SAMPLE
+
+/**
+* @brief Get IoT Hub endpoint and device Id info, when Provisioning service is used.
+*   This function will block for Provisioning service for result or return failure.
+*/
+az_iot_hfsm_event_data_error prvDeviceProvisioningRun()
+{
+    az_iot_hfsm_event_data_error xProvisioningStatus = { AZ_IOT_OK, AZ_IOT_STATUS_UNKNOWN };
+    NetworkContext_t xNetworkContext = { 0 };
+    TlsTransportParams_t xTlsTransportParams = { 0 };
+    TlsTransportStatus_t xTransportStatus;
+    AzureIoTTransportInterface_t xTransport;
+    AzureIoTProvisioningClientResult_t xResult;
+
+    uint32_t ucSamplepIothubHostnameLength = sizeof( ucSampleIotHubHostname );
+    uint32_t ucSamplepIothubDeviceIdLength = sizeof( ucSampleIotHubDeviceId );
+
+    /* Set the pParams member of the network context with desired transport. */
     xNetworkContext.pParams = &xTlsTransportParams;
 
-    for( ; ; )
-    {
-        /* Attempt to establish TLS session with IoT Hub. If connection fails,
-         * retry after a timeout. Timeout value will be exponentially increased
-         * until  the maximum number of attempts are reached or the maximum timeout
-         * value is reached. The function returns a failure status if the TCP
-         * connection cannot be established to the IoT Hub after the configured
-         * number of attempts. */
-        ulStatus = prvConnectToServerWithBackoffRetries( ( const char * ) pucIotHubHostname,
-                                                          democonfigIOTHUB_PORT,
-                                                          &xNetworkCredentials, &xNetworkContext );
-        configASSERT( ulStatus == 0 );
+    xTransportStatus = prvConnectToServerWithBackoffRetries( democonfigENDPOINT, democonfigIOTHUB_PORT,
+                                                        &xNetworkCredentials, &xNetworkContext );
 
+    xProvisioningStatus.type = error_adapter_tlstransportstatus(xTransportStatus);
+
+    if (xProvisioningStatus.type == AZ_IOT_OK)
+    {
+        /* Fill in Transport Interface send and receive function pointers. */
+        xTransport.pxNetworkContext = &xNetworkContext;
+        xTransport.xSend = TLS_Socket_Send;
+        xTransport.xRecv = TLS_Socket_Recv;
+
+        xResult = AzureIoTProvisioningClient_Init( &xAzureIoTProvisioningClient,
+                                                ( const uint8_t * ) democonfigENDPOINT,
+                                                sizeof( democonfigENDPOINT ) - 1,
+                                                ( const uint8_t * ) democonfigID_SCOPE,
+                                                sizeof( democonfigID_SCOPE ) - 1,
+                                                ( const uint8_t * ) democonfigREGISTRATION_ID,
+                                                sizeof( democonfigREGISTRATION_ID ) - 1,
+                                                NULL, ucMQTTMessageBuffer, sizeof( ucMQTTMessageBuffer ),
+                                                ullGetUnixTime,
+                                                &xTransport );
+
+        xProvisioningStatus.type = error_adapter_azureiotprovisioningclientresult(xResult);
+    }
+    
+    #ifdef democonfigDEVICE_SYMMETRIC_KEY
+    if (xProvisioningStatus.type == AZ_IOT_OK)
+    {
+        xResult = AzureIoTProvisioningClient_SetSymmetricKey( &xAzureIoTProvisioningClient,
+                                                            ( const uint8_t * ) democonfigDEVICE_SYMMETRIC_KEY,
+                                                            sizeof( democonfigDEVICE_SYMMETRIC_KEY ) - 1,
+                                                            Crypto_HMAC );
+        
+        xProvisioningStatus.type = error_adapter_azureiotprovisioningclientresult(xResult);
+    }
+    #endif // democonfigDEVICE_SYMMETRIC_KEY
+
+    if (xProvisioningStatus.type == AZ_IOT_OK)
+    {
+        do
+        {
+            xResult = AzureIoTProvisioningClient_Register( &xAzureIoTProvisioningClient,
+                                                        sampleazureiotProvisioning_Registration_TIMEOUT_MS );
+        } while( xResult == eAzureIoTProvisioningPending );
+
+        xProvisioningStatus.type = error_adapter_azureiotprovisioningclientresult(xResult);
+    }
+
+    if (xProvisioningStatus.type == AZ_IOT_OK)
+    {
+        xResult = AzureIoTProvisioningClient_GetDeviceAndHub( &xAzureIoTProvisioningClient,
+                                                            ucSampleIotHubHostname, &ucSamplepIothubHostnameLength,
+                                                            ucSampleIotHubDeviceId, &ucSamplepIothubDeviceIdLength );
+
+        xProvisioningStatus.type = error_adapter_azureiotprovisioningclientresult(xResult);
+    }
+
+    if (xProvisioningStatus.type == AZ_IOT_ERROR_TYPE_SERVICE)
+    {
+        uint32_t extended_status;
+        if (AzureIoTProvisioningClient_GetExtendedCode(
+            &xAzureIoTProvisioningClient, &extended_status) == eAzureIoTProvisioningSuccess)
+        {
+            xProvisioningStatus.iot_status = (az_iot_status)(extended_status / 1000);
+        }
+    }
+
+    AzureIoTProvisioningClient_Deinit( &xAzureIoTProvisioningClient );
+
+    /* Close the network connection.  */
+    TLS_Socket_Disconnect( &xNetworkContext );
+
+    pucIotHubHostname = ucSampleIotHubHostname;
+    ulIothubHostnameLength = ucSamplepIothubHostnameLength;
+    pucIotHubDeviceId = ucSampleIotHubDeviceId;
+    ulIothubDeviceIdLength = ucSamplepIothubDeviceIdLength;
+
+    return xProvisioningStatus;
+}
+
+#endif // democonfigENABLE_DPS_SAMPLE
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Azure IoT demo task that gets started in the platform specific project.
+ *  In this demo task, middleware API's are used to connect to Azure IoT Hub.
+ */
+az_iot_hfsm_event_data_error prvIoTHubRun( )
+{
+    
+    az_iot_hfsm_event_data_error xHubStatus = { AZ_IOT_OK, AZ_IOT_STATUS_UNKNOWN };
+    AzureIoTTransportInterface_t xTransport;
+    NetworkContext_t xNetworkContext = { 0 };
+    TlsTransportParams_t xTlsTransportParams = { 0 };
+    xNetworkContext.pParams = &xTlsTransportParams;
+
+    AzureIoTHubClientResult_t xResult;
+    TlsTransportStatus_t xTransportStatus;
+    AzureIoTHubClientOptions_t xHubOptions = { 0 };
+    AzureIoTMessageProperties_t xPropertyBag;
+    bool xSessionPresent;
+    int lPublishCount = 0;
+    uint32_t ulScratchBufferLength = 0U;
+    const int lMaxPublishCount = 5;
+
+    /* Attempt to establish TLS session with IoT Hub. If connection fails,
+        * retry after a timeout. Timeout value will be exponentially increased
+        * until  the maximum number of attempts are reached or the maximum timeout
+        * value is reached. The function returns a failure status if the TCP
+        * connection cannot be established to the IoT Hub after the configured
+        * number of attempts. */
+    xTransportStatus = prvConnectToServerWithBackoffRetries( ( const char * ) pucIotHubHostname,
+                                                        democonfigIOTHUB_PORT,
+                                                        &xNetworkCredentials, &xNetworkContext );
+
+    xHubStatus.type = error_adapter_tlstransportstatus(xTransportStatus);
+
+    if (xHubStatus.type == AZ_IOT_OK)
+    {
         /* Fill in Transport Interface send and receive function pointers. */
         xTransport.pxNetworkContext = &xNetworkContext;
         xTransport.xSend = TLS_Socket_Send;
@@ -356,205 +663,180 @@ static void prvAzureDemoTask( void * pvParameters )
 
         /* Init IoT Hub option */
         xResult = AzureIoTHubClient_OptionsInit( &xHubOptions );
-        configASSERT( xResult == eAzureIoTHubClientSuccess );
+        xHubStatus.type = error_adapter_azureiothubclientresult(xResult);
+    }
 
+    if (xHubStatus.type == AZ_IOT_OK)
+    {
         xHubOptions.pucModuleID = ( const uint8_t * ) democonfigMODULE_ID;
         xHubOptions.ulModuleIDLength = sizeof( democonfigMODULE_ID ) - 1;
 
         xResult = AzureIoTHubClient_Init( &xAzureIoTHubClient,
-                                          pucIotHubHostname, pulIothubHostnameLength,
-                                          pucIotHubDeviceId, pulIothubDeviceIdLength,
-                                          &xHubOptions,
-                                          ucMQTTMessageBuffer, sizeof( ucMQTTMessageBuffer ),
-                                          ullGetUnixTime,
-                                          &xTransport );
-        configASSERT( xResult == eAzureIoTHubClientSuccess );
+                                            pucIotHubHostname, ulIothubHostnameLength,
+                                            pucIotHubDeviceId, ulIothubDeviceIdLength,
+                                            &xHubOptions,
+                                            ucMQTTMessageBuffer, sizeof( ucMQTTMessageBuffer ),
+                                            ullGetUnixTime,
+                                            &xTransport );
 
-        #ifdef democonfigDEVICE_SYMMETRIC_KEY
-            xResult = AzureIoTHubClient_SetSymmetricKey( &xAzureIoTHubClient,
-                                                         ( const uint8_t * ) democonfigDEVICE_SYMMETRIC_KEY,
-                                                         sizeof( democonfigDEVICE_SYMMETRIC_KEY ) - 1,
-                                                         Crypto_HMAC );
-            configASSERT( xResult == eAzureIoTHubClientSuccess );
-        #endif /* democonfigDEVICE_SYMMETRIC_KEY */
+        xHubStatus.type = error_adapter_azureiothubclientresult(xResult);
+    }
+    
 
+    #ifdef democonfigDEVICE_SYMMETRIC_KEY
+    if (xHubStatus.type == AZ_IOT_OK)
+    {
+        xResult = AzureIoTHubClient_SetSymmetricKey( &xAzureIoTHubClient,
+                                                        pucSymmetricKey,
+                                                        ulSymmetricKeyLength,
+                                                        Crypto_HMAC );
+        xHubStatus.type = error_adapter_azureiothubclientresult(xResult);
+    }
+    #endif /* democonfigDEVICE_SYMMETRIC_KEY */
+
+
+    if (xHubStatus.type == AZ_IOT_OK)
+    {
         /* Sends an MQTT Connect packet over the already established TLS connection,
-         * and waits for connection acknowledgment (CONNACK) packet. */
+            * and waits for connection acknowledgment (CONNACK) packet. */
         LogInfo( ( "Creating an MQTT connection to %s.\r\n", pucIotHubHostname ) );
 
         xResult = AzureIoTHubClient_Connect( &xAzureIoTHubClient,
-                                             false, &xSessionPresent,
-                                             sampleazureiotCONNACK_RECV_TIMEOUT_MS );
-        configASSERT( xResult == eAzureIoTHubClientSuccess );
+                                                false, &xSessionPresent,
+                                                sampleazureiotCONNACK_RECV_TIMEOUT_MS );
+        xHubStatus.type = error_adapter_azureiothubclientresult(xResult);
+    }
 
+    if (xHubStatus.type == AZ_IOT_OK)
+    {
         xResult = AzureIoTHubClient_SubscribeCloudToDeviceMessage( &xAzureIoTHubClient, prvHandleCloudMessage,
-                                                                   &xAzureIoTHubClient, sampleazureiotSUBSCRIBE_TIMEOUT );
-        configASSERT( xResult == eAzureIoTHubClientSuccess );
+                                                                    &xAzureIoTHubClient, sampleazureiotSUBSCRIBE_TIMEOUT );
+        xHubStatus.type = error_adapter_azureiothubclientresult(xResult);
+    }
 
+    if (xHubStatus.type == AZ_IOT_OK)
+    {
         xResult = AzureIoTHubClient_SubscribeDirectMethod( &xAzureIoTHubClient, prvHandleDirectMethod,
-                                                           &xAzureIoTHubClient, sampleazureiotSUBSCRIBE_TIMEOUT );
-        configASSERT( xResult == eAzureIoTHubClientSuccess );
+                                                        &xAzureIoTHubClient, sampleazureiotSUBSCRIBE_TIMEOUT );
+        xHubStatus.type = error_adapter_azureiothubclientresult(xResult);
+    }
 
+    if (xHubStatus.type == AZ_IOT_OK)
+    {
         xResult = AzureIoTHubClient_SubscribeDeviceTwin( &xAzureIoTHubClient, prvHandleDeviceTwinMessage,
-                                                         &xAzureIoTHubClient, sampleazureiotSUBSCRIBE_TIMEOUT );
-        configASSERT( xResult == eAzureIoTHubClientSuccess );
+                                                            &xAzureIoTHubClient, sampleazureiotSUBSCRIBE_TIMEOUT );
+        xHubStatus.type = error_adapter_azureiothubclientresult(xResult);
+    }
 
+    if (xHubStatus.type == AZ_IOT_OK)
+    {
         /* Get twin document after initial connection */
         xResult = AzureIoTHubClient_GetDeviceTwin( &xAzureIoTHubClient );
-        configASSERT( xResult == eAzureIoTHubClientSuccess );
+        xHubStatus.type = error_adapter_azureiothubclientresult(xResult);
+    }
 
+    if (xHubStatus.type == AZ_IOT_OK)
+    {
         /* Create a bag of properties for the telemetry */
         xResult = AzureIoT_MessagePropertiesInit( &xPropertyBag, ucPropertyBuffer, 0, sizeof( xPropertyBag ) );
-        configASSERT( xResult == eAzureIoTHubClientSuccess );
+        xHubStatus.type = error_adapter_azureiothubclientresult(xResult);
+    }
 
+    if (xHubStatus.type == AZ_IOT_OK)
+    {
         xResult = AzureIoT_MessagePropertiesAppend( &xPropertyBag, ( uint8_t * ) "name", sizeof( "name" ) - 1,
                                                     ( uint8_t * ) "value", sizeof( "value" ) - 1 );
-        configASSERT( xResult == eAzureIoTHubClientSuccess );
+        xHubStatus.type = error_adapter_azureiothubclientresult(xResult);
+    }
 
+
+    if (xHubStatus.type == AZ_IOT_OK)
+    {
         /* Publish messages with QoS1, send and process Keep alive messages. */
         for( lPublishCount = 0; lPublishCount < lMaxPublishCount; lPublishCount++ )
         {
             ulScratchBufferLength = snprintf( ( char * ) ucScratchBuffer, sizeof( ucScratchBuffer ),
-                                              sampleazureiotMESSAGE, lPublishCount );
+                                                sampleazureiotMESSAGE, lPublishCount );
             xResult = AzureIoTHubClient_SendTelemetry( &xAzureIoTHubClient,
-                                                       ucScratchBuffer, ulScratchBufferLength,
-                                                       &xPropertyBag, eAzureIoTHubMessageQoS1, NULL );
-            configASSERT( xResult == eAzureIoTHubClientSuccess );
+                                                        ucScratchBuffer, ulScratchBufferLength,
+                                                        &xPropertyBag, eAzureIoTHubMessageQoS1, NULL );
+            xHubStatus.type = error_adapter_azureiothubclientresult(xResult);
+            if (xHubStatus.type != AZ_IOT_OK)
+            {
+                break;
+            }
 
             LogInfo( ( "Attempt to receive publish message from IoT Hub.\r\n" ) );
             xResult = AzureIoTHubClient_ProcessLoop( &xAzureIoTHubClient,
-                                                     sampleazureiotPROCESS_LOOP_TIMEOUT_MS );
-            configASSERT( xResult == eAzureIoTHubClientSuccess );
+                                                        sampleazureiotPROCESS_LOOP_TIMEOUT_MS );
+
+            xHubStatus.type = error_adapter_azureiothubclientresult(xResult);
+            if (xHubStatus.type != AZ_IOT_OK)
+            {
+                break;
+            }            
 
             if( lPublishCount % 2 == 0 )
             {
                 /* Send reported property every other cycle */
                 ulScratchBufferLength = snprintf( ( char * ) ucScratchBuffer, sizeof( ucScratchBuffer ),
-                                                  sampleazureiotTWIN_PROPERTY, lPublishCount/2 + 1 );
+                                                    sampleazureiotTWIN_PROPERTY, lPublishCount/2 + 1 );
                 xResult = AzureIoTHubClient_SendDeviceTwinReported( &xAzureIoTHubClient,
                                                                     ucScratchBuffer, ulScratchBufferLength,
                                                                     NULL );
-                configASSERT( xResult == eAzureIoTHubClientSuccess );
+                xHubStatus.type = error_adapter_azureiothubclientresult(xResult);
+                if (xHubStatus.type != AZ_IOT_OK)
+                {
+                    break;
+                }                
             }
 
             /* Leave Connection Idle for some time. */
             LogInfo( ( "Keeping Connection Idle...\r\n\r\n" ) );
             vTaskDelay( sampleazureiotDELAY_BETWEEN_PUBLISHES_TICKS );
         }
-
-        xResult = AzureIoTHubClient_UnsubscribeDeviceTwin( &xAzureIoTHubClient );
-        configASSERT( xResult == eAzureIoTHubClientSuccess );
-
-        xResult = AzureIoTHubClient_UnsubscribeDirectMethod( &xAzureIoTHubClient );
-        configASSERT( xResult == eAzureIoTHubClientSuccess );
-
-        xResult = AzureIoTHubClient_UnsubscribeCloudToDeviceMessage( &xAzureIoTHubClient );
-        configASSERT( xResult == eAzureIoTHubClientSuccess );
-
-        /* Send an MQTT Disconnect packet over the already connected TLS over
-         * TCP connection. There is no corresponding response for the disconnect
-         * packet. After sending disconnect, client must close the network
-         * connection. */
-        xResult = AzureIoTHubClient_Disconnect( &xAzureIoTHubClient );
-        configASSERT( xResult == eAzureIoTHubClientSuccess );
-
-        /* Close the network connection.  */
-        TLS_Socket_Disconnect( &xNetworkContext );
-
-        /* Wait for some time between two iterations to ensure that we do not
-         * bombard the IoT Hub. */
-        LogInfo( ( "Demo completed successfully.\r\n" ) );
-        LogInfo( ( "Short delay before starting the next iteration.... \r\n\r\n" ) );
-        vTaskDelay( sampleazureiotDELAY_BETWEEN_DEMO_ITERATIONS_TICKS );
     }
-}
-/*-----------------------------------------------------------*/
 
-#ifdef democonfigENABLE_DPS_SAMPLE
-
-    /**
-    * @brief Get IoT Hub endpoint and device Id info, when Provisioning service is used.
-    *   This function will block for Provisioning service for result or return failure.
-    */
-    static uint32_t prvIoTHubInfoGet( NetworkCredentials_t * pXNetworkCredentials,
-                                      uint8_t ** ppucIothubHostname,
-                                      uint32_t * pulIothubHostnameLength,
-                                      uint8_t ** ppucIothubDeviceId,
-                                      uint32_t * pulIothubDeviceIdLength )
+    if (xHubStatus.type == AZ_IOT_OK)
     {
-        NetworkContext_t xNetworkContext = { 0 };
-        TlsTransportParams_t xTlsTransportParams = { 0 };
-        AzureIoTProvisioningClientResult_t xResult;
-        AzureIoTTransportInterface_t xTransport;
-        uint32_t ucSamplepIothubHostnameLength = sizeof( ucSampleIotHubHostname );
-        uint32_t ucSamplepIothubDeviceIdLength = sizeof( ucSampleIotHubDeviceId );
-        uint32_t ulStatus;
-
-        /* Set the pParams member of the network context with desired transport. */
-        xNetworkContext.pParams = &xTlsTransportParams;
-
-        ulStatus = prvConnectToServerWithBackoffRetries( democonfigENDPOINT, democonfigIOTHUB_PORT,
-                                                         pXNetworkCredentials, &xNetworkContext );
-        configASSERT( ulStatus == 0 );
-
-        /* Fill in Transport Interface send and receive function pointers. */
-        xTransport.pxNetworkContext = &xNetworkContext;
-        xTransport.xSend = TLS_Socket_Send;
-        xTransport.xRecv = TLS_Socket_Recv;
-
-        xResult = AzureIoTProvisioningClient_Init( &xAzureIoTProvisioningClient,
-                                                   ( const uint8_t * ) democonfigENDPOINT,
-                                                   sizeof( democonfigENDPOINT ) - 1,
-                                                   ( const uint8_t * ) democonfigID_SCOPE,
-                                                   sizeof( democonfigID_SCOPE ) - 1,
-                                                   ( const uint8_t * ) democonfigREGISTRATION_ID,
-                                                   sizeof( democonfigREGISTRATION_ID ) - 1,
-                                                   NULL, ucMQTTMessageBuffer, sizeof( ucMQTTMessageBuffer ),
-                                                   ullGetUnixTime,
-                                                   &xTransport );
-        configASSERT( xResult == eAzureIoTProvisioningSuccess );
-
-        #ifdef democonfigDEVICE_SYMMETRIC_KEY
-            xResult = AzureIoTProvisioningClient_SetSymmetricKey( &xAzureIoTProvisioningClient,
-                                                                  ( const uint8_t * ) democonfigDEVICE_SYMMETRIC_KEY,
-                                                                  sizeof( democonfigDEVICE_SYMMETRIC_KEY ) - 1,
-                                                                  Crypto_HMAC );
-            configASSERT( xResult == eAzureIoTProvisioningSuccess );
-        #endif // democonfigDEVICE_SYMMETRIC_KEY
-
-        do
-        {
-            xResult = AzureIoTProvisioningClient_Register( &xAzureIoTProvisioningClient,
-                                                           sampleazureiotProvisioning_Registration_TIMEOUT_MS );
-        } while( xResult == eAzureIoTProvisioningPending );
-
-        configASSERT( xResult == eAzureIoTProvisioningSuccess );
-
-        xResult = AzureIoTProvisioningClient_GetDeviceAndHub( &xAzureIoTProvisioningClient,
-                                                              ucSampleIotHubHostname, &ucSamplepIothubHostnameLength,
-                                                              ucSampleIotHubDeviceId, &ucSamplepIothubDeviceIdLength );
-        configASSERT( xResult == eAzureIoTProvisioningSuccess );
-
-        AzureIoTProvisioningClient_Deinit( &xAzureIoTProvisioningClient );
-
-        /* Close the network connection.  */
-        TLS_Socket_Disconnect( &xNetworkContext );
-
-        *ppucIothubHostname = ucSampleIotHubHostname;
-        *pulIothubHostnameLength = ucSamplepIothubHostnameLength;
-        *ppucIothubDeviceId = ucSampleIotHubDeviceId;
-        *pulIothubDeviceIdLength = ucSamplepIothubDeviceIdLength;
-
-        return 0;
+        xResult = AzureIoTHubClient_UnsubscribeDeviceTwin( &xAzureIoTHubClient );
+        xHubStatus.type = error_adapter_azureiothubclientresult(xResult);
     }
 
-#endif // democonfigENABLE_DPS_SAMPLE
+    if (xHubStatus.type == AZ_IOT_OK)
+    {
+        xResult = AzureIoTHubClient_UnsubscribeDirectMethod( &xAzureIoTHubClient );
+        xHubStatus.type = error_adapter_azureiothubclientresult(xResult);
+    }
+
+    if (xHubStatus.type == AZ_IOT_OK)
+    {
+        xResult = AzureIoTHubClient_UnsubscribeCloudToDeviceMessage( &xAzureIoTHubClient );
+        xHubStatus.type = error_adapter_azureiothubclientresult(xResult);
+    }
+
+    /* Send an MQTT Disconnect packet over the already connected TLS over
+        * TCP connection. There is no corresponding response for the disconnect
+        * packet. After sending disconnect, client must close the network
+        * connection. */
+    if (xHubStatus.type == AZ_IOT_OK)
+    {
+        xResult = AzureIoTHubClient_Disconnect( &xAzureIoTHubClient );
+        xHubStatus.type = error_adapter_azureiothubclientresult(xResult);
+    }
+
+    /* Close the network connection.  */
+    TLS_Socket_Disconnect( &xNetworkContext );
+
+    return xHubStatus;
+}
+
 /*-----------------------------------------------------------*/
 
 /**
 * @brief Connect to server with backoff retries.
 */
-static uint32_t prvConnectToServerWithBackoffRetries( const char * pcHostName,
+static TlsTransportStatus_t prvConnectToServerWithBackoffRetries( const char * pcHostName,
                                                       uint32_t port,
                                                       NetworkCredentials_t * pxNetworkCredentials,
                                                       NetworkContext_t * pxNetworkContext )
@@ -584,7 +866,7 @@ static uint32_t prvConnectToServerWithBackoffRetries( const char * pcHostName,
                                              sampleazureiotTRANSPORT_SEND_RECV_TIMEOUT_MS,
                                              sampleazureiotTRANSPORT_SEND_RECV_TIMEOUT_MS );
 
-        if( xNetworkStatus != eTLSTransportSuccess )
+        if( xNetworkStatus == eTLSTransportConnectFailure )
         {
             /* Generate a random number and calculate backoff value (in milliseconds) for
              * the next connection retry.
@@ -607,7 +889,7 @@ static uint32_t prvConnectToServerWithBackoffRetries( const char * pcHostName,
         }
     } while( ( xNetworkStatus != eTLSTransportSuccess ) && ( xBackoffAlgStatus == BackoffAlgorithmSuccess ) );
 
-    return xNetworkStatus == eTLSTransportSuccess ? 0 : 1;
+    return xNetworkStatus;
 }
 /*-----------------------------------------------------------*/
 

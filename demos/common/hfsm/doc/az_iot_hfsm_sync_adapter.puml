@@ -1,0 +1,46 @@
+@startuml Azure IoT HFSM Sync Adapter
+
+state AzureIoTSync {
+    state Idle
+
+    state Running
+    Running : <b>DO_WORK/</b>
+    Running : \t if (me == provisionig_hfsm)
+    Running : \t {
+    Running : \t\t error_data = prvDeviceProvisioningRun(); 
+    Running : \t\t if (error_data.type == AZ_IOT_OK)
+    Running : \t\t {
+    Running : \t\t\t post_event(iot_hfsm, AZ_IOT_PROVISIONING_DONE);
+    Running : \t\t }
+    Running : \t\t else
+    Running : \t\t {
+    Running : \t\t\t post_event(iot_hfsm, AZ_IOT_ERROR);
+    Running : \t\t }
+    Running : \t }
+    Running : \t else // me == hub_hfsm
+    Running : \t {
+    Running : \t\t do {
+    Running : \t\t\t error_data = prvIotHubRun(); 
+    Running : \t\t } while (error_data.type == AZ_IOT_OK);
+    Running :
+    Running : \t\t post_event(iot_hfsm, AZ_IOT_ERROR);
+    Running : \t }
+    Running :
+    Running : \t transition(idle);
+
+
+    state Timeout
+    Timeout : <b>DO_WORK/</b>
+    Timeout : \t sleep(delay_milliseconds)
+    Timeout : \t transition(idle)
+    
+    [*] -> Idle
+    Idle -> Running : AZ_IOT_START / SetupNetworkCredentials
+    Running -> Timeout : DO_DELAY / <i>!! save</i> delay_milliseconds
+    Timeout --> Idle : DO_WORK
+    Running -> Idle : DO_WORK
+}
+
+AzureIoTSync : <b>any</b>/ 
+AzureIoTSync : \t critical_error()
+@enduml
