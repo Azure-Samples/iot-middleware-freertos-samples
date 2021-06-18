@@ -7,7 +7,7 @@ set -o errexit # Exit if command failed.
 set -o nounset # Exit if variable not set.
 set -o pipefail # Exit if pipe failed.
 
-echo -e "::group::FreeRTOS Source"
+echo -e "::group::FreeRTOS source"
 TEST_FREERTOS_COMMIT_ID=c8fa483b68c6c1149c2a7a8bc1e901b38860ec9b
 TEST_FREERTOS_SRC=${1:-"libs/FreeRTOS"}
 
