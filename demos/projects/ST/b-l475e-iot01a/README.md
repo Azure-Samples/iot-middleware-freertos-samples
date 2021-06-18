@@ -75,7 +75,7 @@ If you're using **DPS** with an individual enrollment with SAS authentication, s
 Parameter | Value 
 ---------|----------
  `democonfigID_SCOPE` | _{Your ID scope value}_
- `democonfigDEVICE_ID` | _{Your Device ID value}_ 
+ `democonfigREGISTRATION_ID` | _{Your Device Registration ID value}_ 
  `democonfigDEVICE_SYMMETRIC_KEY` | _{Your Primary Key value}_ 
 
 ## Build the image
