@@ -20,7 +20,9 @@ void az_iot_hfsm_sync_adapter_sync_do_work();
 
 // PAL:
 void az_iot_hfsm_sync_adapter_pal_set_credentials( bool use_secondary );
+#ifdef AZ_IOT_HFSM_PROVISIONING_ENABLED
 az_iot_hfsm_event_data_error az_iot_hfsm_sync_adapter_pal_run_provisioning( );
+#endif
 az_iot_hfsm_event_data_error az_iot_hfsm_sync_adapter_pal_run_hub( );
 void az_iot_hfsm_sync_adapter_sleep( int32_t milliseconds );
 

@@ -29,15 +29,18 @@
 #define AZ_IOT_HFSM_MAX_RETRY_JITTER_MSEC 5000
 #endif 
 
+#define AZ_IOT_HFSM_PROVISIONING_ENABLED
+
 typedef struct
 {
   az_hfsm hfsm;
   bool _use_secondary_credentials;
-  // TODO: check ovf.
   int16_t _retry_attempt;
   uint64_t _start_time_msec;
   void* _timer_handle;
+#ifdef AZ_IOT_HFSM_PROVISIONING_ENABLED
   az_hfsm* _provisioning_hfsm;
+#endif
   az_hfsm* _iothub_hfsm;
 } az_iot_hfsm_type;
 
@@ -50,7 +53,10 @@ typedef enum
 } az_iot_hfsm_event_type;
 
 extern const az_hfsm_event az_hfsm_event_az_iot_start;
+
+#ifdef AZ_IOT_HFSM_PROVISIONING_ENABLED
 extern const az_hfsm_event az_hfsm_event_az_iot_provisioning_done;
+#endif
 
 typedef enum
 {
@@ -65,7 +71,12 @@ typedef struct {
   az_iot_status iot_status;
 } az_iot_hfsm_event_data_error;
 
-int32_t az_iot_hfsm_initialize(az_iot_hfsm_type* iot_hfsm, az_hfsm* provisioning_hfsm, az_hfsm* hub_hfsm);
+int32_t az_iot_hfsm_initialize(
+  az_iot_hfsm_type* iot_hfsm, 
+#ifdef AZ_IOT_HFSM_PROVISIONING_ENABLED
+  az_hfsm* provisioning_hfsm, 
+#endif
+  az_hfsm* hub_hfsm);
 
 // Platform Adaptation Layer (PAL)
 

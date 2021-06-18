@@ -56,11 +56,17 @@ extern void vLoggingPrintf( const char * pcFormatString,
 static az_iot_hfsm_type iot_hfsm;
 
 // HFSM adapters for Provisioning and Hub operations.
+#ifdef AZ_IOT_HFSM_PROVISIONING_ENABLED
 static az_hfsm provisioning_hfsm;
+#endif
 static az_hfsm hub_hfsm;
 
 // The two HFSM objects share the same implementation. Only one is active at any time.
+#ifdef AZ_IOT_HFSM_PROVISIONING_ENABLED
 static az_hfsm* active_hfsm = &provisioning_hfsm;
+#else
+static az_hfsm* active_hfsm = &hub_hfsm;
+#endif
 
 typedef enum
 {
@@ -154,6 +160,7 @@ static int32_t running(az_hfsm* me, az_hfsm_event event)
       LogInfo( ("running: AZ_IOT_HFSM_SYNC_DO_WORK") );
       az_iot_hfsm_event_data_error status;
 
+#ifdef AZ_IOT_HFSM_PROVISIONING_ENABLED
       if (me == &provisioning_hfsm)
       {
         status = az_iot_hfsm_sync_adapter_pal_run_provisioning();
@@ -164,13 +171,16 @@ static int32_t running(az_hfsm* me, az_hfsm_event event)
       }
       else
       {
+#endif
         _az_PRECONDITION(me == &hub_hfsm);
         
         do
         {
             status = az_iot_hfsm_sync_adapter_pal_run_hub();
         } while (status.type == AZ_IOT_OK);
+#ifdef AZ_IOT_HFSM_PROVISIONING_ENABLED
       }
+#endif
 
       if (status.type != AZ_IOT_OK)
       {
@@ -259,16 +269,26 @@ int32_t az_iot_hfsm_sync_adapter_sync_initialize()
 {
   int32_t ret;
 
+#ifdef AZ_IOT_HFSM_PROVISIONING_ENABLED
   ret = az_hfsm_init(&provisioning_hfsm, idle, provisioning_and_hub_get_parent);
 
   if (!ret)
   {
+#endif
     ret = az_hfsm_init(&hub_hfsm, idle, provisioning_and_hub_get_parent);
+
+#ifdef AZ_IOT_HFSM_PROVISIONING_ENABLED
   }
+#endif
 
   if (!ret)
   {
-    az_iot_hfsm_initialize(&iot_hfsm, &provisioning_hfsm, &hub_hfsm);
+    az_iot_hfsm_initialize(
+      &iot_hfsm, 
+#ifdef AZ_IOT_HFSM_PROVISIONING_ENABLED
+      &provisioning_hfsm, 
+#endif
+      &hub_hfsm);
   }
 
   return ret;

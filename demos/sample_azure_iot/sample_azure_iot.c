@@ -166,6 +166,10 @@ NetworkCredentials_t xNetworkCredentials = { 0 };
     static uint32_t ulIothubDeviceIdLength = sizeof( democonfigDEVICE_ID ) - 1;
 #endif /* democonfigENABLE_DPS_SAMPLE */
 
+#ifdef democonfigDEVICE_SYMMETRIC_KEY
+    static uint8_t * pucSymmetricKey = democonfigDEVICE_SYMMETRIC_KEY;
+    static uint32_t ulSymmetricKeyLength = sizeof( democonfigDEVICE_SYMMETRIC_KEY ) - 1;
+#endif
 
 #ifdef democonfigENABLE_DPS_SAMPLE
 
@@ -306,6 +310,23 @@ void prvSetupNetworkCredentials( bool use_secondary )
             xNetworkCredentials.xClientCertSize = sizeof( democonfigSECONDARY_CLIENT_CERTIFICATE_PEM );
             xNetworkCredentials.pucPrivateKey = ( const unsigned char * ) democonfigSECONDARY_CLIENT_PRIVATE_KEY_PEM;
             xNetworkCredentials.xPrivateKeySize = sizeof( democonfigSECONDARY_CLIENT_PRIVATE_KEY_PEM );
+        }
+        #endif // democonfigSECONDARY_CREDENTIALS
+    #endif // democonfigCLIENT_CERTIFICATE_PEM
+
+    #ifdef democonfigDEVICE_SYMMETRIC_KEY
+        #ifdef democonfigSECONDARY_CREDENTIALS
+        if (!use_secondary)
+        {
+        #endif // democonfigSECONDARY_CREDENTIALS
+            pucSymmetricKey = democonfigDEVICE_SYMMETRIC_KEY;
+            ulSymmetricKeyLength = sizeof( democonfigDEVICE_SYMMETRIC_KEY ) - 1;
+        #ifdef democonfigSECONDARY_CREDENTIALS
+        }
+        else
+        {
+            pucSymmetricKey = democonfigSECONDARY_DEVICE_SYMMETRIC_KEY;
+            ulSymmetricKeyLength = sizeof( democonfigSECONDARY_DEVICE_SYMMETRIC_KEY ) - 1;
         }
         #endif // democonfigSECONDARY_CREDENTIALS
     #endif
@@ -662,8 +683,8 @@ az_iot_hfsm_event_data_error prvIoTHubRun( )
     if (xHubStatus.type == AZ_IOT_OK)
     {
         xResult = AzureIoTHubClient_SetSymmetricKey( &xAzureIoTHubClient,
-                                                        ( const uint8_t * ) democonfigDEVICE_SYMMETRIC_KEY,
-                                                        sizeof( democonfigDEVICE_SYMMETRIC_KEY ) - 1,
+                                                        pucSymmetricKey,
+                                                        ulSymmetricKeyLength,
                                                         Crypto_HMAC );
         xHubStatus.type = error_adapter_azureiothubclientresult(xResult);
     }
