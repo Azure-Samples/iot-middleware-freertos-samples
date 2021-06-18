@@ -95,10 +95,18 @@ After the build completes, confirm that a folder named `/b-l475e-iot01a/` was cr
 
 2. In File Explorer, find the binary file that you created in the previous section and copy it.
 
-3. In File Explorer, find the STM Devkit that's connected to your computer. The device appears as a drive on your system with the drive label DIS_L4IOT.
+3. In File Explorer, find the STM Devkit that's connected to your computer. The device appears as a drive on your system with the drive label `DIS_L4IOT`.
 
 4. Paste the binary file into the root folder of the STM Devkit. Flashing starts automatically and completes in a few seconds.
 
 ## Confirm device connection details
 
-You can use one of the terminal applications to monitor communication and confirm that your device is set up correctly.
+You can use one of the terminal applications to monitor communication and confirm that your device is set up correctly. Go to Device Manager in Windows to determine which COM port your device was assigned.
+
+The following settings can be used to monitor serial data:
+
+- Baud Rate: `115200`
+- Data Bits: `8`
+- Stop Bits: `1`
+- Parity: none
+- Flow Control: none
