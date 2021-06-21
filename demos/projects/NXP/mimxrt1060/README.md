@@ -70,7 +70,7 @@ If you're using **DPS** with an individual enrollment with SAS authentication, s
 Parameter | Value 
 ---------|----------
  `democonfigID_SCOPE` | _{Your ID scope value}_
- `democonfigDEVICE_ID` | _{Your Device ID value}_ 
+ `democonfigREGISTRATION_ID` | _{Your Device Registration ID value}_ 
  `democonfigDEVICE_SYMMETRIC_KEY` | _{Your Primary Key value}_ 
 
 ## Build the image
@@ -100,4 +100,12 @@ After the build completes, confirm that a folder named `/mimxrt1060/` was create
 
 ## Confirm device connection details
 
-You can use one of the terminal applications to monitor communication and confirm that your device is set up correctly.
+You can use one of the terminal applications to monitor communication and confirm that your device is set up correctly. Go to Device Manager in Windows to determine which COM port your device was assigned.
+
+The following settings can be used to monitor serial data:
+
+- Baud Rate: `115200`
+- Data Bits: `8`
+- Stop Bits: `1`
+- Parity: none
+- Flow Control: none
