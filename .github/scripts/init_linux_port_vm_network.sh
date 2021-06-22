@@ -9,6 +9,10 @@ set -o errexit  # Exit if command failed.
 set -o nounset  # Exit if variable not set.
 set -o pipefail # Exit if pipe failed.
 
+getInternetConnectedNetworkInterface() {
+    ip route get 8.8.8.8 | awk -F"dev " 'NR==1 {split($2,a," ");print a[1]}'
+}
+
 getNextAvailableIpRange() {
     for (( i=1; i<=255; i++ )); do
         match=`ifconfig -a | grep -o -E "inet $1\.$2\.$i\.[0-9]+"`
@@ -20,10 +24,10 @@ getNextAvailableIpRange() {
     done
 }
 
-if [[ "$1" == "--help" || "$1" == "-h" ]]; then
+if [[ $# -gt 0 && ( "$1" == "--help" || "$1" == "-h" ) ]]; then
     echo "Creates a virtual network interface for the freertos simulator."
     echo "Use option --clean to undo any changes."
-elif [[ "$1" == "--clean" ]]; then
+elif [[ $# -gt 0 && ( "$1" == "--clean" ) ]]; then
     ifconfig rtosveth0 down
     ifconfig rtosveth1 down
     ip link delete rtosveth0
@@ -42,6 +46,15 @@ elif [[ "$1" == "--clean" ]]; then
 
     iptables-restore < /opt/iptables.backup
 else
+    echo "Finding internet-connected network interface..."
+    internetNetInterface=$( getInternetConnectedNetworkInterface )
+    
+    if [ "$internetNetInterface" == "" ]; then
+        echo "ERROR: Must be connected to internet to proceed with configuration."
+        exit 1
+    fi
+    
+    echo "Backing up sensitive configuration (use script --clean later to restore) ..."
     if [ -f "/etc/dhcp/dhcpd.conf" ]; then
         cp -v /etc/dhcp/dhcpd.conf /etc/dhcp/dhcpd.conf.bkp
     fi
@@ -50,14 +63,24 @@ else
         cp -v "/etc/default/isc-dhcp-server" "/etc/default/isc-dhcp-server.bkp"
     fi
 
+    iptables-save > /opt/iptables.backup
+
+    echo "Finding free ip address range for virtual interface..."
     ip_octet=$( getNextAvailableIpRange 192 168 )
 
+    if [ "$ip_octet" == "" ]; then
+        echo "ERROR: Could not find a free IP address range in the 192.168.x.1 subspace."
+        exit 1
+    fi
+
+    echo "Adding 'rtosveth' virtual interfaces..."
     ip link add rtosveth0 type veth peer name rtosveth1
     ifconfig rtosveth0 192.168.$ip_octet.1 netmask 255.255.255.0 up
     ifconfig rtosveth1 up
     ethtool --offload rtosveth0 tx off
     ethtool --offload rtosveth1 tx off
 
+    echo "Configuring dhcp for virtual interface..."
     sh -c "cat > /etc/dhcp/dhcpd.conf" <<EOT
     subnet 192.168.$ip_octet.0 netmask 255.255.255.0 {
         range 192.168.$ip_octet.100 192.168.$ip_octet.200;
@@ -74,14 +97,16 @@ EOT
 EOT
     service isc-dhcp-server restart
 
-    iptables-save > /opt/iptables.backup
 
+    echo "Configuring iptables for virtual interface..."
     sysctl net.ipv4.ip_forward=1
     iptables -F
     iptables -t nat -F
-    iptables -t nat -A POSTROUTING -s 192.168.$ip_octet.0/24 -o eth0 -j MASQUERADE
+    iptables -t nat -A POSTROUTING -s 192.168.$ip_octet.0/24 -o $internetNetInterface -j MASQUERADE
     iptables -A FORWARD -d 192.168.$ip_octet.0/24 -o rtosveth0 -j ACCEPT
     iptables -A FORWARD -s 192.168.$ip_octet.0/24 -j ACCEPT
+
+    echo "Done."
 
     #Debug
     ip link
