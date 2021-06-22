@@ -3,12 +3,15 @@
 # Copyright (c) Microsoft. All rights reserved.
 # Licensed under the MIT license. See LICENSE file in the project root for full license information.
 #
-# This script sets up virtual interface (veth1 and veth0 ) with DHCP configure that can be used for linux port.
+# This script sets up virtual interface (rtosveth1 and rtosveth0) with DHCP configure that can be used for linux port.
+
+set -o errexit  # Exit if command failed.
+set -o nounset  # Exit if variable not set.
+set -o pipefail # Exit if pipe failed.
 
 getNextAvailableIpRange() {
     for (( i=1; i<=255; i++ )); do
         match=`ifconfig -a | grep -o -E "inet $1\.$2\.$i\.[0-9]+"`
-        #echo "$match"
 
         if [[ "$match" == "" ]]; then
             echo $i
@@ -21,9 +24,9 @@ if [[ "$1" == "--help" || "$1" == "-h" ]]; then
     echo "Creates a virtual network interface for the freertos simulator."
     echo "Use option --clean to undo any changes."
 elif [[ "$1" == "--clean" ]]; then
-    ifconfig veth0 down
-    ifconfig veth1 down
-    ip link delete veth0
+    ifconfig rtosveth0 down
+    ifconfig rtosveth1 down
+    ip link delete rtosveth0
     rm -f /etc/dhcp/dhcpd.conf
     rm -f /etc/default/isc-dhcp-server
 
@@ -49,11 +52,11 @@ else
 
     ip_octet=$( getNextAvailableIpRange 192 168 )
 
-    ip link add veth0 type veth peer name veth1
-    ifconfig veth0 192.168.$ip_octet.1 netmask 255.255.255.0 up
-    ifconfig veth1 up
-    ethtool --offload veth0 tx off
-    ethtool --offload veth1 tx off
+    ip link add rtosveth0 type veth peer name rtosveth1
+    ifconfig rtosveth0 192.168.$ip_octet.1 netmask 255.255.255.0 up
+    ifconfig rtosveth1 up
+    ethtool --offload rtosveth0 tx off
+    ethtool --offload rtosveth1 tx off
 
     sh -c "cat > /etc/dhcp/dhcpd.conf" <<EOT
     subnet 192.168.$ip_octet.0 netmask 255.255.255.0 {
@@ -67,7 +70,7 @@ else
 EOT
 
     sh -c "cat > /etc/default/isc-dhcp-server" <<EOT
-    INTERFACES="veth0"
+    INTERFACES="rtosveth0"
 EOT
     service isc-dhcp-server restart
 
@@ -77,7 +80,7 @@ EOT
     iptables -F
     iptables -t nat -F
     iptables -t nat -A POSTROUTING -s 192.168.$ip_octet.0/24 -o eth0 -j MASQUERADE
-    iptables -A FORWARD -d 192.168.$ip_octet.0/24 -o veth0 -j ACCEPT
+    iptables -A FORWARD -d 192.168.$ip_octet.0/24 -o rtosveth0 -j ACCEPT
     iptables -A FORWARD -s 192.168.$ip_octet.0/24 -j ACCEPT
 
     #Debug
