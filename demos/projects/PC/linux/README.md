@@ -28,11 +28,13 @@ To initialize the repo, run the following command:
     sudo ./.github/scripts/install_software.sh
 ```
 
-* Execute the Network setup script which will create virtual interfaces veth0 and veth1:
+* Execute the Network setup script which will create virtual interfaces rtosveth0 and rtosveth1:
 
 ```bash
     sudo .github/scripts/init_linux_port_vm_network.sh
 ```
+
+> After running the sample, to remove any changes done by this script run it again with `--clean`. 
 
 * To run this sample you can use a device previously created in your IoT Hub or have the Azure IoT Middleware for FreeRTOS provision your device automatically using DPS.
 
@@ -71,14 +73,14 @@ Parameter | Value
 
 ### Set the Virtual Ethernet Interface
 
-Execute the command below to find which index you got for the ``veth1`` (index is the number to the left of the interface). Make a note of the number for the next step.
+Execute the command below to find which index you got for the ``rtosveth1`` (index is the number to the left of the interface). Make a note of the number for the next step.
 
 ```bash
     sudo tcpdump --list-interfaces
 ```
 Look for line #138 in `FreeRTOSConfig.h` and update `configNETWORK_INTERFACE_TO_USE` with the number you got in the previous step.
 
-**Example**: if you got ``4.veth1 [Up, Running]`` in the previous step, you'll update line #138 to look like this ``#define configNETWORK_INTERFACE_TO_USE ( 4L )``
+**Example**: if you got ``4.rtosveth1 [Up, Running]`` in the previous step, you'll update line #138 to look like this ``#define configNETWORK_INTERFACE_TO_USE ( 4L )``
 
 ```bash
     nano demos/projects/PC/linux/config/FreeRTOSConfig.h
