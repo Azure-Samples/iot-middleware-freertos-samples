@@ -1,17 +1,17 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # SPDX-License-Identifier: MIT
 
-set(MCU_C_FLAGS " \
-    -mcpu=cortex-m7 \
-    -mfloat-abi=hard \
-    -mfpu=fpv5-d16 \
-    -mthumb -MMD -MP \
-    -fno-common \
-    -ffunction-sections \
-    -fdata-sections \
-    -ffreestanding \
-    -fno-builtin \
-    -mapcs -std=gnu99 " CACHE INTERNAL "MCU build flags")
+set(MCU_C_FLAGS -mcpu=cortex-m7
+    -mfloat-abi=hard
+    -mfpu=fpv5-d16
+    -mthumb -MMD -MP
+    -fno-common
+    -ffunction-sections
+    -fdata-sections
+    -ffreestanding
+    -fno-builtin
+    -mapcs -std=gnu99 CACHE INTERNAL "MCU build flags")
+string (REPLACE ";" " " MCU_C_FLAGS_STR "${MCU_C_FLAGS}")
 set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} " \
     -DMIMXRT1060 \
     -DXIP_EXTERNAL_FLASH=1 \
@@ -25,7 +25,7 @@ set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} " \
     -DSCANF_FLOAT_ENABLE=0 \
     -DPRINTF_ADVANCED_ENABLE=1\
     -DCR_INTEGER_PRINTF \
-    -DSCANF_ADVANCED_ENABLE=0 ${MCU_C_FLAGS}")
+    -DSCANF_ADVANCED_ENABLE=0 ${MCU_C_FLAGS_STR}")
 
 set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} " \
     -fno-exceptions \
