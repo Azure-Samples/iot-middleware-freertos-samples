@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # SPDX-License-Identifier: MIT
 
-set(MCUX_SDK_PROJECT_NAME ${PROJECT_NAME})
+set(MCUX_SDK_PROJECT_NAME mcux-sdk-lib)
 
 nxp_mcux_sdk_fetch()
 lwip_fetch()
@@ -23,7 +23,15 @@ include_directories(nxp_code/lwip)
 file(GLOB NXPCODE_SOURCES nxp_code/*.c nxp_code/lwip/*.c)
 set(PROJECT_SOURCES ${NXPCODE_SOURCES} main.c)
 
+add_library(${MCUX_SDK_PROJECT_NAME})
+target_include_directories(${MCUX_SDK_PROJECT_NAME}
+  PUBLIC
+    ${FREERTOS_DIRECTORY}/FreeRTOS/Source/include
+    ${BOARD_DEMO_FREERTOS_PORT_PATH}
+)
+
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
+add_executable(${PROJECT_NAME}-pnp ${PROJECT_SOURCES})
 
 # configure modules
 set(CONFIG_USE_driver_lpuart true)
@@ -102,11 +110,36 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     LWIP
     SAMPLE::SOCKET::LWIP
     SAMPLE::AZUREIOT
-    SAMPLE::TRANSPORT::MBEDTLS)
+    SAMPLE::TRANSPORT::MBEDTLS
+    ${MCUX_SDK_PROJECT_NAME}
+    )
 
 add_custom_command(TARGET ${PROJECT_NAME}
     # Run after all other rules within the target have been executed
     POST_BUILD
     COMMAND ${CMAKE_OBJCOPY} -Obinary $<TARGET_FILE:${PROJECT_NAME}> ${PROJECT_NAME}.bin
+    COMMENT "Generate Bin file"
+    VERBATIM)
+
+target_link_libraries(${PROJECT_NAME}-pnp PRIVATE
+    FreeRTOS::Timers
+    FreeRTOS::Heap::5
+    FreeRTOS::ARM_CM4F
+    FreeRTOS::EventGroups
+    FreeRTOSPlus::Utilities::backoff_algorithm
+    FreeRTOSPlus::Utilities::logging
+    FreeRTOSPlus::ThirdParty::mbedtls
+    az::iot_middleware::freertos
+    LWIP
+    SAMPLE::SOCKET::LWIP
+    SAMPLE::AZUREIOTPNP
+    SAMPLE::TRANSPORT::MBEDTLS
+    ${MCUX_SDK_PROJECT_NAME}
+    )
+
+add_custom_command(TARGET ${PROJECT_NAME}-pnp
+    # Run after all other rules within the target have been executed
+    POST_BUILD
+    COMMAND ${CMAKE_OBJCOPY} -Obinary $<TARGET_FILE:${PROJECT_NAME}-pnp> ${PROJECT_NAME}-pnp.bin
     COMMENT "Generate Bin file"
     VERBATIM)
