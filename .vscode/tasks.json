@@ -30,6 +30,13 @@
             "dependsOrder": "sequence"
         },
         {
+            "label": "Build stm32h745i_discovery",
+            "type": "shell",
+            "command": "cmake -G Ninja -DFREERTOS_PATH=${workspaceRoot}/libs/FreeRTOS -DVENDOR=ST -DBOARD=stm32h745i_discovery -DCMAKE_BUILD_TYPE=Debug -Bstm32h745i_discovery ${workspaceRoot}; cmake --build stm32h745i_discovery",
+            "dependsOn": [ "Download FreeRTOS" ],
+            "dependsOrder": "sequence"
+        },
+        {
             "label": "Build NXP mimxrt1060",
             "type": "shell",
             "command": "cmake -G Ninja -DFREERTOS_PATH=${workspaceRoot}/libs/FreeRTOS -DBOARD=mimxrt1060 -DVENDOR=NXP -Bmimxrt1060 -DCMAKE_BUILD_TYPE=Debug ${workspaceRoot}; cmake --build mimxrt1060",

@@ -33,13 +33,23 @@ function sample_build() {
     cmake --build $outdir
 }
 
+######################## Simulations #######################
+
 echo -e "::group::Building sample for linux port"
 sample_build "PC" "linux" "build_pc_linux"
 exit_if_binary_does_not_exist "build_pc_linux" "iot-middleware-sample"
 
+######################## ST Boards #########################
+
 echo -e "::group::Building sample for ST b-l475e-iot01a port"
 sample_build "ST" "b-l475e-iot01a" "build_st_b-l475e-iot01a"
 exit_if_binary_does_not_exist "build_st_b-l475e-iot01a" "iot-middleware-sample.elf"
+
+echo -e "::group::Building sample for ST stm32h745i_discovery port"
+sample_build "ST" "stm32h745i_discovery" "build_st_stm32h745i_discovery"
+exit_if_binary_does_not_exist "build_st_stm32h745i_discovery" "iot-middleware-sample.elf"
+
+######################## NXP Boards ########################
 
 echo -e "::group::Building sample for NXP mimxrt1060 port"
 sample_build "NXP" "mimxrt1060" "build_nxp_mimxrt1060"
