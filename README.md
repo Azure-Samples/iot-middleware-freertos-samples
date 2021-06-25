@@ -20,7 +20,7 @@ Below you will find samples for development kits and simulators showing how to u
 
 * PC Simulation:
   * [Linux](demos/projects/PC/linux/)
-
+  * [Windows](demos/projects/PC/windows/)
 ## Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
