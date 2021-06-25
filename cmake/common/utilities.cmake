@@ -13,7 +13,7 @@ FetchContent_Declare(
 FetchContent_Declare(
     NXP_MCUX_SDK
     GIT_REPOSITORY https://github.com/NXPmicro/mcux-sdk.git
-    GIT_TAG        a0764538cb37f65907155b2aa6cd514cee8e3442
+    GIT_TAG        7ba15d923253766000a6d34590fd5f40e0e1d842
     GIT_PROGRESS   TRUE
 )
 
