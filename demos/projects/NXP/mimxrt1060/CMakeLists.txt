@@ -1,23 +1,26 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # SPDX-License-Identifier: MIT
 
+# set parent scope path
+set(BOARD_DEMO_CONFIG_PATH ${CMAKE_CURRENT_SOURCE_DIR}/config CACHE INTERNAL "Config path")
+set(BOARD_DEMO_FREERTOS_PORT_PATH ${FreeRTOS_ARM_CM4F_PATH} CACHE INTERNAL "FreeRTOS Port used ")
+
 set(MCUX_SDK_PROJECT_NAME mcux-sdk-lib)
 
 add_library(${MCUX_SDK_PROJECT_NAME})
 target_include_directories(${MCUX_SDK_PROJECT_NAME}
   PUBLIC
-    ${FREERTOS_DIRECTORY}/FreeRTOS/Source/include
     ${BOARD_DEMO_FREERTOS_PORT_PATH}
+)
+target_link_libraries(${MCUX_SDK_PROJECT_NAME}
+  PUBLIC
+    FreeRTOS
 )
 
 nxp_mcux_sdk_fetch()
 lwip_fetch()
 
 list(APPEND CMAKE_MODULE_PATH ${NXP_MCUX_SDK_PATH})
-
-# set parent scope path
-set(BOARD_DEMO_CONFIG_PATH ${CMAKE_CURRENT_SOURCE_DIR}/config CACHE INTERNAL "Config path")
-set(BOARD_DEMO_FREERTOS_PORT_PATH ${FreeRTOS_ARM_CM4F_PATH} CACHE INTERNAL "FreeRTOS Port used ")
 
 find_package(LWIP)
 
