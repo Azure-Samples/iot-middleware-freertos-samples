@@ -277,8 +277,6 @@ static AzureIoTResult_t prvInvokeMaxMinCommand( AzureIoTJSONReader_t * xReader,
                                                 AzureIoTJSONWriter_t * xWriter )
 {
     AzureIoTResult_t xResult;
-    // AzureIoTJSONReader_t xReader;
-    // AzureIoTJSONWriter_t xWriter;
     uint32_t ulSinceTimeLength;
     time_t xRawTime;
     struct tm * pxTimeInfo;
@@ -286,16 +284,6 @@ static AzureIoTResult_t prvInvokeMaxMinCommand( AzureIoTJSONReader_t * xReader,
 
     /* Get the start time */
     xResult = AzureIoTJSONReader_NextToken( xReader );
-
-    if( xResult == eAzureIoTSuccess )
-    {
-        xResult = AzureIoTJSONReader_TokenIsTextEqual( xReader, ( uint8_t * ) sampleazureiotCOMMAND_SINCE, strlen( sampleazureiotCOMMAND_SINCE ) );
-    }
-
-    if( xResult == eAzureIoTSuccess )
-    {
-        xResult = AzureIoTJSONReader_NextToken( xReader );
-    }
 
     if( xResult == eAzureIoTSuccess )
     {
@@ -869,7 +857,7 @@ static void prvAzureDemoTask( void * pvParameters )
         configASSERT( xResult == eAzureIoTSuccess );
 
         /* Publish messages with QoS1, send and process Keep alive messages. */
-        for( ulPublishCount = 0; ulPublishCount < ulMaxPublishCount; ulPublishCount++ )
+        for( ; ; )
         {
             ulScratchBufferLength = snprintf( ( char * ) ucScratchBuffer, sizeof( ucScratchBuffer ),
                                               sampleazureiotMESSAGE, xDeviceCurrentTemperature );
@@ -877,6 +865,8 @@ static void prvAzureDemoTask( void * pvParameters )
                                                        ucScratchBuffer, ulScratchBufferLength,
                                                        NULL, eAzureIoTHubMessageQoS1, NULL );
             configASSERT( xResult == eAzureIoTSuccess );
+
+            prvSendNewMaxTemp( xDeviceMaximumTemperature );
 
             LogInfo( ( "Attempt to receive publish message from IoT Hub.\r\n" ) );
             xResult = AzureIoTHubClient_ProcessLoop( &xAzureIoTHubClient,
