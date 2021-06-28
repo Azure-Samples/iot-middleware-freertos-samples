@@ -49,6 +49,10 @@ echo -e "::group::Building sample for ST stm32h745i-disco port"
 sample_build "ST" "stm32h745i-disco" "build_st_stm32h745i-disco"
 exit_if_binary_does_not_exist "build_st_stm32h745i-disco" "iot-middleware-sample.elf"
 
+echo -e "::group::Building sample for ST b-l4s5i-iot01a port"
+sample_build "ST" "b-l4s5i-iot01a" "build_st_b-l4s5i-iot01a"
+exit_if_binary_does_not_exist "build_st_b-l4s5i-iot01a" "iot-middleware-sample.elf"
+
 ######################## NXP Boards ########################
 
 echo -e "::group::Building sample for NXP mimxrt1060 port"
