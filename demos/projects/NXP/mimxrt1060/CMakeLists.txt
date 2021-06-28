@@ -3,6 +3,13 @@
 
 set(MCUX_SDK_PROJECT_NAME mcux-sdk-lib)
 
+add_library(${MCUX_SDK_PROJECT_NAME})
+target_include_directories(${MCUX_SDK_PROJECT_NAME}
+  PUBLIC
+    ${FREERTOS_DIRECTORY}/FreeRTOS/Source/include
+    ${BOARD_DEMO_FREERTOS_PORT_PATH}
+)
+
 nxp_mcux_sdk_fetch()
 lwip_fetch()
 
@@ -22,13 +29,6 @@ include_directories(nxp_code/lwip)
 
 file(GLOB NXPCODE_SOURCES nxp_code/*.c nxp_code/lwip/*.c)
 set(PROJECT_SOURCES ${NXPCODE_SOURCES} main.c)
-
-add_library(${MCUX_SDK_PROJECT_NAME})
-target_include_directories(${MCUX_SDK_PROJECT_NAME}
-  PUBLIC
-    ${FREERTOS_DIRECTORY}/FreeRTOS/Source/include
-    ${BOARD_DEMO_FREERTOS_PORT_PATH}
-)
 
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
 add_executable(${PROJECT_NAME}-pnp ${PROJECT_SOURCES})
