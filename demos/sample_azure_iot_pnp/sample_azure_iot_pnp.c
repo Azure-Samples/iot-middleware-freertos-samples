@@ -58,24 +58,24 @@
 /**
  * @brief The maximum number of retries for network operation with server.
  */
-#define sampleazureiotRETRY_MAX_ATTEMPTS                  ( 5U )
+#define sampleazureiotRETRY_MAX_ATTEMPTS                      ( 5U )
 
 /**
  * @brief The maximum back-off delay (in milliseconds) for retrying failed operation
  *  with server.
  */
-#define sampleazureiotRETRY_MAX_BACKOFF_DELAY_MS          ( 5000U )
+#define sampleazureiotRETRY_MAX_BACKOFF_DELAY_MS              ( 5000U )
 
 /**
  * @brief The base back-off delay (in milliseconds) to use for network operation retry
  * attempts.
  */
-#define sampleazureiotRETRY_BACKOFF_BASE_MS               ( 500U )
+#define sampleazureiotRETRY_BACKOFF_BASE_MS                   ( 500U )
 
 /**
  * @brief Timeout for receiving CONNACK packet in milliseconds.
  */
-#define sampleazureiotCONNACK_RECV_TIMEOUT_MS             ( 10 * 1000U )
+#define sampleazureiotCONNACK_RECV_TIMEOUT_MS                 ( 10 * 1000U )
 
 /**
  * @brief The model id for this device
@@ -89,59 +89,49 @@
  * Please see the sample README for more information on this DTMI.
  *
  */
-#define sampleazureiotMODEL_ID                            "dtmi:com:example:Thermostat;1"
+#define sampleazureiotMODEL_ID                                "dtmi:com:example:Thermostat;1"
 
 /**
  * @brief Date-time to use for the model id
  */
-#define sampleazureiotDATE_TIME_FORMAT                    "%Y-%m-%dT%H:%M:%S.000Z"
+#define sampleazureiotDATE_TIME_FORMAT                        "%Y-%m-%dT%H:%M:%S.000Z"
 
 /**
  * @brief Telemetry values
  */
-#define sampleazureiotTELEMETRY_NAME                      "temperature"
+#define sampleazureiotTELEMETRY_NAME                          "temperature"
 
 /**
  * @brief Property Values
  */
-#define sampleazureiotPROPERTY_STATUS_SUCCESS             200
-#define sampleazureiotPROPERTY_SUCCESS                    "success"
-#define sampleazureiotPROPERTY_TARGET_TEMPERATURE_TEXT    "targetTemperature"
-#define sampleazureiotPROPERTY_MAX_TEMPERATURE_TEXT       "maxTempSinceLastReboot"
-static uint8_t ucPropertyPayloadBuffer[ 256 ];
+#define sampleazureiotPROPERTY_STATUS_SUCCESS                 200
+#define sampleazureiotPROPERTY_SUCCESS                        "success"
+#define sampleazureiotPROPERTY_TARGET_TEMPERATURE_TEXT        "targetTemperature"
+#define sampleazureiotPROPERTY_MAX_TEMPERATURE_TEXT           "maxTempSinceLastReboot"
 
 /**
  * @brief Command values
  */
-#define sampleazureiotCOMMAND_MAX_MIN_REPORT    "getMaxMinReport"
-#define sampleazureiotCOMMAND_SINCE             "since"
-#define sampleazureiotCOMMAND_MAX_TEMP          "maxTemp"
-#define sampleazureiotCOMMAND_MIN_TEMP          "minTemp"
-#define sampleazureiotCOMMAND_AV_TEMP           "avgTemp"
-#define sampleazureiotCOMMAND_START_TIME        "startTime"
-#define sampleazureiotCOMMAND_END_TIME          "endTime"
-#define sampleazureiotCOMMAND_EMPTY_PAYLOAD     "{}"
-static uint8_t ucCommandPayloadBuffer[ 256 ];
-static uint8_t ucCommandStartTimeValueBuffer[ 32 ];
-static uint8_t ucCommandEndTimeValueBuffer[ 32 ];
+#define sampleazureiotCOMMAND_MAX_MIN_REPORT                  "getMaxMinReport"
+#define sampleazureiotCOMMAND_SINCE                           "since"
+#define sampleazureiotCOMMAND_MAX_TEMP                        "maxTemp"
+#define sampleazureiotCOMMAND_MIN_TEMP                        "minTemp"
+#define sampleazureiotCOMMAND_AV_TEMP                         "avgTemp"
+#define sampleazureiotCOMMAND_START_TIME                      "startTime"
+#define sampleazureiotCOMMAND_END_TIME                        "endTime"
+#define sampleazureiotCOMMAND_EMPTY_PAYLOAD                   "{}"
 
 /**
  *@brief The Telemetry message published in this example.
  */
-#define sampleazureiotMESSAGE                        "{\"" sampleazureiotTELEMETRY_NAME "\":%0.2f}"
+#define sampleazureiotMESSAGE                                 "{\"" sampleazureiotTELEMETRY_NAME "\":%0.2f}"
 
 /**
  * @brief Device values
  */
-#define sampleazureiotDEFAULT_START_TEMP_COUNT       1
-#define sampleazureiotDEFAULT_START_TEMP_CELSIUS     22.0
-#define sampleazureiotDOUBLE_DECIMAL_PLACE_DIGITS    2
-static double xDeviceCurrentTemperature = sampleazureiotDEFAULT_START_TEMP_CELSIUS;
-static double xDeviceMaximumTemperature = sampleazureiotDEFAULT_START_TEMP_CELSIUS;
-static double xDeviceMinimumTemperature = sampleazureiotDEFAULT_START_TEMP_CELSIUS;
-static double xDeviceTemperatureSummation = sampleazureiotDEFAULT_START_TEMP_CELSIUS;
-static uint32_t ulDeviceTemperatureCount = sampleazureiotDEFAULT_START_TEMP_COUNT;
-static double xDeviceAverageTemperature = sampleazureiotDEFAULT_START_TEMP_CELSIUS;
+#define sampleazureiotDEFAULT_START_TEMP_COUNT                1
+#define sampleazureiotDEFAULT_START_TEMP_CELSIUS              22.0
+#define sampleazureiotDOUBLE_DECIMAL_PLACE_DIGITS             2
 
 /**
  * @brief The payload to send to the Device Provisioning Service
@@ -200,6 +190,22 @@ uint64_t ullGetUnixTime( void );
 #endif /* democonfigENABLE_DPS_SAMPLE */
 
 static uint8_t ucScratchBuffer[ 128 ];
+
+/* Device values */
+static double xDeviceCurrentTemperature = sampleazureiotDEFAULT_START_TEMP_CELSIUS;
+static double xDeviceMaximumTemperature = sampleazureiotDEFAULT_START_TEMP_CELSIUS;
+static double xDeviceMinimumTemperature = sampleazureiotDEFAULT_START_TEMP_CELSIUS;
+static double xDeviceTemperatureSummation = sampleazureiotDEFAULT_START_TEMP_CELSIUS;
+static uint32_t ulDeviceTemperatureCount = sampleazureiotDEFAULT_START_TEMP_COUNT;
+static double xDeviceAverageTemperature = sampleazureiotDEFAULT_START_TEMP_CELSIUS;
+
+/* Command Values */
+static uint8_t ucCommandPayloadBuffer[ 256 ];
+static uint8_t ucCommandStartTimeValueBuffer[ 32 ];
+static uint8_t ucCommandEndTimeValueBuffer[ 32 ];
+
+/* Property Values */
+static uint8_t ucPropertyPayloadBuffer[ 256 ];
 
 /* Each compilation unit must define the NetworkContext struct. */
 struct NetworkContext
@@ -268,34 +274,32 @@ static uint8_t ucMQTTMessageBuffer[ democonfigNETWORK_BUFFER_SIZE ];
  * @brief Generate max min payload.
  */
 static AzureIoTResult_t prvInvokeMaxMinCommand( AzureIoTJSONReader_t * xReader,
-                                                AzureIoTJSONriter * xWriter,
-                                                const uint8_t * pucPayload,
-                                                uint32_t ulPayloadLength )
+                                                AzureIoTJSONWriter_t * xWriter )
 {
     AzureIoTResult_t xResult;
-    AzureIoTJSONReader_t xReader;
-    AzureIoTJSONWriter_t xWriter;
+    // AzureIoTJSONReader_t xReader;
+    // AzureIoTJSONWriter_t xWriter;
     uint32_t ulSinceTimeLength;
     time_t xRawTime;
     struct tm * pxTimeInfo;
     size_t xEndTimeLength;
 
     /* Get the start time */
-    xResult = AzureIoTJSONReader_NextToken( &xReader );
+    xResult = AzureIoTJSONReader_NextToken( xReader );
 
     if( xResult == eAzureIoTSuccess )
     {
-        xResult = AzureIoTJSONReader_TokenIsTextEqual( &xReader, ( uint8_t * ) sampleazureiotCOMMAND_SINCE, strlen( sampleazureiotCOMMAND_SINCE ) );
+        xResult = AzureIoTJSONReader_TokenIsTextEqual( xReader, ( uint8_t * ) sampleazureiotCOMMAND_SINCE, strlen( sampleazureiotCOMMAND_SINCE ) );
     }
 
     if( xResult == eAzureIoTSuccess )
     {
-        xResult = AzureIoTJSONReader_NextToken( &xReader );
+        xResult = AzureIoTJSONReader_NextToken( xReader );
     }
 
     if( xResult == eAzureIoTSuccess )
     {
-        xResult = AzureIoTJSONReader_GetTokenString( &xReader,
+        xResult = AzureIoTJSONReader_GetTokenString( xReader,
                                                      ucCommandStartTimeValueBuffer,
                                                      sizeof( ucCommandStartTimeValueBuffer ),
                                                      &ulSinceTimeLength );
@@ -315,47 +319,47 @@ static AzureIoTResult_t prvInvokeMaxMinCommand( AzureIoTJSONReader_t * xReader,
 
     if( xResult == eAzureIoTSuccess )
     {
-        xResult = AzureIoTJSONWriter_AppendBeginObject( &xWriter );
+        xResult = AzureIoTJSONWriter_AppendBeginObject( xWriter );
     }
 
     if( xResult == eAzureIoTSuccess )
     {
-        xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( &xWriter, sampleazureiotCOMMAND_MAX_TEMP,
+        xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( xWriter, sampleazureiotCOMMAND_MAX_TEMP,
                                                                     strlen( sampleazureiotCOMMAND_MAX_TEMP ),
                                                                     xDeviceMaximumTemperature, sampleazureiotDOUBLE_DECIMAL_PLACE_DIGITS );
     }
 
     if( xResult == eAzureIoTSuccess )
     {
-        xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( &xWriter, sampleazureiotCOMMAND_MIN_TEMP,
+        xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( xWriter, sampleazureiotCOMMAND_MIN_TEMP,
                                                                     strlen( sampleazureiotCOMMAND_MIN_TEMP ),
                                                                     xDeviceMinimumTemperature, sampleazureiotDOUBLE_DECIMAL_PLACE_DIGITS );
     }
 
     if( xResult == eAzureIoTSuccess )
     {
-        xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( &xWriter, sampleazureiotCOMMAND_AV_TEMP,
+        xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( xWriter, sampleazureiotCOMMAND_AV_TEMP,
                                                                     strlen( sampleazureiotCOMMAND_AV_TEMP ),
                                                                     xDeviceAverageTemperature, sampleazureiotDOUBLE_DECIMAL_PLACE_DIGITS );
     }
 
     if( xResult == eAzureIoTSuccess )
     {
-        xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, sampleazureiotCOMMAND_START_TIME,
+        xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( xWriter, sampleazureiotCOMMAND_START_TIME,
                                                                     strlen( sampleazureiotCOMMAND_START_TIME ),
                                                                     ucCommandStartTimeValueBuffer, ulSinceTimeLength );
     }
 
     if( xResult == eAzureIoTSuccess )
     {
-        xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, sampleazureiotCOMMAND_END_TIME,
+        xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( xWriter, sampleazureiotCOMMAND_END_TIME,
                                                                     strlen( sampleazureiotCOMMAND_END_TIME ),
                                                                     ucCommandEndTimeValueBuffer, xEndTimeLength );
     }
 
     if( xResult == eAzureIoTSuccess )
     {
-        xResult = AzureIoTJSONWriter_AppendEndObject( &xWriter );
+        xResult = AzureIoTJSONWriter_AppendEndObject( xWriter );
     }
 
     return xResult;
@@ -368,6 +372,7 @@ static AzureIoTResult_t prvInvokeMaxMinCommand( AzureIoTJSONReader_t * xReader,
 static void prvHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
                               void * pvContext )
 {
+    AzureIoTResult_t xResult;
     int32_t lCommandNameLength;
     int32_t ulCommandPayloadLength;
     AzureIoTHubClient_t * xHandle = ( AzureIoTHubClient_t * ) pvContext;
