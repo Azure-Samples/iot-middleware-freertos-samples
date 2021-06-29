@@ -33,9 +33,6 @@ include_directories(nxp_code/lwip)
 file(GLOB NXPCODE_SOURCES nxp_code/*.c nxp_code/lwip/*.c)
 set(PROJECT_SOURCES ${NXPCODE_SOURCES} main.c)
 
-add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
-add_executable(${PROJECT_NAME}-pnp ${PROJECT_SOURCES})
-
 # configure modules
 set(CONFIG_USE_driver_lpuart true)
 set(MCUX_DEVICE "MIMXRT1062")
@@ -101,6 +98,7 @@ include(driver_phy-common)
 
 include(driver_dcp)
 
+add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
 target_link_libraries(${PROJECT_NAME} PRIVATE
     FreeRTOS::Timers
     FreeRTOS::Heap::5
@@ -124,6 +122,7 @@ add_custom_command(TARGET ${PROJECT_NAME}
     COMMENT "Generate Bin file"
     VERBATIM)
 
+add_executable(${PROJECT_NAME}-pnp ${PROJECT_SOURCES})
 target_link_libraries(${PROJECT_NAME}-pnp PRIVATE
     FreeRTOS::Timers
     FreeRTOS::Heap::5

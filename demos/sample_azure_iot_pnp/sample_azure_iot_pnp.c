@@ -11,8 +11,8 @@
 
 /* Azure Provisioning/IoT Hub library includes */
 #include "azure_iot_hub_client.h"
-#include "azure_iot_provisioning_client.h"
 #include "azure_iot_hub_client_properties.h"
+#include "azure_iot_provisioning_client.h"
 
 /* Azure JSON includes */
 #include "azure_iot_json_reader.h"
@@ -166,7 +166,7 @@
 /**
  * @brief Transport timeout in milliseconds for transport send and receive.
  */
-#define sampleazureiotProvisioning_Registration_TIMEOUT_MS    ( 20U )
+#define sampleazureiotProvisioning_Registration_TIMEOUT_MS    ( 3 * 1000U )
 
 /**
  * @brief Wait timeout for subscribe to finish.
@@ -236,7 +236,7 @@ static AzureIoTHubClient_t xAzureIoTHubClient;
 #endif /* democonfigENABLE_DPS_SAMPLE */
 
 /**
- * @brief The task used to demonstrate the MQTT API.
+ * @brief The task used to demonstrate the Azure IoT Hub API.
  *
  * @param[in] pvParameters Parameters as passed at the time of task creation. Not
  * used in this example.
@@ -244,7 +244,7 @@ static AzureIoTHubClient_t xAzureIoTHubClient;
 static void prvAzureDemoTask( void * pvParameters );
 
 /**
- * @brief Connect to IoT Hub with reconnection retries.
+ * @brief Connect to endpoint with reconnection retries.
  *
  * If connection fails, retry is attempted after a timeout.
  * Timeout value will exponentially increase until maximum
@@ -272,69 +272,73 @@ static uint8_t ucMQTTMessageBuffer[ democonfigNETWORK_BUFFER_SIZE ];
 /**
  * @brief Generate max min payload.
  */
-static AzureIoTResult_t prvInvokeMaxMinCommand( AzureIoTJSONReader_t * xReader,
-                                                AzureIoTJSONWriter_t * xWriter )
+static AzureIoTResult_t prvInvokeMaxMinCommand( AzureIoTJSONReader_t * pxReader,
+                                                AzureIoTJSONWriter_t * pxWriter )
 {
     AzureIoTResult_t xResult;
     uint32_t ulSinceTimeLength;
     size_t xEndTimeLength;
 
     /* Get the start time */
-    xResult = AzureIoTJSONReader_NextToken( xReader );
-
-    if( xResult == eAzureIoTSuccess )
+    if( ( xResult = AzureIoTJSONReader_NextToken( pxReader ) )
+        != eAzureIoTSuccess )
     {
-        xResult = AzureIoTJSONReader_GetTokenString( xReader,
-                                                     ucCommandStartTimeValueBuffer,
-                                                     sizeof( ucCommandStartTimeValueBuffer ),
-                                                     &ulSinceTimeLength );
+        LogError( ( "Error getting next token: result 0x%08x", xResult ) );
     }
-
-    if( xResult == eAzureIoTSuccess )
+    else if( ( xResult = AzureIoTJSONReader_GetTokenString( pxReader,
+                                                            ucCommandStartTimeValueBuffer,
+                                                            sizeof( ucCommandStartTimeValueBuffer ),
+                                                            &ulSinceTimeLength ) )
+             != eAzureIoTSuccess )
     {
-        xResult = AzureIoTJSONWriter_AppendBeginObject( xWriter );
+        LogError( ( "Error getting token string: result 0x%08x", xResult ) );
     }
-
-    if( xResult == eAzureIoTSuccess )
+    else if( ( xResult = AzureIoTJSONWriter_AppendBeginObject( pxWriter ) )
+             != eAzureIoTSuccess )
     {
-        xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( xWriter, sampleazureiotCOMMAND_MAX_TEMP,
-                                                                    strlen( sampleazureiotCOMMAND_MAX_TEMP ),
-                                                                    xDeviceMaximumTemperature, sampleazureiotDOUBLE_DECIMAL_PLACE_DIGITS );
+        LogError( ( "Error appending begin object: result 0x%08x", xResult ) );
     }
-
-    if( xResult == eAzureIoTSuccess )
+    else if( ( xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( pxWriter, sampleazureiotCOMMAND_MAX_TEMP,
+                                                                           strlen( sampleazureiotCOMMAND_MAX_TEMP ),
+                                                                           xDeviceMaximumTemperature, sampleazureiotDOUBLE_DECIMAL_PLACE_DIGITS ) )
+             != eAzureIoTSuccess )
     {
-        xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( xWriter, sampleazureiotCOMMAND_MIN_TEMP,
-                                                                    strlen( sampleazureiotCOMMAND_MIN_TEMP ),
-                                                                    xDeviceMinimumTemperature, sampleazureiotDOUBLE_DECIMAL_PLACE_DIGITS );
+        LogError( ( "Error appending max temp: result 0x%08x", xResult ) );
     }
-
-    if( xResult == eAzureIoTSuccess )
+    else if( ( xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( pxWriter, sampleazureiotCOMMAND_MIN_TEMP,
+                                                                           strlen( sampleazureiotCOMMAND_MIN_TEMP ),
+                                                                           xDeviceMinimumTemperature, sampleazureiotDOUBLE_DECIMAL_PLACE_DIGITS ) )
+             != eAzureIoTSuccess )
     {
-        xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( xWriter, sampleazureiotCOMMAND_AV_TEMP,
-                                                                    strlen( sampleazureiotCOMMAND_AV_TEMP ),
-                                                                    xDeviceAverageTemperature, sampleazureiotDOUBLE_DECIMAL_PLACE_DIGITS );
+        LogError( ( "Error appending min temp: result 0x%08x", xResult ) );
     }
-
-    if( xResult == eAzureIoTSuccess )
+    else if( ( xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( pxWriter, sampleazureiotCOMMAND_AV_TEMP,
+                                                                           strlen( sampleazureiotCOMMAND_AV_TEMP ),
+                                                                           xDeviceAverageTemperature, sampleazureiotDOUBLE_DECIMAL_PLACE_DIGITS ) )
+             != eAzureIoTSuccess )
     {
-        xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( xWriter, sampleazureiotCOMMAND_START_TIME,
-                                                                    strlen( sampleazureiotCOMMAND_START_TIME ),
-                                                                    ucCommandStartTimeValueBuffer, ulSinceTimeLength );
+        LogError( ( "Error appending average temp: result 0x%08x", xResult ) );
     }
-
-    if( xResult == eAzureIoTSuccess )
+    else if( ( xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( pxWriter, sampleazureiotCOMMAND_START_TIME,
+                                                                           strlen( sampleazureiotCOMMAND_START_TIME ),
+                                                                           ucCommandStartTimeValueBuffer, ulSinceTimeLength ) )
+             != eAzureIoTSuccess )
     {
-        /* Faking the end time to simplify dependencies on <time.h> */
-        xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( xWriter, sampleazureiotCOMMAND_END_TIME,
-                                                                    strlen( sampleazureiotCOMMAND_END_TIME ),
-                                                                    sampleazureiotCOMMAND_FAKE_END_TIME,
-                                                                    strlen( sampleazureiotCOMMAND_FAKE_END_TIME ) );
+        LogError( ( "Error appending start time: result 0x%08x", xResult ) );
     }
-
-    if( xResult == eAzureIoTSuccess )
+    /* Faking the end time to simplify dependencies on <time.h> */
+    else if( ( xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( pxWriter, sampleazureiotCOMMAND_END_TIME,
+                                                                           strlen( sampleazureiotCOMMAND_END_TIME ),
+                                                                           sampleazureiotCOMMAND_FAKE_END_TIME,
+                                                                           strlen( sampleazureiotCOMMAND_FAKE_END_TIME ) ) )
+             != eAzureIoTSuccess )
     {
-        xResult = AzureIoTJSONWriter_AppendEndObject( xWriter );
+        LogError( ( "Error appending end time: result 0x%08x", xResult ) );
+    }
+    else if( ( xResult = AzureIoTJSONWriter_AppendEndObject( pxWriter ) )
+             != eAzureIoTSuccess )
+    {
+        LogError( ( "Error appending end object: result 0x%08x", xResult ) );
     }
 
     return xResult;
@@ -348,9 +352,11 @@ static void prvHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
                               void * pvContext )
 {
     AzureIoTResult_t xResult;
+    AzureIoTJSONReader_t xReader;
+    AzureIoTJSONWriter_t xWriter;
     int32_t lCommandNameLength;
     int32_t ulCommandPayloadLength;
-    AzureIoTHubClient_t * xHandle = ( AzureIoTHubClient_t * ) pvContext;
+    AzureIoTHubClient_t * pxHandle = ( AzureIoTHubClient_t * ) pvContext;
 
     LogInfo( ( "Command payload : %.*s \r\n",
                pxMessage->ulPayloadLength,
@@ -362,11 +368,9 @@ static void prvHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
         ( strncmp( sampleazureiotCOMMAND_MAX_MIN_REPORT, pxMessage->pucCommandName, lCommandNameLength ) == 0 ) )
     {
         /* Is for max min report */
-        AzureIoTJSONReader_t xReader;
         xResult = AzureIoTJSONReader_Init( &xReader, pxMessage->pvMessagePayload, pxMessage->ulPayloadLength );
         configASSERT( xResult == eAzureIoTSuccess );
 
-        AzureIoTJSONWriter_t xWriter;
         xResult = AzureIoTJSONWriter_Init( &xWriter, ucCommandPayloadBuffer, sizeof( ucCommandPayloadBuffer ) );
         configASSERT( xResult == eAzureIoTSuccess );
 
@@ -378,7 +382,7 @@ static void prvHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
 
             if( ulCommandPayloadLength > 0 )
             {
-                if( AzureIoTHubClient_SendCommandResponse( xHandle, pxMessage, 200,
+                if( AzureIoTHubClient_SendCommandResponse( pxHandle, pxMessage, 200,
                                                            ucCommandPayloadBuffer,
                                                            ulCommandPayloadLength ) != eAzureIoTSuccess )
                 {
@@ -388,11 +392,11 @@ static void prvHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
         }
         else
         {
-            LogError( ( "Error generating command payload" ) );
+            LogError( ( "Error generating command payload: 0x%08x", xResult ) );
 
-            if( AzureIoTHubClient_SendCommandResponse( xHandle, pxMessage, 501,
+            if( AzureIoTHubClient_SendCommandResponse( pxHandle, pxMessage, 501,
                                                        sampleazureiotCOMMAND_EMPTY_PAYLOAD,
-                                                       ulCommandPayloadLength ) != eAzureIoTSuccess )
+                                                       strlen( sampleazureiotCOMMAND_EMPTY_PAYLOAD ) ) != eAzureIoTSuccess )
             {
                 LogError( ( "Error sending command response" ) );
             }
@@ -401,9 +405,11 @@ static void prvHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
     else
     {
         /* Not for max min report (not for this device) */
-        LogInfo( ( "Received command is not for this device" ) );
+        LogInfo( ( "Received command is not for this device: %.*s",
+                   pxMessage->usCommandNameLength,
+                   pxMessage->pucCommandName ) );
 
-        if( AzureIoTHubClient_SendCommandResponse( xHandle, pxMessage, 404,
+        if( AzureIoTHubClient_SendCommandResponse( pxHandle, pxMessage, 404,
                                                    sampleazureiotCOMMAND_EMPTY_PAYLOAD,
                                                    strlen( sampleazureiotCOMMAND_EMPTY_PAYLOAD ) ) != eAzureIoTSuccess )
         {
@@ -418,7 +424,7 @@ static void prvHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
  */
 static AzureIoTResult_t prvProcessProperties( AzureIoTHubClientPropertiesResponse_t * pxMessage,
                                               AzureIoTHubClientPropertyType_t xPropertyType,
-                                              double * xOutTemperature,
+                                              double * pxOutTemperature,
                                               uint32_t * ulOutVersion )
 {
     AzureIoTResult_t xResult;
@@ -427,7 +433,7 @@ static AzureIoTResult_t prvProcessProperties( AzureIoTHubClientPropertiesRespons
     const uint8_t * pucComponentName = NULL;
     uint32_t ulComponentNameLength = 0;
 
-    *xOutTemperature = 0.0;
+    *pxOutTemperature = 0.0;
 
     xResult = AzureIoTJSONReader_Init( &xReader, pxMessage->pvMessagePayload, pxMessage->ulPayloadLength );
     configASSERT( xResult == eAzureIoTSuccess );
@@ -448,9 +454,6 @@ static AzureIoTResult_t prvProcessProperties( AzureIoTHubClientPropertiesRespons
                                                                                  pxMessage->xMessageType, xPropertyType,
                                                                                  &pucComponentName, &ulComponentNameLength ) ) == eAzureIoTSuccess )
         {
-            xResult = AzureIoTJSONReader_TokenType( &xReader, &xTokenType );
-            configASSERT( xResult == eAzureIoTSuccess );
-
             if( AzureIoTJSONReader_TokenIsTextEqual( &xReader,
                                                      sampleazureiotPROPERTY_TARGET_TEMPERATURE_TEXT,
                                                      strlen( sampleazureiotPROPERTY_TARGET_TEMPERATURE_TEXT ) ) )
@@ -458,19 +461,14 @@ static AzureIoTResult_t prvProcessProperties( AzureIoTHubClientPropertiesRespons
                 xResult = AzureIoTJSONReader_NextToken( &xReader );
                 configASSERT( xResult == eAzureIoTSuccess );
 
-                xResult = AzureIoTJSONReader_TokenType( &xReader, &xTokenType );
-                configASSERT( xResult == eAzureIoTSuccess );
+                /* Get desired temperature */
+                xResult = AzureIoTJSONReader_GetTokenDouble( &xReader, pxOutTemperature );
 
-                if( xTokenType != eAzureIoTJSONTokenNUMBER )
+                if( xResult != eAzureIoTSuccess )
                 {
-                    LogError( ( "Invalid value for target temperature reached" ) );
-                    xResult = eAzureIoTErrorFailed;
+                    LogError( ( "Error getting the property version" ) );
                     break;
                 }
-
-                /* Get desired temperature */
-                xResult = AzureIoTJSONReader_GetTokenDouble( &xReader, xOutTemperature );
-                configASSERT( xResult == eAzureIoTSuccess );
 
                 xResult = AzureIoTJSONReader_NextToken( &xReader );
                 configASSERT( xResult == eAzureIoTSuccess );
@@ -529,11 +527,11 @@ static void prvUpdateLocalProperties( double xNewTemperatureValue,
     xDeviceTemperatureSummation += xDeviceCurrentTemperature;
     xDeviceAverageTemperature = xDeviceTemperatureSummation / ulDeviceTemperatureCount;
 
-    LogDebug( ( "Client updated desired temperature variables locally." ) );
-    LogDebug( ( "Current Temperature: %2f", xDeviceCurrentTemperature ) );
-    LogDebug( ( "Maximum Temperature: %2f", xDeviceMaximumTemperature ) );
-    LogDebug( ( "Minimum Temperature: %2f", xDeviceMinimumTemperature ) );
-    LogDebug( ( "Average Temperature: %2f", xDeviceAverageTemperature ) );
+    LogInfo( ( "Client updated desired temperature variables locally." ) );
+    LogInfo( ( "Current Temperature: %2f", xDeviceCurrentTemperature ) );
+    LogInfo( ( "Maximum Temperature: %2f", xDeviceMaximumTemperature ) );
+    LogInfo( ( "Minimum Temperature: %2f", xDeviceMinimumTemperature ) );
+    LogInfo( ( "Average Temperature: %2f", xDeviceAverageTemperature ) );
 }
 /*-----------------------------------------------------------*/
 
@@ -618,19 +616,12 @@ static void prvAckIncomingTemperature( double xUpdatedTemperature,
 
     lBytesWritten = AzureIoTJSONWriter_GetBytesUsed( &xWriter );
 
-    if( lBytesWritten < 0 )
-    {
-        LogError( ( "Error getting the bytes written for the properties confirmation JSON" ) );
-    }
-    else
-    {
-        LogDebug( ( "Sending acknowledged writable property. Payload: %.*s", lBytesWritten, ucPropertyPayloadBuffer ) );
-        xResult = AzureIoTHubClient_SendPropertiesReported( &xAzureIoTHubClient, ucPropertyPayloadBuffer, lBytesWritten, NULL );
+    LogDebug( ( "Sending acknowledged writable property. Payload: %.*s", lBytesWritten, ucPropertyPayloadBuffer ) );
+    xResult = AzureIoTHubClient_SendPropertiesReported( &xAzureIoTHubClient, ucPropertyPayloadBuffer, lBytesWritten, NULL );
 
-        if( xResult != eAzureIoTSuccess )
-        {
-            LogError( ( "There was an error sending the reported properties: 0x%08x", xResult ) );
-        }
+    if( xResult != eAzureIoTSuccess )
+    {
+        LogError( ( "There was an error sending the reported properties: 0x%08x", xResult ) );
     }
 }
 /*-----------------------------------------------------------*/
@@ -641,21 +632,21 @@ static void prvAckIncomingTemperature( double xUpdatedTemperature,
 static void prvHandleProperties( AzureIoTHubClientPropertiesResponse_t * pxMessage,
                                  void * pvContext )
 {
-    ( void ) pvContext;
-
     AzureIoTResult_t xResult;
     double xIncomingTemperature;
     uint32_t ulVersion;
     bool xWasMaxTemperatureChanged = false;
 
-    LogInfo( ( "Property document payload : %.*s \r\n",
-               pxMessage->ulPayloadLength,
-               pxMessage->pvMessagePayload ) );
+    ( void ) pvContext;
+
+    LogDebug( ( "Property document payload : %.*s \r\n",
+                pxMessage->ulPayloadLength,
+                pxMessage->pvMessagePayload ) );
 
     switch( pxMessage->xMessageType )
     {
         case eAzureIoTHubPropertiesGetMessage:
-            LogInfo( ( "Device property document GET received" ) );
+            LogDebug( ( "Device property document GET received" ) );
             xResult = prvProcessProperties( pxMessage, eAzureIoTHubClientPropertyWritable, &xIncomingTemperature, &ulVersion );
 
             if( xResult == eAzureIoTSuccess )
@@ -729,7 +720,8 @@ static uint32_t prvSetupNetworkCredentials( NetworkCredentials_t * pxNetworkCred
 
 /**
  * @brief Azure IoT demo task that gets started in the platform specific project.
- *  In this demo task, middleware API's are used to connect to Azure IoT Hub.
+ *  In this demo task, middleware API's are used to connect to Azure IoT Hub and
+ *  function to adhere to the Plug and Play device convention.
  */
 static void prvAzureDemoTask( void * pvParameters )
 {

@@ -109,7 +109,7 @@
 /**
  * @brief Transport timeout in milliseconds for transport send and receive.
  */
-#define sampleazureiotProvisioning_Registration_TIMEOUT_MS    ( 20U )
+#define sampleazureiotProvisioning_Registration_TIMEOUT_MS    ( 3 * 1000U )
 
 /**
  * @brief Wait timeout for subscribe to finish.
@@ -173,7 +173,7 @@ static AzureIoTHubClient_t xAzureIoTHubClient;
 static void prvAzureDemoTask( void * pvParameters );
 
 /**
- * @brief Connect to IoT Hub with reconnection retries.
+ * @brief Connect to endpoint with reconnection retries.
  * 
  * If connection fails, retry is attempted after a timeout.
  * Timeout value will exponentially increase until maximum
