@@ -87,7 +87,7 @@ To build the device image, navigate to the `iot-middleware-freertos-samples` dir
     cmake --build b-l4s5i-iot01a
   ```
 
-After the build completes, confirm that a folder named `/b-l4s5i-iot01a/` was created and it contains a file named `iot-middleware-sample.bin`. 
+After the build completes, confirm that a folder named `b-l4s5i-iot01a/` was created and it contains a file named `demo/projects/ST/b-l4s5i-iot01a/iot-middleware-sample.bin`. 
 
 ## Flash the image
 
