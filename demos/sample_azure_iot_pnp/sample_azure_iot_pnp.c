@@ -4,7 +4,6 @@
 /* Standard includes. */
 #include <string.h>
 #include <stdio.h>
-#include <time.h>
 
 /* Kernel includes. */
 #include "FreeRTOS.h"
@@ -120,6 +119,7 @@
 #define sampleazureiotCOMMAND_START_TIME                      "startTime"
 #define sampleazureiotCOMMAND_END_TIME                        "endTime"
 #define sampleazureiotCOMMAND_EMPTY_PAYLOAD                   "{}"
+#define sampleazureiotCOMMAND_FAKE_END_TIME                   "2023-01-10T10:00:00Z"
 
 /**
  *@brief The Telemetry message published in this example.
@@ -202,7 +202,6 @@ static double xDeviceAverageTemperature = sampleazureiotDEFAULT_START_TEMP_CELSI
 /* Command Values */
 static uint8_t ucCommandPayloadBuffer[ 256 ];
 static uint8_t ucCommandStartTimeValueBuffer[ 32 ];
-static uint8_t ucCommandEndTimeValueBuffer[ 32 ];
 
 /* Property Values */
 static uint8_t ucPropertyPayloadBuffer[ 256 ];
@@ -278,8 +277,6 @@ static AzureIoTResult_t prvInvokeMaxMinCommand( AzureIoTJSONReader_t * xReader,
 {
     AzureIoTResult_t xResult;
     uint32_t ulSinceTimeLength;
-    time_t xRawTime;
-    struct tm * pxTimeInfo;
     size_t xEndTimeLength;
 
     /* Get the start time */
@@ -291,18 +288,6 @@ static AzureIoTResult_t prvInvokeMaxMinCommand( AzureIoTJSONReader_t * xReader,
                                                      ucCommandStartTimeValueBuffer,
                                                      sizeof( ucCommandStartTimeValueBuffer ),
                                                      &ulSinceTimeLength );
-    }
-
-    if( xResult == eAzureIoTSuccess )
-    {
-        /* Get the current time as a string. */
-        time( &xRawTime );
-        pxTimeInfo = localtime( &xRawTime );
-        xEndTimeLength = strftime(
-            ucCommandEndTimeValueBuffer,
-            sizeof( ucCommandEndTimeValueBuffer ),
-            sampleazureiotDATE_TIME_FORMAT,
-            pxTimeInfo );
     }
 
     if( xResult == eAzureIoTSuccess )
@@ -340,9 +325,11 @@ static AzureIoTResult_t prvInvokeMaxMinCommand( AzureIoTJSONReader_t * xReader,
 
     if( xResult == eAzureIoTSuccess )
     {
+        /* Faking the end time to simplify dependencies on <time.h> */
         xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( xWriter, sampleazureiotCOMMAND_END_TIME,
                                                                     strlen( sampleazureiotCOMMAND_END_TIME ),
-                                                                    ucCommandEndTimeValueBuffer, xEndTimeLength );
+                                                                    sampleazureiotCOMMAND_FAKE_END_TIME,
+                                                                    strlen( sampleazureiotCOMMAND_FAKE_END_TIME ) );
     }
 
     if( xResult == eAzureIoTSuccess )
