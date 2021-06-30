@@ -615,6 +615,7 @@ static void prvAckIncomingTemperature( double xUpdatedTemperature,
     configASSERT( xResult == eAzureIoTSuccess );
 
     lBytesWritten = AzureIoTJSONWriter_GetBytesUsed( &xWriter );
+    configASSERT( lBytesWritten > 0 );
 
     LogDebug( ( "Sending acknowledged writable property. Payload: %.*s", lBytesWritten, ucPropertyPayloadBuffer ) );
     xResult = AzureIoTHubClient_SendPropertiesReported( &xAzureIoTHubClient, ucPropertyPayloadBuffer, lBytesWritten, NULL );
@@ -667,7 +668,7 @@ static void prvHandleProperties( AzureIoTHubClientPropertiesResponse_t * pxMessa
             break;
 
         case eAzureIoTHubPropertiesWritablePropertyMessage:
-            LogInfo( ( "Device writeable property received" ) );
+            LogDebug( ( "Device writeable property received" ) );
             xResult = prvProcessProperties( pxMessage, eAzureIoTHubClientPropertyWritable, &xIncomingTemperature, &ulVersion );
 
             if( xResult == eAzureIoTSuccess )
@@ -688,11 +689,11 @@ static void prvHandleProperties( AzureIoTHubClientPropertiesResponse_t * pxMessa
             break;
 
         case eAzureIoTHubPropertiesReportedResponseMessage:
-            LogInfo( ( "Device reported property response received" ) );
+            LogDebug( ( "Device reported property response received" ) );
             break;
 
         default:
-            LogError( ( "Unknown property message" ) );
+            LogError( ( "Unknown property message: 0x%08x", pxMessage->xMessageType ) );
             configASSERT( false );
     }
 }
