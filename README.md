@@ -17,10 +17,12 @@ Below you will find samples for development kits and simulators showing how to u
 
 * STMicroelectronics:
   * [B-L475E-IOT01A](demos/projects/ST/b-l475e-iot01a/)
+  * [B-L4S5I-IOT01A](demos/projects/ST/b-l4s5i-iot01a/)
+  * [STM32H745I-DISCO](demos/projects/ST/stm32h745i_discovery/)
 
 * PC Simulation:
   * [Linux](demos/projects/PC/linux/)
-
+  * [Windows](demos/projects/PC/windows/)
 ## Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a

@@ -133,8 +133,7 @@ if(NOT (TARGET FreeRTOSPlus::TCPIP))
         ${FreeRTOSPlus_PATH}/Source/FreeRTOS-Plus-TCP/FreeRTOS_UDP_IP.c
         ${FreeRTOSPlus_PATH}/Source/FreeRTOS-Plus-TCP/FreeRTOS_Sockets.c)
     target_include_directories(FreeRTOSPlus::TCPIP INTERFACE
-        ${FreeRTOSPlus_PATH}/Source/FreeRTOS-Plus-TCP/include/
-        ${FreeRTOSPlus_PATH}/Source/FreeRTOS-Plus-TCP/portable/Compiler/GCC/)
+        ${FreeRTOSPlus_PATH}/Source/FreeRTOS-Plus-TCP/include/)
 endif()
 
 if(NOT (TARGET FreeRTOSPlus::TCPIP::PORT))

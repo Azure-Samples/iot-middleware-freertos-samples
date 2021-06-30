@@ -23,6 +23,18 @@
             "preLaunchTask": "Build Linux"
         },
         {
+            "name": "Windows",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/windows/demos/projects/PC/windows/Debug/iot-middleware-sample.exe",
+            "args": [],
+            "stopAtEntry": true,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "preLaunchTask": "Build Windows"
+        },
+        {
             "name": "STM L475E: Local OpenOCD",
             "type": "cortex-debug",
             "request": "launch",

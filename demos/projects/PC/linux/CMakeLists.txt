@@ -16,7 +16,8 @@ target_sources(FreeRTOSPlus::TCPIP::PORT INTERFACE
     ${FreeRTOSPlus_PATH}/Source/FreeRTOS-Plus-TCP/portable/BufferManagement/BufferAllocation_2.c
     ${FreeRTOSPlus_PATH}/Source/FreeRTOS-Plus-TCP/portable/NetworkInterface/linux/NetworkInterface.c)
 target_include_directories(FreeRTOSPlus::TCPIP::PORT INTERFACE 
-    ${FreeRTOSPlus_PATH}/Source/FreeRTOS-Plus-TCP/portable/NetworkInterface/linux/)
+    ${FreeRTOSPlus_PATH}/Source/FreeRTOS-Plus-TCP/portable/NetworkInterface/linux/
+    ${FreeRTOSPlus_PATH}/Source/FreeRTOS-Plus-TCP/portable/Compiler/GCC/)
 
 # Add demo files and dependencies
 add_executable(${PROJECT_NAME} main.c)

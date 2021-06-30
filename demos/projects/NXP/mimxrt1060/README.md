@@ -82,7 +82,7 @@ To build the device image, navigate to the `iot-middleware-freertos-samples` dir
   cmake --build mimxrt1060
   ```
 
-After the build completes, confirm that a folder named `/mimxrt1060/` was created and it contains a file named `iot-middleware-sample.bin`. 
+After the build completes, confirm that a folder named `mimxrt1060/` was created and it contains a file named `demo/projects/NXP/mimxrt1060/iot-middleware-sample.bin`. 
 
 ## Flash the image
 

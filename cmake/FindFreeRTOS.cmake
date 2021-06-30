@@ -5,7 +5,7 @@
 
 if(NOT FreeRTOS_FIND_COMPONENTS)
     set(FreeRTOS_FIND_COMPONENTS
-        ARM_CM0 ARM_CM3 ARM_CM4F ARM_CM7 Posix
+        ARM_CM0 ARM_CM3 ARM_CM4F ARM_CM7 Posix MSVC-MingW
     )
 endif()
 list(REMOVE_DUPLICATES FreeRTOS_FIND_COMPONENTS)
@@ -77,7 +77,7 @@ foreach(PORT ${FreeRTOS_FIND_COMPONENTS})
     find_path(FreeRTOS_${PORT}_PATH
         NAMES portmacro.h
         PATHS "${FREERTOS_PATH}" "${FREERTOS_PATH}/FreeRTOS" 
-        PATH_SUFFIXES "Source/portable/GCC/${PORT}"  "Source/portable/GCC/${PORT}/r0p1" "Source/portable/ThirdParty/GCC/${PORT}"
+        PATH_SUFFIXES "Source/portable/GCC/${PORT}"  "Source/portable/GCC/${PORT}/r0p1" "Source/portable/ThirdParty/GCC/${PORT}" "Source/portable/${PORT}"
         NO_DEFAULT_PATH
     )
     list(APPEND FreeRTOS_INCLUDE_DIRS "${FreeRTOS_${PORT}_PATH}")
