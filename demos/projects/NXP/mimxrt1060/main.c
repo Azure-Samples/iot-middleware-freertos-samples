@@ -146,11 +146,9 @@ static void prvNetworkUp( void );
 static void prvInitializeHeap( void )
 {
     static uint8_t ucHeap1[ configTOTAL_HEAP_SIZE ];
-    static uint8_t ucHeap2[ 25 * 1024 ];
 
     HeapRegion_t xHeapRegions[] =
     {
-        { ( unsigned char * ) ucHeap2, sizeof( ucHeap2 ) },
         { ( unsigned char * ) ucHeap1, sizeof( ucHeap1 ) },
         { NULL,                        0                 }
     };
