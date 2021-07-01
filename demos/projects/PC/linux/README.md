@@ -1,5 +1,9 @@
 # Use Linux to simulate a device using Azure IoT Middleware for FreeRTOS
 
+## Prerequisite Note
+
+If using WSL to build this project, it is **HIGHLY** recommended to clone the project to the file system inside the WSL instance. Do not clone the repo to your Windows file system and open the WSL working directory to a Windows formatted directory. Clone times, build times, directory max lengths, among other problems may arise.
+
 ## Get the middleware
 
 Clone the following repo to download all sample device code, setup scripts, and offline versions of the documentation.
