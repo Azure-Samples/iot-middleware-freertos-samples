@@ -1,6 +1,7 @@
 # Azure IoT samples using Azure IoT Middleware for FreeRTOS
 
 <!-- markdown-link-check-disable -->
+[![Windows CI Tests](https://github.com/Azure-Samples/iot-middleware-freertos-samples/actions/workflows/ms_build.yml/badge.svg)](https://github.com/Azure-Samples/iot-middleware-freertos-samples/actions/workflows/ms_build.yml)
 [![Linux CI Tests](https://github.com/Azure-Samples/iot-middleware-freertos-samples/actions/workflows/ci_tests_linux.yml/badge.svg)](https://github.com/Azure-Samples/iot-middleware-freertos-samples/actions/workflows/ci_tests_linux.yml)
 <!-- markdown-link-check-enable-->
 
