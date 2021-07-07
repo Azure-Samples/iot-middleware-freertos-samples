@@ -1,5 +1,5 @@
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// SPDX-License-Identifier: MIT
+/* Copyright (c) Microsoft Corporation.
+   Licensed under the MIT License. */
 
 #ifndef DEMO_CONFIG_H
 #define DEMO_CONFIG_H
