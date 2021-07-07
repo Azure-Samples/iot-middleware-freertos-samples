@@ -277,7 +277,6 @@ static AzureIoTResult_t prvInvokeMaxMinCommand( AzureIoTJSONReader_t * pxReader,
 {
     AzureIoTResult_t xResult;
     uint32_t ulSinceTimeLength;
-    size_t xEndTimeLength;
 
     /* Get the start time */
     if( ( xResult = AzureIoTJSONReader_NextToken( pxReader ) )
@@ -549,7 +548,7 @@ static void prvSendNewMaxTemp( double xUpdatedTemperature )
     xResult = AzureIoTJSONWriter_AppendBeginObject( &xWriter );
     configASSERT( xResult == eAzureIoTSuccess );
 
-    xResult = AzureIoTJSONWriter_AppendPropertyName( &xWriter, sampleazureiotPROPERTY_MAX_TEMPERATURE_TEXT,
+    xResult = AzureIoTJSONWriter_AppendPropertyName( &xWriter, ( const uint8_t * ) sampleazureiotPROPERTY_MAX_TEMPERATURE_TEXT,
                                                      strlen( sampleazureiotPROPERTY_MAX_TEMPERATURE_TEXT ) );
     configASSERT( xResult == eAzureIoTSuccess );
 
@@ -726,7 +725,6 @@ static uint32_t prvSetupNetworkCredentials( NetworkCredentials_t * pxNetworkCred
 static void prvAzureDemoTask( void * pvParameters )
 {
     uint32_t ulScratchBufferLength = 0U;
-    const uint32_t ulMaxPublishCount = 10UL;
     NetworkCredentials_t xNetworkCredentials = { 0 };
     AzureIoTTransportInterface_t xTransport;
     NetworkContext_t xNetworkContext = { 0 };
