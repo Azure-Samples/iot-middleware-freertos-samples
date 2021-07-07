@@ -1,0 +1,25 @@
+{
+    "version": 2,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 20,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "name": "STM",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/b-l475e-iot01a",
+            "cacheVariables": {
+                "VENDOR": "ST",
+                "BOARD": "b-l475e-iot01a"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "STM",
+            "configurePreset": "STM"
+        }
+    ]
+}
