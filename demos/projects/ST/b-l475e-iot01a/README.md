@@ -1,3 +1,5 @@
+//STM475
+
 # Connect a STMicroelectronics B-L475E-IOT01A Discovery kit using Azure IoT Middleware for FreeRTOS
 
 ## What you need
@@ -62,7 +64,7 @@ Parameter | Value
  `WIFI_SSID` | _{Your Wi-Fi SSID}_
  `WIFI_PASSWORD` | _{Your Wi-Fi Password}_ 
 
-If you're using a device previously created in your **IoT Hub** with SAS authentication, disable DPS by commeting out line #53 (`#define democonfigENABLE_DPS_SAMPLE`) and set the following parameters:
+If you're using a device previously created in your **IoT Hub** with SAS authentication, disable DPS by commenting out line #53 (`#define democonfigENABLE_DPS_SAMPLE`) and set the following parameters:
 
 Parameter | Value 
 ---------|----------
