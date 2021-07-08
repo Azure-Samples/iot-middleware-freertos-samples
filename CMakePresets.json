@@ -7,7 +7,7 @@
     },
     "configurePresets": [
         {
-            "name": "STM",
+            "name": "b-l475e-iot01a",
             "generator": "Ninja",
             "binaryDir": "${sourceDir}/b-l475e-iot01a",
             "cacheVariables": {
@@ -18,8 +18,8 @@
     ],
     "buildPresets": [
         {
-            "name": "STM",
-            "configurePreset": "STM"
+            "name": "b-l475e-iot01a",
+            "configurePreset": "b-l475e-iot01a"
         }
     ]
 }
