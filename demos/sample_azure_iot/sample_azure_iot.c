@@ -79,7 +79,7 @@
 /**
  * @brief The reported property payload to send to IoT Hub
  */
-#define sampleazureiotPROPERTY                           "{ \"PropertyIterationForCurrentConnection\": \"%d\" }"
+#define sampleazureiotPROPERTY                                "{ \"PropertyIterationForCurrentConnection\": \"%d\" }"
 
 /**
  * @brief Time in ticks to wait between each cycle of the demo implemented
@@ -149,7 +149,7 @@ static AzureIoTHubClient_t xAzureIoTHubClient;
 /**
  * @brief Gets the IoT Hub endpoint and deviceId from Provisioning service.
  *   This function will block for Provisioning service for result or return failure.
- * 
+ *
  * @param[in] pXNetworkCredentials  Network credential used to connect to Provisioning service
  * @param[out] ppucIothubHostname  Pointer to uint8_t* IoT Hub hostname return from Provisioning Service
  * @param[in,out] pulIothubHostnameLength  Length of hostname
@@ -174,11 +174,11 @@ static void prvAzureDemoTask( void * pvParameters );
 
 /**
  * @brief Connect to endpoint with reconnection retries.
- * 
+ *
  * If connection fails, retry is attempted after a timeout.
  * Timeout value will exponentially increase until maximum
  * timeout value is reached or the number of attempts are exhausted.
- * 
+ *
  * @param pcHostName Hostname of the endpoint to connect to.
  * @param ulPort Endpoint port.
  * @param pxNetworkCredentials Pointer to Network credentials.
@@ -216,7 +216,7 @@ static void prvHandleCloudMessage( AzureIoTHubClientCloudToDeviceMessageRequest_
  * @brief Command message callback handler
  */
 static void prvHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
-                                   void * pvContext )
+                              void * pvContext )
 {
     LogInfo( ( "Command payload : %.*s \r\n",
                pxMessage->ulPayloadLength,
@@ -225,7 +225,7 @@ static void prvHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
     AzureIoTHubClient_t * xHandle = ( AzureIoTHubClient_t * ) pvContext;
 
     if( AzureIoTHubClient_SendCommandResponse( xHandle, pxMessage, 200,
-                                              NULL, 0 ) != eAzureIoTSuccess )
+                                               NULL, 0 ) != eAzureIoTSuccess )
     {
         LogInfo( ( "Error sending command response\r\n" ) );
     }
@@ -345,8 +345,8 @@ static void prvAzureDemoTask( void * pvParameters )
          * connection cannot be established to the IoT Hub after the configured
          * number of attempts. */
         ulStatus = prvConnectToServerWithBackoffRetries( ( const char * ) pucIotHubHostname,
-                                                          democonfigIOTHUB_PORT,
-                                                          &xNetworkCredentials, &xNetworkContext );
+                                                         democonfigIOTHUB_PORT,
+                                                         &xNetworkCredentials, &xNetworkContext );
         configASSERT( ulStatus == 0 );
 
         /* Fill in Transport Interface send and receive function pointers. */
@@ -392,7 +392,7 @@ static void prvAzureDemoTask( void * pvParameters )
         configASSERT( xResult == eAzureIoTSuccess );
 
         xResult = AzureIoTHubClient_SubscribeCommand( &xAzureIoTHubClient, prvHandleCommand,
-                                                           &xAzureIoTHubClient, sampleazureiotSUBSCRIBE_TIMEOUT );
+                                                      &xAzureIoTHubClient, sampleazureiotSUBSCRIBE_TIMEOUT );
         configASSERT( xResult == eAzureIoTSuccess );
 
         xResult = AzureIoTHubClient_SubscribeProperties( &xAzureIoTHubClient, prvHandlePropertiesMessage,
@@ -430,7 +430,7 @@ static void prvAzureDemoTask( void * pvParameters )
             {
                 /* Send reported property every other cycle */
                 ulScratchBufferLength = snprintf( ( char * ) ucScratchBuffer, sizeof( ucScratchBuffer ),
-                                                  sampleazureiotPROPERTY, lPublishCount/2 + 1 );
+                                                  sampleazureiotPROPERTY, lPublishCount / 2 + 1 );
                 xResult = AzureIoTHubClient_SendPropertiesReported( &xAzureIoTHubClient,
                                                                     ucScratchBuffer, ulScratchBufferLength,
                                                                     NULL );
@@ -472,10 +472,10 @@ static void prvAzureDemoTask( void * pvParameters )
 
 #ifdef democonfigENABLE_DPS_SAMPLE
 
-    /**
-    * @brief Get IoT Hub endpoint and device Id info, when Provisioning service is used.
-    *   This function will block for Provisioning service for result or return failure.
-    */
+/**
+ * @brief Get IoT Hub endpoint and device Id info, when Provisioning service is used.
+ *   This function will block for Provisioning service for result or return failure.
+ */
     static uint32_t prvIoTHubInfoGet( NetworkCredentials_t * pXNetworkCredentials,
                                       uint8_t ** ppucIothubHostname,
                                       uint32_t * pulIothubHostnameLength,
@@ -520,7 +520,7 @@ static void prvAzureDemoTask( void * pvParameters )
                                                                   sizeof( democonfigDEVICE_SYMMETRIC_KEY ) - 1,
                                                                   Crypto_HMAC );
             configASSERT( xResult == eAzureIoTSuccess );
-        #endif // democonfigDEVICE_SYMMETRIC_KEY
+        #endif /* democonfigDEVICE_SYMMETRIC_KEY */
 
         do
         {
@@ -548,12 +548,12 @@ static void prvAzureDemoTask( void * pvParameters )
         return 0;
     }
 
-#endif // democonfigENABLE_DPS_SAMPLE
+#endif /* democonfigENABLE_DPS_SAMPLE */
 /*-----------------------------------------------------------*/
 
 /**
-* @brief Connect to server with backoff retries.
-*/
+ * @brief Connect to server with backoff retries.
+ */
 static uint32_t prvConnectToServerWithBackoffRetries( const char * pcHostName,
                                                       uint32_t port,
                                                       NetworkCredentials_t * pxNetworkCredentials,
