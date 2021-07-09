@@ -38,3 +38,23 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     SAMPLE::AZUREIOT
     SAMPLE::TRANSPORT::MBEDTLS
     SAMPLE::SOCKET::FREERTOSTCPIP)
+
+# Add demo files and dependencies for PnP sample
+add_executable(${PROJECT_NAME}-pnp main.c)
+target_include_directories(${PROJECT_NAME}-pnp PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/WinPCap)
+target_link_libraries(${PROJECT_NAME}-pnp PRIVATE
+    FreeRTOS::Timers
+    FreeRTOS::Heap::4
+    FreeRTOS::EventGroups
+    FreeRTOS::MSVC-MingW
+    FreeRTOSPlus::Utilities::backoff_algorithm
+    FreeRTOSPlus::Utilities::logging
+    FreeRTOSPlus::ThirdParty::mbedtls
+    FreeRTOSPlus::TCPIP
+    FreeRTOSPlus::TCPIP::PORT
+    az::iot_middleware::freertos
+    ${CMAKE_CURRENT_SOURCE_DIR}/WinPCap/wpcap.lib
+    Bcrypt.lib
+    SAMPLE::AZUREIOTPNP
+    SAMPLE::TRANSPORT::MBEDTLS
+    SAMPLE::SOCKET::FREERTOSTCPIP)

@@ -214,6 +214,17 @@ static void prvSRand( UBaseType_t ulSeed )
 }
 /*-----------------------------------------------------------*/
 
+UBaseType_t uxRand( void )
+{
+    const uint32_t ulMultiplier = 0x015a4e35UL, ulIncrement = 1UL;
+
+    /* Utility function to generate a pseudo random number. */
+
+    ulNextRand = ( ulMultiplier * ulNextRand ) + ulIncrement;
+    return( ( int ) ( ulNextRand >> 16UL ) & 0x7fffUL );
+}
+/*-----------------------------------------------------------*/
+
 static void prvMiscInitialisation( void )
 {
     time_t xTimeNow;
@@ -292,7 +303,7 @@ extern uint32_t ulApplicationGetNextSequenceNumber( uint32_t ulSourceAddress,
     ( void ) ulDestinationAddress;
     ( void ) usDestinationPort;
 
-    return configRAND32();
+    return (uint32_t) configRAND32();
 }
 /*-----------------------------------------------------------*/
 
@@ -307,7 +318,7 @@ extern uint32_t ulApplicationGetNextSequenceNumber( uint32_t ulSourceAddress,
  */
 BaseType_t xApplicationGetRandomNumber( uint32_t * pulNumber )
 {
-    *pulNumber = configRAND32();
+    *pulNumber = (uint32_t) configRAND32();
     return pdTRUE;
 }
 /*-----------------------------------------------------------*/

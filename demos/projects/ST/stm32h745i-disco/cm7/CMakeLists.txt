@@ -74,3 +74,49 @@ add_custom_command(TARGET ${PROJECT_NAME}
     COMMAND ${CMAKE_OBJCOPY} -Obinary $<TARGET_FILE:${PROJECT_NAME}> ${PROJECT_NAME}.bin
     COMMENT "Generate Bin file"
     VERBATIM)
+
+# PnP Sample
+add_executable(${PROJECT_NAME}-pnp ${PROJECT_SOURCES})
+target_include_directories(${PROJECT_NAME}-pnp PUBLIC
+    .
+    st_code
+    st_code/lwip/App
+    st_code/lwip/Target
+    st_code/lwip/system)
+target_link_libraries(${PROJECT_NAME}-pnp PRIVATE
+    FreeRTOS::Timers
+    FreeRTOS::Heap::5
+    FreeRTOS::ARM_CM7
+    FreeRTOSPlus::Utilities::backoff_algorithm
+    FreeRTOSPlus::Utilities::logging
+    FreeRTOSPlus::ThirdParty::mbedtls
+    LWIP
+    HAL::STM32::H7::M7::RCC
+    HAL::STM32::H7::M7::RCCEx
+    HAL::STM32::H7::M7::SPI
+    HAL::STM32::H7::M7::RTC
+    HAL::STM32::H7::M7::UART
+    HAL::STM32::H7::M7::DMA
+    HAL::STM32::H7::M7::PWR
+    HAL::STM32::H7::M7::PWREx
+    HAL::STM32::H7::M7::GPIO
+    HAL::STM32::H7::M7::CORTEX
+    HAL::STM32::H7::M7::RNG
+    HAL::STM32::H7::M7::TIM
+    HAL::STM32::H7::M7::TIMEx
+    HAL::STM32::H7::M7::UARTEx
+    CMSIS::STM32::H745XI::M7
+    STM32::NoSys
+    az::iot_middleware::freertos
+    HAL::STM32::H7::M7::ETH
+    BSP::STM32::H7::M7::LAN8742
+    SAMPLE::AZUREIOTPNP
+    SAMPLE::TRANSPORT::MBEDTLS
+    SAMPLE::SOCKET::LWIP)
+
+add_custom_command(TARGET ${PROJECT_NAME}-pnp
+    # Run after all other rules within the target have been executed
+    POST_BUILD
+    COMMAND ${CMAKE_OBJCOPY} -Obinary $<TARGET_FILE:${PROJECT_NAME}-pnp> ${PROJECT_NAME}-pnp.bin
+    COMMENT "Generate Bin file"
+    VERBATIM)
