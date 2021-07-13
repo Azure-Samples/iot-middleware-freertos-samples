@@ -353,4 +353,7 @@ MigrationBackup/
 /build
 /mimxrt1060
 /build_linux
+/build_windows
 /b-l475e-iot01a
+/b-l4s5i-iot01a
+/stm32h745i-disco
