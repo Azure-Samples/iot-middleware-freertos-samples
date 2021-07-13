@@ -12,7 +12,7 @@ string(TOUPPER ${BOARD} BOARD_U)
 if(NOT (TARGET SAMPLE::AZUREIOT))
     add_library(SAMPLE::AZUREIOT INTERFACE IMPORTED)
     target_sources(SAMPLE::AZUREIOT INTERFACE 
-        ${CMAKE_CURRENT_SOURCE_DIR}/sample_azure_iot_pnp/sample_azure_iot_pnp.c)
+        ${CMAKE_CURRENT_SOURCE_DIR}/sample_azure_iot_gsg/sample_azure_iot_gsg.c)
 endif()
 
 # Target for freertos tcpip socket
