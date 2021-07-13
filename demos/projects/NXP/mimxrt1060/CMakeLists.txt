@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # SPDX-License-Identifier: MIT
 
-set(MCUX_SDK_PROJECT_NAME ${PROJECT_NAME})
+set(MCUX_SDK_PROJECT_NAME ${PROJECT_NAME}-pnp)
 
 nxp_mcux_sdk_fetch()
 lwip_fetch()
@@ -23,7 +23,7 @@ include_directories(nxp_code/lwip)
 file(GLOB NXPCODE_SOURCES nxp_code/*.c nxp_code/lwip/*.c)
 set(PROJECT_SOURCES ${NXPCODE_SOURCES} main.c)
 
-add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
+add_executable(${PROJECT_NAME}-pnp ${PROJECT_SOURCES})
 
 # configure modules
 set(CONFIG_USE_driver_lpuart true)
@@ -90,7 +90,7 @@ include(driver_phy-common)
 
 include(driver_dcp)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE
+target_link_libraries(${PROJECT_NAME}-pnp PRIVATE
     FreeRTOS::Timers
     FreeRTOS::Heap::5
     FreeRTOS::ARM_CM4F
@@ -104,9 +104,9 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     SAMPLE::AZUREIOTPNP
     SAMPLE::TRANSPORT::MBEDTLS)
 
-add_custom_command(TARGET ${PROJECT_NAME}
+add_custom_command(TARGET ${PROJECT_NAME}-pnp
     # Run after all other rules within the target have been executed
     POST_BUILD
-    COMMAND ${CMAKE_OBJCOPY} -Obinary $<TARGET_FILE:${PROJECT_NAME}> ${PROJECT_NAME}.bin
+    COMMAND ${CMAKE_OBJCOPY} -Obinary $<TARGET_FILE:${PROJECT_NAME}-pnp> ${PROJECT_NAME}-pnp.bin
     COMMENT "Generate Bin file"
     VERBATIM)
