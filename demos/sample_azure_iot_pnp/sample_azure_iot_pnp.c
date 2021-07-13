@@ -747,6 +747,31 @@ static uint32_t prvSetupNetworkCredentials( NetworkCredentials_t * pxNetworkCred
 }
 /*-----------------------------------------------------------*/
 
+void prvCreateTelemetryPayload(uint8_t * pucBuffer, uint32_t ulBufferLength, uint32_t * pulOutputBufferLength)
+{
+    /* Initialize the JSON writer with the buffer to which we will write the telemetry payload. */
+    AzureIoTResult_t xResult;
+    AzureIoTJSONWriter_t xWriter;
+
+    xResult = AzureIoTJSONWriter_Init( &xWriter, pucBuffer, ulBufferLength );
+    configASSERT( xResult == eAzureIoTSuccess );
+
+    xResult = AzureIoTJSONWriter_AppendBeginObject( &xWriter );
+    configASSERT( xResult == eAzureIoTSuccess );
+
+    xResult = AzureIoTJSONWriter_AppendPropertyName( &xWriter, ( const uint8_t * ) sampleazureiotTELEMETRY_NAME,
+                                                     sizeof( sampleazureiotTELEMETRY_NAME ) - 1 );
+    configASSERT( xResult == eAzureIoTSuccess );
+
+    xResult = AzureIoTJSONWriter_AppendDouble( &xWriter, xDeviceCurrentTemperature, sampleazureiotDOUBLE_DECIMAL_PLACE_DIGITS );
+    configASSERT( xResult == eAzureIoTSuccess );
+
+    xResult = AzureIoTJSONWriter_AppendEndObject( &xWriter );
+    configASSERT( xResult == eAzureIoTSuccess );
+
+    *pulOutputBufferLength = AzureIoTJSONWriter_GetBytesUsed( &xWriter );
+}
+
 /**
  * @brief Azure IoT demo task that gets started in the platform specific project.
  *  In this demo task, middleware API's are used to connect to Azure IoT Hub and
@@ -865,8 +890,8 @@ static void prvAzureDemoTask( void * pvParameters )
         /* Publish messages with QoS1, send and process Keep alive messages. */
         for( ; ; )
         {
-            ulScratchBufferLength = snprintf( ( char * ) ucScratchBuffer, sizeof( ucScratchBuffer ),
-                                              sampleazureiotMESSAGE, xDeviceCurrentTemperature );
+            prvCreateTelemetryPayload(ucScratchBuffer, sizeof(ucScratchBuffer), &ulScratchBufferLength);
+
             xResult = AzureIoTHubClient_SendTelemetry( &xAzureIoTHubClient,
                                                        ucScratchBuffer, ulScratchBufferLength,
                                                        NULL, eAzureIoTHubMessageQoS1, NULL );
