@@ -1,9 +1,3 @@
-/*REMOVE */
-
-/*
- * uncrustify -c ./libs/azure-iot-middleware-freertos/uncrustify.cfg --no-backup --replace demos/sample_azure_iot_gsg/sample_azure_iot_gsg.c
- */
-
 /* Copyright (c) Microsoft Corporation.
  * Licensed under the MIT License. */
 
@@ -17,13 +11,10 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-/* Demo Specific configs. */
-#include "demo_config.h"
-
 /* Azure Provisioning/IoT Hub library includes */
 #include "azure_iot_hub_client.h"
-#include "azure_iot_provisioning_client.h"
 #include "azure_iot_hub_client_properties.h"
+#include "azure_iot_provisioning_client.h"
 
 /* Azure JSON includes */
 #include "azure_iot_json_reader.h"
@@ -37,6 +28,9 @@
 
 /* Crypto helper header. */
 #include "crypto.h"
+
+/* Demo specific configs. */
+#include "demo_config.h"
 /*-----------------------------------------------------------*/
 
 /* Compile time error for undefined configs. */
@@ -59,63 +53,45 @@
 #if !defined( democonfigDEVICE_SYMMETRIC_KEY ) && !defined( democonfigCLIENT_CERTIFICATE_PEM )
     #error "Please define one auth democonfigDEVICE_SYMMETRIC_KEY or democonfigCLIENT_CERTIFICATE_PEM in demo_config.h."
 #endif
-
 /*-----------------------------------------------------------*/
 
 /**
  * @brief The maximum number of retries for network operation with server.
  */
-#define sampleazureiotRETRY_MAX_ATTEMPTS            ( 5U )
+#define sampleazureiotRETRY_MAX_ATTEMPTS                      ( 5U )
 
 /**
  * @brief The maximum back-off delay (in milliseconds) for retrying failed operation
  *  with server.
  */
-#define sampleazureiotRETRY_MAX_BACKOFF_DELAY_MS    ( 5000U )
+#define sampleazureiotRETRY_MAX_BACKOFF_DELAY_MS              ( 5000U )
 
 /**
  * @brief The base back-off delay (in milliseconds) to use for network operation retry
  * attempts.
  */
-#define sampleazureiotRETRY_BACKOFF_BASE_MS         ( 500U )
+#define sampleazureiotRETRY_BACKOFF_BASE_MS                   ( 500U )
 
 /**
  * @brief Timeout for receiving CONNACK packet in milliseconds.
  */
-#define sampleazureiotCONNACK_RECV_TIMEOUT_MS       ( 10 * 1000U )
+#define sampleazureiotCONNACK_RECV_TIMEOUT_MS                 ( 10 * 1000U )
 
 /**
  * @brief The model id for this sample
  *
  */
-#define sampleazureiotMODEL_ID                      "dtmi:azurertos:devkit:gsg;2"
+#define sampleazureiotMODEL_ID                                "dtmi:freertos:devkit:gsgstml475;1"
 
 /**
  * @brief Date-time to use for the model id
  */
-#define sampleazureiotDATE_TIME_FORMAT              "%Y-%m-%dT%H:%M:%S.000Z"
-
-/**
- * @brief Telemetry values
- */
-#define sampleazureiotTELEMETRY_NAME                "temperature"
+#define sampleazureiotDATE_TIME_FORMAT                        "%Y-%m-%dT%H:%M:%S.000Z"
 
 /**
  * @brief Property Values
  */
-#define sampleazureiotPROPERTY_SUCCESS              "success"
-
-#define TELEMETRY_INTERVAL_PROPERTY    "telemetryInterval"
-#define LED_STATE_PROPERTY             "ledState"
-#define SET_LED_STATE_COMMAND          "setLedState"
-
-#define TRUE                           "true"
-#define FALSE                          "false"
-
-/**
- *@brief The Telemetry message published in this example.
- */
-#define sampleazureiotMESSAGE          "{\"" sampleazureiotTELEMETRY_NAME "\":%0.2f}"
+#define sampleazureiotPROPERTY_SUCCESS                        "success"
 
 /**
  * @brief The payload to send to the Device Provisioning Service
@@ -158,6 +134,24 @@
 #define sampleazureiotSUBSCRIBE_TIMEOUT                       ( 10 * 1000U )
 /*-----------------------------------------------------------*/
 
+#define TRUE                                                  ( "true" )
+#define FALSE                                                 ( "false" )
+
+#define TELEMETRY_INTERVAL_PROPERTY                           ( "telemetryInterval" )
+#define LED_STATE_PROPERTY                                    ( "ledState" )
+#define SET_LED_STATE_COMMAND                                 ( "setLedState" )
+
+#define DEVICE_INFORMATION_NAME                               ( "deviceInformation" )
+#define MANUFACTURER_PROPERTY_NAME                            ( "manufacturer" )
+#define MODEL_PROPERTY_NAME                                   ( "model" )
+#define SOFTWARE_VERSION_PROPERTY_NAME                        ( "swVersion" )
+#define OS_NAME_PROPERTY_NAME                                 ( "osName" )
+#define PROCESSOR_ARCHITECTURE_PROPERTY_NAME                  ( "processorArchitecture" )
+#define PROCESSOR_MANUFACTURER_PROPERTY_NAME                  ( "processorManufacturer" )
+#define TOTAL_STORAGE_PROPERTY_NAME                           ( "totalStorage" )
+#define TOTAL_MEMORY_PROPERTY_NAME                            ( "totalMemory" )
+/*-----------------------------------------------------------*/
+
 /**
  * @brief Unix time.
  *
@@ -175,14 +169,14 @@ uint64_t ullGetUnixTime( void );
 
 #endif /* democonfigENABLE_DPS_SAMPLE */
 
-/* Device values */
-static int32_t lTelemetryInterval = 5;
-
 /* scratch buffer */
 static uint8_t ucScratchBuffer[ 128 ];
 
 /* Property buffer */
 static uint8_t ucPropertyPayloadBuffer[ 512 ];
+
+/* Device values */
+static int32_t lTelemetryInterval = 5;
 
 /* Each compilation unit must define the NetworkContext struct. */
 struct NetworkContext
@@ -199,19 +193,100 @@ static AzureIoTHubClient_t xAzureIoTHubClient;
 static uint8_t ucMQTTMessageBuffer[ democonfigNETWORK_BUFFER_SIZE ];
 /*-----------------------------------------------------------*/
 
-#define DEVICE_INFORMATION_NAME                 ( "deviceInformation" )
-#define MANUFACTURER_PROPERTY_NAME              ( "manufacturer" )
-#define MODEL_PROPERTY_NAME                     ( "model" )
-#define SOFTWARE_VERSION_PROPERTY_NAME          ( "swVersion" )
-#define OS_NAME_PROPERTY_NAME                   ( "osName" )
-#define PROCESSOR_ARCHITECTURE_PROPERTY_NAME    ( "processorArchitecture" )
-#define PROCESSOR_MANUFACTURER_PROPERTY_NAME    ( "processorManufacturer" )
-#define TOTAL_STORAGE_PROPERTY_NAME             ( "totalStorage" )
-#define TOTAL_MEMORY_PROPERTY_NAME              ( "totalMemory" )
+static void prvReportLedState( bool xLedState )
+{
+    AzureIoTResult_t xResult;
+    AzureIoTJSONWriter_t xWriter;
+    int32_t lBytesWritten;
+
+    /* Update reported property */
+    xResult = AzureIoTJSONWriter_Init( &xWriter, ucPropertyPayloadBuffer, sizeof( ucPropertyPayloadBuffer ) );
+    configASSERT( xResult == eAzureIoTSuccess );
+
+    xResult = AzureIoTJSONWriter_AppendBeginObject( &xWriter );
+    configASSERT( xResult == eAzureIoTSuccess );
+
+    xResult = AzureIoTJSONWriter_AppendPropertyName( &xWriter, ( uint8_t * ) LED_STATE_PROPERTY,
+                                                     sizeof( LED_STATE_PROPERTY ) - 1 );
+    configASSERT( xResult == eAzureIoTSuccess );
+
+    xResult = AzureIoTJSONWriter_AppendBool( &xWriter, xLedState );
+    configASSERT( xResult == eAzureIoTSuccess );
+
+    xResult = AzureIoTJSONWriter_AppendEndObject( &xWriter );
+    configASSERT( xResult == eAzureIoTSuccess );
+
+    lBytesWritten = AzureIoTJSONWriter_GetBytesUsed( &xWriter );
+
+    if( lBytesWritten < 0 )
+    {
+        LogError( ( "Error getting the bytes written for the properties confirmation JSON" ) );
+        return;
+    }
+
+    xResult = AzureIoTHubClient_SendPropertiesReported( &xAzureIoTHubClient, ucPropertyPayloadBuffer, lBytesWritten, NULL );
+
+    if( xResult != eAzureIoTSuccess )
+    {
+        LogError( ( "There was an error sending the reported properties: 0x%08x", xResult ) );
+    }
+}
+/*-----------------------------------------------------------*/
+
+static void prvReportTelemetryInterval( int32_t lNewTelemetryInterval,
+                                        uint32_t ulVersion )
+{
+    AzureIoTResult_t xResult;
+    AzureIoTJSONWriter_t xWriter;
+    int32_t lBytesWritten;
+
+    xResult = AzureIoTJSONWriter_Init( &xWriter, ucPropertyPayloadBuffer, sizeof( ucPropertyPayloadBuffer ) );
+    configASSERT( xResult == eAzureIoTSuccess );
+
+    xResult = AzureIoTJSONWriter_AppendBeginObject( &xWriter );
+    configASSERT( xResult == eAzureIoTSuccess );
+
+    xResult = AzureIoTHubClientProperties_BuilderBeginResponseStatus( &xAzureIoTHubClient,
+                                                                      &xWriter,
+                                                                      ( uint8_t * ) TELEMETRY_INTERVAL_PROPERTY,
+                                                                      sizeof( TELEMETRY_INTERVAL_PROPERTY ) - 1,
+                                                                      200,
+                                                                      ulVersion,
+                                                                      ( uint8_t * ) sampleazureiotPROPERTY_SUCCESS,
+                                                                      sizeof( sampleazureiotPROPERTY_SUCCESS ) - 1 );
+    configASSERT( xResult == eAzureIoTSuccess );
+
+    xResult = AzureIoTJSONWriter_AppendInt32( &xWriter, lNewTelemetryInterval );
+    configASSERT( xResult == eAzureIoTSuccess );
+
+    xResult = AzureIoTHubClientProperties_BuilderEndResponseStatus( &xAzureIoTHubClient,
+                                                                    &xWriter );
+    configASSERT( xResult == eAzureIoTSuccess );
+
+    xResult = AzureIoTJSONWriter_AppendEndObject( &xWriter );
+    configASSERT( xResult == eAzureIoTSuccess );
+
+    lBytesWritten = AzureIoTJSONWriter_GetBytesUsed( &xWriter );
+
+    if( lBytesWritten < 0 )
+    {
+        LogError( ( "Error getting the bytes written for the properties confirmation JSON" ) );
+    }
+    else
+    {
+        LogDebug( ( "Sending acknowledged writable property. Payload: %.*s", lBytesWritten, ucPropertyPayloadBuffer ) );
+        xResult = AzureIoTHubClient_SendPropertiesReported( &xAzureIoTHubClient, ucPropertyPayloadBuffer, lBytesWritten, NULL );
+
+        if( xResult != eAzureIoTSuccess )
+        {
+            LogError( ( "There was an error sending the reported properties: 0x%08x", xResult ) );
+        }
+    }
+}
 
 /* pnp_device_info_build_property_payload builds the JSON payload that contains simulated */
 /* device information. */
-static void deviceInfoBuildPropertyPayload()
+static void prvDeviceInfoBuildPropertyPayload()
 {
     AzureIoTResult_t xResult;
     AzureIoTJSONWriter_t xWriter;
@@ -227,28 +302,36 @@ static void deviceInfoBuildPropertyPayload()
     xResult = AzureIoTHubClientProperties_BuilderBeginComponent( &xAzureIoTHubClient, &xWriter, ( const uint8_t * ) DEVICE_INFORMATION_NAME, strlen( DEVICE_INFORMATION_NAME ) );
     configASSERT( xResult == eAzureIoTSuccess );
 
-    xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) MANUFACTURER_PROPERTY_NAME, sizeof( MANUFACTURER_PROPERTY_NAME ) - 1, ( uint8_t * ) pcManufacturerPropertyValue, sizeof( pcManufacturerPropertyValue ) - 1 );
+    xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) MANUFACTURER_PROPERTY_NAME, sizeof( MANUFACTURER_PROPERTY_NAME ) - 1,
+                                                                ( uint8_t * ) pcManufacturerPropertyValue, strlen( pcManufacturerPropertyValue ) );
     configASSERT( xResult == eAzureIoTSuccess );
 
-    xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) MODEL_PROPERTY_NAME, sizeof( MODEL_PROPERTY_NAME ) - 1, ( uint8_t * ) pcModelPropertyValue, sizeof( pcModelPropertyValue ) - 1 );
+    xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) MODEL_PROPERTY_NAME, sizeof( MODEL_PROPERTY_NAME ) - 1,
+                                                                ( uint8_t * ) pcModelPropertyValue, strlen( pcModelPropertyValue ) );
     configASSERT( xResult == eAzureIoTSuccess );
 
-    xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) SOFTWARE_VERSION_PROPERTY_NAME, sizeof( SOFTWARE_VERSION_PROPERTY_NAME ) - 1, ( uint8_t * ) pcSoftwareVersionPropertyValue, sizeof( pcSoftwareVersionPropertyValue ) - 1 );
+    xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) SOFTWARE_VERSION_PROPERTY_NAME, sizeof( SOFTWARE_VERSION_PROPERTY_NAME ) - 1,
+                                                                ( uint8_t * ) pcSoftwareVersionPropertyValue, strlen( pcSoftwareVersionPropertyValue ) );
     configASSERT( xResult == eAzureIoTSuccess );
 
-    xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) OS_NAME_PROPERTY_NAME, sizeof( OS_NAME_PROPERTY_NAME ) - 1, ( uint8_t * ) pcOsNamePropertyValue, sizeof( pcOsNamePropertyValue ) - 1 );
+    xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) OS_NAME_PROPERTY_NAME, sizeof( OS_NAME_PROPERTY_NAME ) - 1,
+                                                                ( uint8_t * ) pcOsNamePropertyValue, strlen( pcOsNamePropertyValue ) );
     configASSERT( xResult == eAzureIoTSuccess );
 
-    xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) PROCESSOR_ARCHITECTURE_PROPERTY_NAME, sizeof( PROCESSOR_ARCHITECTURE_PROPERTY_NAME ) - 1, ( uint8_t * ) pcProcessorArchitecturePropertyValue, sizeof( pcProcessorArchitecturePropertyValue ) - 1 );
+    xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) PROCESSOR_ARCHITECTURE_PROPERTY_NAME, sizeof( PROCESSOR_ARCHITECTURE_PROPERTY_NAME ) - 1,
+                                                                ( uint8_t * ) pcProcessorArchitecturePropertyValue, strlen( pcProcessorArchitecturePropertyValue ) );
     configASSERT( xResult == eAzureIoTSuccess );
 
-    xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) PROCESSOR_MANUFACTURER_PROPERTY_NAME, sizeof( PROCESSOR_MANUFACTURER_PROPERTY_NAME ) - 1, ( uint8_t * ) pcProcessorManufacturerPropertyValue, sizeof( pcProcessorManufacturerPropertyValue ) - 1 );
+    xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) PROCESSOR_MANUFACTURER_PROPERTY_NAME, sizeof( PROCESSOR_MANUFACTURER_PROPERTY_NAME ) - 1,
+                                                                ( uint8_t * ) pcProcessorManufacturerPropertyValue, strlen( pcProcessorManufacturerPropertyValue ) );
     configASSERT( xResult == eAzureIoTSuccess );
 
-    xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( &xWriter, ( uint8_t * ) TOTAL_STORAGE_PROPERTY_NAME, sizeof( TOTAL_STORAGE_PROPERTY_NAME ) - 1, pxTotalStoragePropertyValue, 0 );
+    xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( &xWriter, ( uint8_t * ) TOTAL_STORAGE_PROPERTY_NAME, sizeof( TOTAL_STORAGE_PROPERTY_NAME ) - 1,
+                                                                pxTotalStoragePropertyValue, 0 );
     configASSERT( xResult == eAzureIoTSuccess );
 
-    xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( &xWriter, ( uint8_t * ) TOTAL_MEMORY_PROPERTY_NAME, sizeof( TOTAL_MEMORY_PROPERTY_NAME ) - 1, pxTotalMemoryPropertyValue, 0 );
+    xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( &xWriter, ( uint8_t * ) TOTAL_MEMORY_PROPERTY_NAME, sizeof( TOTAL_MEMORY_PROPERTY_NAME ) - 1,
+                                                                pxTotalMemoryPropertyValue, 0 );
     configASSERT( xResult == eAzureIoTSuccess );
 
     xResult = AzureIoTHubClientProperties_BuilderEndComponent( &xAzureIoTHubClient, &xWriter );
@@ -332,7 +415,6 @@ static void prvHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
     if( strncmp( SET_LED_STATE_COMMAND, ( const char * ) pxMessage->pucCommandName, strlen( SET_LED_STATE_COMMAND ) ) == 0 )
     {
         prvInvokeSetLedStateCommand( pxMessage );
-/*        prvInvokeSetLedStateCommand( pxMessage->pvMessagePayload, pxMessage->ulPayloadLength ); */
 
         if( AzureIoTHubClient_SendCommandResponse( pxHandle, pxMessage, 200,
                                                    NULL, 0 ) != eAzureIoTSuccess )
@@ -353,6 +435,21 @@ static void prvHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
 }
 /*-----------------------------------------------------------*/
 
+static void prvSkipPropertyAndValue( AzureIoTJSONReader_t * pxReader )
+{
+    AzureIoTResult_t xResult;
+
+    xResult = AzureIoTJSONReader_NextToken( pxReader );
+    configASSERT( xResult == eAzureIoTSuccess );
+
+    xResult = AzureIoTJSONReader_SkipChildren( pxReader );
+    configASSERT( xResult == eAzureIoTSuccess );
+
+    xResult = AzureIoTJSONReader_NextToken( pxReader );
+    configASSERT( xResult == eAzureIoTSuccess );
+}
+/*-----------------------------------------------------------*/
+
 /**
  * @brief Properties callback handler
  */
@@ -363,7 +460,6 @@ static AzureIoTResult_t prvProcessProperties( AzureIoTHubClientPropertiesRespons
 {
     AzureIoTResult_t xResult;
     AzureIoTJSONReader_t xReader;
-    AzureIoTJSONTokenType_t xTokenType;
     const uint8_t * pucComponentName = NULL;
     uint32_t ulComponentNameLength = 0;
 
@@ -388,43 +484,39 @@ static AzureIoTResult_t prvProcessProperties( AzureIoTHubClientPropertiesRespons
                                                                                  pxMessage->xMessageType, xPropertyType,
                                                                                  &pucComponentName, &ulComponentNameLength ) ) == eAzureIoTSuccess )
         {
-            xResult = AzureIoTJSONReader_TokenType( &xReader, &xTokenType );
-            configASSERT( xResult == eAzureIoTSuccess );
+            if( ulComponentNameLength > 0 )
+            {
+                LogInfo( ( "Unknown component name received %s", pucComponentName ) );
 
-            if( AzureIoTJSONReader_TokenIsTextEqual( &xReader,
-                                                     ( uint8_t * ) TELEMETRY_INTERVAL_PROPERTY,
-                                                     sizeof( TELEMETRY_INTERVAL_PROPERTY ) - 1 ) )
+                /* Unknown component name arrived (there are none for this device).
+                 * We have to skip over the property and value to continue iterating */
+                prvSkipPropertyAndValue( &xReader );
+            }
+            else if( AzureIoTJSONReader_TokenIsTextEqual( &xReader,
+                                                          ( uint8_t * ) TELEMETRY_INTERVAL_PROPERTY,
+                                                          sizeof( TELEMETRY_INTERVAL_PROPERTY ) - 1 ) )
             {
                 xResult = AzureIoTJSONReader_NextToken( &xReader );
                 configASSERT( xResult == eAzureIoTSuccess );
 
-                xResult = AzureIoTJSONReader_TokenType( &xReader, &xTokenType );
-                configASSERT( xResult == eAzureIoTSuccess );
-
-                if( xTokenType != eAzureIoTJSONTokenNUMBER )
-                {
-                    LogError( ( "Invalid value for telemetry interval" ) );
-                    xResult = eAzureIoTErrorFailed;
-                    break;
-                }
-
                 /* Get telemetry interval */
                 xResult = AzureIoTJSONReader_GetTokenInt32( &xReader, lOutTelemetryInterval );
-                configASSERT( xResult == eAzureIoTSuccess );
+
+                if( xResult != eAzureIoTSuccess )
+                {
+                    LogError( ( "Error getting the property: result 0x%08x", xResult ) );
+                    break;
+                }
 
                 xResult = AzureIoTJSONReader_NextToken( &xReader );
                 configASSERT( xResult == eAzureIoTSuccess );
             }
             else
             {
-                xResult = AzureIoTJSONReader_NextToken( &xReader );
-                configASSERT( xResult == eAzureIoTSuccess );
+                LogInfo( ( "Unknown property arrived: skipping over it." ) );
 
-                xResult = AzureIoTJSONReader_SkipChildren( &xReader );
-                configASSERT( xResult == eAzureIoTSuccess );
-
-                xResult = AzureIoTJSONReader_NextToken( &xReader );
-                configASSERT( xResult == eAzureIoTSuccess );
+                /* Unknown property arrived. We have to skip over the property and value to continue iterating. */
+                prvSkipPropertyAndValue( &xReader );
             }
         }
 
@@ -449,62 +541,6 @@ static void prvUpdateLocalProperties( int32_t lNewTelemetryInterval,
     lTelemetryInterval = lNewTelemetryInterval;
 
     LogInfo( ( "Current TelemetryInterval: %d", lTelemetryInterval ) );
-}
-/*-----------------------------------------------------------*/
-
-
-/**
- * @brief Send acknowledgment of requested telemetry interval value to IoT Hub.
- */
-static void prvAckIncomingTelemetryInterval( int32_t lNewTelemetryInterval,
-                                             uint32_t ulVersion )
-{
-    AzureIoTResult_t xResult;
-    AzureIoTJSONWriter_t xWriter;
-    int32_t lBytesWritten;
-
-    xResult = AzureIoTJSONWriter_Init( &xWriter, ucPropertyPayloadBuffer, sizeof( ucPropertyPayloadBuffer ) );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTJSONWriter_AppendBeginObject( &xWriter );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTHubClientProperties_BuilderBeginResponseStatus( &xAzureIoTHubClient,
-                                                                      &xWriter,
-                                                                      ( uint8_t * ) TELEMETRY_INTERVAL_PROPERTY,
-                                                                      sizeof( TELEMETRY_INTERVAL_PROPERTY ) - 1,
-                                                                      200,
-                                                                      ulVersion,
-                                                                      ( uint8_t * ) sampleazureiotPROPERTY_SUCCESS,
-                                                                      sizeof( sampleazureiotPROPERTY_SUCCESS ) - 1 );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTJSONWriter_AppendInt32( &xWriter, lNewTelemetryInterval );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTHubClientProperties_BuilderEndResponseStatus( &xAzureIoTHubClient,
-                                                                    &xWriter );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTJSONWriter_AppendEndObject( &xWriter );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    lBytesWritten = AzureIoTJSONWriter_GetBytesUsed( &xWriter );
-
-    if( lBytesWritten < 0 )
-    {
-        LogError( ( "Error getting the bytes written for the properties confirmation JSON" ) );
-    }
-    else
-    {
-        LogDebug( ( "Sending acknowledged writable property. Payload: %.*s", lBytesWritten, ucPropertyPayloadBuffer ) );
-        xResult = AzureIoTHubClient_SendPropertiesReported( &xAzureIoTHubClient, ucPropertyPayloadBuffer, lBytesWritten, NULL );
-
-        if( xResult != eAzureIoTSuccess )
-        {
-            LogError( ( "There was an error sending the reported properties: 0x%08x", xResult ) );
-        }
-    }
 }
 /*-----------------------------------------------------------*/
 
@@ -533,7 +569,7 @@ static void prvHandleProperties( AzureIoTHubClientPropertiesResponse_t * pxMessa
             if( xResult == eAzureIoTSuccess )
             {
                 prvUpdateLocalProperties( xIncomingTelemetryInterval, ulVersion );
-                prvAckIncomingTelemetryInterval( xIncomingTelemetryInterval, ulVersion );
+                prvReportTelemetryInterval( xIncomingTelemetryInterval, ulVersion );
             }
             else
             {
@@ -549,7 +585,7 @@ static void prvHandleProperties( AzureIoTHubClientPropertiesResponse_t * pxMessa
             if( xResult == eAzureIoTSuccess )
             {
                 prvUpdateLocalProperties( xIncomingTelemetryInterval, ulVersion );
-                prvAckIncomingTelemetryInterval( xIncomingTelemetryInterval, ulVersion );
+                prvReportTelemetryInterval( xIncomingTelemetryInterval, ulVersion );
             }
             else
             {
@@ -876,19 +912,17 @@ static void prvAzureDemoTask( void * pvParameters )
 
     uint64_t nextTelemetryTime = ullGetUnixTime();
 
-    /* Report the device properties */
-    deviceInfoBuildPropertyPayload();
+    /* Report properties */
+    prvReportLedState( false );
+    prvReportTelemetryInterval( lTelemetryInterval, 0 );
+    prvDeviceInfoBuildPropertyPayload();
 
     while( 1 )
     {
         uint64_t currentTime = ullGetUnixTime();
 
-        printf( "nexttime %llu, currenttime %llu, interval %ld\r\n", nextTelemetryTime, currentTime, lTelemetryInterval );
-
         if( currentTime > ( nextTelemetryTime + lTelemetryInterval ) )
         {
-            printf( "Sending telemetry\r\n" );
-
             /* Advance the time */
             while( currentTime > nextTelemetryTime )
             {
@@ -903,7 +937,6 @@ static void prvAzureDemoTask( void * pvParameters )
             configASSERT( xResult == eAzureIoTSuccess );
         }
 
-        LogInfo( ( "Attempt to receive publish message from IoT Hub.\r\n" ) );
         /* :TODO: the processloop runs for 10 seconds */
         xResult = AzureIoTHubClient_ProcessLoop( &xAzureIoTHubClient, 0 );
 
