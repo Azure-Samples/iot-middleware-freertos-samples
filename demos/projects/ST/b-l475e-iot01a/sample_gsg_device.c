@@ -23,27 +23,27 @@
 /* Azure JSON includes */
 #include "azure_iot_json_writer.h"
 
-#define TELEMETRY_HUMIDITY          "humidity"
-#define TELEMETRY_TEMPERATURE       "temperature"
-#define TELEMETRY_PRESSURE          "pressure"
-#define TELEMETRY_MAGNETOMETERX     "magnetometerX"
-#define TELEMETRY_MAGNETOMETERY     "magnetometerY"
-#define TELEMETRY_MAGNETOMETERZ     "magnetometerZ"
-#define TELEMETRY_ACCELEROMETERX    "accelerometerX"
-#define TELEMETRY_ACCELEROMETERY    "accelerometerY"
-#define TELEMETRY_ACCELEROMETERZ    "accelerometerZ"
-#define TELEMETRY_GYROSCOPEX        "gyroscopeX"
-#define TELEMETRY_GYROSCOPEY        "gyroscopeY"
-#define TELEMETRY_GYROSCOPEZ        "gyroscopeZ"
+#define TELEMETRY_HUMIDITY          ( "humidity" )
+#define TELEMETRY_TEMPERATURE       ( "temperature" )
+#define TELEMETRY_PRESSURE          ( "pressure" )
+#define TELEMETRY_MAGNETOMETERX     ( "magnetometerX" )
+#define TELEMETRY_MAGNETOMETERY     ( "magnetometerY" )
+#define TELEMETRY_MAGNETOMETERZ     ( "magnetometerZ" )
+#define TELEMETRY_ACCELEROMETERX    ( "accelerometerX" )
+#define TELEMETRY_ACCELEROMETERY    ( "accelerometerY" )
+#define TELEMETRY_ACCELEROMETERZ    ( "accelerometerZ" )
+#define TELEMETRY_GYROSCOPEX        ( "gyroscopeX" )
+#define TELEMETRY_GYROSCOPEY        ( "gyroscopeY" )
+#define TELEMETRY_GYROSCOPEZ        ( "gyroscopeZ" )
 
-const char * manufacturer_property_value = "STMicroelectronics";
-const char * model_property_value = "B-L475E-IOT01A";
-const char * software_version_property_value = "1.0.0";
-const char * os_name_property_value = "FreeRTOS";
-const char * processor_architecture_property_value = "Arm Cortex M4";
-const char * processor_manufacturer_property_value = "STMicroelectronics";
-const double total_storage_property_value = 8192;
-const double total_memory_property_value = 768;
+const char * pcManufacturerPropertyValue = "STMicroelectronics";
+const char * pcModelPropertyValue = "B-L475E-IOT01A";
+const char * pcSoftwareVersionPropertyValue = "1.0.0";
+const char * pcOsNamePropertyValue = "FreeRTOS";
+const char * pcProcessorArchitecturePropertyValue = "Arm Cortex M4";
+const char * pcProcessorManufacturerPropertyValue = "STMicroelectronics";
+const double pxTotalStoragePropertyValue = 8192;
+const double pxTotalMemoryPropertyValue = 768;
 
 typedef enum TelemetryStateType_t
 {
@@ -54,7 +54,7 @@ typedef enum TelemetryStateType_t
     eTelemetryStateTypeEnd,
 } TelemetryStateType_t;
 
-static TelemetryStateType_t telemetryState = eTelemetryStateTypeDefault;
+static TelemetryStateType_t xTelemetryState = eTelemetryStateTypeDefault;
 /*-----------------------------------------------------------*/
 
 static void createTelemetryDevice( AzureIoTJSONWriter_t * xWriter )
@@ -155,7 +155,7 @@ uint32_t createTelemetry( uint8_t * pucTelemetryData,
     xResult = AzureIoTJSONWriter_AppendBeginObject( &xWriter );
     configASSERT( xResult == eAzureIoTSuccess );
 
-    switch( telemetryState )
+    switch( xTelemetryState )
     {
         case eTelemetryStateTypeDefault:
             createTelemetryDevice( &xWriter );
@@ -177,7 +177,7 @@ uint32_t createTelemetry( uint8_t * pucTelemetryData,
             break;
     }
 
-    telemetryState = ( telemetryState + 1 ) % eTelemetryStateTypeEnd;
+    xTelemetryState = ( xTelemetryState + 1 ) % eTelemetryStateTypeEnd;
 
     xResult = AzureIoTJSONWriter_AppendEndObject( &xWriter );
     configASSERT( xResult == eAzureIoTSuccess );

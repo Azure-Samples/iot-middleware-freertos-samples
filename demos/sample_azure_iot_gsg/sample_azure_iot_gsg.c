@@ -103,11 +103,7 @@
 /**
  * @brief Property Values
  */
-#define sampleazureiotPROPERTY_STATUS_SUCCESS       200
-#define sampleazureiotPROPERTY_STATUS_FAIL          404
 #define sampleazureiotPROPERTY_SUCCESS              "success"
-
-static uint8_t ucPropertyPayloadBuffer[ 512 ];
 
 #define TELEMETRY_INTERVAL_PROPERTY    "telemetryInterval"
 #define LED_STATE_PROPERTY             "ledState"
@@ -120,11 +116,6 @@ static uint8_t ucPropertyPayloadBuffer[ 512 ];
  *@brief The Telemetry message published in this example.
  */
 #define sampleazureiotMESSAGE          "{\"" sampleazureiotTELEMETRY_NAME "\":%0.2f}"
-
-/**
- * @brief Device values
- */
-static int32_t lTelemetryInterval = 5;
 
 /**
  * @brief The payload to send to the Device Provisioning Service
@@ -184,7 +175,14 @@ uint64_t ullGetUnixTime( void );
 
 #endif /* democonfigENABLE_DPS_SAMPLE */
 
+/* Device values */
+static int32_t lTelemetryInterval = 5;
+
+/* scratch buffer */
 static uint8_t ucScratchBuffer[ 128 ];
+
+/* Property buffer */
+static uint8_t ucPropertyPayloadBuffer[ 512 ];
 
 /* Each compilation unit must define the NetworkContext struct. */
 struct NetworkContext
@@ -201,15 +199,15 @@ static AzureIoTHubClient_t xAzureIoTHubClient;
 static uint8_t ucMQTTMessageBuffer[ democonfigNETWORK_BUFFER_SIZE ];
 /*-----------------------------------------------------------*/
 
-#define device_information_name                 "deviceInformation"
-#define manufacturer_property_name              "manufacturer"
-#define model_property_name                     "model"
-#define software_version_property_name          "swVersion"
-#define os_name_property_name                   "osName"
-#define processor_architecture_property_name    "processorArchitecture"
-#define processor_manufacturer_property_name    "processorManufacturer"
-#define total_storage_property_name             "totalStorage"
-#define total_memory_property_name              "totalMemory"
+#define DEVICE_INFORMATION_NAME                 ( "deviceInformation" )
+#define MANUFACTURER_PROPERTY_NAME              ( "manufacturer" )
+#define MODEL_PROPERTY_NAME                     ( "model" )
+#define SOFTWARE_VERSION_PROPERTY_NAME          ( "swVersion" )
+#define OS_NAME_PROPERTY_NAME                   ( "osName" )
+#define PROCESSOR_ARCHITECTURE_PROPERTY_NAME    ( "processorArchitecture" )
+#define PROCESSOR_MANUFACTURER_PROPERTY_NAME    ( "processorManufacturer" )
+#define TOTAL_STORAGE_PROPERTY_NAME             ( "totalStorage" )
+#define TOTAL_MEMORY_PROPERTY_NAME              ( "totalMemory" )
 
 /* pnp_device_info_build_property_payload builds the JSON payload that contains simulated */
 /* device information. */
@@ -226,31 +224,31 @@ static void deviceInfoBuildPropertyPayload()
     xResult = AzureIoTJSONWriter_AppendBeginObject( &xWriter );
     configASSERT( xResult == eAzureIoTSuccess );
 
-    xResult = AzureIoTHubClientProperties_BuilderBeginComponent( &xAzureIoTHubClient, &xWriter, ( const uint8_t * ) device_information_name, strlen( device_information_name ) );
+    xResult = AzureIoTHubClientProperties_BuilderBeginComponent( &xAzureIoTHubClient, &xWriter, ( const uint8_t * ) DEVICE_INFORMATION_NAME, strlen( DEVICE_INFORMATION_NAME ) );
     configASSERT( xResult == eAzureIoTSuccess );
 
-    xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) manufacturer_property_name, sizeof( manufacturer_property_name ) - 1, ( uint8_t * ) manufacturer_property_value, sizeof( manufacturer_property_value ) - 1 );
+    xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) MANUFACTURER_PROPERTY_NAME, sizeof( MANUFACTURER_PROPERTY_NAME ) - 1, ( uint8_t * ) pcManufacturerPropertyValue, sizeof( pcManufacturerPropertyValue ) - 1 );
     configASSERT( xResult == eAzureIoTSuccess );
 
-    xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) model_property_name, sizeof( model_property_name ) - 1, ( uint8_t * ) model_property_value, sizeof( model_property_value ) - 1 );
+    xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) MODEL_PROPERTY_NAME, sizeof( MODEL_PROPERTY_NAME ) - 1, ( uint8_t * ) pcModelPropertyValue, sizeof( pcModelPropertyValue ) - 1 );
     configASSERT( xResult == eAzureIoTSuccess );
 
-    xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) software_version_property_name, sizeof( software_version_property_name ) - 1, ( uint8_t * ) software_version_property_value, sizeof( software_version_property_value ) - 1 );
+    xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) SOFTWARE_VERSION_PROPERTY_NAME, sizeof( SOFTWARE_VERSION_PROPERTY_NAME ) - 1, ( uint8_t * ) pcSoftwareVersionPropertyValue, sizeof( pcSoftwareVersionPropertyValue ) - 1 );
     configASSERT( xResult == eAzureIoTSuccess );
 
-    xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) os_name_property_name, sizeof( os_name_property_name ) - 1, ( uint8_t * ) os_name_property_value, sizeof( os_name_property_value ) - 1 );
+    xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) OS_NAME_PROPERTY_NAME, sizeof( OS_NAME_PROPERTY_NAME ) - 1, ( uint8_t * ) pcOsNamePropertyValue, sizeof( pcOsNamePropertyValue ) - 1 );
     configASSERT( xResult == eAzureIoTSuccess );
 
-    xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) processor_architecture_property_name, sizeof( processor_architecture_property_name ) - 1, ( uint8_t * ) processor_architecture_property_value, sizeof( processor_architecture_property_value ) - 1 );
+    xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) PROCESSOR_ARCHITECTURE_PROPERTY_NAME, sizeof( PROCESSOR_ARCHITECTURE_PROPERTY_NAME ) - 1, ( uint8_t * ) pcProcessorArchitecturePropertyValue, sizeof( pcProcessorArchitecturePropertyValue ) - 1 );
     configASSERT( xResult == eAzureIoTSuccess );
 
-    xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) processor_manufacturer_property_name, sizeof( processor_manufacturer_property_name ) - 1, ( uint8_t * ) processor_manufacturer_property_value, sizeof( processor_manufacturer_property_value ) - 1 );
+    xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) PROCESSOR_MANUFACTURER_PROPERTY_NAME, sizeof( PROCESSOR_MANUFACTURER_PROPERTY_NAME ) - 1, ( uint8_t * ) pcProcessorManufacturerPropertyValue, sizeof( pcProcessorManufacturerPropertyValue ) - 1 );
     configASSERT( xResult == eAzureIoTSuccess );
 
-    xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( &xWriter, ( uint8_t * ) total_storage_property_name, sizeof( total_storage_property_name ) - 1, total_storage_property_value, 0 );
+    xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( &xWriter, ( uint8_t * ) TOTAL_STORAGE_PROPERTY_NAME, sizeof( TOTAL_STORAGE_PROPERTY_NAME ) - 1, pxTotalStoragePropertyValue, 0 );
     configASSERT( xResult == eAzureIoTSuccess );
 
-    xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( &xWriter, ( uint8_t * ) total_memory_property_name, sizeof( total_memory_property_name ) - 1, total_memory_property_value, 0 );
+    xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( &xWriter, ( uint8_t * ) TOTAL_MEMORY_PROPERTY_NAME, sizeof( TOTAL_MEMORY_PROPERTY_NAME ) - 1, pxTotalMemoryPropertyValue, 0 );
     configASSERT( xResult == eAzureIoTSuccess );
 
     xResult = AzureIoTHubClientProperties_BuilderEndComponent( &xAzureIoTHubClient, &xWriter );
@@ -275,14 +273,13 @@ static void deviceInfoBuildPropertyPayload()
     }
 }
 
-static void prvInvokeSetLedStateCommand( const uint8_t * pucPayload,
-                                         uint32_t ulPayloadLength )
+static void prvInvokeSetLedStateCommand( AzureIoTHubClientCommandRequest_t * xMessage )
 {
     AzureIoTResult_t xResult;
     AzureIoTJSONWriter_t xWriter;
     int32_t lBytesWritten;
 
-    const bool xLedState = ( strncmp( TRUE, ( const char * ) pucPayload, strlen( TRUE ) ) == 0 );
+    const bool xLedState = ( strncmp( TRUE, ( const char * ) xMessage->pvMessagePayload, strlen( TRUE ) ) == 0 );
 
     setLedState( xLedState );
 
@@ -326,7 +323,7 @@ static void prvInvokeSetLedStateCommand( const uint8_t * pucPayload,
 static void prvHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
                               void * pvContext )
 {
-    AzureIoTHubClient_t * xHandle = ( AzureIoTHubClient_t * ) pvContext;
+    AzureIoTHubClient_t * pxHandle = ( AzureIoTHubClient_t * ) pvContext;
 
     LogInfo( ( "Command payload : %.*s \r\n",
                pxMessage->ulPayloadLength,
@@ -334,11 +331,10 @@ static void prvHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
 
     if( strncmp( SET_LED_STATE_COMMAND, ( const char * ) pxMessage->pucCommandName, strlen( SET_LED_STATE_COMMAND ) ) == 0 )
     {
-        LogInfo( ( "Processing %s", SET_LED_STATE_COMMAND ) );
+        prvInvokeSetLedStateCommand( pxMessage );
+/*        prvInvokeSetLedStateCommand( pxMessage->pvMessagePayload, pxMessage->ulPayloadLength ); */
 
-        prvInvokeSetLedStateCommand( pxMessage->pvMessagePayload, pxMessage->ulPayloadLength );
-
-        if( AzureIoTHubClient_SendCommandResponse( xHandle, pxMessage, sampleazureiotPROPERTY_STATUS_SUCCESS,
+        if( AzureIoTHubClient_SendCommandResponse( pxHandle, pxMessage, 200,
                                                    NULL, 0 ) != eAzureIoTSuccess )
         {
             LogInfo( ( "Error sending command response" ) );
@@ -348,7 +344,7 @@ static void prvHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
     {
         LogInfo( ( "Received command is not for this device" ) );
 
-        if( AzureIoTHubClient_SendCommandResponse( xHandle, pxMessage, sampleazureiotPROPERTY_STATUS_FAIL,
+        if( AzureIoTHubClient_SendCommandResponse( pxHandle, pxMessage, 404,
                                                    NULL, 0 ) != eAzureIoTSuccess )
         {
             LogError( ( "Error sending command response" ) );
@@ -477,7 +473,7 @@ static void prvAckIncomingTelemetryInterval( int32_t lNewTelemetryInterval,
                                                                       &xWriter,
                                                                       ( uint8_t * ) TELEMETRY_INTERVAL_PROPERTY,
                                                                       sizeof( TELEMETRY_INTERVAL_PROPERTY ) - 1,
-                                                                      sampleazureiotPROPERTY_STATUS_SUCCESS,
+                                                                      200,
                                                                       ulVersion,
                                                                       ( uint8_t * ) sampleazureiotPROPERTY_SUCCESS,
                                                                       sizeof( sampleazureiotPROPERTY_SUCCESS ) - 1 );

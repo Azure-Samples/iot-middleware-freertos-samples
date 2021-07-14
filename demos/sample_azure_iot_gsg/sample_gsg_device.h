@@ -7,14 +7,14 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-extern const char * manufacturer_property_value;
-extern const char * model_property_value;
-extern const char * software_version_property_value;
-extern const char * os_name_property_value;
-extern const char * processor_architecture_property_value;
-extern const char * processor_manufacturer_property_value;
-extern const double total_storage_property_value;
-extern const double total_memory_property_value;
+extern const char * pcManufacturerPropertyValue;
+extern const char * pcModelPropertyValue;
+extern const char * pcSoftwareVersionPropertyValue;
+extern const char * pcOsNamePropertyValue;
+extern const char * pcProcessorArchitecturePropertyValue;
+extern const char * pcProcessorManufacturerPropertyValue;
+extern const double pxTotalStoragePropertyValue;
+extern const double pxTotalMemoryPropertyValue;
 
 void setLedState( bool level );
 
