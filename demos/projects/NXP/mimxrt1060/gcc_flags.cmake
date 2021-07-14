@@ -30,6 +30,8 @@ set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} " \
 set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} " \
     -fno-exceptions \
     -fno-rtti \
+    -u _printf_float \
+    -u _scanf_float \
     -mcpu=cortex-m7 \
     -Wall -mfloat-abi=hard \
     -mfpu=fpv5-d16 \
