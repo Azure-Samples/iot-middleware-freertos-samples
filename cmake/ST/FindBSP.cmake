@@ -202,7 +202,7 @@ set(BSP_L4_COMPONENTS
     m24sr mfxstm32l152 mx25lm51245g mx25r6435f n25q128a n25q256a ov9655 
     rk043fn48h st7735 st7789h2 stmpe811 stmpe1600 wm8994
 )
-set(BSP_L4_SOURCES_B_L475E_IOT01 accelerometer gyro hsensor magneto psensor qspi tsensor iot01)
+set(BSP_L4_SOURCES_STM32L475E_IOT01 accelero gyro hsensor magneto psensor qspi tsensor)
 set(BSP_L4_SOURCES_STM32L4P5G_Discovery idd io lcd mmc ospi_nor psram ts)
 set(BSP_L4_SOURCES_STM32L4R9I_EVAL audio dsi_lcd dsi_ts eeprom idd io nor ospi_nor ospi_ram rgb_ts sd sram)
 set(BSP_L4_SOURCES_STM32L4R9I_Discovery audio camera idd io lcd ospi_nor psram sd ts)
@@ -318,6 +318,9 @@ foreach(COMP ${BSP_FIND_COMPONENTS})
         string(TOLOWER ${BCOMP} BCOMP_L)
         string(TOUPPER ${BCOMP} BCOMP_U)
         
+        message("library BSP::STM32::${FAMILY}${CORE_C}::${BCOMP_U}")
+        message("uber BSP::STM32::${FAMILY}${CORE_C}")
+        message("Component ${BSP_${FAMILY}_PATH}/Components/${BCOMP}")
         add_library(BSP::STM32::${FAMILY}${CORE_C}::${BCOMP_U} INTERFACE IMPORTED)
         target_link_libraries(BSP::STM32::${FAMILY}${CORE_C}::${BCOMP_U} INTERFACE BSP::STM32::${FAMILY}${CORE_C} CMSIS::STM32::${FAMILY}${CORE_C})
         target_include_directories(BSP::STM32::${FAMILY}${CORE_C}::${BCOMP_U} INTERFACE "${BSP_${FAMILY}_PATH}/Components/${BCOMP}")
