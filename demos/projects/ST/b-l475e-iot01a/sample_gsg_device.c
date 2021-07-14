@@ -9,7 +9,6 @@
 #include "stm32l475e_iot01_magneto.h"
 #include "stm32l475e_iot01_accelero.h"
 
-
 /* Standard includes. */
 #include <stdbool.h>
 #include <stdint.h>
@@ -37,6 +36,15 @@
 #define TELEMETRY_GYROSCOPEY        "gyroscopeY"
 #define TELEMETRY_GYROSCOPEZ        "gyroscopeZ"
 
+const char * manufacturer_property_value = "STMicroelectronics";
+const char * model_property_value = "B-L475E-IOT01A";
+const char * software_version_property_value = "1.0.0";
+const char * os_name_property_value = "FreeRTOS";
+const char * processor_architecture_property_value = "Arm Cortex M4";
+const char * processor_manufacturer_property_value = "STMicroelectronics";
+const double total_storage_property_value = 8192;
+const double total_memory_property_value = 768;
+
 typedef enum TelemetryStateType_t
 {
     eTelemetryStateTypeDefault,
@@ -47,15 +55,7 @@ typedef enum TelemetryStateType_t
 } TelemetryStateType_t;
 
 static TelemetryStateType_t telemetryState = eTelemetryStateTypeDefault;
-
-const char * manufacturer_property_value = "STMicroelectronics";
-const char * model_property_value = "B-L4S5I-IOT01A";
-const char * software_version_property_value = "1.0.0";
-const char * os_name_property_value = "FreeRTOS";
-const char * processor_architecture_property_value = "Arm Cortex M4";
-const char * processor_manufacturer_property_value = "STMicroelectronics";
-const double total_storage_property_value = 8192;
-const double total_memory_property_value = 768;
+/*-----------------------------------------------------------*/
 
 static void createTelemetryDevice( AzureIoTJSONWriter_t * xWriter )
 {
@@ -73,6 +73,7 @@ static void createTelemetryDevice( AzureIoTJSONWriter_t * xWriter )
     xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( xWriter, ( uint8_t * ) TELEMETRY_PRESSURE, sizeof( TELEMETRY_PRESSURE ) - 1, pressure, 2 );
     configASSERT( xResult == eAzureIoTSuccess );
 }
+/*-----------------------------------------------------------*/
 
 static void createTelemetryMagnetometer( AzureIoTJSONWriter_t * xWriter )
 {
@@ -90,6 +91,7 @@ static void createTelemetryMagnetometer( AzureIoTJSONWriter_t * xWriter )
     xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( xWriter, ( uint8_t * ) TELEMETRY_MAGNETOMETERZ, sizeof( TELEMETRY_MAGNETOMETERZ ) - 1, magnetometer[ 2 ], 0 );
     configASSERT( xResult == eAzureIoTSuccess );
 }
+/*-----------------------------------------------------------*/
 
 static void createTelemetryAccelerometer( AzureIoTJSONWriter_t * xWriter )
 {
@@ -107,6 +109,7 @@ static void createTelemetryAccelerometer( AzureIoTJSONWriter_t * xWriter )
     xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( xWriter, ( uint8_t * ) TELEMETRY_ACCELEROMETERZ, sizeof( TELEMETRY_ACCELEROMETERZ ) - 1, accelerometer[ 2 ], 0 );
     configASSERT( xResult == eAzureIoTSuccess );
 }
+/*-----------------------------------------------------------*/
 
 static void createTelemetryGyroscope( AzureIoTJSONWriter_t * xWriter )
 {
@@ -124,6 +127,7 @@ static void createTelemetryGyroscope( AzureIoTJSONWriter_t * xWriter )
     xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( xWriter, ( uint8_t * ) TELEMETRY_GYROSCOPEZ, sizeof( TELEMETRY_GYROSCOPEZ ) - 1, gyroscope[ 2 ], 2 );
     configASSERT( xResult == eAzureIoTSuccess );
 }
+/*-----------------------------------------------------------*/
 
 void setLedState( bool level )
 {
@@ -136,6 +140,7 @@ void setLedState( bool level )
         BSP_LED_Off( LED_GREEN );
     }
 }
+/*-----------------------------------------------------------*/
 
 uint32_t createTelemetry( uint8_t * pucTelemetryData,
                           uint32_t ulTelemetryDataLength )
@@ -187,3 +192,4 @@ uint32_t createTelemetry( uint8_t * pucTelemetryData,
 
     return lBytesWritten;
 }
+/*-----------------------------------------------------------*/
