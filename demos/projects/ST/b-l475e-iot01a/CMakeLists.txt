@@ -88,7 +88,9 @@ target_link_libraries(${PROJECT_NAME}-pnp PRIVATE
     HAL::STM32::L4::TIMEx
     CMSIS::STM32::L475xx
     BSP::STM32::STM32L475E_IOT01
-    STM32::NoSys
+    STM32::Nano
+    STM32::Nano::FloatScan
+    STM32::Nano::FloatPrint
     az::iot_middleware::freertos
     SAMPLE::AZUREIOTPNP
     SAMPLE::TRANSPORT::MBEDTLS)
