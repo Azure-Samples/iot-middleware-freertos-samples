@@ -39,19 +39,11 @@
 /* Variables */
 //#undef errno
 extern int errno;
-#define FreeRTOS
-#define MAX_STACK_SIZE 0x2000
 
 extern int __io_putchar(int ch) __attribute__((weak));
 extern int __io_getchar(void) __attribute__((weak));
 
-#ifndef FreeRTOS
-  register char * stack_ptr asm("sp");
-#endif
-
-
-register char * stack_ptr asm("sp");
-
+char * stack_ptr;
 char *__env[1] = { 0 };
 char **environ = __env;
 
@@ -106,6 +98,8 @@ caddr_t _sbrk(int incr)
 	extern char end asm("end");
 	static char *heap_end;
 	char *prev_heap_end;
+
+	__asm volatile ("MRS %0, msp" : "=r" (stack_ptr) );
 
 	if (heap_end == 0)
 		heap_end = &end;
