@@ -357,3 +357,10 @@ MigrationBackup/
 /b-l475e-iot01a
 /b-l4s5i-iot01a
 /stm32h745i-disco
+
+# Gate build directories
+build_pc_linux
+build_nxp_mimxrt1060
+build_st_b-l4s5i-iot01a
+build_st_b-l475e-iot01a
+build_st_stm32h745i-disco
