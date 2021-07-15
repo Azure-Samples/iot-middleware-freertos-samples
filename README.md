@@ -1,4 +1,4 @@
-# Azure IoT samples using Azure IoT Middleware for FreeRTOS
+# Azure IoT samples using Azure IoT middleware for FreeRTOS
 
 <!-- markdown-link-check-disable -->
 [![Windows CI Tests](https://github.com/Azure-Samples/iot-middleware-freertos-samples/actions/workflows/ms_build.yml/badge.svg)](https://github.com/Azure-Samples/iot-middleware-freertos-samples/actions/workflows/ms_build.yml)
@@ -7,11 +7,11 @@
 
 ## Getting Started
 
-The Azure IoT Middleware for FreeRTOS simplifies the connection of devices running FreeRTOS to Azure IoT services. It implements a modular approach that brings flexibility to IoT developers by allowing them to bring their own network stack (MQTT, TLS and Socket).
+The Azure IoT middleware for FreeRTOS simplifies the connection of devices running FreeRTOS to Azure IoT services. It implements a modular approach that brings flexibility to IoT developers by allowing them to bring their own network stack (MQTT, TLS and Socket).
 
-The [Azure IoT Middleware for FreeRTOS repo](https://github.com/Azure/azure-iot-middleware-freertos) has the core functionalities of the middleware and no external dependencies, however to implement working samples, we need to bring a network stack which is the objective of this repo. 
+The [Azure IoT middleware for FreeRTOS repo](https://github.com/Azure/azure-iot-middleware-freertos) has the core functionalities of the middleware and no external dependencies, however to implement working samples, we need to bring a network stack which is the objective of this repo. 
 
-Below you will find samples for development kits and simulators showing how to use the Azure IoT Middleware for FreeRTOS. The following development kits are currently supported:
+Below you will find samples for development kits and simulators showing how to use the Azure IoT middleware for FreeRTOS. The following development kits are currently supported:
 
 * NXP:
   * [MIMXRT1060-EVK](demos/projects/NXP/mimxrt1060/)
@@ -24,6 +24,21 @@ Below you will find samples for development kits and simulators showing how to u
 * PC Simulation:
   * [Linux](demos/projects/PC/linux/)
   * [Windows](demos/projects/PC/windows/)
+
+## Plug and Play Sample
+
+The easiest way to interact with the Plug and Play sample from the service side is to use Azure IoT Explorer.  To use the sample:
+
+  - Install [Azure IoT Explorer](https://github.com/Azure/azure-iot-explorer/#plug-and-play).
+  - Download [the Thermostat model](https://github.com/Azure/opendigitaltwins-dtdl/blob/master/DTDL/v2/samples/Thermostat.json) to a local directory.
+  - Start Azure IoT Explorer and then:
+    - [Configure your hub](https://github.com/Azure/azure-iot-explorer/#configure-an-iot-hub-connection).  Once you've created your thermostat device, you should see it listed in the UX.
+    - Go to `IoT Plug and Play Settings` on the home screen, select `Local Folder` for the location of the model definitions, and point to the folder you downloaded the thermostat model.
+    - Go to the devices list and select your thermostat device.  Now select `IoT Plug and Play components` and then `Default Component`.
+    - You will now be able to interact with the Plug and Play device.
+
+    Additional instructions for Azure IoT Explorer, including screenshots, are available [here](https://github.com/Azure/azure-iot-explorer/#plug-and-play).
+
 ## Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a

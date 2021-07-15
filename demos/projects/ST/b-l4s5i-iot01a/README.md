@@ -1,4 +1,4 @@
-# Connect a STMicroelectronics B-L4S5I-IOT01A Discovery kit using Azure IoT Middleware for FreeRTOS
+# Connect a STMicroelectronics B-L4S5I-IOT01A Discovery kit using Azure IoT middleware for FreeRTOS
 
 ## What you need
 
@@ -17,7 +17,7 @@
 - [GNU Arm Embedded Toolchain](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads) (Version 9 or higher)
 * Serial terminal tool like [Termite](https://www.compuphase.com/software_termite.htm), Putty, Tera Term, etc.
 
-To run this sample you can use a device previously created on your Azure IoT Hub or you may have the Azure IoT Middleware for FreeRTOS provision your device automatically using Azure Device Provisioning Services (DPS).
+To run this sample you can use a device previously created on your Azure IoT Hub or you may have the Azure IoT middleware for FreeRTOS provision your device automatically using Azure Device Provisioning Services (DPS).
 
 IoT Hub | DPS 
 ---------|----------
@@ -110,3 +110,16 @@ The following settings can be used to monitor serial data:
 - Stop Bits: `1`
 - Parity: none
 - Flow Control: none
+
+## Size Chart
+The following chart shows the RAM and ROM usage for the B-L4S5I-IOT01A Discovery kit from ST Microelectronics. 
+Build options: CMAKE_BUILD_TYPE=MinSizeRel (-Os) and no logging (-DLIBRARY_LOG_LEVEL=LOG_NONE):
+This sample can includes either IoT Hub only or both IoT Hub and DPS services. The table below shows RAM/ROM sizes considering:
+-  Middleware libraries only – represents the libraries for Azure IoT connection.
+-  Total size – which includes the Azure IoT middleware for FreeRTOS, Mbed TLS, FreeRTOS, CoreMQTT and the HAL for the dev kit.
+
+|  | Middleware library size | | Total Size | |
+|---------|----------|---------|---------|---------
+|**Sample** | **Flash (text,rodata,data)** | **RAM1,RAM2(dss,data)** | **Flash (text,rodata,data)** | **RAM1,RAM2(dss,data)** |
+| IoT Hub + DPS) | 22.93 KB | 12 bytes | 228.60 KB | 103.82 KB
+| IoT Hub only | 10.57 KB | 12 bytes | 221.21 KB | 102.64 KB

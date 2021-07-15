@@ -37,3 +37,22 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     SAMPLE::AZUREIOT
     SAMPLE::TRANSPORT::MBEDTLS
     SAMPLE::SOCKET::FREERTOSTCPIP)
+
+# Add demo files and dependencies for PnP Sample
+add_executable(${PROJECT_NAME}-pnp main.c)
+target_link_libraries(${PROJECT_NAME}-pnp PRIVATE
+    FreeRTOS::Timers
+    FreeRTOS::Heap::3
+    FreeRTOS::EventGroups
+    FreeRTOS::Posix
+    FreeRTOSPlus::Utilities::backoff_algorithm
+    FreeRTOSPlus::Utilities::logging
+    FreeRTOSPlus::ThirdParty::mbedtls
+    FreeRTOSPlus::TCPIP
+    FreeRTOSPlus::TCPIP::PORT
+    az::iot_middleware::freertos
+    pthread
+    pcap
+    SAMPLE::AZUREIOTPNP
+    SAMPLE::TRANSPORT::MBEDTLS
+    SAMPLE::SOCKET::FREERTOSTCPIP)

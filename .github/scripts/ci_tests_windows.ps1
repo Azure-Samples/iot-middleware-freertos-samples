@@ -45,3 +45,4 @@ git config --system core.longpaths true
 Write-Output "::group::Building sample for PC windows port"
 sample_build -vendor "PC" -board "windows" -outdir "build_windows" -additionalFlags "-DCMAKE_GENERATOR_PLATFORM=Win32"
 exit_if_binary_does_not_exist -search_dir "build_windows" -filename "iot-middleware-sample.exe"
+exit_if_binary_does_not_exist -search_dir "build_windows" -filename "iot-middleware-sample-pnp.exe"

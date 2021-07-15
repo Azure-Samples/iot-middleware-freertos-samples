@@ -1,4 +1,4 @@
-# Connect an NXP MIMXRT1060-EVK Evaluation kit using Azure IoT Middleware for FreeRTOS
+# Connect an NXP MIMXRT1060-EVK Evaluation kit using Azure IoT middleware for FreeRTOS
 
 ## What you need
 
@@ -19,7 +19,7 @@
 - [GNU Arm Embedded Toolchain](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads) (Version 9 or higher)
 * Terminal tool like [Termite](https://www.compuphase.com/software_termite.htm), Putty, Tera Term, etc.
 
-* To run this sample you can use a device previously created in your IoT Hub or have the Azure IoT Middleware for FreeRTOS provision your device automatically using DPS.
+* To run this sample you can use a device previously created in your IoT Hub or have the Azure IoT middleware for FreeRTOS provision your device automatically using DPS.
 
 IoT Hub | DPS 
 ---------|----------
@@ -109,3 +109,16 @@ The following settings can be used to monitor serial data:
 - Stop Bits: `1`
 - Parity: none
 - Flow Control: none
+
+## Size Chart
+The following chart shows the RAM and ROM usage for the MIMXRT1060-EVK Evaluation kit from NXP. 
+Build options: CMAKE_BUILD_TYPE=MinSizeRel (-Os) and no logging (-DLIBRARY_LOG_LEVEL=LOG_NONE):
+This sample can includes either IoT Hub only or both IoT Hub and DPS services. The table below shows RAM/ROM sizes considering:
+-  Middleware libraries only – represents the libraries for Azure IoT connection.
+-  Total size – which includes the Azure IoT middleware for FreeRTOS, Mbed TLS, FreeRTOS, CoreMQTT and the HAL for the dev kit.
+
+|  | Middleware library size | | Total Size | |
+|---------|----------|---------|---------|---------
+|**Sample** | **Flash (text,rodata,data)** | **RAM1,RAM2(dss,data)** | **Flash (text,rodata,data)** | **RAM1,RAM2(dss,data)** |
+| IoT Hub + DPS) | 22.9 KB | 12 bytes | 204.47 KB | 222.72 KB
+| IoT Hub only | 10.57 KB | 12 bytes | 198.07 KB | 221.54 KB
