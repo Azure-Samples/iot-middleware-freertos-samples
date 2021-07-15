@@ -7,6 +7,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+extern const char * pcModelId;
+
 extern const char * pcManufacturerPropertyValue;
 extern const char * pcModelPropertyValue;
 extern const char * pcSoftwareVersionPropertyValue;

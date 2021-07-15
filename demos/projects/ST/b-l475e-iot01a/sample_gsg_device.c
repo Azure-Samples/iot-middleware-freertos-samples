@@ -36,6 +36,8 @@
 #define TELEMETRY_GYROSCOPEY        ( "gyroscopeY" )
 #define TELEMETRY_GYROSCOPEZ        ( "gyroscopeZ" )
 
+const char * pcModelId = "dtmi:freertos:devkit:gsgstml475;1";
+
 const char * pcManufacturerPropertyValue = "STMicroelectronics";
 const char * pcModelPropertyValue = "B-L475E-IOT01A";
 const char * pcSoftwareVersionPropertyValue = "1.0.0";
