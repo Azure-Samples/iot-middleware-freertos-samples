@@ -141,7 +141,7 @@ struct NetworkContext
 static uint8_t ucScratchBuffer[ 128 ];
 
 /* Property buffer */
-static uint8_t ucPropertyPayloadBuffer[ 512 ];
+static uint8_t ucPropertyPayloadBuffer[ 400 ];
 
 /* Device values */
 static int32_t lTelemetryInterval = 5;
@@ -326,13 +326,13 @@ static void prvDeviceInfoBuildPropertyPayload()
     }
 }
 
-static void prvInvokeSetLedStateCommand( AzureIoTHubClientCommandRequest_t * xMessage )
+static void prvInvokeSetLedStateCommand( AzureIoTHubClient_t * pxAzureIoTHubClient, AzureIoTHubClientCommandRequest_t * pxMessage )
 {
     AzureIoTResult_t xResult;
     AzureIoTJSONWriter_t xWriter;
     int32_t lBytesWritten;
 
-    const bool xLedState = ( strncmp( TRUE, ( const char * ) xMessage->pvMessagePayload, strlen( TRUE ) ) == 0 );
+    const bool xLedState = ( strncmp( TRUE, ( const char * ) pxMessage->pvMessagePayload, strlen( TRUE ) ) == 0 );
 
     setLedState( xLedState );
 
@@ -362,7 +362,7 @@ static void prvInvokeSetLedStateCommand( AzureIoTHubClientCommandRequest_t * xMe
     }
     else
     {
-        xResult = AzureIoTHubClient_SendPropertiesReported( &xAzureIoTHubClient, ucPropertyPayloadBuffer, lBytesWritten, NULL );
+        xResult = AzureIoTHubClient_SendPropertiesReported( pxAzureIoTHubClient, ucPropertyPayloadBuffer, lBytesWritten, NULL );
 
         if( xResult != eAzureIoTSuccess )
         {
@@ -386,7 +386,7 @@ static void prvHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
 
     if( strncmp( SET_LED_STATE_COMMAND, ( const char * ) pxMessage->pucCommandName, strlen( SET_LED_STATE_COMMAND ) ) == 0 )
     {
-        prvInvokeSetLedStateCommand( pxMessage );
+        prvInvokeSetLedStateCommand( pxHandle, pxMessage );
 
         if( AzureIoTHubClient_SendCommandResponse( pxHandle, pxMessage, 200, NULL, 0 ) != eAzureIoTSuccess )
         {
@@ -397,8 +397,7 @@ static void prvHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
     {
         LogInfo( ( "Received command is not for this device" ) );
 
-        if( AzureIoTHubClient_SendCommandResponse( pxHandle, pxMessage, 404,
-                                                   NULL, 0 ) != eAzureIoTSuccess )
+        if( AzureIoTHubClient_SendCommandResponse( pxHandle, pxMessage, 404, NULL, 0 ) != eAzureIoTSuccess )
         {
             LogError( ( "Error sending command response" ) );
         }
@@ -909,7 +908,7 @@ static void prvAzureDemoTask( void * pvParameters )
     /* Report properties */
     prvReportLedState( false );
     prvReportTelemetryInterval( lTelemetryInterval, 0 );
-    prvDeviceInfoBuildPropertyPayload();
+//    prvDeviceInfoBuildPropertyPayload();
 
     /* Loop forever */
     while( true )
