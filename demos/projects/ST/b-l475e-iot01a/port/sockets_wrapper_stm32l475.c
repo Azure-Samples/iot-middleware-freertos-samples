@@ -256,7 +256,18 @@ BaseType_t Sockets_DeInit()
 
 SocketHandle Sockets_Open()
 {
-    return ( SocketHandle ) prvGetFreeSocket();
+    uint32_t ulSocketNumber = prvGetFreeSocket();
+    STSecureSocket_t * pxSecureSocket = NULL;
+
+    if ( prvIsValidSocket( ulSocketNumber ) )
+    {
+        pxSecureSocket = &( xSockets[ ulSocketNumber ] );
+        pxSecureSocket->ulFlags = stsecuresocketsSOCKET_SECURE_FLAG;
+        pxSecureSocket->ulSendTimeout = socketsconfigDEFAULT_SEND_TIMEOUT;
+        pxSecureSocket->ulReceiveTimeout = socketsconfigDEFAULT_RECV_TIMEOUT;
+    }
+
+    return ( SocketHandle ) ulSocketNumber;
 }
 /*-----------------------------------------------------------*/
 
@@ -289,9 +300,6 @@ BaseType_t Sockets_Connect( SocketHandle xSocket,
     else
     {
         pxSecureSocket = &( xSockets[ ulSocketNumber ] );
-        pxSecureSocket->ulFlags = stsecuresocketsSOCKET_SECURE_FLAG;
-        pxSecureSocket->ulSendTimeout = socketsconfigDEFAULT_SEND_TIMEOUT;
-        pxSecureSocket->ulReceiveTimeout = socketsconfigDEFAULT_RECV_TIMEOUT;
 
         if( ( ulIPAddres = prvGetHostByName( pcHostName ) ) == 0 )
         {
