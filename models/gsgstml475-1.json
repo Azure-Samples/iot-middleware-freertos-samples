@@ -3,7 +3,7 @@
     "@id": "dtmi:freertos:devkit:gsgstml475;1",    
     "@type": "Interface",
     "displayName": "STM L475 FreeRTOS Getting Started Guide",
-    "description": "Example model for the FreeRTOS STM L475 Getting Started Guide",
+    "extends": "dtmi:freertos:devkit:gsg;1",
     "contents": [
         {
             "@type": [
