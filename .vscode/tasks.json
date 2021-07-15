@@ -53,14 +53,14 @@
         {
             "label": "Build Linux",
             "type": "shell",
-            "command": "cmake -G Ninja -DFREERTOS_PATH=${workspaceRoot}/libs/FreeRTOS -DBOARD=linux -DVENDOR=PC -DCMAKE_BUILD_TYPE=Debug -Blinux ${workspaceRoot}; cmake --build linux",
+            "command": "cmake -G Ninja -DFREERTOS_PATH=${workspaceRoot}/libs/FreeRTOS -DBOARD=linux -DVENDOR=PC -DCMAKE_BUILD_TYPE=Debug -Bbuild_linux ${workspaceRoot}; cmake --build build_linux",
             "dependsOn": [ "Download FreeRTOS" ],
             "dependsOrder": "sequence"
         },
         {
             "label": "Build Windows",
             "type": "shell",
-            "command": "cmake -DFREERTOS_PATH=${workspaceRoot}/libs/FreeRTOS -DBOARD=windows -DVENDOR=PC -DCMAKE_GENERATOR_PLATFORM=Win32 -DCMAKE_BUILD_TYPE=Debug -Bwindows ${workspaceRoot}; cmake --build windows",
+            "command": "cmake -DFREERTOS_PATH=${workspaceRoot}/libs/FreeRTOS -DBOARD=windows -DVENDOR=PC -DCMAKE_GENERATOR_PLATFORM=Win32 -DCMAKE_BUILD_TYPE=Debug -Bbuild_windows ${workspaceRoot}; cmake --build build_windows",
             "dependsOn": [ "Download FreeRTOS" ],
             "dependsOrder": "sequence"
         }
