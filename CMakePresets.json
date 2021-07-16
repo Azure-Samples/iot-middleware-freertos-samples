@@ -11,16 +11,28 @@
             "generator": "Ninja",
             "binaryDir": "${sourceDir}/b-l475e-iot01a",
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug",
                 "VENDOR": "ST",
                 "BOARD": "b-l475e-iot01a"
             }
-        }
+        },
+        {
+            "name": "b-l4s5i-iot01a",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/b-l4s5i-iot01a",
+            "cacheVariables": {
+                "VENDOR": "ST",
+                "BOARD": "b-l4s5i-iot01a"
+            }
+        }        
     ],
     "buildPresets": [
         {
             "name": "b-l475e-iot01a",
             "configurePreset": "b-l475e-iot01a"
-        }
+        },
+        {
+            "name": "b-l4s5i-iot01a",
+            "configurePreset": "b-l4s5i-iot01a"
+        }        
     ]
 }
