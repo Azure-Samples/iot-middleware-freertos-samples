@@ -41,6 +41,9 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     HAL::STM32::L4::RCC
     HAL::STM32::L4::RCCEx
     HAL::STM32::L4::SPI
+    HAL::STM32::L4::QSPI
+    HAL::STM32::L4::I2C
+    HAL::STM32::L4::I2CEx
     HAL::STM32::L4::RTC
     HAL::STM32::L4::UART
     HAL::STM32::L4::DMA
@@ -53,6 +56,10 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     HAL::STM32::L4::TIMEx
     CMSIS::STM32::L475xx
     BSP::STM32::STM32L475E_IOT01
+    BSP::STM32::L4::LSM6DSL
+    BSP::STM32::L4::HTS221
+    BSP::STM32::L4::LIS3MDL
+    BSP::STM32::L4::LPS22HB
     STM32::NoSys
     az::iot_middleware::freertos
     SAMPLE::AZUREIOT
@@ -80,6 +87,9 @@ target_link_libraries(${PROJECT_NAME}-pnp PRIVATE
     HAL::STM32::L4::RCC
     HAL::STM32::L4::RCCEx
     HAL::STM32::L4::SPI
+    HAL::STM32::L4::QSPI
+    HAL::STM32::L4::I2C
+    HAL::STM32::L4::I2CEx    
     HAL::STM32::L4::RTC
     HAL::STM32::L4::UART
     HAL::STM32::L4::DMA
@@ -92,6 +102,10 @@ target_link_libraries(${PROJECT_NAME}-pnp PRIVATE
     HAL::STM32::L4::TIMEx
     CMSIS::STM32::L475xx
     BSP::STM32::STM32L475E_IOT01
+    BSP::STM32::L4::LSM6DSL
+    BSP::STM32::L4::HTS221
+    BSP::STM32::L4::LIS3MDL
+    BSP::STM32::L4::LPS22HB
     STM32::Nano
     STM32::Nano::FloatScan
     STM32::Nano::FloatPrint

@@ -86,7 +86,7 @@ target_link_libraries(${PROJECT_NAME}-pnp PRIVATE
     HAL::STM32::L4::SPI
     HAL::STM32::L4::QSPI
     HAL::STM32::L4::I2C
-    HAL::STM32::L4::I2CEx    
+    HAL::STM32::L4::I2CEx
     HAL::STM32::L4::RTC
     HAL::STM32::L4::UART
     HAL::STM32::L4::DMA
@@ -102,7 +102,7 @@ target_link_libraries(${PROJECT_NAME}-pnp PRIVATE
     BSP::STM32::L4::LSM6DSL
     BSP::STM32::L4::HTS221
     BSP::STM32::L4::LIS3MDL
-    BSP::STM32::L4::LPS22HB        
+    BSP::STM32::L4::LPS22HB
     STM32::Nano
     STM32::Nano::FloatScan
     STM32::Nano::FloatPrint
@@ -150,7 +150,7 @@ target_link_libraries(${PROJECT_NAME}-gsg PRIVATE
     BSP::STM32::L4::LSM6DSL
     BSP::STM32::L4::HTS221
     BSP::STM32::L4::LIS3MDL
-    BSP::STM32::L4::LPS22HB    
+    BSP::STM32::L4::LPS22HB
     STM32::Nano
     STM32::Nano::FloatScan
     STM32::Nano::FloatPrint
