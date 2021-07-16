@@ -148,7 +148,7 @@ In your console or in File Explorer, run the following commands from the *iot-mi
 
 After the build completes, confirm that the binary file was created in the following path:
 
-> *iot-middleware-freertos-samples\b-l475e-iot01a\demos\projects\ST\b-l475e-iot01a\iot-middleware-sample.bin*
+> *iot-middleware-freertos-samples\b-l475e-iot01a\demos\projects\ST\b-l475e-iot01a\iot-middleware-sample-gsg.bin*
 
 ### Flash the image
 
@@ -161,7 +161,7 @@ After the build completes, confirm that the binary file was created in the follo
 
 1. In File Explorer, find the binary files that you created in the previous section.
 
-1. Copy the binary file whose file name corresponds to the part number of the STM Devkit you are using. For example, if your board part number is **B-L475E-IOT01A1**, copy the binary file named *iot-middleware-sample.bin*.
+1. Copy the binary file whose file name corresponds to the part number of the STM Devkit you are using. For example, if your board part number is **B-L475E-IOT01A1**, copy the binary file named *iot-middleware-sample-gsg.bin*.
 
 1. In File Explorer, find the STM Devkit that's connected to your computer. The device appears as a drive on your system with the drive label **DIS_L4IOT**.
 

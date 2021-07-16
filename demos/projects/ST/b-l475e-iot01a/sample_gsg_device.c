@@ -135,10 +135,12 @@ void setLedState( bool level )
 {
     if( level )
     {
+        LogInfo( ( "LED is turned ON" ) );
         BSP_LED_On( LED_GREEN );
     }
     else
     {
+        LogInfo( ( "LED is turned OFF" ) );
         BSP_LED_Off( LED_GREEN );
     }
 }

@@ -103,9 +103,6 @@
 #define sampleazureiotSUBSCRIBE_TIMEOUT                       ( 10 * 1000U )
 /*-----------------------------------------------------------*/
 
-#define TRUE                                                  ( "true" )
-#define FALSE                                                 ( "false" )
-
 #define TELEMETRY_INTERVAL_PROPERTY                           ( "telemetryInterval" )
 #define LED_STATE_PROPERTY                                    ( "ledState" )
 #define SET_LED_STATE_COMMAND                                 ( "setLedState" )
@@ -143,8 +140,9 @@ static uint8_t ucScratchBuffer[ 128 ];
 /* Property buffer */
 static uint8_t ucPropertyPayloadBuffer[ 400 ];
 
-/* Device values */
+/* Device properties */
 static int32_t lTelemetryInterval = 5;
+static bool xLedState = false;
 
 static AzureIoTHubClient_t xAzureIoTHubClient;
 /*-----------------------------------------------------------*/
@@ -163,7 +161,7 @@ uint64_t ullGetUnixTime( void );
 static uint8_t ucMQTTMessageBuffer[ democonfigNETWORK_BUFFER_SIZE ];
 /*-----------------------------------------------------------*/
 
-static void prvReportLedState( bool xLedState )
+static void prvReportLedState()
 {
     AzureIoTResult_t xResult;
     AzureIoTJSONWriter_t xWriter;
@@ -203,8 +201,7 @@ static void prvReportLedState( bool xLedState )
 }
 /*-----------------------------------------------------------*/
 
-static void prvReportTelemetryInterval( int32_t lNewTelemetryInterval,
-                                        uint32_t ulVersion )
+static void prvReportTelemetryInterval( uint32_t ulVersion )
 {
     AzureIoTResult_t xResult;
     AzureIoTJSONWriter_t xWriter;
@@ -226,7 +223,7 @@ static void prvReportTelemetryInterval( int32_t lNewTelemetryInterval,
                                                                       sizeof( sampleazureiotPROPERTY_SUCCESS ) - 1 );
     configASSERT( xResult == eAzureIoTSuccess );
 
-    xResult = AzureIoTJSONWriter_AppendInt32( &xWriter, lNewTelemetryInterval );
+    xResult = AzureIoTJSONWriter_AppendInt32( &xWriter, lTelemetryInterval );
     configASSERT( xResult == eAzureIoTSuccess );
 
     xResult = AzureIoTHubClientProperties_BuilderEndResponseStatus( &xAzureIoTHubClient,
@@ -253,10 +250,9 @@ static void prvReportTelemetryInterval( int32_t lNewTelemetryInterval,
         }
     }
 }
+/*-----------------------------------------------------------*/
 
-/* pnp_device_info_build_property_payload builds the JSON payload that contains simulated */
-/* device information. */
-static void prvDeviceInfoBuildPropertyPayload()
+static void prvReportDeviceInfo()
 {
     AzureIoTResult_t xResult;
     AzureIoTJSONWriter_t xWriter;
@@ -326,49 +322,12 @@ static void prvDeviceInfoBuildPropertyPayload()
     }
 }
 
-static void prvInvokeSetLedStateCommand( AzureIoTHubClient_t * pxAzureIoTHubClient, AzureIoTHubClientCommandRequest_t * pxMessage )
+static void prvInvokeSetLedStateCommand( const void * pvMessagePayload,
+                                         uint32_t ulMessageLength )
 {
-    AzureIoTResult_t xResult;
-    AzureIoTJSONWriter_t xWriter;
-    int32_t lBytesWritten;
-
-    const bool xLedState = ( strncmp( TRUE, ( const char * ) pxMessage->pvMessagePayload, strlen( TRUE ) ) == 0 );
+    xLedState = ( strncmp( "true", ( const char * ) pvMessagePayload, ulMessageLength ) == 0 );
 
     setLedState( xLedState );
-
-    /* Update reported property */
-    xResult = AzureIoTJSONWriter_Init( &xWriter, ucPropertyPayloadBuffer, sizeof( ucPropertyPayloadBuffer ) );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTJSONWriter_AppendBeginObject( &xWriter );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTJSONWriter_AppendPropertyName( &xWriter, ( const uint8_t * ) LED_STATE_PROPERTY,
-                                                     sizeof( LED_STATE_PROPERTY ) - 1 );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTJSONWriter_AppendBool( &xWriter, xLedState );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTJSONWriter_AppendEndObject( &xWriter );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    lBytesWritten = AzureIoTJSONWriter_GetBytesUsed( &xWriter );
-
-    if( lBytesWritten < 0 )
-    {
-        LogError( ( "Error getting the bytes written for the properties confirmation JSON" ) );
-        return;
-    }
-    else
-    {
-        xResult = AzureIoTHubClient_SendPropertiesReported( pxAzureIoTHubClient, ucPropertyPayloadBuffer, lBytesWritten, NULL );
-
-        if( xResult != eAzureIoTSuccess )
-        {
-            LogError( ( "There was an error sending the reported properties: 0x%08x", xResult ) );
-        }
-    }
 }
 /*-----------------------------------------------------------*/
 
@@ -380,18 +339,19 @@ static void prvHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
 {
     AzureIoTHubClient_t * pxHandle = ( AzureIoTHubClient_t * ) pvContext;
 
-    LogInfo( ( "Command payload : %.*s \r\n",
-               pxMessage->ulPayloadLength,
-               pxMessage->pvMessagePayload ) );
+    LogInfo( ( "Received direct command: %.*s", pxMessage->usCommandNameLength, pxMessage->pucCommandName ) );
 
     if( strncmp( SET_LED_STATE_COMMAND, ( const char * ) pxMessage->pucCommandName, strlen( SET_LED_STATE_COMMAND ) ) == 0 )
     {
-        prvInvokeSetLedStateCommand( pxHandle, pxMessage );
+        prvInvokeSetLedStateCommand( pxMessage->pvMessagePayload, pxMessage->ulPayloadLength );
 
         if( AzureIoTHubClient_SendCommandResponse( pxHandle, pxMessage, 200, NULL, 0 ) != eAzureIoTSuccess )
         {
             LogInfo( ( "Error sending command response" ) );
         }
+
+        /* Update the associated reported property */
+        prvReportLedState();
     }
     else
     {
@@ -424,21 +384,18 @@ static void prvSkipPropertyAndValue( AzureIoTJSONReader_t * pxReader )
  * @brief Properties callback handler
  */
 static AzureIoTResult_t prvProcessProperties( AzureIoTHubClientPropertiesResponse_t * pxMessage,
-                                              AzureIoTHubClientPropertyType_t xPropertyType,
-                                              int32_t * lOutTelemetryInterval,
-                                              uint32_t * ulOutVersion )
+                                              AzureIoTHubClientPropertyType_t xPropertyType )
 {
     AzureIoTResult_t xResult;
     AzureIoTJSONReader_t xReader;
     const uint8_t * pucComponentName = NULL;
     uint32_t ulComponentNameLength = 0;
-
-    *lOutTelemetryInterval = 5;
+    uint32_t ulVersion;
 
     xResult = AzureIoTJSONReader_Init( &xReader, pxMessage->pvMessagePayload, pxMessage->ulPayloadLength );
     configASSERT( xResult == eAzureIoTSuccess );
 
-    xResult = AzureIoTHubClientProperties_GetPropertiesVersion( &xAzureIoTHubClient, &xReader, pxMessage->xMessageType, ulOutVersion );
+    xResult = AzureIoTHubClientProperties_GetPropertiesVersion( &xAzureIoTHubClient, &xReader, pxMessage->xMessageType, &ulVersion );
 
     if( xResult != eAzureIoTSuccess )
     {
@@ -470,7 +427,8 @@ static AzureIoTResult_t prvProcessProperties( AzureIoTHubClientPropertiesRespons
                 configASSERT( xResult == eAzureIoTSuccess );
 
                 /* Get telemetry interval */
-                xResult = AzureIoTJSONReader_GetTokenInt32( &xReader, lOutTelemetryInterval );
+                int32_t lNewTelemetryInterval,
+                        xResult = AzureIoTJSONReader_GetTokenInt32( &xReader, &lNewTelemetryInterval );
 
                 if( xResult != eAzureIoTSuccess )
                 {
@@ -480,6 +438,12 @@ static AzureIoTResult_t prvProcessProperties( AzureIoTHubClientPropertiesRespons
 
                 xResult = AzureIoTJSONReader_NextToken( &xReader );
                 configASSERT( xResult == eAzureIoTSuccess );
+
+                /* Update the property and report back */
+                lTelemetryInterval = lNewTelemetryInterval;
+                prvReportTelemetryInterval( ulVersion );
+
+                LogInfo( ( "TelemtryInterval Property received: %d.", lTelemetryInterval ) );
             }
             else
             {
@@ -505,15 +469,6 @@ static AzureIoTResult_t prvProcessProperties( AzureIoTHubClientPropertiesRespons
 }
 /*-----------------------------------------------------------*/
 
-static void prvUpdateLocalProperties( int32_t lNewTelemetryInterval,
-                                      uint32_t ulPropertyVersion )
-{
-    lTelemetryInterval = lNewTelemetryInterval;
-
-    LogInfo( ( "Current TelemetryInterval: %d", lTelemetryInterval ) );
-}
-/*-----------------------------------------------------------*/
-
 /**
  * @brief Property mesage callback handler
  */
@@ -523,8 +478,6 @@ static void prvHandleProperties( AzureIoTHubClientPropertiesResponse_t * pxMessa
     ( void ) pvContext;
 
     AzureIoTResult_t xResult;
-    int32_t xIncomingTelemetryInterval;
-    uint32_t ulVersion;
 
     LogInfo( ( "Property document payload : %.*s\r\n",
                pxMessage->ulPayloadLength,
@@ -534,14 +487,10 @@ static void prvHandleProperties( AzureIoTHubClientPropertiesResponse_t * pxMessa
     {
         case eAzureIoTHubPropertiesGetMessage:
             LogInfo( ( "Device property document GET received" ) );
-            xResult = prvProcessProperties( pxMessage, eAzureIoTHubClientPropertyWritable, &xIncomingTelemetryInterval, &ulVersion );
 
-            if( xResult == eAzureIoTSuccess )
-            {
-                prvUpdateLocalProperties( xIncomingTelemetryInterval, ulVersion );
-                prvReportTelemetryInterval( xIncomingTelemetryInterval, ulVersion );
-            }
-            else
+            xResult = prvProcessProperties( pxMessage, eAzureIoTHubClientPropertyWritable );
+
+            if( xResult != eAzureIoTSuccess )
             {
                 LogError( ( "There was an error processing incoming properties" ) );
             }
@@ -550,14 +499,10 @@ static void prvHandleProperties( AzureIoTHubClientPropertiesResponse_t * pxMessa
 
         case eAzureIoTHubPropertiesWritablePropertyMessage:
             LogInfo( ( "Device writeable property received" ) );
-            xResult = prvProcessProperties( pxMessage, eAzureIoTHubClientPropertyWritable, &xIncomingTelemetryInterval, &ulVersion );
 
-            if( xResult == eAzureIoTSuccess )
-            {
-                prvUpdateLocalProperties( xIncomingTelemetryInterval, ulVersion );
-                prvReportTelemetryInterval( xIncomingTelemetryInterval, ulVersion );
-            }
-            else
+            xResult = prvProcessProperties( pxMessage, eAzureIoTHubClientPropertyWritable );
+
+            if( xResult != eAzureIoTSuccess )
             {
                 LogError( ( "There was an error processing incoming properties" ) );
             }
@@ -566,6 +511,7 @@ static void prvHandleProperties( AzureIoTHubClientPropertiesResponse_t * pxMessa
 
         case eAzureIoTHubPropertiesReportedResponseMessage:
             LogInfo( ( "Device reported property response received" ) );
+
             break;
 
         default:
@@ -906,9 +852,9 @@ static void prvAzureDemoTask( void * pvParameters )
     lastTelemetryTime = ullGetUnixTime();
 
     /* Report properties */
-    prvReportLedState( false );
-    prvReportTelemetryInterval( lTelemetryInterval, 0 );
-//    prvDeviceInfoBuildPropertyPayload();
+    prvReportLedState();
+    prvReportTelemetryInterval( 0 );
+    prvReportDeviceInfo();
 
     /* Loop forever */
     while( true )
