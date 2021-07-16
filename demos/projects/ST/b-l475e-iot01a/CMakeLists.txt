@@ -103,7 +103,9 @@ target_link_libraries(${PROJECT_NAME}-pnp PRIVATE
     BSP::STM32::L4::HTS221
     BSP::STM32::L4::LIS3MDL
     BSP::STM32::L4::LPS22HB        
-    STM32::NoSys
+    STM32::Nano
+    STM32::Nano::FloatScan
+    STM32::Nano::FloatPrint
     az::iot_middleware::freertos
     SAMPLE::AZUREIOTPNP
     SAMPLE::TRANSPORT::MBEDTLS)
@@ -149,7 +151,9 @@ target_link_libraries(${PROJECT_NAME}-gsg PRIVATE
     BSP::STM32::L4::HTS221
     BSP::STM32::L4::LIS3MDL
     BSP::STM32::L4::LPS22HB    
-    STM32::NoSys
+    STM32::Nano
+    STM32::Nano::FloatScan
+    STM32::Nano::FloatPrint
     az::iot_middleware::freertos
     SAMPLE::AZUREIOTGSG
     SAMPLE::TRANSPORT::MBEDTLS)

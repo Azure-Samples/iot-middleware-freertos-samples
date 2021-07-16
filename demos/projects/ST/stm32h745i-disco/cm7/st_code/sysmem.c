@@ -27,7 +27,7 @@
 
 /* Variables */
 extern int errno;
-register char * stack_ptr asm("sp");
+char * stack_ptr;
 
 /* Functions */
 
@@ -41,6 +41,8 @@ caddr_t _sbrk(int incr)
 	static char *heap_end;
 	char *prev_heap_end;
 
+	__asm volatile ("MRS %0, msp" : "=r" (stack_ptr) );
+	
 	if (heap_end == 0)
 		heap_end = &end;
 

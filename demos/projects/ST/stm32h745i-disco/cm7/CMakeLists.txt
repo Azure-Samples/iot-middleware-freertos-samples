@@ -106,7 +106,9 @@ target_link_libraries(${PROJECT_NAME}-pnp PRIVATE
     HAL::STM32::H7::M7::TIMEx
     HAL::STM32::H7::M7::UARTEx
     CMSIS::STM32::H745XI::M7
-    STM32::NoSys
+    STM32::Nano
+    STM32::Nano::FloatScan
+    STM32::Nano::FloatPrint
     az::iot_middleware::freertos
     HAL::STM32::H7::M7::ETH
     BSP::STM32::H7::M7::LAN8742

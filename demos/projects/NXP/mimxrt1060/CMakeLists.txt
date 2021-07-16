@@ -1,26 +1,16 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # SPDX-License-Identifier: MIT
 
-# set parent scope path
-set(BOARD_DEMO_CONFIG_PATH ${CMAKE_CURRENT_SOURCE_DIR}/config CACHE INTERNAL "Config path")
-set(BOARD_DEMO_FREERTOS_PORT_PATH ${FreeRTOS_ARM_CM4F_PATH} CACHE INTERNAL "FreeRTOS Port used ")
-
-set(MCUX_SDK_PROJECT_NAME mcux-sdk-lib)
-
-add_library(${MCUX_SDK_PROJECT_NAME})
-target_include_directories(${MCUX_SDK_PROJECT_NAME}
-  PUBLIC
-    ${BOARD_DEMO_FREERTOS_PORT_PATH}
-)
-target_link_libraries(${MCUX_SDK_PROJECT_NAME}
-  PUBLIC
-    FreeRTOS
-)
+set(MCUX_SDK_PROJECT_NAME ${PROJECT_NAME}-pnp)
 
 nxp_mcux_sdk_fetch()
 lwip_fetch()
 
 list(APPEND CMAKE_MODULE_PATH ${NXP_MCUX_SDK_PATH})
+
+# set parent scope path
+set(BOARD_DEMO_CONFIG_PATH ${CMAKE_CURRENT_SOURCE_DIR}/config CACHE INTERNAL "Config path")
+set(BOARD_DEMO_FREERTOS_PORT_PATH ${FreeRTOS_ARM_CM4F_PATH} CACHE INTERNAL "FreeRTOS Port used ")
 
 find_package(LWIP)
 
@@ -32,6 +22,8 @@ include_directories(nxp_code/lwip)
 
 file(GLOB NXPCODE_SOURCES nxp_code/*.c nxp_code/lwip/*.c)
 set(PROJECT_SOURCES ${NXPCODE_SOURCES} main.c)
+
+add_executable(${PROJECT_NAME}-pnp ${PROJECT_SOURCES})
 
 # configure modules
 set(CONFIG_USE_driver_lpuart true)
@@ -98,31 +90,6 @@ include(driver_phy-common)
 
 include(driver_dcp)
 
-add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
-target_link_libraries(${PROJECT_NAME} PRIVATE
-    FreeRTOS::Timers
-    FreeRTOS::Heap::5
-    FreeRTOS::ARM_CM4F
-    FreeRTOS::EventGroups
-    FreeRTOSPlus::Utilities::backoff_algorithm
-    FreeRTOSPlus::Utilities::logging
-    FreeRTOSPlus::ThirdParty::mbedtls
-    az::iot_middleware::freertos
-    LWIP
-    SAMPLE::SOCKET::LWIP
-    SAMPLE::AZUREIOT
-    SAMPLE::TRANSPORT::MBEDTLS
-    ${MCUX_SDK_PROJECT_NAME}
-    )
-
-add_custom_command(TARGET ${PROJECT_NAME}
-    # Run after all other rules within the target have been executed
-    POST_BUILD
-    COMMAND ${CMAKE_OBJCOPY} -Obinary $<TARGET_FILE:${PROJECT_NAME}> ${PROJECT_NAME}.bin
-    COMMENT "Generate Bin file"
-    VERBATIM)
-
-add_executable(${PROJECT_NAME}-pnp ${PROJECT_SOURCES})
 target_link_libraries(${PROJECT_NAME}-pnp PRIVATE
     FreeRTOS::Timers
     FreeRTOS::Heap::5
@@ -135,9 +102,7 @@ target_link_libraries(${PROJECT_NAME}-pnp PRIVATE
     LWIP
     SAMPLE::SOCKET::LWIP
     SAMPLE::AZUREIOTPNP
-    SAMPLE::TRANSPORT::MBEDTLS
-    ${MCUX_SDK_PROJECT_NAME}
-    )
+    SAMPLE::TRANSPORT::MBEDTLS)
 
 add_custom_command(TARGET ${PROJECT_NAME}-pnp
     # Run after all other rules within the target have been executed

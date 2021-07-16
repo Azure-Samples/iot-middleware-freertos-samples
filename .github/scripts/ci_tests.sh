@@ -61,5 +61,6 @@ exit_if_binary_does_not_exist "build_st_b-l4s5i-iot01a" "iot-middleware-sample-p
 
 echo -e "::group::Building sample for NXP mimxrt1060 port"
 sample_build "NXP" "mimxrt1060" "build_nxp_mimxrt1060"
-exit_if_binary_does_not_exist "build_nxp_mimxrt1060" "iot-middleware-sample.elf"
+# TODO: GH Issue 66
+# exit_if_binary_does_not_exist "build_nxp_mimxrt1060" "iot-middleware-sample.elf"
 exit_if_binary_does_not_exist "build_nxp_mimxrt1060" "iot-middleware-sample-pnp.elf"

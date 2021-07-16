@@ -30,9 +30,16 @@
             "dependsOrder": "sequence"
         },
         {
-            "label": "Build stm32h745i_discovery",
+            "label": "Build b-l4s5i-iot01a",
             "type": "shell",
-            "command": "cmake -G Ninja -DFREERTOS_PATH=${workspaceRoot}/libs/FreeRTOS -DVENDOR=ST -DBOARD=stm32h745i_discovery -DCMAKE_BUILD_TYPE=Debug -Bstm32h745i_discovery ${workspaceRoot}; cmake --build stm32h745i_discovery",
+            "command": "cmake -G Ninja -DFREERTOS_PATH=${workspaceRoot}/libs/FreeRTOS -DVENDOR=ST -DBOARD=b-l4s5i-iot01a -DCMAKE_BUILD_TYPE=Debug -Bb-l4s5i-iot01a ${workspaceRoot}; cmake --build b-l4s5i-iot01a",
+            "dependsOn": [ "Download FreeRTOS" ],
+            "dependsOrder": "sequence"
+        },
+        {
+            "label": "Build stm32h745i-disco",
+            "type": "shell",
+            "command": "cmake -G Ninja -DFREERTOS_PATH=${workspaceRoot}/libs/FreeRTOS -DVENDOR=ST -DBOARD=stm32h745i-disco -DCMAKE_BUILD_TYPE=Debug -Bstm32h745i-disco ${workspaceRoot}; cmake --build stm32h745i-disco",
             "dependsOn": [ "Download FreeRTOS" ],
             "dependsOrder": "sequence"
         },
@@ -46,14 +53,14 @@
         {
             "label": "Build Linux",
             "type": "shell",
-            "command": "cmake -G Ninja -DFREERTOS_PATH=${workspaceRoot}/libs/FreeRTOS -DBOARD=linux -DVENDOR=PC -DCMAKE_BUILD_TYPE=Debug -Blinux ${workspaceRoot}; cmake --build linux",
+            "command": "cmake -G Ninja -DFREERTOS_PATH=${workspaceRoot}/libs/FreeRTOS -DBOARD=linux -DVENDOR=PC -DCMAKE_BUILD_TYPE=Debug -Bbuild_linux ${workspaceRoot}; cmake --build build_linux",
             "dependsOn": [ "Download FreeRTOS" ],
             "dependsOrder": "sequence"
         },
         {
             "label": "Build Windows",
             "type": "shell",
-            "command": "cmake -DFREERTOS_PATH=${workspaceRoot}/libs/FreeRTOS -DBOARD=windows -DVENDOR=PC -DCMAKE_GENERATOR_PLATFORM=Win32 -DCMAKE_BUILD_TYPE=Debug -Bwindows ${workspaceRoot}; cmake --build windows",
+            "command": "cmake -DFREERTOS_PATH=${workspaceRoot}/libs/FreeRTOS -DBOARD=windows -DVENDOR=PC -DCMAKE_GENERATOR_PLATFORM=Win32 -DCMAKE_BUILD_TYPE=Debug -Bbuild_windows ${workspaceRoot}; cmake --build build_windows",
             "dependsOn": [ "Download FreeRTOS" ],
             "dependsOrder": "sequence"
         }
