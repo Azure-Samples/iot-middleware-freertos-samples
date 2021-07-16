@@ -8,7 +8,6 @@ endif()
 
 project(iot-middleware-sample C ASM)
 set(CMAKE_INCLUDE_CURRENT_DIR TRUE)
-# set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m32")
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
