@@ -38,6 +38,8 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     SAMPLE::TRANSPORT::MBEDTLS
     SAMPLE::SOCKET::FREERTOSTCPIP)
 
+add_map_file(${PROJECT_NAME} ${PROJECT_NAME}.map)
+
 # Add demo files and dependencies for PnP Sample
 add_executable(${PROJECT_NAME}-pnp main.c)
 target_link_libraries(${PROJECT_NAME}-pnp PRIVATE
@@ -56,3 +58,5 @@ target_link_libraries(${PROJECT_NAME}-pnp PRIVATE
     SAMPLE::AZUREIOTPNP
     SAMPLE::TRANSPORT::MBEDTLS
     SAMPLE::SOCKET::FREERTOSTCPIP)
+
+add_map_file(${PROJECT_NAME}-pnp ${PROJECT_NAME}-pnp.map)

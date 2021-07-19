@@ -10,3 +10,7 @@ add_compile_options(
       $<$<CONFIG:Release>:/MT> #--|
       ${MCU_C_FLAGS})
 add_link_options(/NODEFAULTLIB:libcmtd.lib)
+
+function(add_map_file TARGET_NAME MAP_FILE_NAME)
+    target_link_options(${TARGET_NAME} PRIVATE /MAP)
+endfunction()

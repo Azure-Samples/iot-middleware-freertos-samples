@@ -58,6 +58,8 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     SAMPLE::AZUREIOT
     SAMPLE::TRANSPORT::MBEDTLS)
 
+add_map_file(${PROJECT_NAME} ${PROJECT_NAME}.map)
+
 add_custom_command(TARGET ${PROJECT_NAME}
     # Run after all other rules within the target have been executed
     POST_BUILD
@@ -98,6 +100,8 @@ target_link_libraries(${PROJECT_NAME}-pnp PRIVATE
     az::iot_middleware::freertos
     SAMPLE::AZUREIOTPNP
     SAMPLE::TRANSPORT::MBEDTLS)
+
+add_map_file(${PROJECT_NAME}-pnp ${PROJECT_NAME}-pnp.map)
 
 add_custom_command(TARGET ${PROJECT_NAME}-pnp
     # Run after all other rules within the target have been executed

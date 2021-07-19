@@ -68,6 +68,8 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     SAMPLE::TRANSPORT::MBEDTLS
     SAMPLE::SOCKET::LWIP)
 
+add_map_file(${PROJECT_NAME} ${PROJECT_NAME}.map)
+
 add_custom_command(TARGET ${PROJECT_NAME}
     # Run after all other rules within the target have been executed
     POST_BUILD
@@ -115,6 +117,8 @@ target_link_libraries(${PROJECT_NAME}-pnp PRIVATE
     SAMPLE::AZUREIOTPNP
     SAMPLE::TRANSPORT::MBEDTLS
     SAMPLE::SOCKET::LWIP)
+
+add_map_file(${PROJECT_NAME}-pnp ${PROJECT_NAME}-pnp.map)
 
 add_custom_command(TARGET ${PROJECT_NAME}-pnp
     # Run after all other rules within the target have been executed

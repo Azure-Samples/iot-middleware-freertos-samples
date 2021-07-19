@@ -39,6 +39,8 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     SAMPLE::TRANSPORT::MBEDTLS
     SAMPLE::SOCKET::FREERTOSTCPIP)
 
+add_map_file(${PROJECT_NAME} ${PROJECT_NAME}.map)
+
 # Add demo files and dependencies for PnP sample
 add_executable(${PROJECT_NAME}-pnp main.c)
 target_include_directories(${PROJECT_NAME}-pnp PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/WinPCap)
@@ -58,3 +60,5 @@ target_link_libraries(${PROJECT_NAME}-pnp PRIVATE
     SAMPLE::AZUREIOTPNP
     SAMPLE::TRANSPORT::MBEDTLS
     SAMPLE::SOCKET::FREERTOSTCPIP)
+
+add_map_file(${PROJECT_NAME}-pnp ${PROJECT_NAME}-pnp.map)
