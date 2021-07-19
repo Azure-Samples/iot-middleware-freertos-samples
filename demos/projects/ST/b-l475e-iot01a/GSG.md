@@ -62,7 +62,7 @@ To install the tools:
     > *iot-middleware-freertos-samples\tools\get-toolchain.bat*
 
 1. After the installation, open a new console window to recognize the configuration changes made by the setup script. Use this console to complete the remaining programming tasks in the tutorial. You can use Windows CMD, PowerShell, or Git Bash for Windows.
-1. Run the following code to confirm that CMake version 3.14 or later is installed.
+1. Run the following code to confirm that CMake version **3.20** or later is installed.
 
     ```shell
     cmake --version
@@ -143,8 +143,10 @@ To connect the STM DevKit to Azure, you'll modify a configuration file for Wi-Fi
 
 In your console or in File Explorer, run the following commands from the *iot-middleware-freertos-samples* directory to build the image:
 
-> *cmake --preset b-l475e-iot01a*
-> *cmake --build --preset b-l475e-iot01a*
+    ```console
+    cmake --preset b-l475e-iot01a
+    cmake --build --preset b-l475e-iot01a
+    ```
 
 After the build completes, confirm that the binary file was created in the following path:
 
@@ -187,6 +189,7 @@ You can use the **Termite** utility to monitor communication and confirm that yo
 1. In the **Termite** console, check the following checkpoint values to confirm that the device is initialized and connected to Azure IoT.
 
     ```output
+    TBD
     ```
 
     > **Important**: If the DNS client initialization fails and notifies you that the Wi-Fi firmware is out of date, you'll need to update the Wi-Fi module firmware. Download and install the [Inventek ISM 43362 Wi-Fi module firmware update](https://www.st.com/resource/en/utilities/inventek_fw_updater.zip). Then press the **Reset** button on the device to recheck your connection, and continue this tutorial.
