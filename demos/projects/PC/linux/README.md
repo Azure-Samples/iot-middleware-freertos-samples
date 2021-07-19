@@ -59,7 +59,7 @@ Update the file `demo_config.h` with your configuration values.
     nano demos/projects/PC/linux/config/demo_config.h
 ```
 
-If you're using a device previously created in your **IoT Hub** with SAS authentication, comment out line #53 (`#define democonfigENABLE_DPS_SAMPLE`) and set the following parameters:
+If you're using a device previously created in your **IoT Hub** with SAS authentication, disable DPS by commenting out `#define democonfigENABLE_DPS_SAMPLE` and setting the following parameters:
 
 Parameter | Value
 ---------|----------
@@ -77,14 +77,14 @@ Parameter | Value
 
 ### Set the Virtual Ethernet Interface
 
-Execute the command below to find which index you got for the ``rtosveth1`` (index is the number to the left of the interface). Make a note of the number for the next step.
+Execute the command below to find which index you got for the `rtosveth1` (index is the number to the left of the interface). Make a note of the number for the next step.
 
 ```bash
     sudo tcpdump --list-interfaces
 ```
 Look for line #138 in `FreeRTOSConfig.h` and update `configNETWORK_INTERFACE_TO_USE` with the number you got in the previous step.
 
-**Example**: if you got ``4.rtosveth1 [Up, Running]`` in the previous step, you'll update line #138 to look like this ``#define configNETWORK_INTERFACE_TO_USE ( 4L )``
+**Example**: if you got `4.rtosveth1 [Up, Running]` in the previous step, you'll update macro `configNETWORK_INTERFACE_TO_USE` to look like this `#define configNETWORK_INTERFACE_TO_USE ( 4L )`
 
 ```bash
     nano demos/projects/PC/linux/config/FreeRTOSConfig.h
@@ -104,5 +104,5 @@ To build the device image, run the following commands from the root of the clone
 To monitor communication and confirm that your device is set up correctly, execute the command below.
 
 ```Bash
-    sudo ./build_linux/demos/projects/PC/linux/iot-middleware-sample.elf
+    sudo ./build_linux/demos/projects/PC/linux/iot-middleware-sample
 ```

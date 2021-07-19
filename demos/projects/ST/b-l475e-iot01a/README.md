@@ -64,7 +64,7 @@ Parameter | Value
  `WIFI_SSID` | _{Your Wi-Fi SSID}_
  `WIFI_PASSWORD` | _{Your Wi-Fi Password}_ 
 
-If you're using a device previously created in your **IoT Hub** with SAS authentication, disable DPS by commenting out line #53 (`#define democonfigENABLE_DPS_SAMPLE`) and set the following parameters:
+If you're using a device previously created in your **IoT Hub** with SAS authentication, disable DPS by commenting out `#define democonfigENABLE_DPS_SAMPLE` and setting the following parameters:
 
 Parameter | Value 
 ---------|----------
