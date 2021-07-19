@@ -275,8 +275,8 @@ static int32_t setRootCa( MbedSSLContext_t * pxSslContext,
 
     if( lMbedtlsError != 0 )
     {
-        LogError( ( "Failed to parse server root CA certificate: lMbedtlsError= %s : %s.",
-                    mbedtlsHighLevelCodeOrDefault( lMbedtlsError ),
+        LogError( ( "Failed to parse server root CA certificate: lMbedtlsError[%d]= %s : %s.",
+                    lMbedtlsError, mbedtlsHighLevelCodeOrDefault( lMbedtlsError ),
                     mbedtlsLowLevelCodeOrDefault( lMbedtlsError ) ) );
     }
     else
@@ -306,8 +306,8 @@ static int32_t setClientCertificate( MbedSSLContext_t * pxSslContext,
 
     if( lMbedtlsError != 0 )
     {
-        LogError( ( "Failed to parse the client certificate: lMbedtlsError= %s : %s.",
-                    mbedtlsHighLevelCodeOrDefault( lMbedtlsError ),
+        LogError( ( "Failed to parse the client certificate: lMbedtlsError[%d]= %s : %s.",
+                    lMbedtlsError, mbedtlsHighLevelCodeOrDefault( lMbedtlsError ),
                     mbedtlsLowLevelCodeOrDefault( lMbedtlsError ) ) );
     }
 
@@ -333,8 +333,8 @@ static int32_t setPrivateKey( MbedSSLContext_t * pxSslContext,
 
     if( lMbedtlsError != 0 )
     {
-        LogError( ( "Failed to parse the client key: lMbedtlsError= %s : %s.",
-                    mbedtlsHighLevelCodeOrDefault( lMbedtlsError ),
+        LogError( ( "Failed to parse the client key: lMbedtlsError[%d]= %s : %s.",
+                    lMbedtlsError, mbedtlsHighLevelCodeOrDefault( lMbedtlsError ),
                     mbedtlsLowLevelCodeOrDefault( lMbedtlsError ) ) );
     }
 
@@ -414,8 +414,8 @@ static void setOptionalConfigurations( MbedSSLContext_t * pxSslContext,
 
         if( lMbedtlsError != 0 )
         {
-            LogError( ( "Failed to configure ALPN protocol in mbed TLS: lMbedtlsError= %s : %s.",
-                        mbedtlsHighLevelCodeOrDefault( lMbedtlsError ),
+            LogError( ( "Failed to configure ALPN protocol in mbed TLS: lMbedtlsError[%d]= %s : %s.",
+                        lMbedtlsError, mbedtlsHighLevelCodeOrDefault( lMbedtlsError ),
                         mbedtlsLowLevelCodeOrDefault( lMbedtlsError ) ) );
         }
     }
@@ -428,8 +428,8 @@ static void setOptionalConfigurations( MbedSSLContext_t * pxSslContext,
 
         if( lMbedtlsError != 0 )
         {
-            LogError( ( "Failed to set server name: lMbedtlsError= %s : %s.",
-                        mbedtlsHighLevelCodeOrDefault( lMbedtlsError ),
+            LogError( ( "Failed to set server name: lMbedtlsError[%d]= %s : %s.",
+                        lMbedtlsError, mbedtlsHighLevelCodeOrDefault( lMbedtlsError ),
                         mbedtlsLowLevelCodeOrDefault( lMbedtlsError ) ) );
         }
     }
@@ -446,8 +446,8 @@ static void setOptionalConfigurations( MbedSSLContext_t * pxSslContext,
 
         if( lMbedtlsError != 0 )
         {
-            LogError( ( "Failed to maximum fragment length extension: lMbedtlsError= %s : %s.",
-                        mbedtlsHighLevelCodeOrDefault( lMbedtlsError ),
+            LogError( ( "Failed to maximum fragment length extension: lMbedtlsError[%d]= %s : %s.",
+                        lMbedtlsError, mbedtlsHighLevelCodeOrDefault( lMbedtlsError ),
                         mbedtlsLowLevelCodeOrDefault( lMbedtlsError ) ) );
         }
     #endif /* ifdef MBEDTLS_SSL_MAX_FRAGMENT_LENGTH */
@@ -483,8 +483,8 @@ static TlsTransportStatus_t tlsSetup( NetworkContext_t * pxNetworkContext,
 
     if( lMbedtlsError != 0 )
     {
-        LogError( ( "Failed to set default SSL configuration: lMbedtlsError= %s : %s.",
-                    mbedtlsHighLevelCodeOrDefault( lMbedtlsError ),
+        LogError( ( "Failed to set default SSL configuration: lMbedtlsError[%d]= %s : %s.",
+                    lMbedtlsError, mbedtlsHighLevelCodeOrDefault( lMbedtlsError ),
                     mbedtlsLowLevelCodeOrDefault( lMbedtlsError ) ) );
 
         /* Per mbed TLS docs, mbedtls_ssl_config_defaults only fails on memory allocation. */
@@ -535,8 +535,8 @@ static TlsTransportStatus_t tlsHandshake( NetworkContext_t * pxNetworkContext,
 
     if( lMbedtlsError != 0 )
     {
-        LogError( ( "Failed to set up mbed TLS SSL context: lMbedtlsError= %s : %s.",
-                    mbedtlsHighLevelCodeOrDefault( lMbedtlsError ),
+        LogError( ( "Failed to set up mbed TLS SSL context: lMbedtlsError[%d]= %s : %s.",
+                    lMbedtlsError, mbedtlsHighLevelCodeOrDefault( lMbedtlsError ),
                     mbedtlsLowLevelCodeOrDefault( lMbedtlsError ) ) );
 
         xRetVal = eTLSTransportInternalError;
@@ -568,8 +568,8 @@ static TlsTransportStatus_t tlsHandshake( NetworkContext_t * pxNetworkContext,
 
         if( lMbedtlsError != 0 )
         {
-            LogError( ( "Failed to perform TLS handshake: lMbedtlsError= %s : %s.",
-                        mbedtlsHighLevelCodeOrDefault( lMbedtlsError ),
+            LogError( ( "Failed to perform TLS handshake: lMbedtlsError[%d]= %s : %s.",
+                        lMbedtlsError, mbedtlsHighLevelCodeOrDefault( lMbedtlsError ),
                         mbedtlsLowLevelCodeOrDefault( lMbedtlsError ) ) );
 
             xRetVal = eTLSTransportHandshakeFailed;
@@ -610,8 +610,8 @@ static TlsTransportStatus_t initMbedtls( mbedtls_entropy_context * pxEntropyCont
 
     if( lMbedtlsError != 0 )
     {
-        LogError( ( "Failed to add entropy source: lMbedtlsError= %s : %s.",
-                    mbedtlsHighLevelCodeOrDefault( lMbedtlsError ),
+        LogError( ( "Failed to add entropy source: lMbedtlsError[%d]= %s : %s.",
+                    lMbedtlsError, mbedtlsHighLevelCodeOrDefault( lMbedtlsError ),
                     mbedtlsLowLevelCodeOrDefault( lMbedtlsError ) ) );
         xRetVal = eTLSTransportInternalError;
     }
@@ -627,8 +627,8 @@ static TlsTransportStatus_t initMbedtls( mbedtls_entropy_context * pxEntropyCont
 
         if( lMbedtlsError != 0 )
         {
-            LogError( ( "Failed to seed PRNG: lMbedtlsError= %s : %s.",
-                        mbedtlsHighLevelCodeOrDefault( lMbedtlsError ),
+            LogError( ( "Failed to seed PRNG: lMbedtlsError[%d]= %s : %s.",
+                        lMbedtlsError, mbedtlsHighLevelCodeOrDefault( lMbedtlsError ),
                         mbedtlsLowLevelCodeOrDefault( lMbedtlsError ) ) );
             xRetVal = eTLSTransportInternalError;
         }
@@ -758,7 +758,7 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pxNetworkContext,
 void TLS_Socket_Disconnect( NetworkContext_t * pxNetworkContext )
 {
     TlsTransportParams_t * pxTlsTransportParams = NULL;
-    BaseType_t xTLSStatus = 0;
+    int32_t lMbedtlsError = 0;
     MbedSSLContext_t * pxSSLContext;
 
     if( ( pxNetworkContext != NULL ) && ( pxNetworkContext->pParams != NULL ) &&
@@ -767,23 +767,23 @@ void TLS_Socket_Disconnect( NetworkContext_t * pxNetworkContext )
         pxTlsTransportParams = pxNetworkContext->pParams;
         pxSSLContext = ( MbedSSLContext_t * ) pxNetworkContext->pParams->xSSLContext;
         /* Attempting to terminate TLS connection. */
-        xTLSStatus = ( BaseType_t ) mbedtls_ssl_close_notify( &( pxSSLContext->context ) );
+        lMbedtlsError = mbedtls_ssl_close_notify( &( pxSSLContext->context ) );
 
         /* Ignore the WANT_READ and WANT_WRITE return values. */
-        if( ( xTLSStatus != ( BaseType_t ) MBEDTLS_ERR_SSL_WANT_READ ) &&
-            ( xTLSStatus != ( BaseType_t ) MBEDTLS_ERR_SSL_WANT_WRITE ) )
+        if( ( lMbedtlsError != MBEDTLS_ERR_SSL_WANT_READ ) &&
+            ( lMbedtlsError != MBEDTLS_ERR_SSL_WANT_WRITE ) )
         {
-            if( xTLSStatus == 0 )
+            if( lMbedtlsError == 0 )
             {
                 LogInfo( ( "(Network connection %p) TLS close-notify sent.",
                            pxNetworkContext ) );
             }
             else
             {
-                LogError( ( "(Network connection %p) Failed to send TLS close-notify: mbedTLSError= %s : %s.",
-                            pxNetworkContext,
-                            mbedtlsHighLevelCodeOrDefault( xTLSStatus ),
-                            mbedtlsLowLevelCodeOrDefault( xTLSStatus ) ) );
+                LogError( ( "(Network connection %p) Failed to send TLS close-notify: mbedTLSError[%d]= %s : %s.",
+                            pxNetworkContext, lMbedtlsError,
+                            mbedtlsHighLevelCodeOrDefault( lMbedtlsError ),
+                            mbedtlsLowLevelCodeOrDefault( lMbedtlsError ) ) );
             }
         }
         else
@@ -791,7 +791,7 @@ void TLS_Socket_Disconnect( NetworkContext_t * pxNetworkContext )
             /* WANT_READ and WANT_WRITE can be ignored. Logging for debugging purposes. */
             LogInfo( ( "(Network connection %p) TLS close-notify sent; ",
                        "received %s as the TLS status can be ignored for close-notify."
-                       ( xTLSStatus == MBEDTLS_ERR_SSL_WANT_READ ) ? "WANT_READ" : "WANT_WRITE",
+                       ( lMbedtlsError == MBEDTLS_ERR_SSL_WANT_READ ) ? "WANT_READ" : "WANT_WRITE",
                        pxNetworkContext ) );
         }
 
@@ -813,7 +813,7 @@ int32_t TLS_Socket_Recv( NetworkContext_t * pxNetworkContext,
                          void * pvBuffer,
                          size_t xBytesToRecv )
 {
-    int32_t lTLSStatus = 0;
+    int32_t lMbedtlsError = 0;
     MbedSSLContext_t * pxSSLContext;
 
     configASSERT( ( pxNetworkContext != NULL ) &&
@@ -821,35 +821,35 @@ int32_t TLS_Socket_Recv( NetworkContext_t * pxNetworkContext,
                   ( pxNetworkContext->pParams->xSSLContext != NULL ) );
 
     pxSSLContext = ( MbedSSLContext_t * ) pxNetworkContext->pParams->xSSLContext;
-    lTLSStatus = ( int32_t ) mbedtls_ssl_read( &( pxSSLContext->context ),
-                                               pvBuffer,
-                                               xBytesToRecv );
+    lMbedtlsError = ( int32_t ) mbedtls_ssl_read( &( pxSSLContext->context ),
+                                                  pvBuffer,
+                                                  xBytesToRecv );
 
-    if( ( lTLSStatus == MBEDTLS_ERR_SSL_TIMEOUT ) ||
-        ( lTLSStatus == MBEDTLS_ERR_SSL_WANT_READ ) ||
-        ( lTLSStatus == MBEDTLS_ERR_SSL_WANT_WRITE ) )
+    if( ( lMbedtlsError == MBEDTLS_ERR_SSL_TIMEOUT ) ||
+        ( lMbedtlsError == MBEDTLS_ERR_SSL_WANT_READ ) ||
+        ( lMbedtlsError == MBEDTLS_ERR_SSL_WANT_WRITE ) )
     {
         LogDebug( ( "Failed to read data. However, a read can be retried on this error. "
-                    "mbedTLSError= %s : %s.",
-                    mbedtlsHighLevelCodeOrDefault( lTLSStatus ),
-                    mbedtlsLowLevelCodeOrDefault( lTLSStatus ) ) );
+                    "mbedTLSError[%d]= %s : %s.", lMbedtlsError,
+                    mbedtlsHighLevelCodeOrDefault( lMbedtlsError ),
+                    mbedtlsLowLevelCodeOrDefault( lMbedtlsError ) ) );
 
         /* Mark these set of errors as a timeout. The libraries may retry read
          * on these errors. */
-        lTLSStatus = 0;
+        lMbedtlsError = 0;
     }
-    else if( lTLSStatus < 0 )
+    else if( lMbedtlsError < 0 )
     {
-        LogError( ( "Failed to read data: mbedTLSError= %s : %s.",
-                    mbedtlsHighLevelCodeOrDefault( lTLSStatus ),
-                    mbedtlsLowLevelCodeOrDefault( lTLSStatus ) ) );
+        LogError( ( "Failed to read data: mbedTLSError[%d]= %s : %s.",
+                    lMbedtlsError, mbedtlsHighLevelCodeOrDefault( lMbedtlsError ),
+                    mbedtlsLowLevelCodeOrDefault( lMbedtlsError ) ) );
     }
     else
     {
         /* Empty else marker. */
     }
 
-    return lTLSStatus;
+    return lMbedtlsError;
 }
 /*-----------------------------------------------------------*/
 
@@ -857,7 +857,7 @@ int32_t TLS_Socket_Send( NetworkContext_t * pxNetworkContext,
                          const void * pvBuffer,
                          size_t xBytesToSend )
 {
-    int32_t lTLSStatus = 0;
+    int32_t lMbedtlsError = 0;
     MbedSSLContext_t * pxSSLContext;
 
     configASSERT( ( pxNetworkContext != NULL ) &&
@@ -865,34 +865,34 @@ int32_t TLS_Socket_Send( NetworkContext_t * pxNetworkContext,
                   ( pxNetworkContext->pParams->xSSLContext != NULL ) );
 
     pxSSLContext = ( MbedSSLContext_t * ) pxNetworkContext->pParams->xSSLContext;
-    lTLSStatus = ( int32_t ) mbedtls_ssl_write( &( pxSSLContext->context ),
-                                                pvBuffer,
-                                                xBytesToSend );
+    lMbedtlsError = ( int32_t ) mbedtls_ssl_write( &( pxSSLContext->context ),
+                                                   pvBuffer,
+                                                   xBytesToSend );
 
-    if( ( lTLSStatus == MBEDTLS_ERR_SSL_TIMEOUT ) ||
-        ( lTLSStatus == MBEDTLS_ERR_SSL_WANT_READ ) ||
-        ( lTLSStatus == MBEDTLS_ERR_SSL_WANT_WRITE ) )
+    if( ( lMbedtlsError == MBEDTLS_ERR_SSL_TIMEOUT ) ||
+        ( lMbedtlsError == MBEDTLS_ERR_SSL_WANT_READ ) ||
+        ( lMbedtlsError == MBEDTLS_ERR_SSL_WANT_WRITE ) )
     {
         LogDebug( ( "Failed to send data. However, send can be retried on this error. "
-                    "mbedTLSError= %s : %s.",
-                    mbedtlsHighLevelCodeOrDefault( lTLSStatus ),
-                    mbedtlsLowLevelCodeOrDefault( lTLSStatus ) ) );
+                    "mbedTLSError[%d]= %s : %s.", lMbedtlsError,
+                    mbedtlsHighLevelCodeOrDefault( lMbedtlsError ),
+                    mbedtlsLowLevelCodeOrDefault( lMbedtlsError ) ) );
 
         /* Mark these set of errors as a timeout. The libraries may retry send
          * on these errors. */
-        lTLSStatus = 0;
+        lMbedtlsError = 0;
     }
-    else if( lTLSStatus < 0 )
+    else if( lMbedtlsError < 0 )
     {
-        LogError( ( "Failed to send data:  mbedTLSError= %s : %s.",
-                    mbedtlsHighLevelCodeOrDefault( lTLSStatus ),
-                    mbedtlsLowLevelCodeOrDefault( lTLSStatus ) ) );
+        LogError( ( "Failed to send data:  mbedTLSError[%d]= %s : %s.",
+                    lMbedtlsError, mbedtlsHighLevelCodeOrDefault( lMbedtlsError ),
+                    mbedtlsLowLevelCodeOrDefault( lMbedtlsError ) ) );
     }
     else
     {
         /* Empty else marker. */
     }
 
-    return lTLSStatus;
+    return lMbedtlsError;
 }
 /*-----------------------------------------------------------*/
