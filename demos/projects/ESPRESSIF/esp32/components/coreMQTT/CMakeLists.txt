@@ -1,0 +1,25 @@
+set(ROOT_PATH
+    ${CMAKE_CURRENT_LIST_DIR}/../../../../../..
+)
+
+set(AZURE_IOT_MIDDLEWARE_FREERTOS
+    ${ROOT_PATH}/libs/azure-iot-middleware-freertos
+)
+
+set(CORE_MQTT_PATH 
+    ${AZURE_IOT_MIDDLEWARE_FREERTOS}/libraries/coreMQTT/source
+)
+
+file(GLOB COMPONENT_SOURCES
+    ${CORE_MQTT_PATH}/*.c  
+)
+
+set(COMPONENT_INCLUDE_DIRS
+    ${AZURE_IOT_MIDDLEWARE_FREERTOS}/.github/config
+    ${CORE_MQTT_PATH}/include
+    ${CORE_MQTT_PATH}/interface
+)
+
+idf_component_register(
+    SRCS ${COMPONENT_SOURCES}
+    INCLUDE_DIRS ${COMPONENT_INCLUDE_DIRS})

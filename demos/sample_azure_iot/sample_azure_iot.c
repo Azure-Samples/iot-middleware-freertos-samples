@@ -24,6 +24,7 @@
 
 /* Crypto helper header. */
 #include "crypto.h"
+
 /*-----------------------------------------------------------*/
 
 /* Compile time error for undefined configs. */
@@ -170,7 +171,7 @@ static AzureIoTHubClient_t xAzureIoTHubClient;
  * @param[in] pvParameters Parameters as passed at the time of task creation. Not
  * used in this example.
  */
-static void prvAzureDemoTask( void * pvParameters );
+void prvAzureDemoTask( void * pvParameters );
 
 /**
  * @brief Connect to endpoint with reconnection retries.
@@ -208,7 +209,7 @@ static void prvHandleCloudMessage( AzureIoTHubClientCloudToDeviceMessageRequest_
 
     LogInfo( ( "Cloud message payload : %.*s \r\n",
                pxMessage->ulPayloadLength,
-               pxMessage->pvMessagePayload ) );
+               (const char*)pxMessage->pvMessagePayload ) );
 }
 /*-----------------------------------------------------------*/
 
@@ -220,7 +221,7 @@ static void prvHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
 {
     LogInfo( ( "Command payload : %.*s \r\n",
                pxMessage->ulPayloadLength,
-               pxMessage->pvMessagePayload ) );
+               (const char*)pxMessage->pvMessagePayload ) );
 
     AzureIoTHubClient_t * xHandle = ( AzureIoTHubClient_t * ) pvContext;
 
@@ -260,7 +261,7 @@ static void prvHandlePropertiesMessage( AzureIoTHubClientPropertiesResponse_t * 
 
     LogInfo( ( "Property document payload : %.*s \r\n",
                pxMessage->ulPayloadLength,
-               pxMessage->pvMessagePayload ) );
+               (const char*)pxMessage->pvMessagePayload ) );
 }
 /*-----------------------------------------------------------*/
 
@@ -288,7 +289,7 @@ static uint32_t prvSetupNetworkCredentials( NetworkCredentials_t * pxNetworkCred
  * @brief Azure IoT demo task that gets started in the platform specific project.
  *  In this demo task, middleware API's are used to connect to Azure IoT Hub.
  */
-static void prvAzureDemoTask( void * pvParameters )
+void prvAzureDemoTask( void * pvParameters )
 {
     int lPublishCount = 0;
     uint32_t ulScratchBufferLength = 0U;
