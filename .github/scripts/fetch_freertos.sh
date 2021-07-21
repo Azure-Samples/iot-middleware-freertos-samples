@@ -14,7 +14,7 @@ TEST_FREERTOS_SRC=${1:-"libs/FreeRTOS"}
 if [ ! -d $TEST_FREERTOS_SRC ]; then
     git clone https://github.com/FreeRTOS/FreeRTOS.git $TEST_FREERTOS_SRC
     pushd libs/FreeRTOS
-    git checkout -b ${TEST_FREERTOS_COMMIT_ID}
+    git checkout ${TEST_FREERTOS_COMMIT_ID}
     git submodule sync
     git submodule update --init --recursive --depth=1
     popd
