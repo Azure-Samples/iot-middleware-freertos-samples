@@ -5,7 +5,7 @@
             "name": "Linux",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/linux/demos/projects/PC/linux/iot-middleware-sample",
+            "program": "${workspaceFolder}/build_linux/demos/projects/PC/linux/iot-middleware-sample",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
