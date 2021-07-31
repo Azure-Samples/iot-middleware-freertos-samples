@@ -1,11 +1,5 @@
-/* FreeRTOS Real Time Stats Example
-
-   This example code is in the Public Domain (or CC0 licensed, at your option.)
-
-   Unless required by applicable law or agreed to in writing, this
-   software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-   CONDITIONS OF ANY KIND, either express or implied.
-*/
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// SPDX-License-Identifier: MIT
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,7 +22,7 @@
 
 static uint64_t ulGlobalEntryTime = 1639093301;
 
-static const char *TAG = "example_connect";
+static const char *TAG = "sample_azureiot";
 
 /*-----------------------------------------------------------*/
 
@@ -74,36 +68,36 @@ static esp_ip4_addr_t s_ip_addr;
 
 #define NR_OF_IP_ADDRESSES_TO_WAIT_FOR 1
 
-#if CONFIG_EXAMPLE_WIFI_SCAN_METHOD_FAST
-#define EXAMPLE_WIFI_SCAN_METHOD WIFI_FAST_SCAN
-#elif CONFIG_EXAMPLE_WIFI_SCAN_METHOD_ALL_CHANNEL
-#define EXAMPLE_WIFI_SCAN_METHOD WIFI_ALL_CHANNEL_SCAN
+#if CONFIG_SAMPLE_IOT_WIFI_SCAN_METHOD_FAST
+#define SAMPLE_IOT_WIFI_SCAN_METHOD WIFI_FAST_SCAN
+#elif CONFIG_SAMPLE_IOT_WIFI_SCAN_METHOD_ALL_CHANNEL
+#define SAMPLE_IOT_WIFI_SCAN_METHOD WIFI_ALL_CHANNEL_SCAN
 #endif
 
-#if CONFIG_EXAMPLE_WIFI_CONNECT_AP_BY_SIGNAL
-#define EXAMPLE_WIFI_CONNECT_AP_SORT_METHOD WIFI_CONNECT_AP_BY_SIGNAL
-#elif CONFIG_EXAMPLE_WIFI_CONNECT_AP_BY_SECURITY
-#define EXAMPLE_WIFI_CONNECT_AP_SORT_METHOD WIFI_CONNECT_AP_BY_SECURITY
+#if CONFIG_SAMPLE_IOT_WIFI_CONNECT_AP_BY_SIGNAL
+#define SAMPLE_IOT_WIFI_CONNECT_AP_SORT_METHOD WIFI_CONNECT_AP_BY_SIGNAL
+#elif CONFIG_SAMPLE_IOT_WIFI_CONNECT_AP_BY_SECURITY
+#define SAMPLE_IOT_WIFI_CONNECT_AP_SORT_METHOD WIFI_CONNECT_AP_BY_SECURITY
 #endif
 
-#if CONFIG_EXAMPLE_WIFI_AUTH_OPEN
-#define EXAMPLE_WIFI_SCAN_AUTH_MODE_THRESHOLD WIFI_AUTH_OPEN
-#elif CONFIG_EXAMPLE_WIFI_AUTH_WEP
-#define EXAMPLE_WIFI_SCAN_AUTH_MODE_THRESHOLD WIFI_AUTH_WEP
-#elif CONFIG_EXAMPLE_WIFI_AUTH_WPA_PSK
-#define EXAMPLE_WIFI_SCAN_AUTH_MODE_THRESHOLD WIFI_AUTH_WPA_PSK
-#elif CONFIG_EXAMPLE_WIFI_AUTH_WPA2_PSK
-#define EXAMPLE_WIFI_SCAN_AUTH_MODE_THRESHOLD WIFI_AUTH_WPA2_PSK
-#elif CONFIG_EXAMPLE_WIFI_AUTH_WPA_WPA2_PSK
-#define EXAMPLE_WIFI_SCAN_AUTH_MODE_THRESHOLD WIFI_AUTH_WPA_WPA2_PSK
-#elif CONFIG_EXAMPLE_WIFI_AUTH_WPA2_ENTERPRISE
-#define EXAMPLE_WIFI_SCAN_AUTH_MODE_THRESHOLD WIFI_AUTH_WPA2_ENTERPRISE
-#elif CONFIG_EXAMPLE_WIFI_AUTH_WPA3_PSK
-#define EXAMPLE_WIFI_SCAN_AUTH_MODE_THRESHOLD WIFI_AUTH_WPA3_PSK
-#elif CONFIG_EXAMPLE_WIFI_AUTH_WPA2_WPA3_PSK
-#define EXAMPLE_WIFI_SCAN_AUTH_MODE_THRESHOLD WIFI_AUTH_WPA2_WPA3_PSK
-#elif CONFIG_EXAMPLE_WIFI_AUTH_WAPI_PSK
-#define EXAMPLE_WIFI_SCAN_AUTH_MODE_THRESHOLD WIFI_AUTH_WAPI_PSK
+#if CONFIG_SAMPLE_IOT_WIFI_AUTH_OPEN
+#define SAMPLE_IOT_WIFI_SCAN_AUTH_MODE_THRESHOLD WIFI_AUTH_OPEN
+#elif CONFIG_SAMPLE_IOT_WIFI_AUTH_WEP
+#define SAMPLE_IOT_WIFI_SCAN_AUTH_MODE_THRESHOLD WIFI_AUTH_WEP
+#elif CONFIG_SAMPLE_IOT_WIFI_AUTH_WPA_PSK
+#define SAMPLE_IOT_WIFI_SCAN_AUTH_MODE_THRESHOLD WIFI_AUTH_WPA_PSK
+#elif CONFIG_SAMPLE_IOT_WIFI_AUTH_WPA2_PSK
+#define SAMPLE_IOT_WIFI_SCAN_AUTH_MODE_THRESHOLD WIFI_AUTH_WPA2_PSK
+#elif CONFIG_SAMPLE_IOT_WIFI_AUTH_WPA_WPA2_PSK
+#define SAMPLE_IOT_WIFI_SCAN_AUTH_MODE_THRESHOLD WIFI_AUTH_WPA_WPA2_PSK
+#elif CONFIG_SAMPLE_IOT_WIFI_AUTH_WPA2_ENTERPRISE
+#define SAMPLE_IOT_WIFI_SCAN_AUTH_MODE_THRESHOLD WIFI_AUTH_WPA2_ENTERPRISE
+#elif CONFIG_SAMPLE_IOT_WIFI_AUTH_WPA3_PSK
+#define SAMPLE_IOT_WIFI_SCAN_AUTH_MODE_THRESHOLD WIFI_AUTH_WPA3_PSK
+#elif CONFIG_SAMPLE_IOT_WIFI_AUTH_WPA2_WPA3_PSK
+#define SAMPLE_IOT_WIFI_SCAN_AUTH_MODE_THRESHOLD WIFI_AUTH_WPA2_WPA3_PSK
+#elif CONFIG_SAMPLE_IOT_WIFI_AUTH_WAPI_PSK
+#define SAMPLE_IOT_WIFI_SCAN_AUTH_MODE_THRESHOLD WIFI_AUTH_WAPI_PSK
 #endif
 
 /**
@@ -181,12 +175,12 @@ static esp_netif_t *wifi_start(void)
     ESP_ERROR_CHECK(esp_wifi_set_storage(WIFI_STORAGE_RAM));
     wifi_config_t wifi_config = {
         .sta = {
-            .ssid = CONFIG_EXAMPLE_WIFI_SSID,
-            .password = CONFIG_EXAMPLE_WIFI_PASSWORD,
-            .scan_method = EXAMPLE_WIFI_SCAN_METHOD,
-            .sort_method = EXAMPLE_WIFI_CONNECT_AP_SORT_METHOD,
-            .threshold.rssi = CONFIG_EXAMPLE_WIFI_SCAN_RSSI_THRESHOLD,
-            .threshold.authmode = EXAMPLE_WIFI_SCAN_AUTH_MODE_THRESHOLD,
+            .ssid = CONFIG_SAMPLE_IOT_WIFI_SSID,
+            .password = CONFIG_SAMPLE_IOT_WIFI_PASSWORD,
+            .scan_method = SAMPLE_IOT_WIFI_SCAN_METHOD,
+            .sort_method = SAMPLE_IOT_WIFI_CONNECT_AP_SORT_METHOD,
+            .threshold.rssi = CONFIG_SAMPLE_IOT_WIFI_SCAN_RSSI_THRESHOLD,
+            .threshold.authmode = SAMPLE_IOT_WIFI_SCAN_AUTH_MODE_THRESHOLD,
         },
     };
     ESP_LOGI(TAG, "Connecting to %s...", wifi_config.sta.ssid);
@@ -214,7 +208,6 @@ static void wifi_stop(void)
     ESP_ERROR_CHECK(esp_wifi_deinit());
     ESP_ERROR_CHECK(esp_wifi_clear_default_wifi_driver_and_handlers(wifi_netif));
     esp_netif_destroy(wifi_netif);
-    // s_example_esp_netif = NULL;
 }
 
 static void stop(void)
@@ -224,19 +217,15 @@ static void stop(void)
 
 esp_err_t example_connect(void)
 {
-// #if EXAMPLE_DO_CONNECT
     if (s_semph_get_ip_addrs != NULL) {
         return ESP_ERR_INVALID_STATE;
     }
-// #endif
 
     esp_netif_t* esp_netif = wifi_start();
     (void)esp_netif;
 
-// #if EXAMPLE_DO_CONNECT
     /* create semaphore if at least one interface is active */
     s_semph_get_ip_addrs = xSemaphoreCreateCounting(NR_OF_IP_ADDRESSES_TO_WAIT_FOR, 0);
-// #endif
 
     ESP_ERROR_CHECK(esp_register_shutdown_handler(&stop));
     ESP_LOGI(TAG, "Waiting for IP(s)");

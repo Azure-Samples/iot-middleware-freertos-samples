@@ -1,16 +1,19 @@
+# Copyright (c) Microsoft Corporation. All rights reserved.
+# SPDX-License-Identifier: MIT
+
 menu "Azure IoT middleware for FreeRTOS Main Task Configuration"
+
+    config AZURE_SAMPLE_USE_PLUG_AND_PLAY
+        bool "Use PnP in Azure Sample"
+        default true
+        help
+            Set it to true to enable this sample to use Azure Plug and Play (PnP).
 
     config AZURE_IOT_HUB_FQDN
         string "Azure IoT Hub FQDN"
         default "<hostname>.azure-devices.net"
         help
             "Set the Azure IoT Hub FQDN."
-
-    config AZURE_IOTHUB_PORT
-        int "Azure IoT Hub MQTT Port"
-        default 8883
-        help
-            "Set port where the MQTT client shall connect to reach the Azure IoT Hub."
 
     config AZURE_IOT_DEVICE_ID
         string "Azure IoT Device ID"
@@ -35,12 +38,6 @@ menu "Azure IoT middleware for FreeRTOS Main Task Configuration"
         default false
         help
             Set it to true to enable this sample to be provisioned by Azure DPS.
-
-    config AZURE_DPS_FQDN
-        string "Azure Device Provisioning Service FQDN"
-        default "global.azure-devices-provisioning.net"
-        help
-            "Set the Azure Device Provisioning Service FQDN."
 
     config AZURE_DPS_ID_SCOPE
         string "Azure Device Provisioning Service ID Scope"

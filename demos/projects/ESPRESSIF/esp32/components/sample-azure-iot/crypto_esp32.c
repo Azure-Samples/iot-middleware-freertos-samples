@@ -11,12 +11,6 @@
 
 uint32_t Crypto_Init()
 {
-    // /* Set the mutex functions for mbed TLS thread safety. */
-    // mbedtls_threading_set_alt( mbedtls_platform_mutex_init,
-    //                            mbedtls_platform_mutex_free,
-    //                            mbedtls_platform_mutex_lock,
-    //                            mbedtls_platform_mutex_unlock );
-
     return 0;
 }
 /*-----------------------------------------------------------*/

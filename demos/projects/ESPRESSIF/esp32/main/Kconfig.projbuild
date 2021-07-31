@@ -1,21 +1,24 @@
+# Copyright (c) Microsoft Corporation. All rights reserved.
+# SPDX-License-Identifier: MIT
+
 menu "Azure IoT middleware for FreeRTOS Sample Configuration"
 
-    config EXAMPLE_WIFI_SSID
+    config SAMPLE_IOT_WIFI_SSID
         string "WiFi SSID"
         default "myssid"
         help
             SSID (network name) for the example to connect to.
 
-    config EXAMPLE_WIFI_PASSWORD
+    config SAMPLE_IOT_WIFI_PASSWORD
         string "WiFi Password"
         default "mypassword"
         help
             WiFi password (WPA or WPA2) for the example to use.
             Can be left blank if the network has no security set.
 
-    choice EXAMPLE_WIFI_SCAN_METHOD
+    choice SAMPLE_IOT_WIFI_SCAN_METHOD
         prompt "WiFi Scan Method"
-        default EXAMPLE_WIFI_SCAN_METHOD_ALL_CHANNEL
+        default SAMPLE_IOT_WIFI_SCAN_METHOD_ALL_CHANNEL
         help
             WiFi scan method:
 
@@ -23,14 +26,14 @@ menu "Azure IoT middleware for FreeRTOS Sample Configuration"
 
             If "All Channel" is selected, scan will end after scan all the channel.
 
-        config EXAMPLE_WIFI_SCAN_METHOD_FAST
+        config SAMPLE_IOT_WIFI_SCAN_METHOD_FAST
             bool "Fast"
-        config EXAMPLE_WIFI_SCAN_METHOD_ALL_CHANNEL
+        config SAMPLE_IOT_WIFI_SCAN_METHOD_ALL_CHANNEL
             bool "All Channel"
     endchoice
 
     menu "WiFi Scan threshold"
-        config EXAMPLE_WIFI_SCAN_RSSI_THRESHOLD
+        config SAMPLE_IOT_WIFI_SCAN_RSSI_THRESHOLD
             int "WiFi minimum rssi"
             range -127 0
 
@@ -38,36 +41,36 @@ menu "Azure IoT middleware for FreeRTOS Sample Configuration"
             help
                 The minimum rssi to accept in the scan mode.
 
-        choice EXAMPLE_WIFI_SCAN_AUTH_MODE_THRESHOLD
+        choice SAMPLE_IOT_WIFI_SCAN_AUTH_MODE_THRESHOLD
             prompt "WiFi Scan auth mode threshold"
-            default EXAMPLE_WIFI_AUTH_OPEN
+            default SAMPLE_IOT_WIFI_AUTH_OPEN
             help
                 The weakest authmode to accept in the scan mode.
 
-            config EXAMPLE_WIFI_AUTH_OPEN
+            config SAMPLE_IOT_WIFI_AUTH_OPEN
                 bool "OPEN"
-            config EXAMPLE_WIFI_AUTH_WEP
+            config SAMPLE_IOT_WIFI_AUTH_WEP
                 bool "WEP"
-            config EXAMPLE_WIFI_AUTH_WPA_PSK
+            config SAMPLE_IOT_WIFI_AUTH_WPA_PSK
                 bool "WPA PSK"
-            config EXAMPLE_WIFI_AUTH_WPA2_PSK
+            config SAMPLE_IOT_WIFI_AUTH_WPA2_PSK
                 bool "WPA2 PSK"
-            config EXAMPLE_WIFI_AUTH_WPA_WPA2_PSK
+            config SAMPLE_IOT_WIFI_AUTH_WPA_WPA2_PSK
                 bool "WPA WPA2 PSK"
-            config EXAMPLE_WIFI_AUTH_WPA2_ENTERPRISE
+            config SAMPLE_IOT_WIFI_AUTH_WPA2_ENTERPRISE
                 bool "WPA2 ENTERPRISE"
-            config EXAMPLE_WIFI_AUTH_WPA3_PSK
+            config SAMPLE_IOT_WIFI_AUTH_WPA3_PSK
                 bool "WPA3 PSK"
-            config EXAMPLE_WIFI_AUTH_WPA2_WPA3_PSK
+            config SAMPLE_IOT_WIFI_AUTH_WPA2_WPA3_PSK
                 bool "WPA2 WPA3 PSK"
-            config EXAMPLE_WIFI_AUTH_WAPI_PSK
+            config SAMPLE_IOT_WIFI_AUTH_WAPI_PSK
                 bool "WAPI PSK"
         endchoice
     endmenu
 
-    choice EXAMPLE_WIFI_CONNECT_AP_SORT_METHOD
+    choice SAMPLE_IOT_WIFI_CONNECT_AP_SORT_METHOD
         prompt "WiFi Connect AP Sort Method"
-        default EXAMPLE_WIFI_CONNECT_AP_BY_SIGNAL
+        default SAMPLE_IOT_WIFI_CONNECT_AP_BY_SIGNAL
         help
             WiFi connect AP sort method:
 
@@ -75,9 +78,9 @@ menu "Azure IoT middleware for FreeRTOS Sample Configuration"
 
             If "Security" is selected, Sort matched APs in scan list by security mode.
 
-        config EXAMPLE_WIFI_CONNECT_AP_BY_SIGNAL
+        config SAMPLE_IOT_WIFI_CONNECT_AP_BY_SIGNAL
             bool "Signal"
-        config EXAMPLE_WIFI_CONNECT_AP_BY_SECURITY
+        config SAMPLE_IOT_WIFI_CONNECT_AP_BY_SECURITY
             bool "Security"
     endchoice
 

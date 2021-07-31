@@ -115,9 +115,9 @@ To build the device image, run the following command:
 
 2. Find the COM port mapped for the device on your system.
 
-    On Windows, go to `Device Manager`, `Ports (COM & LTP)`. Look for a "CP210x"-based device and take note of the COM port mapped for your device (e.g. "COM5").
+    On **Windows**, go to `Device Manager`, `Ports (COM & LTP)`. Look for a "CP210x"-based device and take note of the COM port mapped for your device (e.g. "COM5").
 
-    On Linux, save the run the following script:
+    On **Linux**, save and run the following script:
 
     ```shell
     #!/bin/bash
@@ -155,6 +155,22 @@ To build the device image, run the following command:
     idf.py -p <COM port> flash
     ```
 
+    <details>
+    <summary>Example...</summary>
+
+    On **Windows**:
+
+    ```shell
+    idf.py -p COM5 flash
+    ```
+
+    On **Linux**:
+
+    ```shell
+    idf.py -p /dev/ttyUSB0 flash
+    ```
+    </details>
+
 ## Confirm device connection
 
 You can use any terminal application to monitor the operation of the device and confirm it is set up correctly.
@@ -166,6 +182,9 @@ idf.py -p <COM port> monitor
 ```
 
 The output should show traces similar to:
+
+<details>
+<summary>See more...</summary>
 
 ```shell
 $ idf.py -p /dev/ttyUSB0 monitor
@@ -282,3 +301,4 @@ I (6322) tls_freertos: (Network connection 0x3ffc8c4c) Connection to contoso-iot
 [INFO] [AzureIoTDemo] [sample_azure_iot.c:384] Creating an MQTT connection to contoso-iot-hub.azure-devices.net.
 ...
 ```
+</details>

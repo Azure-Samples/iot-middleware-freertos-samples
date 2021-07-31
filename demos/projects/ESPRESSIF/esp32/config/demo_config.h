@@ -68,7 +68,7 @@ extern void vLoggingPrintf( const char * pcFormatString,
  * @note https://docs.microsoft.com/en-us/azure/iot-dps/concepts-service#service-operations-endpoint
  * 
  */
-#define democonfigENDPOINT CONFIG_AZURE_DPS_FQDN
+#define democonfigENDPOINT "global.azure-devices-provisioning.net"
 
 /**
  * @brief Id scope of provisioning service.
@@ -167,7 +167,7 @@ extern void vLoggingPrintf( const char * pcFormatString,
 /**
  * @brief IoTHub endpoint port.
  */
-#define democonfigIOTHUB_PORT CONFIG_AZURE_IOTHUB_PORT
+#define democonfigIOTHUB_PORT 8883
 
 #define configRAND32() (rand()/RAND_MAX)
 

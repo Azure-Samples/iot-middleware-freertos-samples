@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation. All rights reserved.
+# SPDX-License-Identifier: MIT
+
 set(ROOT_PATH
     ${CMAKE_CURRENT_LIST_DIR}/../../../../../..
 )
@@ -15,7 +18,6 @@ file(GLOB COMPONENT_SOURCES
 )
 
 set(COMPONENT_INCLUDE_DIRS
-    ${AZURE_IOT_MIDDLEWARE_FREERTOS}/.github/config
     ${CORE_MQTT_PATH}/include
     ${CORE_MQTT_PATH}/interface
 )

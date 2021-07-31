@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation. All rights reserved.
+# SPDX-License-Identifier: MIT
+
 set(ROOT_PATH
     ${CMAKE_CURRENT_LIST_DIR}/../../../../../..
 )
@@ -18,7 +21,6 @@ idf_component_get_property(FREERTOS_DIR freertos COMPONENT_DIR)
 
 set(COMPONENT_INCLUDE_DIRS
     ${FREERTOS_DIR}/include/freertos
-    ${AZURE_IOT_MIDDLEWARE_FREERTOS}/.github/config
     ${AZURE_IOT_MIDDLEWARE_FREERTOS}/source/include
     ${AZURE_IOT_MIDDLEWARE_FREERTOS}/source/interface
     ${AZURE_IOT_MIDDLEWARE_FREERTOS}/ports/coreMQTT

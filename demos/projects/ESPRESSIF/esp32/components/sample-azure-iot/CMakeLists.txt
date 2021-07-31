@@ -1,10 +1,19 @@
+# Copyright (c) Microsoft Corporation. All rights reserved.
+# SPDX-License-Identifier: MIT
+
 set(ROOT_PATH
     ${CMAKE_CURRENT_LIST_DIR}/../../../../../..
 )
 
-file(GLOB_RECURSE COMPONENT_SOURCES
-    ${ROOT_PATH}/demos/sample_azure_iot/*.c  
-)
+if (DEFINED CONFIG_AZURE_SAMPLE_USE_PLUG_AND_PLAY)
+    file(GLOB_RECURSE COMPONENT_SOURCES
+        ${ROOT_PATH}/demos/sample_azure_iot_pnp/*.c  
+    )
+else()
+    file(GLOB_RECURSE COMPONENT_SOURCES
+        ${ROOT_PATH}/demos/sample_azure_iot/*.c  
+    )
+endif()
 
 idf_component_get_property(LWIP_DIR lwip COMPONENT_DIR)
 idf_component_get_property(MBEDTLS_DIR mbedtls COMPONENT_DIR)
@@ -13,7 +22,6 @@ list(APPEND COMPONENT_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/backoff_algorithm.c
     ${CMAKE_CURRENT_LIST_DIR}/transport_tls_esp32.c
     ${CMAKE_CURRENT_LIST_DIR}/crypto_esp32.c
-    ${CMAKE_CURRENT_LIST_DIR}/mbedtls_error.c
 )
 
 set(COMPONENT_INCLUDE_DIRS

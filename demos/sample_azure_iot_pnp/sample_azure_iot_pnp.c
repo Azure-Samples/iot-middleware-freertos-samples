@@ -240,7 +240,7 @@ static AzureIoTHubClient_t xAzureIoTHubClient;
  * @param[in] pvParameters Parameters as passed at the time of task creation. Not
  * used in this example.
  */
-static void prvAzureDemoTask( void * pvParameters );
+void prvAzureDemoTask( void * pvParameters );
 
 /**
  * @brief Connect to endpoint with reconnection retries.
@@ -358,7 +358,7 @@ static void prvHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
 
     LogInfo( ( "Command payload : %.*s \r\n",
                pxMessage->ulPayloadLength,
-               pxMessage->pvMessagePayload ) );
+               (const char*)pxMessage->pvMessagePayload ) );
 
     lCommandNameLength = sizeof( sampleazureiotCOMMAND_MAX_MIN_REPORT ) - 1;
 
@@ -752,7 +752,7 @@ static uint32_t prvSetupNetworkCredentials( NetworkCredentials_t * pxNetworkCred
  *  In this demo task, middleware API's are used to connect to Azure IoT Hub and
  *  function to adhere to the Plug and Play device convention.
  */
-static void prvAzureDemoTask( void * pvParameters )
+void prvAzureDemoTask( void * pvParameters )
 {
     uint32_t ulScratchBufferLength = 0U;
     NetworkCredentials_t xNetworkCredentials = { 0 };
