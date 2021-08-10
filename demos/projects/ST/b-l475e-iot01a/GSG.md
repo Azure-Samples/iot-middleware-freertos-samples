@@ -46,6 +46,14 @@ To clone the repo, run the following command:
 git clone --recursive https://github.com/Azure-Samples/iot-middleware-freertos-samples
 ```
 
+### Install Ninja
+
+1. Download [Ninja](https://github.com/ninja-build/ninja/releases) and unzip it to your local disk
+1. Ensure the ninja binary is available in the `PATH` environment variable:
+    ```shell
+    ninja --version
+    ```
+
 ### Install the tools
 
 The cloned repo contains a setup script that installs and configures the required tools. If you installed these tools in another tutorial in the getting started guide, you don't need to do it again.
