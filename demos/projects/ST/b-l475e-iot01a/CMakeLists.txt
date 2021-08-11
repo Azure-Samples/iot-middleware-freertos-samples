@@ -19,6 +19,7 @@ file(GLOB STCODE_SOURCES st_code/*.c)
 set(PROJECT_SOURCES
     ${STCODE_SOURCES}
     port/sockets_wrapper_stm32l475.c
+    sample_gsg_device.c
     main.c)
 
 stm32_add_linker_script(CMSIS::STM32::L4 INTERFACE
@@ -37,6 +38,9 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     HAL::STM32::L4::RCC
     HAL::STM32::L4::RCCEx
     HAL::STM32::L4::SPI
+    HAL::STM32::L4::QSPI
+    HAL::STM32::L4::I2C
+    HAL::STM32::L4::I2CEx
     HAL::STM32::L4::RTC
     HAL::STM32::L4::UART
     HAL::STM32::L4::DMA
@@ -49,6 +53,10 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     HAL::STM32::L4::TIMEx
     CMSIS::STM32::L475xx
     BSP::STM32::STM32L475E_IOT01
+    BSP::STM32::L4::LSM6DSL
+    BSP::STM32::L4::HTS221
+    BSP::STM32::L4::LIS3MDL
+    BSP::STM32::L4::LPS22HB
     STM32::NoSys
     az::iot_middleware::freertos
     SAMPLE::AZUREIOT
@@ -78,6 +86,9 @@ target_link_libraries(${PROJECT_NAME}-pnp PRIVATE
     HAL::STM32::L4::RCC
     HAL::STM32::L4::RCCEx
     HAL::STM32::L4::SPI
+    HAL::STM32::L4::QSPI
+    HAL::STM32::L4::I2C
+    HAL::STM32::L4::I2CEx
     HAL::STM32::L4::RTC
     HAL::STM32::L4::UART
     HAL::STM32::L4::DMA
@@ -90,6 +101,10 @@ target_link_libraries(${PROJECT_NAME}-pnp PRIVATE
     HAL::STM32::L4::TIMEx
     CMSIS::STM32::L475xx
     BSP::STM32::STM32L475E_IOT01
+    BSP::STM32::L4::LSM6DSL
+    BSP::STM32::L4::HTS221
+    BSP::STM32::L4::LIS3MDL
+    BSP::STM32::L4::LPS22HB
     STM32::Nano
     STM32::Nano::FloatScan
     STM32::Nano::FloatPrint
@@ -103,5 +118,53 @@ add_custom_command(TARGET ${PROJECT_NAME}-pnp
     # Run after all other rules within the target have been executed
     POST_BUILD
     COMMAND ${CMAKE_OBJCOPY} -Obinary $<TARGET_FILE:${PROJECT_NAME}-pnp> ${PROJECT_NAME}-pnp.bin
+    COMMENT "Generate Bin file"
+    VERBATIM)
+
+# Add GSG Sample
+add_executable(${PROJECT_NAME}-gsg ${PROJECT_SOURCES})
+target_include_directories(${PROJECT_NAME}-gsg PUBLIC
+    ${CMAKE_CURRENT_LIST_DIR}
+    st_code)
+target_link_libraries(${PROJECT_NAME}-gsg PRIVATE
+    FreeRTOS::Timers
+    FreeRTOS::Heap::5
+    FreeRTOS::ARM_CM4F
+    FreeRTOSPlus::Utilities::backoff_algorithm
+    FreeRTOSPlus::Utilities::logging
+    FreeRTOSPlus::ThirdParty::mbedtls
+    HAL::STM32::L4::RCC
+    HAL::STM32::L4::RCCEx
+    HAL::STM32::L4::SPI
+    HAL::STM32::L4::QSPI
+    HAL::STM32::L4::I2C
+    HAL::STM32::L4::I2CEx
+    HAL::STM32::L4::RTC
+    HAL::STM32::L4::UART
+    HAL::STM32::L4::DMA
+    HAL::STM32::L4::PWR
+    HAL::STM32::L4::PWREx
+    HAL::STM32::L4::GPIO
+    HAL::STM32::L4::CORTEX
+    HAL::STM32::L4::RNG
+    HAL::STM32::L4::TIM
+    HAL::STM32::L4::TIMEx
+    CMSIS::STM32::L475xx
+    BSP::STM32::STM32L475E_IOT01
+    BSP::STM32::L4::LSM6DSL
+    BSP::STM32::L4::HTS221
+    BSP::STM32::L4::LIS3MDL
+    BSP::STM32::L4::LPS22HB
+    STM32::Nano
+    STM32::Nano::FloatScan
+    STM32::Nano::FloatPrint
+    az::iot_middleware::freertos
+    SAMPLE::AZUREIOTGSG
+    SAMPLE::TRANSPORT::MBEDTLS)
+
+add_custom_command(TARGET ${PROJECT_NAME}-gsg
+    # Run after all other rules within the target have been executed
+    POST_BUILD
+    COMMAND ${CMAKE_OBJCOPY} -Obinary $<TARGET_FILE:${PROJECT_NAME}-gsg> ${PROJECT_NAME}-gsg.bin
     COMMENT "Generate Bin file"
     VERBATIM)

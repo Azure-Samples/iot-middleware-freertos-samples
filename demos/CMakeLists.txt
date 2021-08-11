@@ -24,6 +24,15 @@ if(NOT (TARGET SAMPLE::AZUREIOTPNP))
       ${CMAKE_CURRENT_SOURCE_DIR}/sample_azure_iot_pnp/sample_azure_iot_pnp.c)
 endif()
 
+# Target for gsg sample task
+if(NOT (TARGET SAMPLE::AZUREIOTGSG))
+    add_library(SAMPLE::AZUREIOTGSG INTERFACE IMPORTED)
+
+    target_sources(SAMPLE::AZUREIOTGSG INTERFACE
+        ${CMAKE_CURRENT_SOURCE_DIR}/sample_azure_iot_gsg/sample_azure_iot_gsg.c)
+endif()
+
+
 # Target for freertos tcpip socket
 if(NOT (TARGET SAMPLE::SOCKET::FREERTOSTCPIP))
     add_library(SAMPLE::SOCKET::FREERTOSTCPIP INTERFACE IMPORTED)
