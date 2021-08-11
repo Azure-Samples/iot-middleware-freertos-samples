@@ -33,10 +33,7 @@ include_directories(nxp_code)
 include_directories(nxp_code/lwip)
 
 file(GLOB NXPCODE_SOURCES nxp_code/*.c nxp_code/lwip/*.c)
-set(PROJECT_SOURCES ${NXPCODE_SOURCES}
-    ${NXP_MCUX_SDK_PATH}/devices/MIMXRT1062/xip/fsl_flexspi_nor_boot.c
-    ${NXP_MCUX_SDK_PATH}/boards/evkmimxrt1060/xip/evkmimxrt1060_flexspi_nor_config.c
-    main.c)
+set(PROJECT_SOURCES ${NXPCODE_SOURCES} main.c)
 
 # configure modules
 set(CONFIG_USE_driver_lpuart true)
@@ -76,7 +73,7 @@ include(driver_iomuxc)
 
 include(utility_assert)
 
-#include(driver_xip_device)
+include(driver_xip_device)
 
 include(driver_xip_board)
 
