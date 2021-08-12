@@ -36,7 +36,7 @@
 #define TELEMETRY_GYROSCOPEY        ( "gyroscopeY" )
 #define TELEMETRY_GYROSCOPEZ        ( "gyroscopeZ" )
 
-const char * pcModelId = "dtmi:azureiot:devkit:freertos:gsgstml475;1";
+const char * pcModelId = "dtmi:azureiot:devkit:freertos:gsgstml475;2";
 
 const char * pcManufacturerPropertyValue = "STMicroelectronics";
 const char * pcModelPropertyValue = "B-L475E-IOT01A";
