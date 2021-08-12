@@ -12,21 +12,19 @@
 #include "esp_wifi_default.h"
 #include "esp_err.h"
 #include "esp_netif.h"
+#include "esp_sntp.h"
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/semphr.h"
 #include "nvs_flash.h"
 
-#define TASK_PRIO     3
-
-static uint64_t ulGlobalEntryTime = 1639093301;
+#define SNTP_SERVER_FQDN "pool.ntp.org"
 
 static const char *TAG = "sample_azureiot";
 
 /*-----------------------------------------------------------*/
 
-extern void prvAzureDemoTask( void * pvParameters );
 extern void vStartDemoTask( void );
 
 /*-----------------------------------------------------------*/
@@ -45,20 +43,14 @@ void vLoggingPrintf( const char * pcFormat,
 
 uint64_t ullGetUnixTime( void )
 {
-    TickType_t xTickCount = 0;
-    uint64_t ulTime = 0UL;
+    time_t now = time(NULL);
 
-    /* Get the current tick count. */
-    xTickCount = xTaskGetTickCount();
+    if (now == (time_t)(-1))
+    {
+        ESP_LOGE(TAG, "Failed obtaining current time.\r\n");
+    }
 
-    /* Convert the ticks to milliseconds. */
-    ulTime = ( uint64_t ) xTickCount / configTICK_RATE_HZ;
-
-    /* Reduce ulGlobalEntryTimeMs from obtained time so as to always return the
-     * elapsed time in the application. */
-    ulTime = ( uint64_t ) ( ulTime + ulGlobalEntryTime );
-
-    return ulTime;
+    return now;
 }
 
 /*-----------------------------------------------------------*/
@@ -247,6 +239,29 @@ esp_err_t example_connect(void)
     return ESP_OK;
 }
 
+static bool g_timeInitialized = false;
+
+static void time_sync_notification_cb(struct timeval *tv)
+{
+    ESP_LOGI(TAG, "Notification of a time synchronization event");
+    g_timeInitialized = true;
+}
+
+static void initialize_time()
+{
+    sntp_setoperatingmode(SNTP_OPMODE_POLL);
+    sntp_setservername(0, SNTP_SERVER_FQDN);
+    sntp_set_time_sync_notification_cb(time_sync_notification_cb);
+    sntp_init();
+
+    ESP_LOGI(TAG, "Waiting for time synchronization with SNTP server");
+
+    while (!g_timeInitialized)
+    {
+        vTaskDelay(pdMS_TO_TICKS(1000));
+    }
+}
+
 /*-----------------------------------------------------------*/
 
 void app_main(void)
@@ -259,5 +274,7 @@ void app_main(void)
 
     (void)example_connect();
 
-    xTaskCreatePinnedToCore(prvAzureDemoTask, "AzureDemoTask", 4096, NULL, TASK_PRIO, NULL, tskNO_AFFINITY);
+    initialize_time();
+
+    vStartDemoTask();
 }

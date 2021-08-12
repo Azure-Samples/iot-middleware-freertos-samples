@@ -70,16 +70,17 @@
 #define LOG_METADATA_ARGS      LIBRARY_LOG_NAME, FILENAME, __LINE__ /**< @brief Arguments into the metadata logging prefix format. */
 
 #if !defined( DISABLE_LOGGING )
-
-/**
- * @brief Common macro that maps all the logging interfaces,
- * (#LogDebug, #LogInfo, #LogWarn, #LogError) to the platform-specific logging
- * function.
- *
- * `printf` from the standard C library is the POSIX platform implementation used
- * for logging functionality.
- */
-    #define SdkLog( string )    printf string
+    /**
+     * @brief Common macro that maps all the logging interfaces,
+     * (#LogDebug, #LogInfo, #LogWarn, #LogError) to the platform-specific logging
+     * function.
+     *
+     * `printf` from the standard C library is the POSIX platform implementation used
+     * for logging functionality.
+     */
+    #ifndef SdkLog
+        #define SdkLog( string )    printf string
+    #endif
 #else
     #define SdkLog( string )
 #endif

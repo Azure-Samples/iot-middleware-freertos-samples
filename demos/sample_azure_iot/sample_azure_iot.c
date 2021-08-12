@@ -171,7 +171,7 @@ static AzureIoTHubClient_t xAzureIoTHubClient;
  * @param[in] pvParameters Parameters as passed at the time of task creation. Not
  * used in this example.
  */
-void prvAzureDemoTask( void * pvParameters );
+static void prvAzureDemoTask( void * pvParameters );
 
 /**
  * @brief Connect to endpoint with reconnection retries.
@@ -289,7 +289,7 @@ static uint32_t prvSetupNetworkCredentials( NetworkCredentials_t * pxNetworkCred
  * @brief Azure IoT demo task that gets started in the platform specific project.
  *  In this demo task, middleware API's are used to connect to Azure IoT Hub.
  */
-void prvAzureDemoTask( void * pvParameters )
+static void prvAzureDemoTask( void * pvParameters )
 {
     int lPublishCount = 0;
     uint32_t ulScratchBufferLength = 0U;

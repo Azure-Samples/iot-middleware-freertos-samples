@@ -57,7 +57,7 @@ extern void vLoggingPrintf( const char * pcFormatString,
  */
 
 #ifdef CONFIG_ENABLE_DPS_SAMPLE
-#define democonfigENABLE_DPS_SAMPLE
+    #define democonfigENABLE_DPS_SAMPLE
 #endif
 
 #ifdef democonfigENABLE_DPS_SAMPLE

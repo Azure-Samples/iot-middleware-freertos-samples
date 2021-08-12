@@ -37,7 +37,7 @@ menu "Azure IoT middleware for FreeRTOS Main Task Configuration"
         bool "Enable Device Provisioning Sample"
         default false
         help
-            Set it to true to enable this sample to be provisioned by Azure DPS.
+            Set it to true to enable this sample to be provisioned by Azure Device Provisioning Service.
 
     config AZURE_DPS_ID_SCOPE
         string "Azure Device Provisioning Service ID Scope"
@@ -53,7 +53,7 @@ menu "Azure IoT middleware for FreeRTOS Main Task Configuration"
 
     config AZURE_TASK_STACKSIZE
         int "Azure Task Stack Size"
-        default 2048
+        default 4096
         help
             "Set the stack size of the main demo task."
 
