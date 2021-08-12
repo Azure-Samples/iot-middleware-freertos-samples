@@ -20,7 +20,12 @@
             "label": "Download FreeRTOS",
             "type": "shell",
             "isBackground": false,
-            "command": "bash -c .github/scripts/fetch_freertos.sh libs/FreeRTOS"
+            "windows" : {
+                "command": ".github/scripts/fetch_freertos.ps1 libs/FreeRTOS"
+            },
+            "linux" : {
+                "command": ".github/scripts/fetch_freertos.sh libs/FreeRTOS"
+            }
         },
         {
             "label": "Build b-l475e-iot01a",
