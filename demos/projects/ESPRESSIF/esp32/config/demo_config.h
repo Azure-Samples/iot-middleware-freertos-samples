@@ -19,7 +19,6 @@
  * 3. Include the header file "logging_stack.h", if logging is enabled for DEMO.
  */
 
-// TODO (ewertons): revisit the dependency on FreeRTOS-Plus, including this headers (logging)
 #include "logging_levels.h"
 
 #define STRING2(x) #x
