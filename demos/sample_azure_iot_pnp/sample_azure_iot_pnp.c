@@ -845,9 +845,9 @@ static void prvAzureDemoTask( void * pvParameters )
          * and waits for connection acknowledgment (CONNACK) packet. */
         LogInfo( ( "Creating an MQTT connection to %s.\r\n", pucIotHubHostname ) );
 
-        xResult = AzureIoTHubClient_Connect( &xAzureIoTHubClient,
+        xResult = AzureIoTHubClient_Connect(&xAzureIoTHubClient,
                                              false, &xSessionPresent,
-                                             sampleazureiotCONNACK_RECV_TIMEOUT_MS );
+                                             sampleazureiotCONNACK_RECV_TIMEOUT_MS);
         configASSERT( xResult == eAzureIoTSuccess );
 
         xResult = AzureIoTHubClient_SubscribeCommand( &xAzureIoTHubClient, prvHandleCommand,
