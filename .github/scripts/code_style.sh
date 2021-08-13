@@ -33,6 +33,8 @@ if [[ "$FIX" == "check" ]]; then
     RESULT=$(uncrustify -c ./uncrustify.cfg --check           \
     ./demos/sample_azure_iot/*.c                              \
     ./demos/sample_azure_iot_pnp/*.c                          \
+    ./demos/sample_azure_iot_gsg/*.c                          \
+    ./demos/sample_azure_iot_gsg/*.h                          \
     ./demos/common/transport/*.c                              \
     ./demos/common/transport/*.h                              \
     ./demos/common/utilities/*.c                              \
@@ -46,6 +48,8 @@ elif [[ "$FIX" == "fix" ]]; then
     uncrustify -c ./uncrustify.cfg --no-backup --replace      \
     ./demos/sample_azure_iot/*.c                              \
     ./demos/sample_azure_iot_pnp/*.c                          \
+    ./demos/sample_azure_iot_gsg/*.c                          \
+    ./demos/sample_azure_iot_gsg/*.h                          \
     ./demos/common/transport/*.c                              \
     ./demos/common/transport/*.h                              \
     ./demos/common/utilities/*.c                              \
