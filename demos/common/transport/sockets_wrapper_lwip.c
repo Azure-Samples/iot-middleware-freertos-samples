@@ -1,5 +1,5 @@
 /* Copyright (c) Microsoft Corporation.
-   Licensed under the MIT License. */
+ * Licensed under the MIT License. */
 
 /**
  * @file sockets_wrapper_lwip.c
@@ -28,12 +28,12 @@
  * DNS timeouts.
  */
 #ifndef lwipdnsresolverMAX_WAIT_SECONDS
-#define lwipdnsresolverMAX_WAIT_SECONDS    ( 20 )
+    #define lwipdnsresolverMAX_WAIT_SECONDS    ( 20 )
 #endif
 
-#define lwipdnsresolverLOOP_DELAY_MS       ( 250 )
-#define lwipdnsresolverLOOP_DELAY_TICKS    ( ( TickType_t ) lwipdnsresolverLOOP_DELAY_MS / portTICK_PERIOD_MS )
-#define lwipdnsresolverMAX_WAIT_CYCLES \
+#define lwipdnsresolverLOOP_DELAY_MS           ( 250 )
+#define lwipdnsresolverLOOP_DELAY_TICKS        ( ( TickType_t ) lwipdnsresolverLOOP_DELAY_MS / portTICK_PERIOD_MS )
+#define lwipdnsresolverMAX_WAIT_CYCLES                 \
     ( ( ( lwipdnsresolverMAX_WAIT_SECONDS ) * 1000 ) / \
       ( lwipdnsresolverLOOP_DELAY_MS ) )
 
@@ -261,40 +261,38 @@ BaseType_t Sockets_SetSockOpt( SocketHandle xSocket,
 
     switch( lOptionName )
     {
-        case SOCKETS_SO_RCVTIMEO :
+        case SOCKETS_SO_RCVTIMEO:
         case SOCKETS_SO_SNDTIMEO:
-        {
-            TickType_t xTicks;
-            struct timeval xTV;
+           {
+               TickType_t xTicks;
+               struct timeval xTV;
 
-            xTicks = *( ( const TickType_t * ) pvOptionValue );
+               xTicks = *( ( const TickType_t * ) pvOptionValue );
 
-            xTV.tv_sec = TICK_TO_S( xTicks );
-            xTV.tv_usec = TICK_TO_US( xTicks % configTICK_RATE_HZ );
+               xTV.tv_sec = TICK_TO_S( xTicks );
+               xTV.tv_usec = TICK_TO_US( xTicks % configTICK_RATE_HZ );
 
-            ulRet = lwip_setsockopt( ulSocketNumber,
-                                     SOL_SOCKET,
-                                     lOptionName == SOCKETS_SO_RCVTIMEO ?
-                                     SO_RCVTIMEO : SO_SNDTIMEO,
-                                     ( struct timeval * ) &xTV,
-                                     sizeof( xTV ) );
+               ulRet = lwip_setsockopt( ulSocketNumber,
+                                        SOL_SOCKET,
+                                        lOptionName == SOCKETS_SO_RCVTIMEO ?
+                                        SO_RCVTIMEO : SO_SNDTIMEO,
+                                        ( struct timeval * ) &xTV,
+                                        sizeof( xTV ) );
 
-            if( ulRet != 0 )
-            {
-                xRetVal = SOCKETS_EINVAL;
-            }
-            else
-            {
-                xRetVal = SOCKETS_ERROR_NONE;
-            }
-        }
-        break;
+               if( ulRet != 0 )
+               {
+                   xRetVal = SOCKETS_EINVAL;
+               }
+               else
+               {
+                   xRetVal = SOCKETS_ERROR_NONE;
+               }
+           }
+           break;
 
-        default :
-        {
+        default:
             xRetVal = SOCKETS_ENOPROTOOPT;
-        }
-        break;
+            break;
     }
 
     return xRetVal;
