@@ -1,5 +1,5 @@
 /* Copyright (c) Microsoft Corporation.
-   Licensed under the MIT License. */
+ * Licensed under the MIT License. */
 
 /**
  * @file sockets_wrapper_freertos_tcpip.c
@@ -68,7 +68,7 @@ BaseType_t Sockets_Close( SocketHandle xSocket )
 
 BaseType_t Sockets_Connect( SocketHandle xSocket,
                             const char * pcHostName,
-                            uint16_t usPort  )
+                            uint16_t usPort )
 {
     Socket_t xTcpSocket = ( Socket_t ) xSocket;
     BaseType_t lRetVal = 0;
@@ -129,7 +129,7 @@ BaseType_t Sockets_Recv( SocketHandle xSocket,
                          size_t xReceiveBufferLength )
 {
     return ( BaseType_t ) FreeRTOS_recv( ( Socket_t ) xSocket,
-                                         pucReceiveBuffer, xReceiveBufferLength, 0 ) ;
+                                         pucReceiveBuffer, xReceiveBufferLength, 0 );
 }
 /*-----------------------------------------------------------*/
 
@@ -138,7 +138,7 @@ BaseType_t Sockets_Send( SocketHandle xSocket,
                          size_t xDataLength )
 {
     return ( BaseType_t ) FreeRTOS_send( ( Socket_t ) xSocket,
-                                         pucData, xDataLength, 0 ) ;
+                                         pucData, xDataLength, 0 );
 }
 /*-----------------------------------------------------------*/
 
@@ -151,12 +151,11 @@ BaseType_t Sockets_SetSockOpt( SocketHandle xSocket,
     BaseType_t xRetVal;
     int ulRet = 0;
     TickType_t xTimeout;
-    
+
     switch( lOptionName )
     {
-        case SOCKETS_SO_RCVTIMEO :
+        case SOCKETS_SO_RCVTIMEO:
         case SOCKETS_SO_SNDTIMEO:
-        {
             /* Comply with Berkeley standard - a 0 timeout is wait forever. */
             xTimeout = *( ( const TickType_t * ) pvOptionValue );
 
@@ -170,7 +169,7 @@ BaseType_t Sockets_SetSockOpt( SocketHandle xSocket,
                                          lOptionName,
                                          &xTimeout,
                                          xOptionLength );
-            
+
             if( ulRet != 0 )
             {
                 xRetVal = SOCKETS_EINVAL;
@@ -179,14 +178,12 @@ BaseType_t Sockets_SetSockOpt( SocketHandle xSocket,
             {
                 xRetVal = SOCKETS_ERROR_NONE;
             }
-        }
-        break;
 
-        default :
-        {
+            break;
+
+        default:
             xRetVal = SOCKETS_ENOPROTOOPT;
-        }
-        break;
+            break;
     }
 
     return xRetVal;
