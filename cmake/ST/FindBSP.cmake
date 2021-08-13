@@ -202,7 +202,7 @@ set(BSP_L4_COMPONENTS
     m24sr mfxstm32l152 mx25lm51245g mx25r6435f n25q128a n25q256a ov9655 
     rk043fn48h st7735 st7789h2 stmpe811 stmpe1600 wm8994
 )
-set(BSP_L4_SOURCES_B_L475E_IOT01 accelerometer gyro hsensor magneto psensor qspi tsensor iot01)
+set(BSP_L4_SOURCES_STM32L475E_IOT01 accelero gyro hsensor magneto psensor qspi tsensor)
 set(BSP_L4_SOURCES_STM32L4P5G_Discovery idd io lcd mmc ospi_nor psram ts)
 set(BSP_L4_SOURCES_STM32L4R9I_EVAL audio dsi_lcd dsi_ts eeprom idd io nor ospi_nor ospi_ram rgb_ts sd sram)
 set(BSP_L4_SOURCES_STM32L4R9I_Discovery audio camera idd io lcd ospi_nor psram sd ts)

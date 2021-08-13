@@ -1,0 +1,38 @@
+{
+    "version": 2,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 20,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "name": "b-l475e-iot01a",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/b-l475e-iot01a",
+            "cacheVariables": {
+                "VENDOR": "ST",
+                "BOARD": "b-l475e-iot01a"
+            }
+        },
+        {
+            "name": "b-l4s5i-iot01a",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/b-l4s5i-iot01a",
+            "cacheVariables": {
+                "VENDOR": "ST",
+                "BOARD": "b-l4s5i-iot01a"
+            }
+        }        
+    ],
+    "buildPresets": [
+        {
+            "name": "b-l475e-iot01a",
+            "configurePreset": "b-l475e-iot01a"
+        },
+        {
+            "name": "b-l4s5i-iot01a",
+            "configurePreset": "b-l4s5i-iot01a"
+        }        
+    ]
+}

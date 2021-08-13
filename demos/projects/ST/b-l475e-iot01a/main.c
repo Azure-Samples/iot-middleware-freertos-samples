@@ -11,6 +11,14 @@
 #include "task.h"
 #include "semphr.h"
 
+/* Peripheral includes. */
+#include "stm32l475e_iot01_accelero.h"
+#include "stm32l475e_iot01_gyro.h"
+#include "stm32l475e_iot01_hsensor.h"
+#include "stm32l475e_iot01_magneto.h"
+#include "stm32l475e_iot01_psensor.h"
+#include "stm32l475e_iot01_tsensor.h"
+
 /* Demo includes */
 #include "demo_config.h"
 
@@ -62,6 +70,7 @@ static UBaseType_t ulNextRand;
 static uint64_t ulGlobalEntryTime = 1639093301;
 
 /* Private function prototypes -----------------------------------------------*/
+static void Init_MEM1_Sensors( void );
 static void SystemClock_Config( void );
 static void Console_UART_Init( void );
 static void RTC_Init( void );
@@ -351,9 +360,55 @@ static void prvMiscInitialization( void )
     /* UART console init. */
     Console_UART_Init();
 
+    /* Discovery and Initialize all the Target's Features */
+    Init_MEM1_Sensors();
+
     if( prvInitializeWifi() != 0 )
     {
         Error_Handler();
+    }
+}
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Discovery and Intialize all the Target's Features
+ */
+static void Init_MEM1_Sensors(void)
+{
+    // Accelero
+    if (ACCELERO_OK != BSP_ACCELERO_Init())
+    {
+        printf("Error Accelero Sensor\r\n");
+    }
+
+    // Gyro
+    if (GYRO_OK != BSP_GYRO_Init())
+    {
+        printf("Error Gyroscope Sensor\r\n");
+    }
+
+    // Mag
+    if (MAGNETO_OK != BSP_MAGNETO_Init())
+    {
+        printf("Error Magneto Sensor\r\n");
+    }
+
+    // Humidity
+    if (HSENSOR_OK != BSP_HSENSOR_Init())
+    {
+        printf("Error Humidity Sensor\r\n");
+    }
+
+    // Temperature
+    if (TSENSOR_OK != BSP_TSENSOR_Init())
+    {
+        printf("Error Temperature Sensor\r\n");
+    }
+
+    // Pressure
+    if (PSENSOR_OK != BSP_PSENSOR_Init())
+    {
+        printf("Error Pressure Sensor\r\n");
     }
 }
 /*-----------------------------------------------------------*/

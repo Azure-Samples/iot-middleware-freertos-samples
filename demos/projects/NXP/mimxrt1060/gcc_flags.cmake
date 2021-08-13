@@ -45,6 +45,7 @@ set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} " \
     -Xlinker --gc-sections \ 
     -Xlinker -static \ 
     -Xlinker -z -Xlinker muldefs \
+    -Xlinker --whole-archive \
     -T${CMAKE_CURRENT_SOURCE_DIR}/MIMXRT1062xxxxx_sdram.ld")
 
 function(add_map_file TARGET_NAME MAP_FILE_NAME)
