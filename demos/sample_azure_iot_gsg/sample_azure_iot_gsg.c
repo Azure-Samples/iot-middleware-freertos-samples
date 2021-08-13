@@ -443,7 +443,7 @@ static AzureIoTResult_t prvProcessProperties( AzureIoTHubClientPropertiesRespons
                 lTelemetryInterval = lNewTelemetryInterval;
                 prvReportTelemetryInterval( ulVersion );
 
-                LogInfo( ( "TelemtryInterval Property received: %d.", lTelemetryInterval ) );
+                LogInfo( ( "TelemetryInterval Property received: %d.", lTelemetryInterval ) );
             }
             else
             {
