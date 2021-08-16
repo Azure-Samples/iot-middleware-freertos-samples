@@ -15,8 +15,8 @@ extern const char * pcSoftwareVersionPropertyValue;
 extern const char * pcOsNamePropertyValue;
 extern const char * pcProcessorArchitecturePropertyValue;
 extern const char * pcProcessorManufacturerPropertyValue;
-extern const double pxTotalStoragePropertyValue;
-extern const double pxTotalMemoryPropertyValue;
+extern const double xTotalStoragePropertyValue;
+extern const double xTotalMemoryPropertyValue;
 
 void setLedState( bool level );
 

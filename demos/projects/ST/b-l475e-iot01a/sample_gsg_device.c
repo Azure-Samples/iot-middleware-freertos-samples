@@ -44,8 +44,8 @@ const char * pcSoftwareVersionPropertyValue = "1.0.0";
 const char * pcOsNamePropertyValue = "FreeRTOS";
 const char * pcProcessorArchitecturePropertyValue = "Arm Cortex M4";
 const char * pcProcessorManufacturerPropertyValue = "STMicroelectronics";
-const double pxTotalStoragePropertyValue = 8192;
-const double pxTotalMemoryPropertyValue = 768;
+const double xTotalStoragePropertyValue = 8192;
+const double xTotalMemoryPropertyValue = 768;
 
 typedef enum TelemetryStateType_t
 {

@@ -293,11 +293,11 @@ static void prvReportDeviceInfo()
     configASSERT( xResult == eAzureIoTSuccess );
 
     xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( &xWriter, ( uint8_t * ) TOTAL_STORAGE_PROPERTY_NAME, sizeof( TOTAL_STORAGE_PROPERTY_NAME ) - 1,
-                                                                pxTotalStoragePropertyValue, 0 );
+                                                                xTotalStoragePropertyValue, 0 );
     configASSERT( xResult == eAzureIoTSuccess );
 
     xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( &xWriter, ( uint8_t * ) TOTAL_MEMORY_PROPERTY_NAME, sizeof( TOTAL_MEMORY_PROPERTY_NAME ) - 1,
-                                                                pxTotalMemoryPropertyValue, 0 );
+                                                                xTotalMemoryPropertyValue, 0 );
     configASSERT( xResult == eAzureIoTSuccess );
 
     xResult = AzureIoTHubClientProperties_BuilderEndComponent( &xAzureIoTHubClient, &xWriter );
