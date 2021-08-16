@@ -23,6 +23,8 @@
 
 static const char *TAG = "sample_azureiot";
 
+static bool g_timeInitialized = false;
+
 /*-----------------------------------------------------------*/
 
 extern void vStartDemoTask( void );
@@ -207,7 +209,7 @@ static void stop(void)
     wifi_stop();
 }
 
-esp_err_t example_connect(void)
+static esp_err_t example_connect(void)
 {
     if (s_semph_get_ip_addrs != NULL) {
         return ESP_ERR_INVALID_STATE;
@@ -238,8 +240,6 @@ esp_err_t example_connect(void)
     }
     return ESP_OK;
 }
-
-static bool g_timeInitialized = false;
 
 static void time_sync_notification_cb(struct timeval *tv)
 {

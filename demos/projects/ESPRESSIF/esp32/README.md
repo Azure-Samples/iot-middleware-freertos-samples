@@ -79,6 +79,7 @@ Under menu item `Azure IoT middleware for FreeRTOS Main Task Configuration`, upd
 
 Parameter | Value 
 ---------|----------
+ `Use PnP in Azure Sample` | Enabled by default. Disable this option to build a simpler sample without Azure Plug-and-Play. 
  `Azure IoT Hub FQDN` | _{Your Azure IoT Hub Host FQDN}_ 
  `Azure IoT Device ID` | _{Your Azure IoT Hub device ID}_ 
  `Azure IoT Device Symmetric Key` | _{Your Azure IoT Hub device symmetric key}_ 

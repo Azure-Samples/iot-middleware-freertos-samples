@@ -7,15 +7,14 @@ set(ROOT_PATH
 
 if (DEFINED CONFIG_AZURE_SAMPLE_USE_PLUG_AND_PLAY)
     file(GLOB_RECURSE COMPONENT_SOURCES
-        ${ROOT_PATH}/demos/sample_azure_iot_pnp/*.c  
+        ${ROOT_PATH}/demos/sample_azure_iot_pnp/*.c
     )
 else()
     file(GLOB_RECURSE COMPONENT_SOURCES
-        ${ROOT_PATH}/demos/sample_azure_iot/*.c  
+        ${ROOT_PATH}/demos/sample_azure_iot/*.c
     )
 endif()
 
-idf_component_get_property(LWIP_DIR lwip COMPONENT_DIR)
 idf_component_get_property(MBEDTLS_DIR mbedtls COMPONENT_DIR)
 
 list(APPEND COMPONENT_SOURCES
@@ -30,7 +29,6 @@ set(COMPONENT_INCLUDE_DIRS
     ${MBEDTLS_DIR}/mbedtls/include
     ${ROOT_PATH}/demos/common/transport
     ${ROOT_PATH}/demos/common/utilities
-    ${LWIP_DIR}/port/esp32/freertos
 )
 
 idf_component_register(

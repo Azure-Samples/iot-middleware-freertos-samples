@@ -12,39 +12,65 @@
 /******* DO NOT CHANGE the following order ********/
 /**************************************************/
 
-/* Include logging header files and define logging macros in the following order:
- * 1. Include the header file "logging_levels.h".
+// /* Include logging header files and define logging macros in the following order:
+//  * 1. Include the header file "logging_levels.h".
+//  * 2. Define the LIBRARY_LOG_NAME and LIBRARY_LOG_LEVEL macros depending on
+//  * the logging configuration for DEMO.
+//  * 3. Include the header file "logging_stack.h", if logging is enabled for DEMO.
+//  */
+
+// #include "logging_levels.h"
+
+// #define STRING2(x) #x
+// #define STRING(x) STRING2(x)
+
+// /* Logging configuration for the Demo. */
+// #ifndef LIBRARY_LOG_NAME
+//     #define LIBRARY_LOG_NAME    "AzureIoTDemo"
+// #endif
+
+// #ifndef LIBRARY_LOG_LEVEL
+//     #define LIBRARY_LOG_LEVEL    LOG_INFO
+// #endif
+
+// /* 
+//  * The function prints to the console before the network is connected;
+//  * then a UDP port after the network has connected. */
+// extern void vLoggingPrintf( const char * pcFormatString,
+//                             ... );
+
+// /* Map the SdkLog macro to the logging function to enable logging */
+// #ifndef SdkLog
+//     #define SdkLog( message )    vLoggingPrintf message
+// #endif
+
+// #include "logging_stack.h"
+
+/* 
+ * Include logging header files and define logging macros in the following order:
+ * 1. Include the header file "esp_log.h".
  * 2. Define the LIBRARY_LOG_NAME and LIBRARY_LOG_LEVEL macros depending on
  * the logging configuration for DEMO.
- * 3. Include the header file "logging_stack.h", if logging is enabled for DEMO.
+ * 3. Define macros to replace module logging functions by esp logging functions.
  */
 
-#include "logging_levels.h"
+#include "esp_log.h"
 
-#define STRING2(x) #x
-#define STRING(x) STRING2(x)
-
-/* Logging configuration for the Demo. */
 #ifndef LIBRARY_LOG_NAME
     #define LIBRARY_LOG_NAME    "AzureIoTDemo"
 #endif
 
-#ifndef LIBRARY_LOG_LEVEL
-    #define LIBRARY_LOG_LEVEL    LOG_INFO
-#endif
+#define SINGLE_PARENTESIS_LOGE(x, ...)    ESP_LOGE(LIBRARY_LOG_NAME, x, ##__VA_ARGS__)
+#define LogError( message )               SINGLE_PARENTESIS_LOGE message
 
-/* 
- * The function prints to the console before the network is connected;
- * then a UDP port after the network has connected. */
-extern void vLoggingPrintf( const char * pcFormatString,
-                            ... );
+#define SINGLE_PARENTESIS_LOGI(x, ...)    ESP_LOGI(LIBRARY_LOG_NAME, x, ##__VA_ARGS__)
+#define LogInfo( message )                SINGLE_PARENTESIS_LOGI message
 
-/* Map the SdkLog macro to the logging function to enable logging */
-#ifndef SdkLog
-    #define SdkLog( message )    vLoggingPrintf message
-#endif
+#define SINGLE_PARENTESIS_LOGW(x, ...)    ESP_LOGW(LIBRARY_LOG_NAME, x, ##__VA_ARGS__)
+#define LogWarn( message )                SINGLE_PARENTESIS_LOGW message
 
-#include "logging_stack.h"
+#define SINGLE_PARENTESIS_LOGD(x, ...)    ESP_LOGD(LIBRARY_LOG_NAME, x, ##__VA_ARGS__)
+#define LogDebug( message )               SINGLE_PARENTESIS_LOGD message
 
 /************ End of logging configuration ****************/
 
