@@ -23,18 +23,18 @@
 /* Azure JSON includes */
 #include "azure_iot_json_writer.h"
 
-#define TELEMETRY_HUMIDITY          ( "humidity" )
-#define TELEMETRY_TEMPERATURE       ( "temperature" )
-#define TELEMETRY_PRESSURE          ( "pressure" )
-#define TELEMETRY_MAGNETOMETERX     ( "magnetometerX" )
-#define TELEMETRY_MAGNETOMETERY     ( "magnetometerY" )
-#define TELEMETRY_MAGNETOMETERZ     ( "magnetometerZ" )
-#define TELEMETRY_ACCELEROMETERX    ( "accelerometerX" )
-#define TELEMETRY_ACCELEROMETERY    ( "accelerometerY" )
-#define TELEMETRY_ACCELEROMETERZ    ( "accelerometerZ" )
-#define TELEMETRY_GYROSCOPEX        ( "gyroscopeX" )
-#define TELEMETRY_GYROSCOPEY        ( "gyroscopeY" )
-#define TELEMETRY_GYROSCOPEZ        ( "gyroscopeZ" )
+#define samplegsgdeviceTELEMETRY_HUMIDITY          ( "humidity" )
+#define samplegsgdeviceTELEMETRY_TEMPERATURE       ( "temperature" )
+#define samplegsgdeviceTELEMETRY_PRESSURE          ( "pressure" )
+#define samplegsgdeviceTELEMETRY_MAGNETOMETERX     ( "magnetometerX" )
+#define samplegsgdeviceTELEMETRY_MAGNETOMETERY     ( "magnetometerY" )
+#define samplegsgdeviceTELEMETRY_MAGNETOMETERZ     ( "magnetometerZ" )
+#define samplegsgdeviceTELEMETRY_ACCELEROMETERX    ( "accelerometerX" )
+#define samplegsgdeviceTELEMETRY_ACCELEROMETERY    ( "accelerometerY" )
+#define samplegsgdeviceTELEMETRY_ACCELEROMETERZ    ( "accelerometerZ" )
+#define samplegsgdeviceTELEMETRY_GYROSCOPEX        ( "gyroscopeX" )
+#define samplegsgdeviceTELEMETRY_GYROSCOPEY        ( "gyroscopeY" )
+#define samplegsgdeviceTELEMETRY_GYROSCOPEZ        ( "gyroscopeZ" )
 
 const char * pcModelId = "dtmi:azureiot:devkit:freertos:gsgstml475;2";
 
@@ -62,17 +62,17 @@ static TelemetryStateType_t xTelemetryState = eTelemetryStateTypeDefault;
 static void prvCreateTelemetryDevice( AzureIoTJSONWriter_t * xWriter )
 {
     AzureIoTResult_t xResult;
-    float temperature = BSP_TSENSOR_ReadTemp();
-    float humidity = BSP_HSENSOR_ReadHumidity();
-    float pressure = BSP_PSENSOR_ReadPressure();
+    float xTemperature = BSP_TSENSOR_ReadTemp();
+    float xHumidity = BSP_HSENSOR_ReadHumidity();
+    float xPressure = BSP_PSENSOR_ReadPressure();
 
-    xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( xWriter, ( uint8_t * ) TELEMETRY_TEMPERATURE, sizeof( TELEMETRY_TEMPERATURE ) - 1, temperature, 2 );
+    xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( xWriter, ( uint8_t * ) samplegsgdeviceTELEMETRY_TEMPERATURE, sizeof( samplegsgdeviceTELEMETRY_TEMPERATURE ) - 1, xTemperature, 2 );
     configASSERT( xResult == eAzureIoTSuccess );
 
-    xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( xWriter, ( uint8_t * ) TELEMETRY_HUMIDITY, sizeof( TELEMETRY_HUMIDITY ) - 1, humidity, 2 );
+    xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( xWriter, ( uint8_t * ) samplegsgdeviceTELEMETRY_HUMIDITY, sizeof( samplegsgdeviceTELEMETRY_HUMIDITY ) - 1, xHumidity, 2 );
     configASSERT( xResult == eAzureIoTSuccess );
 
-    xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( xWriter, ( uint8_t * ) TELEMETRY_PRESSURE, sizeof( TELEMETRY_PRESSURE ) - 1, pressure, 2 );
+    xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( xWriter, ( uint8_t * ) samplegsgdeviceTELEMETRY_PRESSURE, sizeof( samplegsgdeviceTELEMETRY_PRESSURE ) - 1, xPressure, 2 );
     configASSERT( xResult == eAzureIoTSuccess );
 }
 /*-----------------------------------------------------------*/
@@ -80,17 +80,17 @@ static void prvCreateTelemetryDevice( AzureIoTJSONWriter_t * xWriter )
 static void prvCreateTelemetryMagnetometer( AzureIoTJSONWriter_t * xWriter )
 {
     AzureIoTResult_t xResult;
-    int16_t magnetometer[ 3 ];
+    int16_t usMagnetometer[ 3 ];
 
-    BSP_MAGNETO_GetXYZ( magnetometer );
+    BSP_MAGNETO_GetXYZ( usMagnetometer );
 
-    xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( xWriter, ( uint8_t * ) TELEMETRY_MAGNETOMETERX, sizeof( TELEMETRY_MAGNETOMETERX ) - 1, magnetometer[ 0 ], 0 );
+    xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( xWriter, ( uint8_t * ) samplegsgdeviceTELEMETRY_MAGNETOMETERX, sizeof( samplegsgdeviceTELEMETRY_MAGNETOMETERX ) - 1, usMagnetometer[ 0 ], 0 );
     configASSERT( xResult == eAzureIoTSuccess );
 
-    xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( xWriter, ( uint8_t * ) TELEMETRY_MAGNETOMETERY, sizeof( TELEMETRY_MAGNETOMETERY ) - 1, magnetometer[ 1 ], 0 );
+    xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( xWriter, ( uint8_t * ) samplegsgdeviceTELEMETRY_MAGNETOMETERY, sizeof( samplegsgdeviceTELEMETRY_MAGNETOMETERY ) - 1, usMagnetometer[ 1 ], 0 );
     configASSERT( xResult == eAzureIoTSuccess );
 
-    xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( xWriter, ( uint8_t * ) TELEMETRY_MAGNETOMETERZ, sizeof( TELEMETRY_MAGNETOMETERZ ) - 1, magnetometer[ 2 ], 0 );
+    xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( xWriter, ( uint8_t * ) samplegsgdeviceTELEMETRY_MAGNETOMETERZ, sizeof( samplegsgdeviceTELEMETRY_MAGNETOMETERZ ) - 1, usMagnetometer[ 2 ], 0 );
     configASSERT( xResult == eAzureIoTSuccess );
 }
 /*-----------------------------------------------------------*/
@@ -98,17 +98,17 @@ static void prvCreateTelemetryMagnetometer( AzureIoTJSONWriter_t * xWriter )
 static void prvCreateTelemetryAccelerometer( AzureIoTJSONWriter_t * xWriter )
 {
     AzureIoTResult_t xResult;
-    int16_t accelerometer[ 3 ];
+    int16_t usAccelerometer[ 3 ];
 
-    BSP_ACCELERO_AccGetXYZ( accelerometer );
+    BSP_ACCELERO_AccGetXYZ( usAccelerometer );
 
-    xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( xWriter, ( uint8_t * ) TELEMETRY_ACCELEROMETERX, sizeof( TELEMETRY_ACCELEROMETERX ) - 1, accelerometer[ 0 ], 0 );
+    xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( xWriter, ( uint8_t * ) samplegsgdeviceTELEMETRY_ACCELEROMETERX, sizeof( samplegsgdeviceTELEMETRY_ACCELEROMETERX ) - 1, usAccelerometer[ 0 ], 0 );
     configASSERT( xResult == eAzureIoTSuccess );
 
-    xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( xWriter, ( uint8_t * ) TELEMETRY_ACCELEROMETERY, sizeof( TELEMETRY_ACCELEROMETERY ) - 1, accelerometer[ 1 ], 0 );
+    xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( xWriter, ( uint8_t * ) samplegsgdeviceTELEMETRY_ACCELEROMETERY, sizeof( samplegsgdeviceTELEMETRY_ACCELEROMETERY ) - 1, usAccelerometer[ 1 ], 0 );
     configASSERT( xResult == eAzureIoTSuccess );
 
-    xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( xWriter, ( uint8_t * ) TELEMETRY_ACCELEROMETERZ, sizeof( TELEMETRY_ACCELEROMETERZ ) - 1, accelerometer[ 2 ], 0 );
+    xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( xWriter, ( uint8_t * ) samplegsgdeviceTELEMETRY_ACCELEROMETERZ, sizeof( samplegsgdeviceTELEMETRY_ACCELEROMETERZ ) - 1, usAccelerometer[ 2 ], 0 );
     configASSERT( xResult == eAzureIoTSuccess );
 }
 /*-----------------------------------------------------------*/
@@ -116,24 +116,24 @@ static void prvCreateTelemetryAccelerometer( AzureIoTJSONWriter_t * xWriter )
 static void prvCreateTelemetryGyroscope( AzureIoTJSONWriter_t * xWriter )
 {
     AzureIoTResult_t xResult;
-    float gyroscope[ 3 ];
+    float xGyroscope[ 3 ];
 
-    BSP_GYRO_GetXYZ( gyroscope );
+    BSP_GYRO_GetXYZ( xGyroscope );
 
-    xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( xWriter, ( uint8_t * ) TELEMETRY_GYROSCOPEX, sizeof( TELEMETRY_GYROSCOPEX ) - 1, gyroscope[ 0 ], 2 );
+    xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( xWriter, ( uint8_t * ) samplegsgdeviceTELEMETRY_GYROSCOPEX, sizeof( samplegsgdeviceTELEMETRY_GYROSCOPEX ) - 1, xGyroscope[ 0 ], 2 );
     configASSERT( xResult == eAzureIoTSuccess );
 
-    xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( xWriter, ( uint8_t * ) TELEMETRY_GYROSCOPEY, sizeof( TELEMETRY_GYROSCOPEY ) - 1, gyroscope[ 1 ], 2 );
+    xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( xWriter, ( uint8_t * ) samplegsgdeviceTELEMETRY_GYROSCOPEY, sizeof( samplegsgdeviceTELEMETRY_GYROSCOPEY ) - 1, xGyroscope[ 1 ], 2 );
     configASSERT( xResult == eAzureIoTSuccess );
 
-    xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( xWriter, ( uint8_t * ) TELEMETRY_GYROSCOPEZ, sizeof( TELEMETRY_GYROSCOPEZ ) - 1, gyroscope[ 2 ], 2 );
+    xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( xWriter, ( uint8_t * ) samplegsgdeviceTELEMETRY_GYROSCOPEZ, sizeof( samplegsgdeviceTELEMETRY_GYROSCOPEZ ) - 1, xGyroscope[ 2 ], 2 );
     configASSERT( xResult == eAzureIoTSuccess );
 }
 /*-----------------------------------------------------------*/
 
-void vSetLedState( bool level )
+void vSetLedState( bool xLevel )
 {
-    if( level )
+    if( xLevel )
     {
         LogInfo( ( "LED is turned ON" ) );
         BSP_LED_On( LED_GREEN );

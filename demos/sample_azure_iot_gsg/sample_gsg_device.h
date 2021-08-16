@@ -18,7 +18,7 @@ extern const char * pcProcessorManufacturerPropertyValue;
 extern const double xTotalStoragePropertyValue;
 extern const double xTotalMemoryPropertyValue;
 
-void vSetLedState( bool level );
+void vSetLedState( bool xLevel );
 
 uint32_t ulCreateTelemetry( uint8_t * pucTelemetryData,
                             uint32_t ulTelemetryDataLength );

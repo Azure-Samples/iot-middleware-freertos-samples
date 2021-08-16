@@ -633,8 +633,8 @@ static uint32_t prvConnectToServerWithBackoffRetries( const char * pcHostName,
         AzureIoTResult_t xResult;
         AzureIoTJSONWriter_t xWriter;
         AzureIoTTransportInterface_t xTransport;
-        uint32_t ucSamplepIothubHostnameLength = sizeof( ucSampleIotHubHostname );
-        uint32_t ucSamplepIothubDeviceIdLength = sizeof( ucSampleIotHubDeviceId );
+        uint32_t ulSamplepIothubHostnameLength = sizeof( ucSampleIotHubHostname );
+        uint32_t ulSamplepIothubDeviceIdLength = sizeof( ucSampleIotHubDeviceId );
         uint32_t ulStatus;
         int32_t lBytesWritten;
 
@@ -713,8 +713,8 @@ static uint32_t prvConnectToServerWithBackoffRetries( const char * pcHostName,
         configASSERT( xResult == eAzureIoTSuccess );
 
         xResult = AzureIoTProvisioningClient_GetDeviceAndHub( &xAzureIoTProvisioningClient,
-                                                              ucSampleIotHubHostname, &ucSamplepIothubHostnameLength,
-                                                              ucSampleIotHubDeviceId, &ucSamplepIothubDeviceIdLength );
+                                                              ucSampleIotHubHostname, &ulSamplepIothubHostnameLength,
+                                                              ucSampleIotHubDeviceId, &ulSamplepIothubDeviceIdLength );
         configASSERT( xResult == eAzureIoTSuccess );
 
         AzureIoTProvisioningClient_Deinit( &xAzureIoTProvisioningClient );
@@ -723,9 +723,9 @@ static uint32_t prvConnectToServerWithBackoffRetries( const char * pcHostName,
         TLS_Socket_Disconnect( &xNetworkContext );
 
         *ppucIothubHostname = ucSampleIotHubHostname;
-        *pulIothubHostnameLength = ucSamplepIothubHostnameLength;
+        *pulIothubHostnameLength = ulSamplepIothubHostnameLength;
         *ppucIothubDeviceId = ucSampleIotHubDeviceId;
-        *pulIothubDeviceIdLength = ucSamplepIothubDeviceIdLength;
+        *pulIothubDeviceIdLength = ulSamplepIothubDeviceIdLength;
 
         return 0;
     }
