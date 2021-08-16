@@ -209,7 +209,7 @@ static void prvHandleCloudMessage( AzureIoTHubClientCloudToDeviceMessageRequest_
 
     LogInfo( ( "Cloud message payload : %.*s \r\n",
                pxMessage->ulPayloadLength,
-               ( const char* ) pxMessage->pvMessagePayload ) );
+               ( const char * ) pxMessage->pvMessagePayload ) );
 }
 /*-----------------------------------------------------------*/
 
@@ -221,7 +221,7 @@ static void prvHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
 {
     LogInfo( ( "Command payload : %.*s \r\n",
                pxMessage->ulPayloadLength,
-               ( const char* ) pxMessage->pvMessagePayload ) );
+               ( const char * ) pxMessage->pvMessagePayload ) );
 
     AzureIoTHubClient_t * xHandle = ( AzureIoTHubClient_t * ) pvContext;
 
@@ -261,7 +261,7 @@ static void prvHandlePropertiesMessage( AzureIoTHubClientPropertiesResponse_t * 
 
     LogInfo( ( "Property document payload : %.*s \r\n",
                pxMessage->ulPayloadLength,
-               ( const char* ) pxMessage->pvMessagePayload ) );
+               ( const char * ) pxMessage->pvMessagePayload ) );
 }
 /*-----------------------------------------------------------*/
 

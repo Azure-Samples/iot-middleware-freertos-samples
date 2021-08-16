@@ -358,7 +358,7 @@ static void prvHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
 
     LogInfo( ( "Command payload : %.*s \r\n",
                pxMessage->ulPayloadLength,
-               ( const char* ) pxMessage->pvMessagePayload ) );
+               ( const char * ) pxMessage->pvMessagePayload ) );
 
     lCommandNameLength = sizeof( sampleazureiotCOMMAND_MAX_MIN_REPORT ) - 1;
 
@@ -698,7 +698,7 @@ static void prvHandleProperties( AzureIoTHubClientPropertiesResponse_t * pxMessa
 
     LogDebug( ( "Property document payload : %.*s \r\n",
                 pxMessage->ulPayloadLength,
-                ( const char* ) pxMessage->pvMessagePayload ) );
+                ( const char * ) pxMessage->pvMessagePayload ) );
 
     switch( pxMessage->xMessageType )
     {
