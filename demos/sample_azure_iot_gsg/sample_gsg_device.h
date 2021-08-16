@@ -18,9 +18,9 @@ extern const char * pcProcessorManufacturerPropertyValue;
 extern const double xTotalStoragePropertyValue;
 extern const double xTotalMemoryPropertyValue;
 
-void setLedState( bool level );
+void vSetLedState( bool level );
 
-uint32_t createTelemetry( uint8_t * pucTelemetryData,
+uint32_t ulCreateTelemetry( uint8_t * pucTelemetryData,
                           uint32_t ulTelemetryDataLength );
 
 #endif /* ifndef __TASK_GSG_DEVICE_H */

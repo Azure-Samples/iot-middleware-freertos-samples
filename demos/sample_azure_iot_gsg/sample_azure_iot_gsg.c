@@ -327,7 +327,7 @@ static void prvInvokeSetLedStateCommand( const void * pvMessagePayload,
 {
     xLedState = ( strncmp( "true", ( const char * ) pvMessagePayload, ulMessageLength ) == 0 );
 
-    setLedState( xLedState );
+    vSetLedState( xLedState );
 }
 /*-----------------------------------------------------------*/
 
@@ -869,7 +869,7 @@ static void prvAzureDemoTask( void * pvParameters )
                 lastTelemetryTime += lTelemetryInterval;
             }
 
-            ulScratchBufferLength = createTelemetry( ucScratchBuffer, sizeof( ucScratchBuffer ) - 1 );
+            ulScratchBufferLength = ulCreateTelemetry( ucScratchBuffer, sizeof( ucScratchBuffer ) - 1 );
 
             xResult = AzureIoTHubClient_SendTelemetry( &xAzureIoTHubClient,
                                                        ucScratchBuffer, ulScratchBufferLength,

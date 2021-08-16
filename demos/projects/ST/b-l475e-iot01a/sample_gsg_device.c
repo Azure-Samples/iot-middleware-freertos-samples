@@ -59,7 +59,7 @@ typedef enum TelemetryStateType_t
 static TelemetryStateType_t xTelemetryState = eTelemetryStateTypeDefault;
 /*-----------------------------------------------------------*/
 
-static void createTelemetryDevice( AzureIoTJSONWriter_t * xWriter )
+static void prvCreateTelemetryDevice( AzureIoTJSONWriter_t * xWriter )
 {
     AzureIoTResult_t xResult;
     float temperature = BSP_TSENSOR_ReadTemp();
@@ -77,7 +77,7 @@ static void createTelemetryDevice( AzureIoTJSONWriter_t * xWriter )
 }
 /*-----------------------------------------------------------*/
 
-static void createTelemetryMagnetometer( AzureIoTJSONWriter_t * xWriter )
+static void prvCreateTelemetryMagnetometer( AzureIoTJSONWriter_t * xWriter )
 {
     AzureIoTResult_t xResult;
     int16_t magnetometer[ 3 ];
@@ -95,7 +95,7 @@ static void createTelemetryMagnetometer( AzureIoTJSONWriter_t * xWriter )
 }
 /*-----------------------------------------------------------*/
 
-static void createTelemetryAccelerometer( AzureIoTJSONWriter_t * xWriter )
+static void prvCreateTelemetryAccelerometer( AzureIoTJSONWriter_t * xWriter )
 {
     AzureIoTResult_t xResult;
     int16_t accelerometer[ 3 ];
@@ -113,7 +113,7 @@ static void createTelemetryAccelerometer( AzureIoTJSONWriter_t * xWriter )
 }
 /*-----------------------------------------------------------*/
 
-static void createTelemetryGyroscope( AzureIoTJSONWriter_t * xWriter )
+static void prvCreateTelemetryGyroscope( AzureIoTJSONWriter_t * xWriter )
 {
     AzureIoTResult_t xResult;
     float gyroscope[ 3 ];
@@ -131,7 +131,7 @@ static void createTelemetryGyroscope( AzureIoTJSONWriter_t * xWriter )
 }
 /*-----------------------------------------------------------*/
 
-void setLedState( bool level )
+void vSetLedState( bool level )
 {
     if( level )
     {
@@ -146,7 +146,7 @@ void setLedState( bool level )
 }
 /*-----------------------------------------------------------*/
 
-uint32_t createTelemetry( uint8_t * pucTelemetryData,
+uint32_t ulCreateTelemetry( uint8_t * pucTelemetryData,
                           uint32_t ulTelemetryDataLength )
 {
     AzureIoTResult_t xResult;
@@ -162,19 +162,19 @@ uint32_t createTelemetry( uint8_t * pucTelemetryData,
     switch( xTelemetryState )
     {
         case eTelemetryStateTypeDefault:
-            createTelemetryDevice( &xWriter );
+            prvCreateTelemetryDevice( &xWriter );
             break;
 
         case eTelemetryStateTypeMagnetometer:
-            createTelemetryMagnetometer( &xWriter );
+            prvCreateTelemetryMagnetometer( &xWriter );
             break;
 
         case eTelemetryStateTypeAccelerometer:
-            createTelemetryAccelerometer( &xWriter );
+            prvCreateTelemetryAccelerometer( &xWriter );
             break;
 
         case eTelemetryStateTypeGyroscope:
-            createTelemetryGyroscope( &xWriter );
+            prvCreateTelemetryGyroscope( &xWriter );
             break;
 
         default:
