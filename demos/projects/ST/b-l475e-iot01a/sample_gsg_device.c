@@ -147,7 +147,7 @@ void vSetLedState( bool level )
 /*-----------------------------------------------------------*/
 
 uint32_t ulCreateTelemetry( uint8_t * pucTelemetryData,
-                          uint32_t ulTelemetryDataLength )
+                            uint32_t ulTelemetryDataLength )
 {
     AzureIoTResult_t xResult;
     AzureIoTJSONWriter_t xWriter;

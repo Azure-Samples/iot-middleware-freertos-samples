@@ -58,64 +58,64 @@
 /**
  * @brief The maximum number of retries for network operation with server.
  */
-#define sampleazureiotRETRY_MAX_ATTEMPTS                      ( 5U )
+#define sampleazureiotgsgRETRY_MAX_ATTEMPTS                      ( 5U )
 
 /**
  * @brief The maximum back-off delay (in milliseconds) for retrying failed operation
  *  with server.
  */
-#define sampleazureiotRETRY_MAX_BACKOFF_DELAY_MS              ( 5000U )
+#define sampleazureiotgsgRETRY_MAX_BACKOFF_DELAY_MS              ( 5000U )
 
 /**
  * @brief The base back-off delay (in milliseconds) to use for network operation retry
  * attempts.
  */
-#define sampleazureiotRETRY_BACKOFF_BASE_MS                   ( 500U )
+#define sampleazureiotgsgRETRY_BACKOFF_BASE_MS                   ( 500U )
 
 /**
  * @brief Timeout for receiving CONNACK packet in milliseconds.
  */
-#define sampleazureiotCONNACK_RECV_TIMEOUT_MS                 ( 10 * 1000U )
+#define sampleazureiotgsgCONNACK_RECV_TIMEOUT_MS                 ( 10 * 1000U )
 
 /**
  * @brief Property Values
  */
-#define sampleazureiotPROPERTY_SUCCESS                        ( "success" )
+#define sampleazureiotgsgPROPERTY_SUCCESS                        ( "success" )
 
 /**
  * @brief The payload to send to the Device Provisioning Service
  */
-#define sampleazureiotPROVISIONING_PAYLOAD_MODELID            ( "modelId" )
+#define sampleazureiotgsgPROVISIONING_PAYLOAD_MODELID            ( "modelId" )
 
 /**
  * @brief Transport timeout in milliseconds for transport send and receive.
  */
-#define sampleazureiotTRANSPORT_SEND_RECV_TIMEOUT_MS          ( 2000U )
+#define sampleazureiotgsgTRANSPORT_SEND_RECV_TIMEOUT_MS          ( 2000U )
 
 /**
  * @brief Transport timeout in milliseconds for transport send and receive.
  */
-#define sampleazureiotProvisioning_Registration_TIMEOUT_MS    ( 3 * 1000U )
+#define sampleazureiotgsgPROVISIONING_REGISTRATION_TIMEOUT_MS    ( 3 * 1000U )
 
 /**
  * @brief Wait timeout for subscribe to finish.
  */
-#define sampleazureiotSUBSCRIBE_TIMEOUT                       ( 10 * 1000U )
+#define sampleazureiotgsgSUBSCRIBE_TIMEOUT                       ( 10 * 1000U )
 /*-----------------------------------------------------------*/
 
-#define TELEMETRY_INTERVAL_PROPERTY                           ( "telemetryInterval" )
-#define LED_STATE_PROPERTY                                    ( "ledState" )
-#define SET_LED_STATE_COMMAND                                 ( "setLedState" )
+#define sampleazureiotgsgTELEMETRY_INTERVAL_PROPERTY             ( "telemetryInterval" )
+#define sampleazureiotgsgLED_STATE_PROPERTY                      ( "ledState" )
+#define sampleazureiotgsgSET_LED_STATE_COMMAND                   ( "setLedState" )
 
-#define DEVICE_INFORMATION_NAME                               ( "deviceInformation" )
-#define MANUFACTURER_PROPERTY_NAME                            ( "manufacturer" )
-#define MODEL_PROPERTY_NAME                                   ( "model" )
-#define SOFTWARE_VERSION_PROPERTY_NAME                        ( "swVersion" )
-#define OS_NAME_PROPERTY_NAME                                 ( "osName" )
-#define PROCESSOR_ARCHITECTURE_PROPERTY_NAME                  ( "processorArchitecture" )
-#define PROCESSOR_MANUFACTURER_PROPERTY_NAME                  ( "processorManufacturer" )
-#define TOTAL_STORAGE_PROPERTY_NAME                           ( "totalStorage" )
-#define TOTAL_MEMORY_PROPERTY_NAME                            ( "totalMemory" )
+#define sampleazureiotgsgDEVICE_INFORMATION_NAME                 ( "deviceInformation" )
+#define sampleazureiotgsgMANUFACTURER_PROPERTY_NAME              ( "manufacturer" )
+#define sampleazureiotgsgMODEL_PROPERTY_NAME                     ( "model" )
+#define sampleazureiotgsgSOFTWARE_VERSION_PROPERTY_NAME          ( "swVersion" )
+#define sampleazureiotgsgOS_NAME_PROPERTY_NAME                   ( "osName" )
+#define sampleazureiotgsgPROCESSOR_ARCHITECTURE_PROPERTY_NAME    ( "processorArchitecture" )
+#define sampleazureiotgsgPROCESSOR_MANUFACTURER_PROPERTY_NAME    ( "processorManufacturer" )
+#define sampleazureiotgsgTOTAL_STORAGE_PROPERTY_NAME             ( "totalStorage" )
+#define sampleazureiotgsgTOTAL_MEMORY_PROPERTY_NAME              ( "totalMemory" )
 /*-----------------------------------------------------------*/
 
 /* Each compilation unit must define the NetworkContext struct. */
@@ -174,8 +174,8 @@ static void prvReportLedState()
     xResult = AzureIoTJSONWriter_AppendBeginObject( &xWriter );
     configASSERT( xResult == eAzureIoTSuccess );
 
-    xResult = AzureIoTJSONWriter_AppendPropertyName( &xWriter, ( uint8_t * ) LED_STATE_PROPERTY,
-                                                     sizeof( LED_STATE_PROPERTY ) - 1 );
+    xResult = AzureIoTJSONWriter_AppendPropertyName( &xWriter, ( uint8_t * ) sampleazureiotgsgLED_STATE_PROPERTY,
+                                                     sizeof( sampleazureiotgsgLED_STATE_PROPERTY ) - 1 );
     configASSERT( xResult == eAzureIoTSuccess );
 
     xResult = AzureIoTJSONWriter_AppendBool( &xWriter, xLedState );
@@ -215,12 +215,12 @@ static void prvReportTelemetryInterval( uint32_t ulVersion )
 
     xResult = AzureIoTHubClientProperties_BuilderBeginResponseStatus( &xAzureIoTHubClient,
                                                                       &xWriter,
-                                                                      ( uint8_t * ) TELEMETRY_INTERVAL_PROPERTY,
-                                                                      sizeof( TELEMETRY_INTERVAL_PROPERTY ) - 1,
+                                                                      ( uint8_t * ) sampleazureiotgsgTELEMETRY_INTERVAL_PROPERTY,
+                                                                      sizeof( sampleazureiotgsgTELEMETRY_INTERVAL_PROPERTY ) - 1,
                                                                       200,
                                                                       ulVersion,
-                                                                      ( uint8_t * ) sampleazureiotPROPERTY_SUCCESS,
-                                                                      sizeof( sampleazureiotPROPERTY_SUCCESS ) - 1 );
+                                                                      ( uint8_t * ) sampleazureiotgsgPROPERTY_SUCCESS,
+                                                                      sizeof( sampleazureiotgsgPROPERTY_SUCCESS ) - 1 );
     configASSERT( xResult == eAzureIoTSuccess );
 
     xResult = AzureIoTJSONWriter_AppendInt32( &xWriter, lTelemetryInterval );
@@ -265,38 +265,38 @@ static void prvReportDeviceInfo()
     xResult = AzureIoTJSONWriter_AppendBeginObject( &xWriter );
     configASSERT( xResult == eAzureIoTSuccess );
 
-    xResult = AzureIoTHubClientProperties_BuilderBeginComponent( &xAzureIoTHubClient, &xWriter, ( const uint8_t * ) DEVICE_INFORMATION_NAME, strlen( DEVICE_INFORMATION_NAME ) );
+    xResult = AzureIoTHubClientProperties_BuilderBeginComponent( &xAzureIoTHubClient, &xWriter, ( const uint8_t * ) sampleazureiotgsgDEVICE_INFORMATION_NAME, strlen( sampleazureiotgsgDEVICE_INFORMATION_NAME ) );
     configASSERT( xResult == eAzureIoTSuccess );
 
-    xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) MANUFACTURER_PROPERTY_NAME, sizeof( MANUFACTURER_PROPERTY_NAME ) - 1,
+    xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) sampleazureiotgsgMANUFACTURER_PROPERTY_NAME, sizeof( sampleazureiotgsgMANUFACTURER_PROPERTY_NAME ) - 1,
                                                                 ( uint8_t * ) pcManufacturerPropertyValue, strlen( pcManufacturerPropertyValue ) );
     configASSERT( xResult == eAzureIoTSuccess );
 
-    xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) MODEL_PROPERTY_NAME, sizeof( MODEL_PROPERTY_NAME ) - 1,
+    xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) sampleazureiotgsgMODEL_PROPERTY_NAME, sizeof( sampleazureiotgsgMODEL_PROPERTY_NAME ) - 1,
                                                                 ( uint8_t * ) pcModelPropertyValue, strlen( pcModelPropertyValue ) );
     configASSERT( xResult == eAzureIoTSuccess );
 
-    xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) SOFTWARE_VERSION_PROPERTY_NAME, sizeof( SOFTWARE_VERSION_PROPERTY_NAME ) - 1,
+    xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) sampleazureiotgsgSOFTWARE_VERSION_PROPERTY_NAME, sizeof( sampleazureiotgsgSOFTWARE_VERSION_PROPERTY_NAME ) - 1,
                                                                 ( uint8_t * ) pcSoftwareVersionPropertyValue, strlen( pcSoftwareVersionPropertyValue ) );
     configASSERT( xResult == eAzureIoTSuccess );
 
-    xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) OS_NAME_PROPERTY_NAME, sizeof( OS_NAME_PROPERTY_NAME ) - 1,
+    xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) sampleazureiotgsgOS_NAME_PROPERTY_NAME, sizeof( sampleazureiotgsgOS_NAME_PROPERTY_NAME ) - 1,
                                                                 ( uint8_t * ) pcOsNamePropertyValue, strlen( pcOsNamePropertyValue ) );
     configASSERT( xResult == eAzureIoTSuccess );
 
-    xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) PROCESSOR_ARCHITECTURE_PROPERTY_NAME, sizeof( PROCESSOR_ARCHITECTURE_PROPERTY_NAME ) - 1,
+    xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) sampleazureiotgsgPROCESSOR_ARCHITECTURE_PROPERTY_NAME, sizeof( sampleazureiotgsgPROCESSOR_ARCHITECTURE_PROPERTY_NAME ) - 1,
                                                                 ( uint8_t * ) pcProcessorArchitecturePropertyValue, strlen( pcProcessorArchitecturePropertyValue ) );
     configASSERT( xResult == eAzureIoTSuccess );
 
-    xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) PROCESSOR_MANUFACTURER_PROPERTY_NAME, sizeof( PROCESSOR_MANUFACTURER_PROPERTY_NAME ) - 1,
+    xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) sampleazureiotgsgPROCESSOR_MANUFACTURER_PROPERTY_NAME, sizeof( sampleazureiotgsgPROCESSOR_MANUFACTURER_PROPERTY_NAME ) - 1,
                                                                 ( uint8_t * ) pcProcessorManufacturerPropertyValue, strlen( pcProcessorManufacturerPropertyValue ) );
     configASSERT( xResult == eAzureIoTSuccess );
 
-    xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( &xWriter, ( uint8_t * ) TOTAL_STORAGE_PROPERTY_NAME, sizeof( TOTAL_STORAGE_PROPERTY_NAME ) - 1,
+    xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( &xWriter, ( uint8_t * ) sampleazureiotgsgTOTAL_STORAGE_PROPERTY_NAME, sizeof( sampleazureiotgsgTOTAL_STORAGE_PROPERTY_NAME ) - 1,
                                                                 xTotalStoragePropertyValue, 0 );
     configASSERT( xResult == eAzureIoTSuccess );
 
-    xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( &xWriter, ( uint8_t * ) TOTAL_MEMORY_PROPERTY_NAME, sizeof( TOTAL_MEMORY_PROPERTY_NAME ) - 1,
+    xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( &xWriter, ( uint8_t * ) sampleazureiotgsgTOTAL_MEMORY_PROPERTY_NAME, sizeof( sampleazureiotgsgTOTAL_MEMORY_PROPERTY_NAME ) - 1,
                                                                 xTotalMemoryPropertyValue, 0 );
     configASSERT( xResult == eAzureIoTSuccess );
 
@@ -341,7 +341,7 @@ static void prvHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
 
     LogInfo( ( "Received direct command: %.*s", pxMessage->usCommandNameLength, pxMessage->pucCommandName ) );
 
-    if( strncmp( SET_LED_STATE_COMMAND, ( const char * ) pxMessage->pucCommandName, strlen( SET_LED_STATE_COMMAND ) ) == 0 )
+    if( strncmp( sampleazureiotgsgSET_LED_STATE_COMMAND, ( const char * ) pxMessage->pucCommandName, strlen( sampleazureiotgsgSET_LED_STATE_COMMAND ) ) == 0 )
     {
         prvInvokeSetLedStateCommand( pxMessage->pvMessagePayload, pxMessage->ulPayloadLength );
 
@@ -420,8 +420,8 @@ static AzureIoTResult_t prvProcessProperties( AzureIoTHubClientPropertiesRespons
                 prvSkipPropertyAndValue( &xReader );
             }
             else if( AzureIoTJSONReader_TokenIsTextEqual( &xReader,
-                                                          ( uint8_t * ) TELEMETRY_INTERVAL_PROPERTY,
-                                                          sizeof( TELEMETRY_INTERVAL_PROPERTY ) - 1 ) )
+                                                          ( uint8_t * ) sampleazureiotgsgTELEMETRY_INTERVAL_PROPERTY,
+                                                          sizeof( sampleazureiotgsgTELEMETRY_INTERVAL_PROPERTY ) - 1 ) )
             {
                 xResult = AzureIoTJSONReader_NextToken( &xReader );
                 configASSERT( xResult == eAzureIoTSuccess );
@@ -565,9 +565,9 @@ static uint32_t prvConnectToServerWithBackoffRetries( const char * pcHostName,
 
     /* Initialize reconnect attempts and interval. */
     BackoffAlgorithm_InitializeParams( &xReconnectParams,
-                                       sampleazureiotRETRY_BACKOFF_BASE_MS,
-                                       sampleazureiotRETRY_MAX_BACKOFF_DELAY_MS,
-                                       sampleazureiotRETRY_MAX_ATTEMPTS );
+                                       sampleazureiotgsgRETRY_BACKOFF_BASE_MS,
+                                       sampleazureiotgsgRETRY_MAX_BACKOFF_DELAY_MS,
+                                       sampleazureiotgsgRETRY_MAX_ATTEMPTS );
 
     /* Attempt to connect to IoT Hub. If connection fails, retry after
      * a timeout. Timeout value will exponentially increase till maximum
@@ -580,8 +580,8 @@ static uint32_t prvConnectToServerWithBackoffRetries( const char * pcHostName,
         xNetworkStatus = TLS_Socket_Connect( pxNetworkContext,
                                              pcHostName, port,
                                              pxNetworkCredentials,
-                                             sampleazureiotTRANSPORT_SEND_RECV_TIMEOUT_MS,
-                                             sampleazureiotTRANSPORT_SEND_RECV_TIMEOUT_MS );
+                                             sampleazureiotgsgTRANSPORT_SEND_RECV_TIMEOUT_MS,
+                                             sampleazureiotgsgTRANSPORT_SEND_RECV_TIMEOUT_MS );
 
         if( xNetworkStatus != eTLSTransportSuccess )
         {
@@ -678,8 +678,8 @@ static uint32_t prvConnectToServerWithBackoffRetries( const char * pcHostName,
         configASSERT( xResult == eAzureIoTSuccess );
 
         xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter,
-                                                                    ( uint8_t * ) sampleazureiotPROVISIONING_PAYLOAD_MODELID,
-                                                                    sizeof( sampleazureiotPROVISIONING_PAYLOAD_MODELID ) - 1,
+                                                                    ( uint8_t * ) sampleazureiotgsgPROVISIONING_PAYLOAD_MODELID,
+                                                                    sizeof( sampleazureiotgsgPROVISIONING_PAYLOAD_MODELID ) - 1,
                                                                     ( uint8_t * ) pcModelId, strlen( pcModelId ) );
         configASSERT( xResult == eAzureIoTSuccess );
 
@@ -698,7 +698,7 @@ static uint32_t prvConnectToServerWithBackoffRetries( const char * pcHostName,
         do
         {
             xResult = AzureIoTProvisioningClient_Register( &xAzureIoTProvisioningClient,
-                                                           sampleazureiotProvisioning_Registration_TIMEOUT_MS );
+                                                           sampleazureiotgsgPROVISIONING_REGISTRATION_TIMEOUT_MS );
         } while( xResult == eAzureIoTErrorPending );
 
         if( xResult == eAzureIoTSuccess )
@@ -834,15 +834,15 @@ static void prvAzureDemoTask( void * pvParameters )
 
     xResult = AzureIoTHubClient_Connect( &xAzureIoTHubClient,
                                          false, &xSessionPresent,
-                                         sampleazureiotCONNACK_RECV_TIMEOUT_MS );
+                                         sampleazureiotgsgCONNACK_RECV_TIMEOUT_MS );
     configASSERT( xResult == eAzureIoTSuccess );
 
     xResult = AzureIoTHubClient_SubscribeCommand( &xAzureIoTHubClient, prvHandleCommand,
-                                                  &xAzureIoTHubClient, sampleazureiotSUBSCRIBE_TIMEOUT );
+                                                  &xAzureIoTHubClient, sampleazureiotgsgSUBSCRIBE_TIMEOUT );
     configASSERT( xResult == eAzureIoTSuccess );
 
     xResult = AzureIoTHubClient_SubscribeProperties( &xAzureIoTHubClient, prvHandleProperties,
-                                                     &xAzureIoTHubClient, sampleazureiotSUBSCRIBE_TIMEOUT );
+                                                     &xAzureIoTHubClient, sampleazureiotgsgSUBSCRIBE_TIMEOUT );
     configASSERT( xResult == eAzureIoTSuccess );
 
     /* Get property document after initial connection */

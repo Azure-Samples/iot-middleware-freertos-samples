@@ -21,6 +21,6 @@ extern const double xTotalMemoryPropertyValue;
 void vSetLedState( bool level );
 
 uint32_t ulCreateTelemetry( uint8_t * pucTelemetryData,
-                          uint32_t ulTelemetryDataLength );
+                            uint32_t ulTelemetryDataLength );
 
 #endif /* ifndef __TASK_GSG_DEVICE_H */
