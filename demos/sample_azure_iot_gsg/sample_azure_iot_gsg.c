@@ -1,8 +1,6 @@
 /* Copyright (c) Microsoft Corporation.
  * Licensed under the MIT License. */
 
-#include "sample_gsg_device.h"
-
 /* Standard includes. */
 #include <string.h>
 #include <stdio.h>
@@ -31,6 +29,9 @@
 
 /* Demo specific configs. */
 #include "demo_config.h"
+
+/* Board specific implementation */
+#include "sample_gsg_device.h"
 /*-----------------------------------------------------------*/
 
 /* Compile time error for undefined configs. */
@@ -116,6 +117,8 @@
 #define sampleazureiotgsgPROCESSOR_MANUFACTURER_PROPERTY_NAME    ( "processorManufacturer" )
 #define sampleazureiotgsgTOTAL_STORAGE_PROPERTY_NAME             ( "totalStorage" )
 #define sampleazureiotgsgTOTAL_MEMORY_PROPERTY_NAME              ( "totalMemory" )
+
+#define sampleazureiotgsgTRUE                                    ( "true " )
 /*-----------------------------------------------------------*/
 
 /* Each compilation unit must define the NetworkContext struct. */
@@ -325,7 +328,7 @@ static void prvReportDeviceInfo()
 static void prvInvokeSetLedStateCommand( const void * pvMessagePayload,
                                          uint32_t ulMessageLength )
 {
-    xLedState = ( strncmp( "true", ( const char * ) pvMessagePayload, ulMessageLength ) == 0 );
+    xLedState = ( strncmp( sampleazureiotgsgTRUE, ( const char * ) pvMessagePayload, sizeof( sampleazureiotgsgTRUE ) - 1 ) == 0 );
 
     vSetLedState( xLedState );
 }
@@ -391,6 +394,7 @@ static AzureIoTResult_t prvProcessProperties( AzureIoTHubClientPropertiesRespons
     const uint8_t * pucComponentName = NULL;
     uint32_t ulComponentNameLength = 0;
     uint32_t ulVersion;
+    int32_t lNewTelemetryInterval;
 
     xResult = AzureIoTJSONReader_Init( &xReader, pxMessage->pvMessagePayload, pxMessage->ulPayloadLength );
     configASSERT( xResult == eAzureIoTSuccess );
@@ -427,8 +431,7 @@ static AzureIoTResult_t prvProcessProperties( AzureIoTHubClientPropertiesRespons
                 configASSERT( xResult == eAzureIoTSuccess );
 
                 /* Get telemetry interval */
-                int32_t lNewTelemetryInterval,
-                        xResult = AzureIoTJSONReader_GetTokenInt32( &xReader, &lNewTelemetryInterval );
+                xResult = AzureIoTJSONReader_GetTokenInt32( &xReader, &lNewTelemetryInterval );
 
                 if( xResult != eAzureIoTSuccess )
                 {
