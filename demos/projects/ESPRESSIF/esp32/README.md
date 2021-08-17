@@ -12,19 +12,19 @@
 
 * To run this sample you can use a device previously created in your IoT Hub or have the Azure IoT Middleware for FreeRTOS provision your device automatically using DPS.
 
-  IoT Hub | DPS 
+  IoT Hub | DPS
   ---------|----------
   Have an [Azure IoT Hub](https://docs.microsoft.com/azure/iot-hub/iot-hub-create-through-portal) created | Have an instance of [IoT Hub Device Provisioning Service](https://docs.microsoft.com/en-us/azure/iot-dps/quick-setup-auto-provision#create-a-new-iot-hub-device-provisioning-service)
   Have a [logical device](https://docs.microsoft.com/azure/iot-hub/iot-hub-create-through-portal#register-a-new-device-in-the-iot-hub) created in your Azure IoT Hub using your preferred authentication method* | Have an [individual enrollment](https://docs.microsoft.com/en-us/azure/iot-dps/how-to-manage-enrollments#create-a-device-enrollment) created in your instance of DPS using your preferred authentication method*
 
-  *While this sample supports SAS keys and Certificates, this guide will refer only to SAS keys. 
+  *While this sample supports SAS keys and Certificates, this guide will refer only to SAS keys.
 
 ## Install prerequisites
 
 1. GIT
 
-    Install `git` following the [official website](https://git-scm.com/). 
-    
+    Install `git` following the [official website](https://git-scm.com/).
+
 2. ESP-IDF
 
     Install the [Espressif ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html#get-started) following Espressif official documentation (steps 1 to 4).
@@ -32,7 +32,7 @@
 3. Azure IoT Embedded middleware for FreeRTOS
 
 
-    Clone the following repo to download all sample device code, setup scripts, and offline versions of the documentation. 
+    Clone the following repo to download all sample device code, setup scripts, and offline versions of the documentation.
 
     **If you previously cloned this repo in another sample, you don't need to do it again.**
 
@@ -69,7 +69,7 @@ idf.py menuconfig
 
 Under menu item `Azure IoT middleware for FreeRTOS Sample Configuration`, update the following configuration values:
 
-Parameter | Value 
+Parameter | Value
 ---------|----------
  `WiFi SSID` | _{Your WiFi SSID}_
  `WiFi Password` | _{Your WiFi password}_
@@ -77,23 +77,23 @@ Parameter | Value
 
 Under menu item `Azure IoT middleware for FreeRTOS Main Task Configuration`, update the following configuration values:
 
-Parameter | Value 
+Parameter | Value
 ---------|----------
- `Use PnP in Azure Sample` | Enabled by default. Disable this option to build a simpler sample without Azure Plug-and-Play. 
- `Azure IoT Hub FQDN` | _{Your Azure IoT Hub Host FQDN}_ 
- `Azure IoT Device ID` | _{Your Azure IoT Hub device ID}_ 
- `Azure IoT Device Symmetric Key` | _{Your Azure IoT Hub device symmetric key}_ 
- `Azure IoT Module ID` | _{Your Azure IoT Hub Module ID}_ (IF USING A MODULE; leave blank if not) 
+ `Use PnP in Azure Sample` | Enabled by default. Disable this option to build a simpler sample without Azure Plug-and-Play.
+ `Azure IoT Hub FQDN` | _{Your Azure IoT Hub Host FQDN}_
+ `Azure IoT Device ID` | _{Your Azure IoT Hub device ID}_
+ `Azure IoT Device Symmetric Key` | _{Your Azure IoT Hub device symmetric key}_
+ `Azure IoT Module ID` | _{Your Azure IoT Hub Module ID}_ (IF USING A MODULE; leave blank if not)
 
 > Some parameters contain default values that do not need to be updated.
 
 If you're using **DPS** with an individual enrollment with SAS authentication, set the following parameters:
 
-Parameter | Value 
+Parameter | Value
 ---------|----------
  `Enable Device Provisioning Sample` | _{Check this option to enable DPS in the sample}_
  `Azure Device Provisioning Service ID Scope` | _{Your ID scope value}_
- `Azure Device Provisioning Service Registration ID` | _{Your Device Registration ID value}_ 
+ `Azure Device Provisioning Service Registration ID` | _{Your Device Registration ID value}_
 
 > Some parameters contain default values that do not need to be updated.
 
@@ -124,7 +124,7 @@ To build the device image, run the following command:
     #!/bin/bash
     # Copyright (c) Microsoft Corporation.
     # Licensed under the MIT License. */
- 
+
     # Lists all USB devices and their paths
 
     for sysdevpath in $(find /sys/bus/usb/devices/usb*/ -name dev); do

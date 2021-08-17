@@ -72,7 +72,7 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pNetworkContext,
                   pNetworkCredentials );
         return eTLSTransportInvalidParameter;
     }
-    
+
     pNetworkContext->xTransport = esp_transport_ssl_init( );
     pNetworkContext->ulReceiveTimeoutMs = ulReceiveTimeoutMs;
     pNetworkContext->ulSendTimeoutMs = ulSendTimeoutMs;
@@ -153,8 +153,8 @@ int32_t TLS_Socket_Recv( NetworkContext_t * pNetworkContext,
 {
     int32_t tlsStatus = 0;
 
-    if (( pNetworkContext == NULL ) || 
-        ( pBuffer == NULL) || 
+    if (( pNetworkContext == NULL ) ||
+        ( pBuffer == NULL) ||
         ( xBytesToRecv == 0) )
     {
         ESP_LOGE( TAG, "Invalid input parameter(s): Arguments cannot be NULL. pNetworkContext=%p, "
@@ -179,8 +179,8 @@ int32_t TLS_Socket_Send( NetworkContext_t * pNetworkContext,
 {
     int32_t tlsStatus = 0;
 
-    if (( pNetworkContext == NULL ) || 
-        ( pBuffer == NULL) || 
+    if (( pNetworkContext == NULL ) ||
+        ( pBuffer == NULL) ||
         ( xBytesToSend == 0) )
     {
         ESP_LOGE( TAG, "Invalid input parameter(s): Arguments cannot be NULL. pNetworkContext=%p, "

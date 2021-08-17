@@ -9,12 +9,12 @@ set(AZURE_IOT_MIDDLEWARE_FREERTOS
     ${ROOT_PATH}/libs/azure-iot-middleware-freertos
 )
 
-set(AZURE_SDK_FOR_C_PATH 
+set(AZURE_SDK_FOR_C_PATH
     ${AZURE_IOT_MIDDLEWARE_FREERTOS}/libraries/azure-sdk-for-c/sdk
 )
 
 file(GLOB_RECURSE COMPONENT_SOURCES
-    ${AZURE_SDK_FOR_C_PATH}/src/azure/*.c  
+    ${AZURE_SDK_FOR_C_PATH}/src/azure/*.c
 )
 
 list(FILTER COMPONENT_SOURCES EXCLUDE REGEX ".*(curl|win32).*")
