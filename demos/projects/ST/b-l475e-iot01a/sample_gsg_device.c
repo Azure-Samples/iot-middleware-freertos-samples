@@ -196,6 +196,6 @@ uint32_t ulCreateTelemetry( uint8_t * pucTelemetryData,
 
     LogInfo( ( "Telemetry message sent %.*s\r\n", lBytesWritten, pucTelemetryData ) );
 
-    return (uint32_t) lBytesWritten;
+    return ( uint32_t ) lBytesWritten;
 }
 /*-----------------------------------------------------------*/
