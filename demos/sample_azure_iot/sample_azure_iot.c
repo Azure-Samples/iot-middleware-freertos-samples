@@ -1,5 +1,5 @@
 /* Copyright (c) Microsoft Corporation.
-   Licensed under the MIT License. */
+ * Licensed under the MIT License. */
 
 /* Standard includes. */
 #include <string.h>
@@ -24,6 +24,7 @@
 
 /* Crypto helper header. */
 #include "crypto.h"
+
 /*-----------------------------------------------------------*/
 
 /* Compile time error for undefined configs. */
@@ -208,7 +209,7 @@ static void prvHandleCloudMessage( AzureIoTHubClientCloudToDeviceMessageRequest_
 
     LogInfo( ( "Cloud message payload : %.*s \r\n",
                pxMessage->ulPayloadLength,
-               pxMessage->pvMessagePayload ) );
+               ( const char * ) pxMessage->pvMessagePayload ) );
 }
 /*-----------------------------------------------------------*/
 
@@ -220,7 +221,7 @@ static void prvHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
 {
     LogInfo( ( "Command payload : %.*s \r\n",
                pxMessage->ulPayloadLength,
-               pxMessage->pvMessagePayload ) );
+               ( const char * ) pxMessage->pvMessagePayload ) );
 
     AzureIoTHubClient_t * xHandle = ( AzureIoTHubClient_t * ) pvContext;
 
@@ -242,7 +243,7 @@ static void prvHandlePropertiesMessage( AzureIoTHubClientPropertiesResponse_t * 
 
     switch( pxMessage->xMessageType )
     {
-        case eAzureIoTHubPropertiesGetMessage:
+        case eAzureIoTHubPropertiesRequestedMessage:
             LogInfo( ( "Device property document GET received" ) );
             break;
 
@@ -260,7 +261,7 @@ static void prvHandlePropertiesMessage( AzureIoTHubClientPropertiesResponse_t * 
 
     LogInfo( ( "Property document payload : %.*s \r\n",
                pxMessage->ulPayloadLength,
-               pxMessage->pvMessagePayload ) );
+               ( const char * ) pxMessage->pvMessagePayload ) );
 }
 /*-----------------------------------------------------------*/
 
@@ -400,7 +401,7 @@ static void prvAzureDemoTask( void * pvParameters )
         configASSERT( xResult == eAzureIoTSuccess );
 
         /* Get property document after initial connection */
-        xResult = AzureIoTHubClient_GetProperties( &xAzureIoTHubClient );
+        xResult = AzureIoTHubClient_RequestPropertiesAsync( &xAzureIoTHubClient );
         configASSERT( xResult == eAzureIoTSuccess );
 
         /* Create a bag of properties for the telemetry */

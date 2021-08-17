@@ -1,5 +1,5 @@
 /* Copyright (c) Microsoft Corporation.
-   Licensed under the MIT License. */
+ * Licensed under the MIT License. */
 
 /**
  * @file transport_tls_socket_using_mbedtls.c
@@ -644,9 +644,11 @@ static TlsTransportStatus_t initMbedtls( mbedtls_entropy_context * pxEntropyCont
 /*-----------------------------------------------------------*/
 
 TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pxNetworkContext,
-                                         const char * pcHostName, uint16_t usPort,
+                                         const char * pcHostName,
+                                         uint16_t usPort,
                                          const NetworkCredentials_t * pxNetworkCredentials,
-                                         uint32_t ulReceiveTimeoutMs, uint32_t ulSendTimeoutMs )
+                                         uint32_t ulReceiveTimeoutMs,
+                                         uint32_t ulSendTimeoutMs )
 {
     TlsTransportParams_t * pxTlsTransportParams = NULL;
     TlsTransportStatus_t xRetVal = eTLSTransportSuccess;
@@ -672,7 +674,7 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pxNetworkContext,
         LogError( ( "pucRootCa cannot be NULL." ) );
         xRetVal = eTLSTransportInvalidParameter;
     }
-    else if ( ( pxSSLContext =  pvPortMalloc( sizeof( MbedSSLContext_t ) ) ) == NULL )
+    else if( ( pxSSLContext = pvPortMalloc( sizeof( MbedSSLContext_t ) ) ) == NULL )
     {
         LogError( ( "Failed to allocate mbed ssl context memmory ." ) );
         xRetVal = eTLSTransportInSufficientMemory;
@@ -681,48 +683,48 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pxNetworkContext,
     {
         pxTlsTransportParams = pxNetworkContext->pParams;
         pxTlsTransportParams->xSSLContext = ( SSLContextHandle ) pxSSLContext;
-        
-        if ( ( pxTlsTransportParams->xTCPSocket = Sockets_Open() ) == SOCKETS_INVALID_SOCKET )
+
+        if( ( pxTlsTransportParams->xTCPSocket = Sockets_Open() ) == SOCKETS_INVALID_SOCKET )
         {
             LogError( ( "Failed to open socket." ) );
             xRetVal = eTLSTransportConnectFailure;
         }
-        else if ( ( xSocketStatus = Sockets_SetSockOpt( pxTlsTransportParams->xTCPSocket,
-                                                        SOCKETS_SO_RCVTIMEO,
-                                                        &xRecvTimeout,
-                                                        sizeof( xRecvTimeout ) ) !=  0 ) )
+        else if( ( xSocketStatus = Sockets_SetSockOpt( pxTlsTransportParams->xTCPSocket,
+                                                       SOCKETS_SO_RCVTIMEO,
+                                                       &xRecvTimeout,
+                                                       sizeof( xRecvTimeout ) ) != 0 ) )
         {
             LogError( ( "Failed to set receive timeout on socket %d.", xSocketStatus ) );
             xRetVal = eTLSTransportInternalError;
         }
-        else if ( ( xSocketStatus = Sockets_SetSockOpt( pxTlsTransportParams->xTCPSocket,
-                                                        SOCKETS_SO_SNDTIMEO,
-                                                        &xSendTimeout,
-                                                        sizeof( xSendTimeout ) ) !=  0 ) )
+        else if( ( xSocketStatus = Sockets_SetSockOpt( pxTlsTransportParams->xTCPSocket,
+                                                       SOCKETS_SO_SNDTIMEO,
+                                                       &xSendTimeout,
+                                                       sizeof( xSendTimeout ) ) != 0 ) )
         {
             LogError( ( "Failed to set send timeout on socket %d.", xSocketStatus ) );
             xRetVal = eTLSTransportInternalError;
         }
-        else if ( ( xSocketStatus = Sockets_Connect( pxTlsTransportParams->xTCPSocket ,
-                                                     pcHostName,
-                                                     usPort ) ) != 0 )
+        else if( ( xSocketStatus = Sockets_Connect( pxTlsTransportParams->xTCPSocket,
+                                                    pcHostName,
+                                                    usPort ) ) != 0 )
         {
             LogError( ( "Failed to connect to %s with error %d.",
                         pcHostName,
                         xSocketStatus ) );
             xRetVal = eTLSTransportConnectFailure;
         }
-        else if ( ( xRetVal = initMbedtls( &( pxSSLContext->entropyContext ),
-                                           &( pxSSLContext->ctrDrgbContext ) ) ) != eTLSTransportSuccess )
+        else if( ( xRetVal = initMbedtls( &( pxSSLContext->entropyContext ),
+                                          &( pxSSLContext->ctrDrgbContext ) ) ) != eTLSTransportSuccess )
         {
             LogError( ( "Failed to initialize Mbedtls %d.", xRetVal ) );
         }
-        else if ( ( xRetVal = tlsSetup( pxNetworkContext, pcHostName,
-                                        pxNetworkCredentials ) ) != eTLSTransportSuccess )
+        else if( ( xRetVal = tlsSetup( pxNetworkContext, pcHostName,
+                                       pxNetworkCredentials ) ) != eTLSTransportSuccess )
         {
             LogError( ( "Failed to setup Mbedtls %d.", xRetVal ) );
         }
-        else if ( ( xRetVal = tlsHandshake( pxNetworkContext, pxNetworkCredentials ) ) != eTLSTransportSuccess )
+        else if( ( xRetVal = tlsHandshake( pxNetworkContext, pxNetworkCredentials ) ) != eTLSTransportSuccess )
         {
             LogError( ( "Failed to do TLS handshake %d.", xRetVal ) );
         }

@@ -1,9 +1,7 @@
 /* Copyright (c) Microsoft Corporation.
- * Licensed under the MIT License. */
+   Licensed under the MIT License. */
 
 #include "crypto.h"
-
-#include "threading_alt.h"
 
 /* mbed TLS includes. */
 #include "mbedtls/md.h"
@@ -13,25 +11,16 @@
 
 uint32_t Crypto_Init()
 {
-    /* Set the mutex functions for mbed TLS thread safety. */
-    mbedtls_threading_set_alt( mbedtls_platform_mutex_init,
-                               mbedtls_platform_mutex_free,
-                               mbedtls_platform_mutex_lock,
-                               mbedtls_platform_mutex_unlock );
-
     return 0;
 }
 /*-----------------------------------------------------------*/
 
-uint32_t Crypto_HMAC( const uint8_t * pucKey,
-                      uint32_t ulKeyLength,
-                      const uint8_t * pucData,
-                      uint32_t ulDataLength,
-                      uint8_t * pucOutput,
-                      uint32_t ulOutputLength,
+uint32_t Crypto_HMAC( const uint8_t * pucKey, uint32_t ulKeyLength,
+                      const uint8_t * pucData, uint32_t ulDataLength,
+                      uint8_t * pucOutput, uint32_t ulOutputLength,
                       uint32_t * pulBytesCopied )
 {
-    uint32_t ulRet;
+    uint32_t ulRet;   
     mbedtls_md_context_t xCtx;
     mbedtls_md_type_t xMDType = MBEDTLS_MD_SHA256;
 
