@@ -7,7 +7,7 @@ menu "Azure IoT middleware for FreeRTOS Main Task Configuration"
         bool "Use PnP in Azure Sample"
         default true
         help
-            Set it to true to enable this sample to use Azure Plug and Play (PnP).
+            Set it to true to enable this sample to use Azure IoT Plug and Play (PnP).
 
     config AZURE_IOT_HUB_FQDN
         string "Azure IoT Hub FQDN"

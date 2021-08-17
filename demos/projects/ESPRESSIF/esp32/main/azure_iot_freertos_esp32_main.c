@@ -19,43 +19,13 @@
 #include "freertos/semphr.h"
 #include "nvs_flash.h"
 
+/*-----------------------------------------------------------*/
+
 #define SNTP_SERVER_FQDN "pool.ntp.org"
 
 static const char *TAG = "sample_azureiot";
 
 static bool g_timeInitialized = false;
-
-/*-----------------------------------------------------------*/
-
-extern void vStartDemoTask( void );
-
-/*-----------------------------------------------------------*/
-
-void vLoggingPrintf( const char * pcFormat,
-                     ... )
-{
-    va_list arg;
-
-    va_start( arg, pcFormat );
-    vprintf( pcFormat, arg );
-    va_end( arg );
-}
-
-/*-----------------------------------------------------------*/
-
-uint64_t ullGetUnixTime( void )
-{
-    time_t now = time(NULL);
-
-    if (now == (time_t)(-1))
-    {
-        ESP_LOGE(TAG, "Failed obtaining current time.\r\n");
-    }
-
-    return now;
-}
-
-/*-----------------------------------------------------------*/
 
 static xSemaphoreHandle s_semph_get_ip_addrs;
 static esp_ip4_addr_t s_ip_addr;
@@ -94,6 +64,38 @@ static esp_ip4_addr_t s_ip_addr;
 #define SAMPLE_IOT_WIFI_SCAN_AUTH_MODE_THRESHOLD WIFI_AUTH_WAPI_PSK
 #endif
 
+/*-----------------------------------------------------------*/
+
+extern void vStartDemoTask( void );
+
+/*-----------------------------------------------------------*/
+
+void vLoggingPrintf( const char * pcFormat,
+                     ... )
+{
+    va_list arg;
+
+    va_start( arg, pcFormat );
+    vprintf( pcFormat, arg );
+    va_end( arg );
+}
+
+/*-----------------------------------------------------------*/
+
+uint64_t ullGetUnixTime( void )
+{
+    time_t now = time(NULL);
+
+    if (now == (time_t)(-1))
+    {
+        ESP_LOGE(TAG, "Failed obtaining current time.\r\n");
+    }
+
+    return now;
+}
+
+/*-----------------------------------------------------------*/
+
 /**
  * @brief Checks the netif description if it contains specified prefix.
  * All netifs created withing common connect component are prefixed with the module TAG,
@@ -103,6 +105,8 @@ static bool is_our_netif(const char *prefix, esp_netif_t *netif)
 {
     return strncmp(prefix, esp_netif_get_desc(netif), strlen(prefix) - 1) == 0;
 }
+
+/*-----------------------------------------------------------*/
 
 static void on_got_ip(void *arg, esp_event_base_t event_base,
                       int32_t event_id, void *event_data)
@@ -117,6 +121,8 @@ static void on_got_ip(void *arg, esp_event_base_t event_base,
     xSemaphoreGive(s_semph_get_ip_addrs);
 }
 
+/*-----------------------------------------------------------*/
+
 static void on_wifi_disconnect(void *arg, esp_event_base_t event_base,
                                int32_t event_id, void *event_data)
 {
@@ -128,7 +134,9 @@ static void on_wifi_disconnect(void *arg, esp_event_base_t event_base,
     ESP_ERROR_CHECK(err);
 }
 
-esp_netif_t *get_example_netif_from_desc(const char *desc)
+/*-----------------------------------------------------------*/
+
+static esp_netif_t *get_example_netif_from_desc(const char *desc)
 {
     esp_netif_t *netif = NULL;
     char *expected_desc;
@@ -142,6 +150,8 @@ esp_netif_t *get_example_netif_from_desc(const char *desc)
     free(expected_desc);
     return netif;
 }
+
+/*-----------------------------------------------------------*/
 
 static esp_netif_t *wifi_start(void)
 {
@@ -185,6 +195,8 @@ static esp_netif_t *wifi_start(void)
     return netif;
 }
 
+/*-----------------------------------------------------------*/
+
 static void wifi_stop(void)
 {
     esp_netif_t *wifi_netif = get_example_netif_from_desc("sta");
@@ -204,10 +216,14 @@ static void wifi_stop(void)
     esp_netif_destroy(wifi_netif);
 }
 
+/*-----------------------------------------------------------*/
+
 static void stop(void)
 {
     wifi_stop();
 }
+
+/*-----------------------------------------------------------*/
 
 static esp_err_t example_connect(void)
 {
@@ -241,11 +257,15 @@ static esp_err_t example_connect(void)
     return ESP_OK;
 }
 
+/*-----------------------------------------------------------*/
+
 static void time_sync_notification_cb(struct timeval *tv)
 {
     ESP_LOGI(TAG, "Notification of a time synchronization event");
     g_timeInitialized = true;
 }
+
+/*-----------------------------------------------------------*/
 
 static void initialize_time()
 {

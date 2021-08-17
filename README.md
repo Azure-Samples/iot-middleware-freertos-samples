@@ -13,6 +13,9 @@ The [Azure IoT middleware for FreeRTOS repo](https://github.com/Azure/azure-iot-
 
 Below you will find samples for development kits and simulators showing how to use the Azure IoT middleware for FreeRTOS. The following development kits are currently supported:
 
+* ESPRESSIF:
+  * [ESP32](demos/projects/ESPRESSIF/esp32/)
+
 * NXP:
   * [MIMXRT1060-EVK](demos/projects/NXP/mimxrt1060/)
 

@@ -150,7 +150,7 @@ To build the device image, run the following command:
 
 3. Run the following command:
 
-    > This step assumes your are in the ESPRESSIF ESP32 sample directory (same as configuration step above).
+    > This step assumes you are in the ESPRESSIF ESP32 sample directory (same as configuration step above).
 
     ```bash
     idf.py -p <COM port> flash
