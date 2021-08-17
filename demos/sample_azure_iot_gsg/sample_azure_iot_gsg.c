@@ -544,17 +544,7 @@ static uint32_t prvSetupNetworkCredentials( NetworkCredentials_t * pxNetworkCred
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Connect to IoT Hub with reconnection retries.
- *
- * If connection fails, retry is attempted after a timeout.
- * Timeout value will exponentially increase until maximum
- * timeout value is reached or the number of attempts are exhausted.
- *
- * @param pcHostName Hostname of the endpoint to connect to.
- * @param ulPort Endpoint port.
- * @param pxNetworkCredentials Pointer to Network credentials.
- * @param pxNetworkContext Point to Network context created.
- * @return uint32_t The status of the final connection attempt.
+ * @brief Connect to server with backoff retries.
  */
 static uint32_t prvConnectToServerWithBackoffRetries( const char * pcHostName,
                                                       uint32_t port,
