@@ -5,12 +5,12 @@ set(ROOT_PATH
     ${CMAKE_CURRENT_LIST_DIR}/../../../../../..
 )
 
-set(AZURE_IOT_MIDDLEWARE_FREERTOS 
+set(AZURE_IOT_MIDDLEWARE_FREERTOS
     ${ROOT_PATH}/libs/azure-iot-middleware-freertos
 )
 
 file(GLOB_RECURSE COMPONENT_SOURCES
-    ${AZURE_IOT_MIDDLEWARE_FREERTOS}/source/*.c  
+    ${AZURE_IOT_MIDDLEWARE_FREERTOS}/source/*.c
 )
 
 list(APPEND COMPONENT_SOURCES

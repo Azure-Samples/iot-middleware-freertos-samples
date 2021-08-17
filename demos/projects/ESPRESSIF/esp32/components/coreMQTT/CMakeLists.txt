@@ -9,7 +9,7 @@ set(AZURE_IOT_MIDDLEWARE_FREERTOS
     ${ROOT_PATH}/libs/azure-iot-middleware-freertos
 )
 
-set(CORE_MQTT_PATH 
+set(CORE_MQTT_PATH
     ${AZURE_IOT_MIDDLEWARE_FREERTOS}/libraries/coreMQTT/source
 )
 
