@@ -243,7 +243,7 @@ static void prvHandlePropertiesMessage( AzureIoTHubClientPropertiesResponse_t * 
 
     switch( pxMessage->xMessageType )
     {
-        case eAzureIoTHubPropertiesGetMessage:
+        case eAzureIoTHubPropertiesRequestedMessage:
             LogInfo( ( "Device property document GET received" ) );
             break;
 
@@ -401,7 +401,7 @@ static void prvAzureDemoTask( void * pvParameters )
         configASSERT( xResult == eAzureIoTSuccess );
 
         /* Get property document after initial connection */
-        xResult = AzureIoTHubClient_GetProperties( &xAzureIoTHubClient );
+        xResult = AzureIoTHubClient_RequestPropertiesAsync( &xAzureIoTHubClient );
         configASSERT( xResult == eAzureIoTSuccess );
 
         /* Create a bag of properties for the telemetry */
