@@ -15,12 +15,12 @@ extern const char * pcSoftwareVersionPropertyValue;
 extern const char * pcOsNamePropertyValue;
 extern const char * pcProcessorArchitecturePropertyValue;
 extern const char * pcProcessorManufacturerPropertyValue;
-extern const double pxTotalStoragePropertyValue;
-extern const double pxTotalMemoryPropertyValue;
+extern const double xTotalStoragePropertyValue;
+extern const double xTotalMemoryPropertyValue;
 
-void setLedState( bool level );
+void vSetLedState( bool xLevel );
 
-uint32_t createTelemetry( uint8_t * pucTelemetryData,
-                          uint32_t ulTelemetryDataLength );
+uint32_t ulCreateTelemetry( uint8_t * pucTelemetryData,
+                            uint32_t ulTelemetryDataLength );
 
 #endif /* ifndef __TASK_GSG_DEVICE_H */
