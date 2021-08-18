@@ -10,7 +10,6 @@
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
-            "externalConsole": false,
             "MIMode": "gdb",
             "miDebuggerPath": "${workspaceFolder}/.vscode/sudo_gdb.sh",
             "setupCommands": [
@@ -31,7 +30,6 @@
             "stopAtEntry": true,
             "cwd": "${workspaceFolder}",
             "environment": [],
-            "externalConsole": false,
             "preLaunchTask": "Build Windows"
         },
         {
