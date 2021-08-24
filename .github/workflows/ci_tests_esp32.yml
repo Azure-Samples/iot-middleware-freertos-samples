@@ -1,0 +1,14 @@
+name: ESPRESSIF ESP32 CI Tests
+
+on: [pull_request]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    steps:
+    - uses: docker://espressif/idf:latest
+    - uses: actions/checkout@v2
+    - uses: snickerbockers/submodules-init@v4
+    - name: Build Esp32 Sample
+      run: docker run -v "${PWD}:/iot-middleware-freertos-samples" espressif/idf idf.py build -C /iot-middleware-freertos-samples/demos/projects/ESPRESSIF/esp32
