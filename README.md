@@ -13,7 +13,7 @@ The [Azure IoT middleware for FreeRTOS repo](https://github.com/Azure/azure-iot-
 
 We have two sets of samples:
 
-- **IoT Central**: These samples leverage DPS (Device Provisioning), Azure IoT Central and Plug and Play. Azure subscription is not required during the initial 7 days of the [Free Trial](https://azure.microsoft.com/en-us/pricing/details/iot-central/#pricing).
+- **Azure IoT Central**: These samples leverage Azure DPS (Device Provisioning Service), Azure IoT Central and, device Plug and Play. Azure subscription is not required during the initial 7 days of the [IoT Central Free Trial](https://azure.microsoft.com/en-us/pricing/details/iot-central/#pricing).
 - **IoT Hub**: These samples leverage DPS (Device Provisioning), Azure IoT Hub and Plug and Play.
 
 
