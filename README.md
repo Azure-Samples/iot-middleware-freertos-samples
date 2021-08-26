@@ -27,7 +27,7 @@ Below you will find samples for development kits showing how to use the Azure Io
 -->
 
 * STMicroelectronics:
-  * [B-L475E-IOT01A](demos/projects/ST/b-l475e-iot01a/gsg.md)
+  * [B-L475E-IOT01A](demos/projects/ST/b-l475e-iot01a/GSG.md)
 
 ### IoT Hub Samples:
 
