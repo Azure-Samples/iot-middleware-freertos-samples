@@ -5,11 +5,31 @@
 [![Linux CI Tests](https://github.com/Azure-Samples/iot-middleware-freertos-samples/actions/workflows/ci_tests_linux.yml/badge.svg)](https://github.com/Azure-Samples/iot-middleware-freertos-samples/actions/workflows/ci_tests_linux.yml)
 <!-- markdown-link-check-enable-->
 
-## Getting Started
+## Getting Started with Azure IoT middleware for FreeRTOS
 
 The Azure IoT middleware for FreeRTOS simplifies the connection of devices running FreeRTOS to Azure IoT services. It implements a modular approach that brings flexibility to IoT developers by allowing them to bring their own network stack (MQTT, TLS and Socket).
 
 The [Azure IoT middleware for FreeRTOS repo](https://github.com/Azure/azure-iot-middleware-freertos) has the core functionalities of the middleware and no external dependencies, however to implement working samples, we need to bring a network stack which is the objective of this repo. 
+
+We have two sets of samples:
+
+- **Azure IoT Central**: These samples leverage Azure DPS (Device Provisioning Service), Azure IoT Central and, device Plug and Play. Azure subscription is not required during the initial 7 days of the [IoT Central Free Trial](https://azure.microsoft.com/en-us/pricing/details/iot-central/#pricing).
+- **Azure IoT Hub**: These samples leverage DPS (Device Provisioning), Azure IoT Hub and Plug and Play.
+
+
+### IoT Central Samples:
+
+Below you will find samples for development kits showing how to use the Azure IoT middleware for FreeRTOS. The following development kits are currently supported:
+
+<!-- ESP32 SaaS sample to be released soon
+* ESPRESSIF:
+  * [ESP32](demos/projects/ESPRESSIF/esp32/gsg.md)
+-->
+
+* STMicroelectronics:
+  * [B-L475E-IOT01A](demos/projects/ST/b-l475e-iot01a/gsg.md)
+
+### IoT Hub Samples:
 
 Below you will find samples for development kits and simulators showing how to use the Azure IoT middleware for FreeRTOS. The following development kits are currently supported:
 
@@ -28,7 +48,7 @@ Below you will find samples for development kits and simulators showing how to u
   * [Linux](demos/projects/PC/linux/)
   * [Windows](demos/projects/PC/windows/)
 
-## Plug and Play Sample
+### Plug and Play Sample
 
 The easiest way to interact with the Plug and Play sample from the service side is to use Azure IoT Explorer.  To use the sample:
 
