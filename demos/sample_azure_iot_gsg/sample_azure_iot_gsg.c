@@ -118,7 +118,7 @@
 #define sampleazureiotgsgTOTAL_STORAGE_PROPERTY_NAME             ( "totalStorage" )
 #define sampleazureiotgsgTOTAL_MEMORY_PROPERTY_NAME              ( "totalMemory" )
 
-#define sampleazureiotgsgTRUE                                    ( "true " )
+#define sampleazureiotgsgTRUE                                    ( "true" )
 /*-----------------------------------------------------------*/
 
 /* Each compilation unit must define the NetworkContext struct. */
