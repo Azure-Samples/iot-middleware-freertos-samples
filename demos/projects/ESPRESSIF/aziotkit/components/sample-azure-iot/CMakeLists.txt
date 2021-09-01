@@ -5,15 +5,9 @@ set(ROOT_PATH
     ${CMAKE_CURRENT_LIST_DIR}/../../../../../..
 )
 
-if (DEFINED CONFIG_AZURE_SAMPLE_USE_PLUG_AND_PLAY)
-    file(GLOB_RECURSE COMPONENT_SOURCES
-        ${ROOT_PATH}/demos/sample_azure_iot_pnp/*.c
-    )
-else()
-    file(GLOB_RECURSE COMPONENT_SOURCES
-        ${ROOT_PATH}/demos/sample_azure_iot/*.c
-    )
-endif()
+set(COMPONENT_SOURCES
+    ${ROOT_PATH}/demos/sample_azure_iot_pnp/sample_azure_iot_pnp_core.c
+)
 
 idf_component_get_property(MBEDTLS_DIR mbedtls COMPONENT_DIR)
 
@@ -29,13 +23,8 @@ set(COMPONENT_INCLUDE_DIRS
     ${MBEDTLS_DIR}/mbedtls/include
     ${ROOT_PATH}/demos/common/transport
     ${ROOT_PATH}/demos/common/utilities
+    ${ROOT_PATH}/demos/sample_azure_iot_pnp
 )
-
-if (DEFINED CONFIG_AZURE_SAMPLE_USE_PLUG_AND_PLAY)
-    list(APPEND COMPONENT_INCLUDE_DIRS
-        ${ROOT_PATH}/demos/sample_azure_iot_pnp
-    )
-endif()
 
 idf_component_register(
     SRCS ${COMPONENT_SOURCES}
