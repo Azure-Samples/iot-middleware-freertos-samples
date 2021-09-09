@@ -23,6 +23,10 @@
 #include "azure_iot_hub_client.h"
 #include "azure_iot_hub_client_properties.h"
 
+#include "sample_azure_iot_pnp.h"
+// #include "esp32_aziotkit.h" // TODO(ewertons): remove this if not needed.
+#include "led.h"
+
 /*-----------------------------------------------------------*/
 
 #define NR_OF_IP_ADDRESSES_TO_WAIT_FOR 1
@@ -80,7 +84,7 @@ extern void vStartDemoTask( void );
 
 /**
  * @brief Checks the netif description if it contains specified prefix.
- * All netifs created withing common connect component are prefixed with the module TAG,
+ * All netifs created within common connect component are prefixed with the module TAG,
  * so it returns true if the specified netif is owned by this module
  */
 static bool is_our_netif(const char *prefix, esp_netif_t *netif)
@@ -251,6 +255,7 @@ static esp_err_t example_connect(void)
             ESP_LOGI(TAG, "- IPv4 address: " IPSTR, IP2STR(&ip.ip));
         }
     }
+    toggle_wifi_led(1);
     return ESP_OK;
 }
 /*-----------------------------------------------------------*/
@@ -323,8 +328,8 @@ void vHandleProperties( AzureIoTHubClientPropertiesResponse_t * pxMessage,
  * @brief Command message callback handler
  */
 uint32_t ulHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
-                      uint32_t* ulResponseStatus,
-                      uint8_t* ucCommandResponsePayloadBuffer,
+                      uint32_t* pulResponseStatus,
+                      uint8_t* pucCommandResponsePayloadBuffer,
                       uint32_t ulCommandResponsePayloadBufferSize)
 {
     uint32_t ulCommandResponsePayloadLength;
@@ -335,9 +340,9 @@ uint32_t ulHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
 
     // TODO: handle Command.
 
-    *ulResponseStatus = 200;
+    *pulResponseStatus = 200;
     ulCommandResponsePayloadLength = sizeof( sampleazureiotCOMMAND_EMPTY_PAYLOAD ) - 1;
-    (void)memcpy( ucCommandResponsePayloadBuffer, sampleazureiotCOMMAND_EMPTY_PAYLOAD, ulCommandResponsePayloadLength );
+    (void)memcpy( pucCommandResponsePayloadBuffer, sampleazureiotCOMMAND_EMPTY_PAYLOAD, ulCommandResponsePayloadLength );
  
 
     return ulCommandResponsePayloadLength;
@@ -352,6 +357,7 @@ uint32_t ulCreateTelemetry( uint8_t * pucTelemetryData,
                             uint32_t ulTelemetryDataLength )
 {
     // TODO: implement.
+    toggle_azure_led(0);
 
     return snprintf( ( char * ) pucTelemetryData, ulTelemetryDataLength,
                                         "I promise I will send something in the future..." );
@@ -382,6 +388,12 @@ void app_main(void)
     ESP_ERROR_CHECK(esp_event_loop_create_default());
     //Allow other core to finish initialization
     vTaskDelay(pdMS_TO_TICKS(100));
+
+    // TODO(ewertons): remove this
+    // esp32_aziotkit_oled_init();
+    // esp32_aziotkit_oled_write();
+    toggle_azure_led(0);
+    toggle_wifi_led(0);
 
     (void)example_connect();
 

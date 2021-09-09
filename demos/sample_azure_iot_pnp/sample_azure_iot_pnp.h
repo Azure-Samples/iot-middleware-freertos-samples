@@ -1,8 +1,8 @@
 /* Copyright (c) Microsoft Corporation.
  * Licensed under the MIT License. */
 
-#ifndef __SAMPLE_AZURE_IOT_PNP_H
-#define __SAMPLE_AZURE_IOT_PNP_H
+#ifndef SAMPLE_AZURE_IOT_PNP_H
+#define SAMPLE_AZURE_IOT_PNP_H
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -66,16 +66,16 @@ uint32_t ulCreateReportedPropertiesUpdate( uint8_t * pucPropertiesData,
  * @remark This function must be implemented by the specific sample.
  *
  * @param[in]  pxMessage                          Pointer to a structure that holds details of the Command.
- * @param[out] ulResponseStatus                   Status code to be sent as response for Command request.
- * @param[out] ucCommandResponsePayloadBuffer     Buffer in which to write a payload for the Command response.
+ * @param[out] pulResponseStatus                  Status code to be sent as response for Command request.
+ * @param[out] pucCommandResponsePayloadBuffer    Buffer in which to write a payload for the Command response.
  * @param[in]  ulCommandResponsePayloadBufferSize Total size of `ucCommandResponsePayloadBuffer`.
  * 
  * @return uint32_t Number of bytes written to `ucCommandResponsePayloadBuffer`.
  */
 uint32_t ulHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
-                      uint32_t* ulResponseStatus,
-                      uint8_t* ucCommandResponsePayloadBuffer,
-                      uint32_t ulCommandResponsePayloadBufferSize );
+                          uint32_t* pulResponseStatus,
+                          uint8_t* pucCommandResponsePayloadBuffer,
+                          uint32_t ulCommandResponsePayloadBufferSize );
 
 /**
  * @brief Provides the payload to be sent as telemetry to the Azure IoT Hub.
@@ -86,19 +86,19 @@ uint32_t ulHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
  * @param[in] pvContext Context defined by the sample.
  */
 void vHandleProperties( AzureIoTHubClientPropertiesResponse_t * pxMessage,
-                                 void * pvContext );
+                        void * pvContext );
 
 /**
  * @brief Sends a reported properties update to Azure IoT Hub.
  * 
  * @remark This function can be used by a specific sample to update the device's reported properties.
  *
- * @param[in] ucProperties       Reported properties content to be updated.
+ * @param[in] pucProperties      Reported properties content to be updated.
  * @param[in] ulPropertiesLength Length of `ucProperties`.
  * 
  * @return AzureIoTResult_t Result of updating properties.
  */
-AzureIoTResult_t xUpdateProperties( uint8_t* ucProperties, 
+AzureIoTResult_t xUpdateProperties( uint8_t* pucProperties, 
                                     uint32_t ulPropertiesLength );
 
-#endif /* ifndef __SAMPLE_AZURE_IOT_PNP_H */
+#endif /* ifndef SAMPLE_AZURE_IOT_PNP_H */

@@ -205,8 +205,8 @@ static void prvUpdateLocalProperties( double xNewTemperatureValue,
  * @brief Gets the reported properties payload with the maximum temperature value.
  */
 static uint32_t prvGetNewMaxTemp( double xUpdatedTemperature, 
-                              uint8_t * ucReportedPropertyPayloadBuffer,
-                              uint32_t ulReportedPropertyPayloadBufferSize )
+                                  uint8_t * ucReportedPropertyPayloadBuffer,
+                                  uint32_t ulReportedPropertyPayloadBufferSize )
 {
     AzureIoTResult_t xResult;
     AzureIoTJSONWriter_t xWriter;
@@ -262,7 +262,7 @@ static void prvSendNewMaxTemp( double xUpdatedTemperature )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Send acknowledgment of requested target temperature value to IoT Hub.
+ * @brief Updates the device's target temperature property online, acknowledging the update from the IoT Hub.
  */
 static void prvAckIncomingTemperature( double xUpdatedTemperature,
                                        uint32_t ulVersion )
@@ -429,7 +429,7 @@ static void prvHandlePropertyUpdate( AzureIoTHubClientPropertiesResponse_t * pxM
  * @brief Property message callback handler
  */
 void vHandleProperties( AzureIoTHubClientPropertiesResponse_t * pxMessage,
-                                 void * pvContext )
+                        void * pvContext )
 {
     ( void ) pvContext;
 
@@ -469,9 +469,9 @@ void vHandleProperties( AzureIoTHubClientPropertiesResponse_t * pxMessage,
  * @brief Command message callback handler
  */
 uint32_t ulHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
-                      uint32_t* ulResponseStatus,
-                      uint8_t* ucCommandResponsePayloadBuffer,
-                      uint32_t ulCommandResponsePayloadBufferSize)
+                          uint32_t* pulResponseStatus,
+                          uint8_t* pucCommandResponsePayloadBuffer,
+                          uint32_t ulCommandResponsePayloadBufferSize)
 {
     AzureIoTResult_t xResult;
     AzureIoTJSONReader_t xReader;
@@ -495,7 +495,7 @@ uint32_t ulHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
         configASSERT( xResult == eAzureIoTSuccess );
 
         /* Initialize the JSON writer with a buffer to which we will write the response payload. */
-        xResult = AzureIoTJSONWriter_Init( &xWriter, ucCommandResponsePayloadBuffer, ulCommandResponsePayloadBufferSize );
+        xResult = AzureIoTJSONWriter_Init( &xWriter, pucCommandResponsePayloadBuffer, ulCommandResponsePayloadBufferSize );
         configASSERT( xResult == eAzureIoTSuccess );
 
         /* Read from the writer the "since" value and use it to construct the response payload in the writer. */
@@ -505,15 +505,15 @@ uint32_t ulHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
         {
             ulCommandResponsePayloadLength = AzureIoTJSONWriter_GetBytesUsed( &xWriter );
 
-            *ulResponseStatus = 200;
+            *pulResponseStatus = 200;
         }
         else
         {
             LogError( ( "Error generating command payload: result 0x%08x", xResult ) );
 
-            *ulResponseStatus = 501;
+            *pulResponseStatus = 501;
             ulCommandResponsePayloadLength = sizeof( sampleazureiotCOMMAND_EMPTY_PAYLOAD ) - 1;
-            (void)memcpy( ucCommandResponsePayloadBuffer, sampleazureiotCOMMAND_EMPTY_PAYLOAD, ulCommandResponsePayloadLength );
+            (void)memcpy( pucCommandResponsePayloadBuffer, sampleazureiotCOMMAND_EMPTY_PAYLOAD, ulCommandResponsePayloadLength );
         }
     }
     else
@@ -523,9 +523,9 @@ uint32_t ulHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
                    pxMessage->usCommandNameLength,
                    pxMessage->pucCommandName ) );
 
-        *ulResponseStatus = 404;
+        *pulResponseStatus = 404;
         ulCommandResponsePayloadLength = sizeof( sampleazureiotCOMMAND_EMPTY_PAYLOAD ) - 1;
-        (void)memcpy( ucCommandResponsePayloadBuffer, sampleazureiotCOMMAND_EMPTY_PAYLOAD, ulCommandResponsePayloadLength );
+        (void)memcpy( pucCommandResponsePayloadBuffer, sampleazureiotCOMMAND_EMPTY_PAYLOAD, ulCommandResponsePayloadLength );
     }
 
     return ulCommandResponsePayloadLength;
@@ -540,7 +540,7 @@ uint32_t ulCreateTelemetry( uint8_t * pucTelemetryData,
                             uint32_t ulTelemetryDataLength )
 {
     return snprintf( ( char * ) pucTelemetryData, ulTelemetryDataLength,
-                                        sampleazureiotMESSAGE, xDeviceCurrentTemperature );
+                     sampleazureiotMESSAGE, xDeviceCurrentTemperature );
 }
 
 /*-----------------------------------------------------------*/
