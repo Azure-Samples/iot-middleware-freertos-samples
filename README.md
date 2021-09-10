@@ -48,6 +48,10 @@ Below you will find samples for development kits and simulators showing how to u
   * [Linux](demos/projects/PC/linux/)
   * [Windows](demos/projects/PC/windows/)
 
+For a video deep dive into this repo and the source code, please see the Microsoft Developers video below.
+
+[<img src="./docs/resources/deep-dive-video.jpg" width="50%">](https://youtu.be/PNykfuJ3VDs)
+
 ### Plug and Play Sample
 
 The easiest way to interact with the Plug and Play sample from the service side is to use Azure IoT Explorer.  To use the sample:
