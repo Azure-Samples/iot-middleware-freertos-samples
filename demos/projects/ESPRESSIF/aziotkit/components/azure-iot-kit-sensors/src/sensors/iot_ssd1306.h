@@ -281,6 +281,7 @@ esp_err_t iot_ssd1306_clear_screen(ssd1306_handle_t dev, uint8_t chFill);
  * @param   chXpos Specifies the X position
  * @param   chYpos Specifies the Y position
  * @param   pchString Pointer to a string to display on the screen
+ * @param   ulStringLength Length of the string
  * @param   chSize char size
  * @param   chMode display mode
  *
@@ -289,7 +290,7 @@ esp_err_t iot_ssd1306_clear_screen(ssd1306_handle_t dev, uint8_t chFill);
  *     - ESP_FAIL Fail
  **/
 esp_err_t iot_ssd1306_draw_string(ssd1306_handle_t dev, uint8_t chXpos,
-        uint8_t chYpos, const uint8_t *pchString, uint8_t chSize,
+        uint8_t chYpos, const uint8_t *pchString, uint32_t ulStringLength, uint8_t chSize,
         uint8_t chMode);
 
 /**

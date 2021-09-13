@@ -21,9 +21,7 @@ extern "C"
 #include "sensors/iot_ssd1306.h"
 #include "sensors/ssd1306_fonts.h"
 
-esp_err_t oled_show_time(ssd1306_handle_t dev);
-esp_err_t oled_show_string(ssd1306_handle_t dev, const char* string);
-esp_err_t oled_show_temp_humidity(ssd1306_handle_t dev, float temprature, float humidity);
+esp_err_t oled_show_string( ssd1306_handle_t dev, const uint8_t * pucString, uint32_t ulStringLength );
 void oled_clean(ssd1306_handle_t dev);
 void oled_init(ssd1306_handle_t dev);
 

@@ -26,6 +26,7 @@
 #include "sample_azure_iot_pnp.h"
 // #include "esp32_aziotkit.h" // TODO(ewertons): remove this if not needed.
 #include "led.h"
+#include "sensor_manager.h"
 
 /*-----------------------------------------------------------*/
 
@@ -255,7 +256,7 @@ static esp_err_t example_connect(void)
             ESP_LOGI(TAG, "- IPv4 address: " IPSTR, IP2STR(&ip.ip));
         }
     }
-    toggle_wifi_led(1);
+
     return ESP_OK;
 }
 /*-----------------------------------------------------------*/
@@ -324,13 +325,20 @@ void vHandleProperties( AzureIoTHubClientPropertiesResponse_t * pxMessage,
 
 /*-----------------------------------------------------------*/
 
+static const char COMMAND_TOGGLE_LED1[] = "ToggleLed1";
+static const char COMMAND_TOGGLE_LED2[] = "ToggleLed2";
+static const char COMMAND_DISPLAY_TEXT[] = "DisplayText";
+
+static bool led1State = false;
+static bool led2State = false;
+
 /**
  * @brief Command message callback handler
  */
 uint32_t ulHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
-                      uint32_t* pulResponseStatus,
-                      uint8_t* pucCommandResponsePayloadBuffer,
-                      uint32_t ulCommandResponsePayloadBufferSize)
+                          uint32_t * pulResponseStatus,
+                          uint8_t * pucCommandResponsePayloadBuffer,
+                          uint32_t ulCommandResponsePayloadBufferSize)
 {
     uint32_t ulCommandResponsePayloadLength;
 
@@ -338,12 +346,39 @@ uint32_t ulHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
                pxMessage->ulPayloadLength,
                ( const char * ) pxMessage->pvMessagePayload );
 
-    // TODO: handle Command.
+    if ( strncmp( ( const char * ) pxMessage->pucCommandName, COMMAND_TOGGLE_LED1, pxMessage->usCommandNameLength ) == 0)
+    {
+        led1State = !led1State;
+        toggle_wifi_led(led1State);
 
-    *pulResponseStatus = 200;
-    ulCommandResponsePayloadLength = sizeof( sampleazureiotCOMMAND_EMPTY_PAYLOAD ) - 1;
-    (void)memcpy( pucCommandResponsePayloadBuffer, sampleazureiotCOMMAND_EMPTY_PAYLOAD, ulCommandResponsePayloadLength );
- 
+        *pulResponseStatus = 200;
+        ulCommandResponsePayloadLength = sizeof( sampleazureiotCOMMAND_EMPTY_PAYLOAD ) - 1;
+        (void)memcpy( pucCommandResponsePayloadBuffer, sampleazureiotCOMMAND_EMPTY_PAYLOAD, ulCommandResponsePayloadLength );
+    }
+    else if ( strncmp( ( const char * ) pxMessage->pucCommandName, COMMAND_TOGGLE_LED2, pxMessage->usCommandNameLength ) == 0)
+    {
+        led2State = !led2State;
+        toggle_azure_led(led2State);
+
+        *pulResponseStatus = 200;
+        ulCommandResponsePayloadLength = sizeof( sampleazureiotCOMMAND_EMPTY_PAYLOAD ) - 1;
+        (void)memcpy( pucCommandResponsePayloadBuffer, sampleazureiotCOMMAND_EMPTY_PAYLOAD, ulCommandResponsePayloadLength );
+    }
+    else if ( strncmp( ( const char * ) pxMessage->pucCommandName, COMMAND_DISPLAY_TEXT, pxMessage->usCommandNameLength ) == 0)
+    {
+        oled_clean_screen();
+        oled_show_message( ( const uint8_t * ) pxMessage->pvMessagePayload, pxMessage->ulPayloadLength );
+
+        *pulResponseStatus = 200;
+        ulCommandResponsePayloadLength = sizeof( sampleazureiotCOMMAND_EMPTY_PAYLOAD ) - 1;
+        (void)memcpy( pucCommandResponsePayloadBuffer, sampleazureiotCOMMAND_EMPTY_PAYLOAD, ulCommandResponsePayloadLength );
+    }
+    else
+    {
+        *pulResponseStatus = 404;
+        ulCommandResponsePayloadLength = sizeof( sampleazureiotCOMMAND_EMPTY_PAYLOAD ) - 1;
+        (void)memcpy( pucCommandResponsePayloadBuffer, sampleazureiotCOMMAND_EMPTY_PAYLOAD, ulCommandResponsePayloadLength );
+    }
 
     return ulCommandResponsePayloadLength;
 }
@@ -357,7 +392,6 @@ uint32_t ulCreateTelemetry( uint8_t * pucTelemetryData,
                             uint32_t ulTelemetryDataLength )
 {
     // TODO: implement.
-    toggle_azure_led(0);
 
     return snprintf( ( char * ) pucTelemetryData, ulTelemetryDataLength,
                                         "I promise I will send something in the future..." );
@@ -389,11 +423,11 @@ void app_main(void)
     //Allow other core to finish initialization
     vTaskDelay(pdMS_TO_TICKS(100));
 
+    initialize_sensors();
+
     // TODO(ewertons): remove this
     // esp32_aziotkit_oled_init();
     // esp32_aziotkit_oled_write();
-    toggle_azure_led(0);
-    toggle_wifi_led(0);
 
     (void)example_connect();
 

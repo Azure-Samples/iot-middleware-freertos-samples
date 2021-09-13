@@ -46,6 +46,7 @@ static void i2c_master_init()
     conf.sda_pullup_en = GPIO_PULLUP_ENABLE;
     conf.scl_io_num = I2C_MASTER_SCL_IO;
     conf.scl_pullup_en = GPIO_PULLUP_ENABLE;
+    conf.clk_flags = 0;
     conf.master.clk_speed = I2C_MASTER_FREQ_HZ;
 
     i2c_bus = iot_i2c_bus_create(i2c_master_port, &conf);
@@ -155,16 +156,10 @@ void initialize_sensors()
     init_button();
 }
 
-void oled_show_message(const char *message)
+void oled_show_message( const uint8_t * pucMessage, uint32_t ulMessageLength )
 {
-    oled_clean(oled);
-    oled_show_string(oled, message);
-}
-
-void oled_update_humiture(float temprature, float humidity)
-{
-    oled_clean(oled);
-    oled_show_temp_humidity(oled, temprature, humidity);
+    oled_clean( oled );
+    oled_show_string( oled, pucMessage, ulMessageLength );
 }
 
 void oled_clean_screen()

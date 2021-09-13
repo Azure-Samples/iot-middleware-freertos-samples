@@ -15,8 +15,7 @@ extern "C"
     float get_humidity();
     float get_ambientLight();
     void oled_clean_screen();
-    void oled_show_message(const char *message);
-    void oled_update_humiture(float temprature, float humidity);
+    void oled_show_message( const uint8_t * pucMessage, uint32_t ulMessageLength );
     void get_pitch_roll_accel(int *pitch, int *roll, int *accelX, int *accelY, int *accelZ);
     void get_pressure_altitude(float *pressure, float *altitude);
     void get_magnetometer(int *magnetometerX, int *magnetometerY, int *magnetometerZ);
