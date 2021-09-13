@@ -39,7 +39,7 @@
 
 * On VSCode:
     * Click the Run and Debug icon (or CTRL+SHIFT+D) as indicated in the illustration below by arrow #1
-    * On the DropDown menu, shown in the illustration below by the arrow #2, select STM475E: Local OpenOCD.
+    * On the drop-down menu, shown in the illustration below by the arrow #2, select `STM L475E: Local OpenOCD`.
     * Click Start Debugging (or F5), shown in the illustration below by the arrow #3.
 
 ![VSCode Cortex Debug](media/VSCode.png)
