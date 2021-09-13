@@ -9,6 +9,7 @@
  ```powershell
  # As **administrator** 
  git config --system core.longpaths true
+```
 
 ## Prerequisites
 
@@ -26,7 +27,11 @@
     * If you are unsure whether you have the updated drivers, connect your STM32L475 device to the PC and open the device manager. You should be able to see the ST-Link Debug under USBs.
     * If you can’t see it, download, and update the drivers.
 
-* [Windows users] For the next step, note that in several cases, script execution is restricted by default for security reasons. If you can't run the next step, run PowerShell as Administrator and set the execution policy:
+* You might need to restart VS Code so the terminal can recognize any changes to the PATH before proceeding to the next steps.
+
+## Running the Debugger
+
+* [Windows users] The next step, will require execution of Power Shell scripts to get your device setup for debugging. Normally, script execution is restricted by default. If you can't run the next step, run PowerShell as Administrator and set the execution policy:
 
     ```powershell
     Set-ExecutionPolicy Unrestricted
@@ -37,9 +42,6 @@
     ```powershell
     Set-ExecutionPolicy Restricted
     ```
-* You might need to restart VS Code so the terminal can recognize any changes to the PATH before proceeding to the next steps.
-
-## Running the Debugger
 
 * On VSCode:
     * Click the Run and Debug icon (or CTRL+SHIFT+D) as indicated in the illustration below by arrow #1
