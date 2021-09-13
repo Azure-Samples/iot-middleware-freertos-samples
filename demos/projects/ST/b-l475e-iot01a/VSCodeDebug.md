@@ -31,7 +31,7 @@
 
 ## Running the Debugger
 
-* [Windows users] The next step, will require execution of Power Shell scripts to get your device setup for debugging. Normally, script execution is restricted by default. If you can't run the next step, run PowerShell as Administrator and set the execution policy:
+* [Windows users] The next step will require execution of Power Shell scripts to get your device setup for debugging. Normally, script execution is restricted by default. If you can't run the next step, run PowerShell as Administrator and set the execution policy:
 
     ```powershell
     Set-ExecutionPolicy Unrestricted
