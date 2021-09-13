@@ -2,7 +2,7 @@
 
 ## What you need
 
-* Have successfully build the sample for ST Microelectronics DevKit: [B-L475E-IOT01A](https://www.st.com/en/evaluation-tools/b-l475e-iot01a.html)
+* Successfully build the sample for the ST Microelectronics DevKit: [B-L475E-IOT01A](https://www.st.com/en/evaluation-tools/b-l475e-iot01a.html)
 
 * Make sure to run this git command before building and cloning:
 
