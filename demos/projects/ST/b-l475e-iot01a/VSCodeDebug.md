@@ -33,7 +33,7 @@
     ```powershell
     Set-ExecutionPolicy Restricted
     ```
-* It might be needed to restart VS Code so the terminal can recognie any changes to PATH before proceeding to the next steps.
+* You might need to restart VS Code so the terminal can recognize any changes to the PATH before proceeding to the next steps.
 
 ## Running the Debugger
 
