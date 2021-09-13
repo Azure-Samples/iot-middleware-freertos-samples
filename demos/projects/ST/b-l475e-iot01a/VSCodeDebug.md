@@ -1,4 +1,4 @@
-# Debug a STMicroelectronics B-L475E-IOT01A Discovery kit using VS Code
+# Debug an STMicroelectronics B-L475E-IOT01A Discovery kit using VS Code
 
 ## What you need
 
