@@ -18,7 +18,7 @@
     
 * Install ST Link driver
 
-    * If you don’t have it yet, update drivers for the ST link board: en.stsw-link009 (download from [ST Micro page](https://www.st.com/en/development-tools/stsw-link009.html))
+    * If you don’t have it yet, update drivers for the ST link board: en.stsw-link009 (download from the [ST Micro page](https://www.st.com/en/development-tools/stsw-link009.html))
     * If you are unsure whether you have the updated drivers, connect your STM32L475 device to the PC and open the device manager. You should be able to see the ST-Link Debug under USBs.
     * If you can’t see it, download, and update the drivers.
 
