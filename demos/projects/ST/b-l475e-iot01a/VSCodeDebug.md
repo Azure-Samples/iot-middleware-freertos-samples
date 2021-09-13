@@ -4,7 +4,11 @@
 
 * Have successfully build the sample for ST Microelectronics DevKit: [B-L475E-IOT01A](https://www.st.com/en/evaluation-tools/b-l475e-iot01a.html)
 
-* Make sure you run this command on Git: As **administrator** run `git config --system core.longpaths true`
+* Make sure to run this git command before building and cloning:
+
+ ```powershell
+ # As **administrator** 
+ git config --system core.longpaths true
 
 ## Prerequisites
 
