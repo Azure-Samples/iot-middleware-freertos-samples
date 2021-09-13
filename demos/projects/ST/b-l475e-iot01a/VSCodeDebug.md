@@ -13,7 +13,7 @@
 
 ## Prerequisites
 
-* Install the [Cortex-Debug extension](https://marketplace.visualstudio.com/items?itemName=marus25.cortex-debug) on VS Code
+* Install the [Cortex-Debug extension](https://marketplace.visualstudio.com/items?itemName=marus25.cortex-debug) on VS Code.
 
 ![VSCode Cortex Debug](media/cortex-debug.png)
 
