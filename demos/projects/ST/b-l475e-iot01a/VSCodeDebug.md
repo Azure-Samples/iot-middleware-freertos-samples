@@ -14,7 +14,7 @@
 
 * Install OpenOCD
     * Get Open OCD pre-built for Windows [here](https://gnutoolchains.com/arm-eabi/openocd/).
-    * Don't forget to add the folder Bin/openocd.exe to PATH
+    * Don't forget to add the folder `bin/openocd.exe` to PATH
     
 * Install ST Link driver
 
