@@ -48,7 +48,7 @@
     * Select `Tasks:Run Task`
     * Select `Build b-l475e-iot01a`
 
-    The script will automatically setup your machine for debugging using the B-L475E-IOT01A dev kit. 
+    The script will automatically set up your machine for debugging using the B-L475E-IOT01A dev kit. 
 
 ## Running the Debugger
 
