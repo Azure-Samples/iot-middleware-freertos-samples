@@ -29,7 +29,7 @@
 
 * You might need to restart VS Code so the terminal can recognize any changes to the PATH before proceeding to the next steps.
 
-## Running the Debugger
+## Set Up the Debugger
 
 * [Windows users] The next step will require execution of Power Shell scripts to get your device setup for debugging. Normally, script execution is restricted by default. If you can't run the next step, run PowerShell as Administrator and set the execution policy:
 
@@ -42,6 +42,15 @@
     ```powershell
     Set-ExecutionPolicy Restricted
     ```
+
+* On VSCode:
+    * Click the menu `View/Command Pallette` (or CTRL+SHIFT+P)
+    * Select `Tasks:Run Task`
+    * Select `Build b-l475e-iot01a`
+
+    The script will automatically set up your machine for debugging using the B-L475E-IOT01A dev kit. 
+
+## Running the Debugger
 
 * On VSCode:
     * Click the Run and Debug icon (or CTRL+SHIFT+D) as indicated in the illustration below by arrow #1
