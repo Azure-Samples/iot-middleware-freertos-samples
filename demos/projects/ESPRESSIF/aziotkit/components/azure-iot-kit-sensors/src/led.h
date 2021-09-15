@@ -13,6 +13,9 @@ extern "C" {
 #define LED_GPIO_AZURE 33
 #define LED_GPIO_WIFI 32
 
+#define LED_ON  1
+#define LED_OFF 0
+
 void toggle_azure_led(uint32_t level);
 void toggle_wifi_led(uint32_t level);
 
