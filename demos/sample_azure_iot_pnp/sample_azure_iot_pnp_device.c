@@ -25,39 +25,39 @@
 /**
  * @brief Command values
  */
-#define sampleazureiotCOMMAND_MAX_MIN_REPORT                  "getMaxMinReport"
-#define sampleazureiotCOMMAND_MAX_TEMP                        "maxTemp"
-#define sampleazureiotCOMMAND_MIN_TEMP                        "minTemp"
-#define sampleazureiotCOMMAND_TEMP_VERSION                    "avgTemp"
-#define sampleazureiotCOMMAND_START_TIME                      "startTime"
-#define sampleazureiotCOMMAND_END_TIME                        "endTime"
-#define sampleazureiotCOMMAND_EMPTY_PAYLOAD                   "{}"
-#define sampleazureiotCOMMAND_FAKE_END_TIME                   "2023-01-10T10:00:00Z"
+#define sampleazureiotCOMMAND_MAX_MIN_REPORT              "getMaxMinReport"
+#define sampleazureiotCOMMAND_MAX_TEMP                    "maxTemp"
+#define sampleazureiotCOMMAND_MIN_TEMP                    "minTemp"
+#define sampleazureiotCOMMAND_TEMP_VERSION                "avgTemp"
+#define sampleazureiotCOMMAND_START_TIME                  "startTime"
+#define sampleazureiotCOMMAND_END_TIME                    "endTime"
+#define sampleazureiotCOMMAND_EMPTY_PAYLOAD               "{}"
+#define sampleazureiotCOMMAND_FAKE_END_TIME               "2023-01-10T10:00:00Z"
 
 /**
  * @brief Device values
  */
-#define sampleazureiotDEFAULT_START_TEMP_COUNT                1
-#define sampleazureiotDEFAULT_START_TEMP_CELSIUS              22.0
-#define sampleazureiotDOUBLE_DECIMAL_PLACE_DIGITS             2
+#define sampleazureiotDEFAULT_START_TEMP_COUNT            1
+#define sampleazureiotDEFAULT_START_TEMP_CELSIUS          22.0
+#define sampleazureiotDOUBLE_DECIMAL_PLACE_DIGITS         2
 
 /**
  * @brief Property Values
  */
-#define sampleazureiotPROPERTY_STATUS_SUCCESS                 200
-#define sampleazureiotPROPERTY_SUCCESS                        "success"
-#define sampleazureiotPROPERTY_TARGET_TEMPERATURE_TEXT        "targetTemperature"
-#define sampleazureiotPROPERTY_MAX_TEMPERATURE_TEXT           "maxTempSinceLastReboot"
+#define sampleazureiotPROPERTY_STATUS_SUCCESS             200
+#define sampleazureiotPROPERTY_SUCCESS                    "success"
+#define sampleazureiotPROPERTY_TARGET_TEMPERATURE_TEXT    "targetTemperature"
+#define sampleazureiotPROPERTY_MAX_TEMPERATURE_TEXT       "maxTempSinceLastReboot"
 
 /**
  * @brief Telemetry values
  */
-#define sampleazureiotTELEMETRY_NAME                          "temperature"
+#define sampleazureiotTELEMETRY_NAME                      "temperature"
 
 /**
  *@brief The Telemetry message published in this example.
  */
-#define sampleazureiotMESSAGE                                 "{\"" sampleazureiotTELEMETRY_NAME "\":%0.2f}"
+#define sampleazureiotMESSAGE                             "{\"" sampleazureiotTELEMETRY_NAME "\":%0.2f}"
 
 
 /* Device values */
@@ -204,7 +204,7 @@ static void prvUpdateLocalProperties( double xNewTemperatureValue,
 /**
  * @brief Gets the reported properties payload with the maximum temperature value.
  */
-static uint32_t prvGetNewMaxTemp( double xUpdatedTemperature, 
+static uint32_t prvGetNewMaxTemp( double xUpdatedTemperature,
                                   uint8_t * ucReportedPropertyPayloadBuffer,
                                   uint32_t ulReportedPropertyPayloadBufferSize )
 {
@@ -469,9 +469,9 @@ void vHandleProperties( AzureIoTHubClientPropertiesResponse_t * pxMessage,
  * @brief Command message callback handler
  */
 uint32_t ulHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
-                          uint32_t* pulResponseStatus,
-                          uint8_t* pucCommandResponsePayloadBuffer,
-                          uint32_t ulCommandResponsePayloadBufferSize)
+                          uint32_t * pulResponseStatus,
+                          uint8_t * pucCommandResponsePayloadBuffer,
+                          uint32_t ulCommandResponsePayloadBufferSize )
 {
     AzureIoTResult_t xResult;
     AzureIoTJSONReader_t xReader;
@@ -513,7 +513,7 @@ uint32_t ulHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
 
             *pulResponseStatus = 501;
             ulCommandResponsePayloadLength = sizeof( sampleazureiotCOMMAND_EMPTY_PAYLOAD ) - 1;
-            (void)memcpy( pucCommandResponsePayloadBuffer, sampleazureiotCOMMAND_EMPTY_PAYLOAD, ulCommandResponsePayloadLength );
+            ( void ) memcpy( pucCommandResponsePayloadBuffer, sampleazureiotCOMMAND_EMPTY_PAYLOAD, ulCommandResponsePayloadLength );
         }
     }
     else
@@ -525,7 +525,7 @@ uint32_t ulHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
 
         *pulResponseStatus = AZ_IOT_STATUS_NOT_FOUND;
         ulCommandResponsePayloadLength = sizeof( sampleazureiotCOMMAND_EMPTY_PAYLOAD ) - 1;
-        (void)memcpy( pucCommandResponsePayloadBuffer, sampleazureiotCOMMAND_EMPTY_PAYLOAD, ulCommandResponsePayloadLength );
+        ( void ) memcpy( pucCommandResponsePayloadBuffer, sampleazureiotCOMMAND_EMPTY_PAYLOAD, ulCommandResponsePayloadLength );
     }
 
     return ulCommandResponsePayloadLength;
@@ -540,13 +540,13 @@ uint32_t ulCreateTelemetry( uint8_t * pucTelemetryData,
                             uint32_t ulTelemetryDataSize,
                             uint32_t * ulTelemetryDataLength )
 {
-    int result  = snprintf( ( char * ) pucTelemetryData, ulTelemetryDataSize,
-                            sampleazureiotMESSAGE, xDeviceCurrentTemperature );
+    int result = snprintf( ( char * ) pucTelemetryData, ulTelemetryDataSize,
+                           sampleazureiotMESSAGE, xDeviceCurrentTemperature );
 
-    if ( result >= 0 && result < ulTelemetryDataSize )
+    if( ( result >= 0 ) && ( result < ulTelemetryDataSize ) )
     {
         *ulTelemetryDataLength = result;
-        result = 0; 
+        result = 0;
     }
     else
     {
