@@ -34,6 +34,7 @@ extern AzureIoTHubClient_t xAzureIoTHubClient;
  *
  * @remark This function must be implemented by the specific sample.
  *         `ulCreateTelemetry` is called periodically by the sample core task (the task created by `vStartDemoTask`). 
+ *         If the return is zero, telemetry is not sent to the Azure IoT Hub. 
  * 
  * @param[out] pucTelemetryData    Pointer to uint8_t* that will contain the Telemetry payload.
  * @param[in]  ulTelemetryDataSize Size of `pucTelemetryData`

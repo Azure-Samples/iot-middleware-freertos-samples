@@ -150,7 +150,7 @@ struct NetworkContext
 AzureIoTHubClient_t xAzureIoTHubClient;
 
 /* Telemetry buffers */
-static uint8_t ucScratchBuffer[ 128 ];
+static uint8_t ucScratchBuffer[ 512 ];
 
 /* Command buffers */
 static uint8_t ucCommandResponsePayloadBuffer[ 256 ];
@@ -396,10 +396,13 @@ static void prvAzureDemoTask( void * pvParameters )
             /* Hook for sending Telemetry */
             ulScratchBufferLength = ulCreateTelemetry(ucScratchBuffer, sizeof( ucScratchBuffer ));
 
-            xResult = AzureIoTHubClient_SendTelemetry( &xAzureIoTHubClient,
-                                                       ucScratchBuffer, ulScratchBufferLength,
-                                                       NULL, eAzureIoTHubMessageQoS1, NULL );
-            configASSERT( xResult == eAzureIoTSuccess );
+            if (ulScratchBufferLength > 0)
+            {
+                xResult = AzureIoTHubClient_SendTelemetry( &xAzureIoTHubClient,
+                                                        ucScratchBuffer, ulScratchBufferLength,
+                                                        NULL, eAzureIoTHubMessageQoS1, NULL );
+                configASSERT( xResult == eAzureIoTSuccess );
+            }
 
             /* Hook for sending update to reported properties */
             ulReportedPropertiesUpdateLength = ulCreateReportedPropertiesUpdate( pucReportedPropertiesUpdate, sizeof( pucReportedPropertiesUpdate ) );

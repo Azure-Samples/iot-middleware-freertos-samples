@@ -25,7 +25,7 @@ void oled_init(ssd1306_handle_t dev)
 void oled_clean(ssd1306_handle_t dev)
 {
     iot_ssd1306_clear_screen(dev, 0);
-    oled_show_signs(dev);
+    oled_show_signs(dev); // TODO(ewertons): remove this. No symbols shown right away.
 }
 
 void oled_show_signs(ssd1306_handle_t dev)

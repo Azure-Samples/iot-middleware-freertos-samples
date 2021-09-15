@@ -40,10 +40,8 @@
 
     /**
      * @brief The model id for this device
-     *
-     * TODO: add a template for the ESP32 Azure IoT Kit and update its model below 
      */
-#define sampleazureiotMODEL_ID                                "dtmi:com:example:Thermostat;1"
+#define sampleazureiotMODEL_ID                                "dtmi:espressifEsp32AzureIotKit:EspressifESP32AzureIoTKit5x3;1"
 
 
 /**

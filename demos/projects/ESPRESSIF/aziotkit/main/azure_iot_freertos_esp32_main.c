@@ -64,9 +64,23 @@
 #define SAMPLE_IOT_WIFI_SCAN_AUTH_MODE_THRESHOLD WIFI_AUTH_WAPI_PSK
 #endif
 
-#define SNTP_SERVER_FQDN "pool.ntp.org"
+#define SNTP_SERVER_FQDN                          "pool.ntp.org"
 
-#define sampleazureiotCOMMAND_EMPTY_PAYLOAD                   "{}"
+#define sampleazureiotCOMMAND_EMPTY_PAYLOAD       "{}"
+
+#define sampleazureiotTELEMETRY_TEMPERATURE       ( "temperature" )
+#define sampleazureiotTELEMETRY_HUMIDITY          ( "humidity" )
+#define sampleazureiotTELEMETRY_LIGHT             ( "light" )
+#define sampleazureiotTELEMETRY_PRESSURE          ( "pressure" )
+#define sampleazureiotTELEMETRY_ALTITUDE          ( "altitude" )
+#define sampleazureiotTELEMETRY_MAGNETOMETERX     ( "magnetometerX" )
+#define sampleazureiotTELEMETRY_MAGNETOMETERY     ( "magnetometerY" )
+#define sampleazureiotTELEMETRY_MAGNETOMETERZ     ( "magnetometerZ" )
+#define sampleazureiotTELEMETRY_PITCH             ( "pitch" )
+#define sampleazureiotTELEMETRY_ROLL              ( "roll" )
+#define sampleazureiotTELEMETRY_ACCELEROMETERX    ( "accelerometerX" )
+#define sampleazureiotTELEMETRY_ACCELEROMETERY    ( "accelerometerY" )
+#define sampleazureiotTELEMETRY_ACCELEROMETERZ    ( "accelerometerZ" )
 
 /*-----------------------------------------------------------*/
 
@@ -80,6 +94,15 @@ static esp_ip4_addr_t s_ip_addr;
 /*-----------------------------------------------------------*/
 
 extern void vStartDemoTask( void );
+
+/*-----------------------------------------------------------*/
+
+static const char sampleazureiotCOMMAND_TOGGLE_LED1[] = "ToggleLed1";
+static const char sampleazureiotCOMMAND_TOGGLE_LED2[] = "ToggleLed2";
+static const char sampleazureiotCOMMAND_DISPLAY_TEXT[] = "DisplayText";
+
+static bool led1State = false;
+static bool led2State = false;
 
 /*-----------------------------------------------------------*/
 
@@ -309,7 +332,9 @@ void vHandleProperties( AzureIoTHubClientPropertiesResponse_t * pxMessage,
         case eAzureIoTHubPropertiesWritablePropertyMessage:
             ESP_LOGI( TAG, "Device writeable property received\r\n" );
 
-            // TODO: deal with properties update.
+            // AzureIoTResult_t xResult;
+            // AzureIoTJSONReader_t xJsonReader;
+            // TODO: continue from here
 
             break;
 
@@ -325,13 +350,6 @@ void vHandleProperties( AzureIoTHubClientPropertiesResponse_t * pxMessage,
 
 /*-----------------------------------------------------------*/
 
-static const char COMMAND_TOGGLE_LED1[] = "ToggleLed1";
-static const char COMMAND_TOGGLE_LED2[] = "ToggleLed2";
-static const char COMMAND_DISPLAY_TEXT[] = "DisplayText";
-
-static bool led1State = false;
-static bool led2State = false;
-
 /**
  * @brief Command message callback handler
  */
@@ -346,7 +364,7 @@ uint32_t ulHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
                pxMessage->ulPayloadLength,
                ( const char * ) pxMessage->pvMessagePayload );
 
-    if ( strncmp( ( const char * ) pxMessage->pucCommandName, COMMAND_TOGGLE_LED1, pxMessage->usCommandNameLength ) == 0)
+    if ( strncmp( ( const char * ) pxMessage->pucCommandName, sampleazureiotCOMMAND_TOGGLE_LED1, pxMessage->usCommandNameLength ) == 0)
     {
         led1State = !led1State;
         toggle_wifi_led(led1State);
@@ -355,7 +373,7 @@ uint32_t ulHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
         ulCommandResponsePayloadLength = sizeof( sampleazureiotCOMMAND_EMPTY_PAYLOAD ) - 1;
         (void)memcpy( pucCommandResponsePayloadBuffer, sampleazureiotCOMMAND_EMPTY_PAYLOAD, ulCommandResponsePayloadLength );
     }
-    else if ( strncmp( ( const char * ) pxMessage->pucCommandName, COMMAND_TOGGLE_LED2, pxMessage->usCommandNameLength ) == 0)
+    else if ( strncmp( ( const char * ) pxMessage->pucCommandName, sampleazureiotCOMMAND_TOGGLE_LED2, pxMessage->usCommandNameLength ) == 0)
     {
         led2State = !led2State;
         toggle_azure_led(led2State);
@@ -364,7 +382,7 @@ uint32_t ulHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
         ulCommandResponsePayloadLength = sizeof( sampleazureiotCOMMAND_EMPTY_PAYLOAD ) - 1;
         (void)memcpy( pucCommandResponsePayloadBuffer, sampleazureiotCOMMAND_EMPTY_PAYLOAD, ulCommandResponsePayloadLength );
     }
-    else if ( strncmp( ( const char * ) pxMessage->pucCommandName, COMMAND_DISPLAY_TEXT, pxMessage->usCommandNameLength ) == 0)
+    else if ( strncmp( ( const char * ) pxMessage->pucCommandName, sampleazureiotCOMMAND_DISPLAY_TEXT, pxMessage->usCommandNameLength ) == 0)
     {
         oled_clean_screen();
         oled_show_message( ( const uint8_t * ) pxMessage->pvMessagePayload, pxMessage->ulPayloadLength );
@@ -391,10 +409,89 @@ uint32_t ulHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
 uint32_t ulCreateTelemetry( uint8_t * pucTelemetryData,
                             uint32_t ulTelemetryDataLength )
 {
-    // TODO: implement.
+    int32_t lBytesWritten;
+    AzureIoTResult_t xAzIoTResult;
+    AzureIoTJSONWriter_t xWriter;
 
-    return snprintf( ( char * ) pucTelemetryData, ulTelemetryDataLength,
-                                        "I promise I will send something in the future..." );
+    float xPressure;
+    float xAltitude;
+    int lMagnetometerX;
+    int lMagnetometerY;
+    int lMagnetometerZ;
+    int lPitch;
+    int lRoll;
+    int lAccelerometerX;
+    int lAccelerometerY;
+    int lAccelerometerZ;
+
+    // Collect sensor data
+    float xTemperature = get_temperature();
+    float xHumidity = get_humidity();
+    float xLight = get_ambientLight();
+    get_pressure_altitude(&xPressure, &xAltitude);
+    get_magnetometer(&lMagnetometerX, &lMagnetometerY, &lMagnetometerZ);
+    get_pitch_roll_accel(&lPitch, &lRoll, &lAccelerometerX, &lAccelerometerY, &lAccelerometerZ);
+
+    // Initialize Json Writer
+    xAzIoTResult = AzureIoTJSONWriter_Init( &xWriter, pucTelemetryData, ulTelemetryDataLength );
+    configASSERT( xAzIoTResult == eAzureIoTSuccess );
+
+    xAzIoTResult = AzureIoTJSONWriter_AppendBeginObject( &xWriter );
+    configASSERT( xAzIoTResult == eAzureIoTSuccess );
+    
+    // Temperature, Humidity, Light Intensity
+    xAzIoTResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( &xWriter, ( uint8_t * )sampleazureiotTELEMETRY_TEMPERATURE, sizeof( sampleazureiotTELEMETRY_TEMPERATURE ) - 1, xTemperature, 2 );
+    configASSERT( xAzIoTResult == eAzureIoTSuccess );
+
+    xAzIoTResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( &xWriter, ( uint8_t * )sampleazureiotTELEMETRY_HUMIDITY, sizeof( sampleazureiotTELEMETRY_HUMIDITY ) - 1, xHumidity, 2 );
+    configASSERT( xAzIoTResult == eAzureIoTSuccess );
+
+    xAzIoTResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( &xWriter, ( uint8_t * )sampleazureiotTELEMETRY_LIGHT, sizeof( sampleazureiotTELEMETRY_LIGHT ) - 1, xLight, 2 );
+    configASSERT( xAzIoTResult == eAzureIoTSuccess );
+
+    // Pressure, Altitude
+    xAzIoTResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( &xWriter, ( uint8_t * )sampleazureiotTELEMETRY_PRESSURE, sizeof( sampleazureiotTELEMETRY_PRESSURE ) - 1, xPressure, 2 );
+    configASSERT( xAzIoTResult == eAzureIoTSuccess );
+
+    xAzIoTResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( &xWriter, ( uint8_t * )sampleazureiotTELEMETRY_ALTITUDE, sizeof( sampleazureiotTELEMETRY_ALTITUDE ) - 1, xAltitude, 2 );
+    configASSERT( xAzIoTResult == eAzureIoTSuccess );
+
+    // Magnetometer
+    xAzIoTResult = AzureIoTJSONWriter_AppendPropertyWithInt32Value( &xWriter, ( uint8_t * )sampleazureiotTELEMETRY_MAGNETOMETERX, sizeof( sampleazureiotTELEMETRY_MAGNETOMETERX ) - 1, lMagnetometerX );
+    configASSERT( xAzIoTResult == eAzureIoTSuccess );
+
+    xAzIoTResult = AzureIoTJSONWriter_AppendPropertyWithInt32Value( &xWriter, ( uint8_t * )sampleazureiotTELEMETRY_MAGNETOMETERY, sizeof( sampleazureiotTELEMETRY_MAGNETOMETERY ) - 1, lMagnetometerY );
+    configASSERT( xAzIoTResult == eAzureIoTSuccess );
+
+    xAzIoTResult = AzureIoTJSONWriter_AppendPropertyWithInt32Value( &xWriter, ( uint8_t * )sampleazureiotTELEMETRY_MAGNETOMETERZ, sizeof( sampleazureiotTELEMETRY_MAGNETOMETERZ ) - 1, lMagnetometerZ );
+    configASSERT( xAzIoTResult == eAzureIoTSuccess );
+
+    // Pitch, Roll, Accelleration
+    xAzIoTResult = AzureIoTJSONWriter_AppendPropertyWithInt32Value( &xWriter, ( uint8_t * )sampleazureiotTELEMETRY_PITCH, sizeof( sampleazureiotTELEMETRY_PITCH ) - 1, lPitch );
+    configASSERT( xAzIoTResult == eAzureIoTSuccess );
+
+    xAzIoTResult = AzureIoTJSONWriter_AppendPropertyWithInt32Value( &xWriter, ( uint8_t * )sampleazureiotTELEMETRY_ROLL, sizeof( sampleazureiotTELEMETRY_ROLL ) - 1, lRoll );
+    configASSERT( xAzIoTResult == eAzureIoTSuccess );
+
+    xAzIoTResult = AzureIoTJSONWriter_AppendPropertyWithInt32Value( &xWriter, ( uint8_t * )sampleazureiotTELEMETRY_ACCELEROMETERX, sizeof( sampleazureiotTELEMETRY_ACCELEROMETERX ) - 1, lAccelerometerX );
+    configASSERT( xAzIoTResult == eAzureIoTSuccess );
+
+    xAzIoTResult = AzureIoTJSONWriter_AppendPropertyWithInt32Value( &xWriter, ( uint8_t * )sampleazureiotTELEMETRY_ACCELEROMETERY, sizeof( sampleazureiotTELEMETRY_ACCELEROMETERY ) - 1, lAccelerometerY );
+    configASSERT( xAzIoTResult == eAzureIoTSuccess );
+
+    xAzIoTResult = AzureIoTJSONWriter_AppendPropertyWithInt32Value( &xWriter, ( uint8_t * )sampleazureiotTELEMETRY_ACCELEROMETERZ, sizeof( sampleazureiotTELEMETRY_ACCELEROMETERZ ) - 1, lAccelerometerZ );
+    configASSERT( xAzIoTResult == eAzureIoTSuccess );
+
+    // Complete Json Content
+    xAzIoTResult = AzureIoTJSONWriter_AppendEndObject( &xWriter );
+    configASSERT( xAzIoTResult == eAzureIoTSuccess );
+
+    lBytesWritten = AzureIoTJSONWriter_GetBytesUsed( &xWriter );
+
+    // TODO: implement.
+    // TODO: control frequency by tracking time and returning size zero if not ready to send.
+
+    return lBytesWritten;
 }
 
 /*-----------------------------------------------------------*/

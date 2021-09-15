@@ -14,12 +14,12 @@ extern "C"
     float get_temperature();
     float get_humidity();
     float get_ambientLight();
-    void oled_clean_screen();
-    void oled_show_message( const uint8_t * pucMessage, uint32_t ulMessageLength );
     void get_pitch_roll_accel(int *pitch, int *roll, int *accelX, int *accelY, int *accelZ);
     void get_pressure_altitude(float *pressure, float *altitude);
     void get_magnetometer(int *magnetometerX, int *magnetometerY, int *magnetometerZ);
     bool check_for_shake(int accelX, int accelY, int accelZ);
+    void oled_clean_screen();
+    void oled_show_message( const uint8_t * pucMessage, uint32_t ulMessageLength );
     void stop_motor();
     void start_motor_with_speed(float speed);
     void set_buton_tap_cb(button_cb button_tap_cb);
