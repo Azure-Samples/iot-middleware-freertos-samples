@@ -212,7 +212,7 @@ static uint8_t ucMQTTMessageBuffer[ democonfigNETWORK_BUFFER_SIZE ];
 
 /**
  * @brief Internal function for handling Command requests.
- * 
+ *
  * @remark This function is required for the interface with samples to work properly.
  */
 static void prvHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
@@ -222,14 +222,14 @@ static void prvHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
     uint32_t ulResponseStatus = 0;
     AzureIoTResult_t xResult;
 
-    uint32_t ulCommandResponsePayloadLength = ulHandleCommand( pxMessage, 
-                                               &ulResponseStatus,
-                                               ucCommandResponsePayloadBuffer, 
-                                               sizeof( ucCommandResponsePayloadBuffer ) );
-    
+    uint32_t ulCommandResponsePayloadLength = ulHandleCommand( pxMessage,
+                                                               &ulResponseStatus,
+                                                               ucCommandResponsePayloadBuffer,
+                                                               sizeof( ucCommandResponsePayloadBuffer ) );
+
     if( ( xResult = AzureIoTHubClient_SendCommandResponse( pxHandle, pxMessage, ulResponseStatus,
-                                                ucCommandResponsePayloadBuffer,
-                                                ulCommandResponsePayloadLength ) ) != eAzureIoTSuccess )
+                                                           ucCommandResponsePayloadBuffer,
+                                                           ulCommandResponsePayloadLength ) ) != eAzureIoTSuccess )
     {
         LogError( ( "Error sending command response: result 0x%08x", xResult ) );
     }
@@ -243,7 +243,7 @@ static void prvHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
 /**
  * @brief Implements the interface for samples to send updates to reported properties.
  */
-AzureIoTResult_t xUpdateProperties( uint8_t* ucProperties, 
+AzureIoTResult_t xUpdateProperties( uint8_t * ucProperties,
                                     uint32_t ulPropertiesLength )
 {
     return AzureIoTHubClient_SendPropertiesReported( &xAzureIoTHubClient, ucProperties, ulPropertiesLength, NULL );
@@ -389,22 +389,22 @@ static void prvAzureDemoTask( void * pvParameters )
         for( ; ; )
         {
             /* Hook for sending Telemetry */
-            if (ulCreateTelemetry(ucScratchBuffer, sizeof( ucScratchBuffer ), &ulScratchBufferLength ) == 0 && 
-                ulScratchBufferLength > 0)
+            if( ( ulCreateTelemetry( ucScratchBuffer, sizeof( ucScratchBuffer ), &ulScratchBufferLength ) == 0 ) &&
+                ( ulScratchBufferLength > 0 ) )
             {
                 xResult = AzureIoTHubClient_SendTelemetry( &xAzureIoTHubClient,
-                                                        ucScratchBuffer, ulScratchBufferLength,
-                                                        NULL, eAzureIoTHubMessageQoS1, NULL );
+                                                           ucScratchBuffer, ulScratchBufferLength,
+                                                           NULL, eAzureIoTHubMessageQoS1, NULL );
                 configASSERT( xResult == eAzureIoTSuccess );
             }
 
             /* Hook for sending update to reported properties */
             ulReportedPropertiesUpdateLength = ulCreateReportedPropertiesUpdate( pucReportedPropertiesUpdate, sizeof( pucReportedPropertiesUpdate ) );
 
-            if (ulReportedPropertiesUpdateLength > 0)
+            if( ulReportedPropertiesUpdateLength > 0 )
             {
-                xResult = xUpdateProperties(pucReportedPropertiesUpdate, ulReportedPropertiesUpdateLength);
-            
+                xResult = xUpdateProperties( pucReportedPropertiesUpdate, ulReportedPropertiesUpdateLength );
+
                 configASSERT( xResult == eAzureIoTSuccess );
             }
 
