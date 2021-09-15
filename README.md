@@ -1,8 +1,8 @@
 # Azure IoT samples using Azure IoT middleware for FreeRTOS
 
 <!-- markdown-link-check-disable -->
-[![Windows CI Tests](https://github.com/Azure-Samples/iot-middleware-freertos-samples/actions/workflows/ms_build.yml/badge.svg)](https://github.com/Azure-Samples/iot-middleware-freertos-samples/actions/workflows/ms_build.yml)
-[![Linux CI Tests](https://github.com/Azure-Samples/iot-middleware-freertos-samples/actions/workflows/ci_tests_linux.yml/badge.svg)](https://github.com/Azure-Samples/iot-middleware-freertos-samples/actions/workflows/ci_tests_linux.yml)
+[![Windows CI Tests](https://github.com/Azure-Samples/iot-middleware-freertos-samples/actions/workflows/ms_build.yml/badge.svg?branch=main)](https://github.com/Azure-Samples/iot-middleware-freertos-samples/actions/workflows/ms_build.yml)
+[![Linux CI Tests](https://github.com/Azure-Samples/iot-middleware-freertos-samples/actions/workflows/ci_tests_linux.yml/badge.svg?branch=main)](https://github.com/Azure-Samples/iot-middleware-freertos-samples/actions/workflows/ci_tests_linux.yml)
 <!-- markdown-link-check-enable-->
 
 ## Getting Started with Azure IoT middleware for FreeRTOS
@@ -47,6 +47,10 @@ Below you will find samples for development kits and simulators showing how to u
 * PC Simulation:
   * [Linux](demos/projects/PC/linux/)
   * [Windows](demos/projects/PC/windows/)
+
+For a video deep dive into this repo and the source code, please see the Microsoft Developers video below.
+
+[<img src="./docs/resources/deep-dive-video.jpg" width="50%">](https://youtu.be/PNykfuJ3VDs)
 
 ### Plug and Play Sample
 

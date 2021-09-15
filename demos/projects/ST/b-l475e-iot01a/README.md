@@ -1,5 +1,3 @@
-//STM475
-
 # Connect a STMicroelectronics B-L475E-IOT01A Discovery kit using Azure IoT middleware for FreeRTOS
 
 ## What you need
@@ -113,6 +111,12 @@ The following settings can be used to monitor serial data:
 - Parity: none
 - Flow Control: none
 
+## VS Code debug experience for the B-L475E-IOT01A 
+
+After running the sample, you can use VS Code to debug your application directly in the Dev Kit following the steps described in [this guide](VSCodeDebug.md). 
+
+![VSCode Debug](media/VSCode-Debug.png)
+    
 ## Size Chart
 The following chart shows the RAM and ROM usage for the B-L475E-IOT01A from STMicroelectronics. 
 Build options: CMAKE_BUILD_TYPE=MinSizeRel (-Os) and no logging (-DLIBRARY_LOG_LEVEL=LOG_NONE):
