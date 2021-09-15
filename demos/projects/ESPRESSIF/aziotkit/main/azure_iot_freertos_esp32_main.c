@@ -27,7 +27,6 @@
 #include "led.h"
 #include "sensor_manager.h"
 #include "azure_iot_freertos_esp32_sensors.h"
-
 /*-----------------------------------------------------------*/
 
 #define NR_OF_IP_ADDRESSES_TO_WAIT_FOR 1
@@ -67,7 +66,6 @@
 #define INDEFINITE_TIME                            ( ( time_t ) -1 )
 
 #define SNTP_SERVER_FQDN                           "pool.ntp.org"
-
 /*-----------------------------------------------------------*/
 
 static const char *TAG = "sample_azureiotkit";
@@ -78,11 +76,9 @@ static xSemaphoreHandle xSemphGetIpAddrs;
 static esp_ip4_addr_t xIpAddress;
 
 static bool xUpdateDeviceProperties = true;
-
 /*-----------------------------------------------------------*/
 
 extern void vStartDemoTask( void );
-
 /*-----------------------------------------------------------*/
 
 /**
@@ -94,7 +90,6 @@ static bool prvIsOurNetif( const char * pcPrefix, esp_netif_t * pxNetif )
 {
     return strncmp( pcPrefix, esp_netif_get_desc( pxNetif ), strlen( pcPrefix ) - 1) == 0;
 }
-
 /*-----------------------------------------------------------*/
 
 static void prvOnGotIpAddress( void * pvArg, esp_event_base_t xEventBase,
@@ -196,7 +191,6 @@ static esp_netif_t * prvWifiStart( void )
     esp_wifi_connect();
     return netif;
 }
-
 /*-----------------------------------------------------------*/
 
 static void prvWifiStop( void )
@@ -219,7 +213,6 @@ static void prvWifiStop( void )
     ESP_ERROR_CHECK( esp_wifi_clear_default_wifi_driver_and_handlers( pxWifiNetif ) );
     esp_netif_destroy( pxWifiNetif );
 }
-
 /*-----------------------------------------------------------*/
 
 static esp_err_t prvConnectNetwork( void )
@@ -288,7 +281,6 @@ static void prvInitializeTime()
         vTaskDelay( pdMS_TO_TICKS( 1000 ) );
     }
 }
-
 /*-----------------------------------------------------------*/
 
 /**
@@ -325,7 +317,6 @@ void vHandleProperties( AzureIoTHubClientPropertiesResponse_t * pxMessage,
             configASSERT( false );
     }
 }
-
 /*-----------------------------------------------------------*/
 
 /**
@@ -345,7 +336,6 @@ uint32_t ulCreateReportedPropertiesUpdate( uint8_t * pucPropertiesData,
 
     return lBytesWritten;
 }
-
 /*-----------------------------------------------------------*/
 
 uint32_t ulHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
@@ -355,15 +345,16 @@ uint32_t ulHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
 {
     return ulSampleHandleCommand( pxMessage, pulResponseStatus, pucCommandResponsePayloadBuffer, ulCommandResponsePayloadBufferSize );
 }
-
 /*-----------------------------------------------------------*/
 
 uint32_t ulCreateTelemetry( uint8_t * pucTelemetryData,
-                            uint32_t ulTelemetryDataLength )
+                            uint32_t ulTelemetryDataSize,
+                            uint32_t * ulTelemetryDataLength )
 {
-    return ulSampleCreateTelemetry( pucTelemetryData, ulTelemetryDataLength );
-}
+    *ulTelemetryDataLength = ulSampleCreateTelemetry( pucTelemetryData, ulTelemetryDataSize );
 
+    return 0;
+}
 /*-----------------------------------------------------------*/
 
 uint64_t ullGetUnixTime( void )
@@ -377,7 +368,6 @@ uint64_t ullGetUnixTime( void )
 
     return now;
 }
-
 /*-----------------------------------------------------------*/
 
 void app_main(void)

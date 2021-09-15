@@ -12,15 +12,12 @@
 #include "sample_azure_iot_pnp.h"
 #include "led.h"
 #include "sensor_manager.h"
-
 /*-----------------------------------------------------------*/
 
 #define INDEFINITE_TIME                            ( ( time_t ) -1 )
-
 /*-----------------------------------------------------------*/
 
 static const char *TAG = "sample_azureiotkit";
-
 /*-----------------------------------------------------------*/
 
 /**
@@ -86,7 +83,6 @@ static bool xLed2State = false;
 static int lTelemetryFrequencySecs = 2;
 
 static uint8_t ucPropertyPayloadBuffer[ 384 ];
-
 /*-----------------------------------------------------------*/
 
 int32_t lGenerateDeviceInfo( uint8_t * pucPropertiesData,
@@ -154,7 +150,6 @@ int32_t lGenerateDeviceInfo( uint8_t * pucPropertiesData,
 
     return lBytesWritten;
 }
-
 /*-----------------------------------------------------------*/
 
 /**
@@ -176,7 +171,7 @@ uint32_t ulSampleHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
         xLed1State = !xLed1State;
         toggle_wifi_led( xLed1State );
 
-        *pulResponseStatus = 200;
+        *pulResponseStatus = AZ_IOT_STATUS_OK;
         ulCommandResponsePayloadLength = sizeof( sampleazureiotCOMMAND_EMPTY_PAYLOAD ) - 1;
         (void)memcpy( pucCommandResponsePayloadBuffer, sampleazureiotCOMMAND_EMPTY_PAYLOAD, ulCommandResponsePayloadLength );
     }
@@ -185,7 +180,7 @@ uint32_t ulSampleHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
         xLed2State = !xLed2State;
         toggle_azure_led( xLed2State );
 
-        *pulResponseStatus = 200;
+        *pulResponseStatus = AZ_IOT_STATUS_OK;
         ulCommandResponsePayloadLength = sizeof( sampleazureiotCOMMAND_EMPTY_PAYLOAD ) - 1;
         (void)memcpy( pucCommandResponsePayloadBuffer, sampleazureiotCOMMAND_EMPTY_PAYLOAD, ulCommandResponsePayloadLength );
     }
@@ -194,20 +189,19 @@ uint32_t ulSampleHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
         oled_clean_screen();
         oled_show_message( ( const uint8_t * ) pxMessage->pvMessagePayload, pxMessage->ulPayloadLength );
 
-        *pulResponseStatus = 200;
+        *pulResponseStatus = AZ_IOT_STATUS_OK;
         ulCommandResponsePayloadLength = sizeof( sampleazureiotCOMMAND_EMPTY_PAYLOAD ) - 1;
         (void)memcpy( pucCommandResponsePayloadBuffer, sampleazureiotCOMMAND_EMPTY_PAYLOAD, ulCommandResponsePayloadLength );
     }
     else
     {
-        *pulResponseStatus = 404;
+        *pulResponseStatus = AZ_IOT_STATUS_NOT_FOUND;
         ulCommandResponsePayloadLength = sizeof( sampleazureiotCOMMAND_EMPTY_PAYLOAD ) - 1;
         (void)memcpy( pucCommandResponsePayloadBuffer, sampleazureiotCOMMAND_EMPTY_PAYLOAD, ulCommandResponsePayloadLength );
     }
 
     return ulCommandResponsePayloadLength;
 }
-
 /*-----------------------------------------------------------*/
 
 uint32_t ulSampleCreateTelemetry( uint8_t * pucTelemetryData,
@@ -307,7 +301,6 @@ uint32_t ulSampleCreateTelemetry( uint8_t * pucTelemetryData,
 
     return lBytesWritten;
 }
-
 /*-----------------------------------------------------------*/
 
 
@@ -348,7 +341,6 @@ static void prvAckTelemetryFrequencyPropertyUpdate( uint8_t * pucPropertiesData,
     lBytesWritten = AzureIoTJSONWriter_GetBytesUsed( &xWriter );
     configASSERT( lBytesWritten > 0 );
 }
-
 /*-----------------------------------------------------------*/
 
 /**
@@ -395,5 +387,4 @@ void vSampleHandleWritablePropertiesUpdate( AzureIoTHubClientPropertiesResponse_
         }
     }
 }
-
 /*-----------------------------------------------------------*/

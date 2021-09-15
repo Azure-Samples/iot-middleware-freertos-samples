@@ -6,7 +6,7 @@ set(ROOT_PATH
 )
 
 set(COMPONENT_SOURCES
-    ${ROOT_PATH}/demos/sample_azure_iot_pnp/sample_azure_iot_pnp_core.c
+    ${ROOT_PATH}/demos/sample_azure_iot_pnp/sample_azure_iot_pnp.c
 )
 
 idf_component_get_property(MBEDTLS_DIR mbedtls COMPONENT_DIR)
