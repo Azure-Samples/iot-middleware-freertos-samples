@@ -8,6 +8,7 @@ set(COMPONENT_INCLUDE_DIRS
 
 set(COMPONENT_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/azure_iot_freertos_esp32_main.c
+    ${CMAKE_CURRENT_LIST_DIR}/azure_iot_freertos_esp32_sensors.c
 )
 
 idf_component_register(SRCS ${COMPONENT_SOURCES}
