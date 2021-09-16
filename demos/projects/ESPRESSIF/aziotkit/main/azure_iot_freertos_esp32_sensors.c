@@ -10,7 +10,6 @@
 #include "azure_iot_hub_client_properties.h"
 
 #include "sample_azure_iot_pnp.h"
-#include "led.h"
 #include "sensor_manager.h"
 /*-----------------------------------------------------------*/
 
@@ -169,7 +168,7 @@ uint32_t ulSampleHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
     if ( strncmp( ( const char * ) pxMessage->pucCommandName, sampleazureiotCOMMAND_TOGGLE_LED1, pxMessage->usCommandNameLength ) == 0)
     {
         xLed1State = !xLed1State;
-        toggle_wifi_led( xLed1State ? LED_ON : LED_OFF );
+        led1_set_state( xLed1State ? LED_STATE_ON : LED_STATE_OFF );
 
         *pulResponseStatus = AZ_IOT_STATUS_OK;
         ulCommandResponsePayloadLength = sizeof( sampleazureiotCOMMAND_EMPTY_PAYLOAD ) - 1;
@@ -178,7 +177,7 @@ uint32_t ulSampleHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
     else if ( strncmp( ( const char * ) pxMessage->pucCommandName, sampleazureiotCOMMAND_TOGGLE_LED2, pxMessage->usCommandNameLength ) == 0)
     {
         xLed2State = !xLed2State;
-        toggle_azure_led( xLed2State ? LED_ON : LED_OFF );
+        led2_set_state( xLed2State ? LED_STATE_ON : LED_STATE_OFF );
 
         *pulResponseStatus = AZ_IOT_STATUS_OK;
         ulCommandResponsePayloadLength = sizeof( sampleazureiotCOMMAND_EMPTY_PAYLOAD ) - 1;

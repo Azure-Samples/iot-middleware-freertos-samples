@@ -8,9 +8,8 @@
 #include "sensors/fbm320.h"
 #include "sensors/mag3110.h"
 #include "sensors/iot_ssd1306.h"
-#include "sensors/button.h"
-#include "sensors/motor_l298n.h"
-#include "oled.h"
+#include "sensors/oled.h"
+#include "sensors/led.h"
 
 #define I2C_MASTER_SCL_IO 26        /*!< gpio number for I2C master clock */
 #define I2C_MASTER_SDA_IO 25        /*!< gpio number for I2C master data  */
@@ -28,12 +27,8 @@ static fbm320_handle_t fbm320 = NULL;
 static mag3110_handle_t mag3110 = NULL;
 static mpu6050_handle_t mpu6050 = NULL;
 static ssd1306_handle_t oled = NULL;
-static button_handle_t btn_handle = NULL;
 static float range_per_digit = 0;
 
-static int last_x;
-static int last_y;
-static int last_z;
 /**
  * @brief i2c master initialization
  */
@@ -121,28 +116,6 @@ void init_oled()
     oled_init(oled);
 }
 
-void init_button()
-{
-    btn_handle = iot_button_create(BUTTON_IO_NUM, BUTTON_ACTIVE_LEVEL);
-}
-
-void init_motor()
-{
-    //1. mcpwm gpio initialization
-    mcpwm_example_gpio_initialize();
-    //2. initial mcpwm configuration
-    printf("Configuring Initial Parameters of mcpwm...\n");
-    mcpwm_config_t pwm_config;
-    pwm_config.frequency = 1000; //frequency = 500Hz,
-    pwm_config.cmpr_a = 0;       //duty cycle of PWMxA = 0
-    pwm_config.cmpr_b = 0;       //duty cycle of PWMxb = 0
-    pwm_config.counter_mode = MCPWM_UP_COUNTER;
-    pwm_config.duty_mode = MCPWM_DUTY_MODE_0;
-    mcpwm_init(MCPWM_UNIT_0, MCPWM_TIMER_0, &pwm_config); //Configure PWM0A & PWM0B with above settings
-    // Initial humiture
-    iot_hts221_set_activate(hts221);
-}
-
 void initialize_sensors()
 {
     i2c_master_init();
@@ -151,9 +124,7 @@ void initialize_sensors()
     init_motion_sensor();
     init_barometer_sensor();
     init_magnetometer_sensor();
-    init_motor();
     init_oled();
-    init_button();
 }
 
 void oled_show_message( const uint8_t * pucMessage, uint32_t ulMessageLength )
@@ -258,34 +229,12 @@ void get_magnetometer(int *magnetometerX, int *magnetometerY, int *magnetometerZ
     *magnetometerZ = z;
 }
 
-bool check_for_shake(int accelX, int accelY, int accelZ)
+void led1_set_state(uint32_t ulLedState)
 {
-    bool shake = false;
-
-    int speed = abs(accelX + accelY + accelZ - last_x - last_y - last_z);
-    if (speed > SHAKE_THRESHOLD)
-    {
-        shake = true;
-    }
-
-    last_x = accelX;
-    last_y = accelY;
-    last_z = accelZ;
-
-    return shake;
+    toggle_azure_led(ulLedState);
 }
 
-void stop_motor()
+void led2_set_state(uint32_t ulLedState)
 {
-    brushed_motor_stop(MCPWM_UNIT_0, MCPWM_TIMER_0);
-}
-
-void start_motor_with_speed(float speed)
-{
-    brushed_motor_forward(MCPWM_UNIT_0, MCPWM_TIMER_0, speed);
-}
-
-void set_buton_tap_cb(button_cb button_tap_cb)
-{
-    iot_button_set_evt_cb(btn_handle, BUTTON_CB_TAP, button_tap_cb, "TAP");
+    toggle_wifi_led(ulLedState);
 }

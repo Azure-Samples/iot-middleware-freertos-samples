@@ -10,7 +10,6 @@ idf_component_get_property(ESP_ROM_DIR esp_rom COMPONENT_DIR)
 set(COMPONENT_INCLUDE_DIRS
     ${CMAKE_CURRENT_LIST_DIR}/src
     ${CMAKE_CURRENT_LIST_DIR}/src/sensors
-    # ${ESP_ROM_DIR}/include
 )
 
 idf_component_register(

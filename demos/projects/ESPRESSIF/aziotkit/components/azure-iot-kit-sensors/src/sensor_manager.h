@@ -4,10 +4,14 @@
 #ifndef SENSOR_MANAGER_H
 #define SENSOR_MANAGER_H
 
+#define LED_STATE_ON  1
+#define LED_STATE_OFF 0
+
 #ifdef __cplusplus
 extern "C"
 {
 #endif
+
     typedef void (*button_cb)(void *);
 
     void initialize_sensors();
@@ -17,12 +21,10 @@ extern "C"
     void get_pitch_roll_accel(int *pitch, int *roll, int *accelX, int *accelY, int *accelZ);
     void get_pressure_altitude(float *pressure, float *altitude);
     void get_magnetometer(int *magnetometerX, int *magnetometerY, int *magnetometerZ);
-    bool check_for_shake(int accelX, int accelY, int accelZ);
     void oled_clean_screen();
     void oled_show_message( const uint8_t * pucMessage, uint32_t ulMessageLength );
-    void stop_motor();
-    void start_motor_with_speed(float speed);
-    void set_buton_tap_cb(button_cb button_tap_cb);
+    void led1_set_state(uint32_t ulLedState);
+    void led2_set_state(uint32_t ulLedState);
 
 #ifdef __cplusplus
 }
