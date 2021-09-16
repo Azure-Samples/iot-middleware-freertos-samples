@@ -4,6 +4,8 @@
 #ifndef SENSOR_MANAGER_H
 #define SENSOR_MANAGER_H
 
+#include <inttypes.h>
+
 #define LED_STATE_ON  1
 #define LED_STATE_OFF 0
 
