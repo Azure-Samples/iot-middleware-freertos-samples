@@ -34,7 +34,7 @@
 
     Clone the following repo to download all sample device code, setup scripts, and offline versions of the documentation.
 
-    **If you previously cloned this repo in another sample, you don't need to do it again.**
+    **If you previously cloned this repo for another sample, you don't need to do it again.**
 
     ```bash
     git clone https://github.com/Azure-Samples/iot-middleware-freertos-samples.git
@@ -102,7 +102,7 @@ After that, close the configuration utility (`Shift + Q`).
 
 ## Build the image
 
-> This step assumes your are in the ESPRESSIF ESP32 sample directory (same as configuration step above).
+> This step assumes you are in the ESPRESSIF ESP32 sample directory (same as configuration step above).
 
 To build the device image, run the following command:
 

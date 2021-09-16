@@ -1,5 +1,5 @@
-// Copyright (c) Microsoft. All rights reserved.
-// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+/* Copyright (c) Microsoft Corporation.
+   Licensed under the MIT License. */
 
 #ifndef _LED_H
 #define _LED_H
@@ -16,6 +16,7 @@ extern "C" {
 #define LED_ON  1
 #define LED_OFF 0
 
+void initialize_leds();
 void toggle_azure_led(uint32_t level);
 void toggle_wifi_led(uint32_t level);
 
@@ -23,4 +24,4 @@ void toggle_wifi_led(uint32_t level);
 }
 #endif
 
-#endif /* LED_H */
+#endif /* _LED_H */

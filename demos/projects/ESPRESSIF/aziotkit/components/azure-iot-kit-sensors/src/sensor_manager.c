@@ -1,7 +1,12 @@
+/* Copyright (c) Microsoft Corporation.
+   Licensed under the MIT License. */
+
+#include "sensor_manager.h"
+
 #include <stdio.h>
 #include <math.h>
-#include "driver/i2c.h"
 
+#include "driver/i2c.h"
 #include "sensors/hts221.h"
 #include "sensors/bh1750.h"
 #include "sensors/mpu6050.h"
@@ -125,6 +130,7 @@ void initialize_sensors()
     init_barometer_sensor();
     init_magnetometer_sensor();
     init_oled();
+    initialize_leds();
 }
 
 void oled_show_message( const uint8_t * pucMessage, uint32_t ulMessageLength )
