@@ -41,7 +41,7 @@
     /**
      * @brief The model id for this device
      */
-#define sampleazureiotMODEL_ID                                "dtmi:espressifEsp32AzureIotKit:EspressifESP32AzureIoTKit5x3;1"
+#define sampleazureiotMODEL_ID                                "dtmi:azureiot:devkit:freertos:Esp32AzureIotKit;1"
 
 
 /**
