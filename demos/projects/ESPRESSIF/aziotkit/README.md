@@ -27,7 +27,7 @@
 
 2. ESP-IDF
 
-    Install the [Espressif ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html#get-started) following Espressif official documentation (steps 1 to 4).
+    For Windows users, if you don't have [Espressif ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html#get-started) installed yet, use [Espressif official installer](https://dl.espressif.com/dl/esp-idf/?idf=4.4), for other Operating Systems or to update an existing installation, follow Espressif official documentation.
 
 3. Azure IoT Embedded middleware for FreeRTOS
 
@@ -50,7 +50,6 @@
   You may also need to enable long path support for both Microsoft Windows and git:
   * Windows: [Enable long paths in Windows 10](<https://docs.microsoft.com/windows/win32/fileio/maximum-file-path-limitation?tabs=cmd#enable-long-paths-in-windows-10-version-1607-and-later>)
   * Git: As administrator, run `git config --system core.longpaths true`
-  * ESP-IDF: Espressif also recommends setting the following environment variable on ESP-IDF console as workaround: `IDF_CCACHE_ENABLE=0`
 
 
 ## Prepare the sample
@@ -104,6 +103,7 @@ After that, close the configuration utility (`Shift + Q`).
 
 > This step assumes you are in the ESPRESSIF ESP32 sample directory (same as configuration step above).
 
+> On Windows, errors might still occur if a path is too long. Espressif recommends setting the following environment variable on ESP-IDF console `IDF_CCACHE_ENABLE=0` as a workaround.
 To build the device image, run the following command:
 
   ```bash
