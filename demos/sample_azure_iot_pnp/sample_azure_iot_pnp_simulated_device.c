@@ -1,24 +1,15 @@
 /* Copyright (c) Microsoft Corporation. All rights reserved. */
 /* SPDX-License-Identifier: MIT */
 
+#include "sample_azure_iot_pnp.h"
+
 /* Standard includes. */
 #include <string.h>
 #include <stdio.h>
 
-/* Kernel includes. */
-#include "FreeRTOS.h"
-#include "task.h"
-
-/* Azure Provisioning/IoT Hub library includes */
-#include "azure_iot_hub_client.h"
-#include "azure_iot_hub_client_properties.h"
-#include "azure_iot_provisioning_client.h"
-
 /* Azure JSON includes */
 #include "azure_iot_json_reader.h"
 #include "azure_iot_json_writer.h"
-
-#include "sample_azure_iot_pnp.h"
 
 /*-----------------------------------------------------------*/
 
@@ -241,7 +232,7 @@ static uint32_t prvGetNewMaxTemp( double xUpdatedTemperature,
  */
 static void prvSendNewMaxTemp( double xUpdatedTemperature )
 {
-    AzureIoTResult_t xResult;
+    uint32_t ulResult;
     int32_t lBytesWritten = prvGetNewMaxTemp( xUpdatedTemperature, ucPropertyPayloadBuffer, sizeof( ucPropertyPayloadBuffer ) );
 
     if( lBytesWritten < 0 )
@@ -250,11 +241,11 @@ static void prvSendNewMaxTemp( double xUpdatedTemperature )
     }
     else
     {
-        xResult = xUpdateProperties( ucPropertyPayloadBuffer, lBytesWritten );
+        ulResult = ulSendPropertiesUpdate( ucPropertyPayloadBuffer, lBytesWritten );
 
-        if( xResult != eAzureIoTSuccess )
+        if( ulResult != 0 )
         {
-            LogError( ( "There was an error sending the reported properties: result 0x%08x", xResult ) );
+            LogError( ( "There was an error sending the reported properties: result %lu", ulResult ) );
         }
     }
 }
@@ -268,6 +259,7 @@ static void prvAckIncomingTemperature( double xUpdatedTemperature,
                                        uint32_t ulVersion )
 {
     AzureIoTResult_t xResult;
+    uint32_t ulResult;
     AzureIoTJSONWriter_t xWriter;
     int32_t lBytesWritten;
 
@@ -302,11 +294,11 @@ static void prvAckIncomingTemperature( double xUpdatedTemperature,
     configASSERT( lBytesWritten > 0 );
 
     LogDebug( ( "Sending acknowledged writable property. Payload: %.*s", lBytesWritten, ucPropertyPayloadBuffer ) );
-    xResult = xUpdateProperties( ucPropertyPayloadBuffer, lBytesWritten );
+    ulResult = ulSendPropertiesUpdate( ucPropertyPayloadBuffer, lBytesWritten );
 
-    if( xResult != eAzureIoTSuccess )
+    if( ulResult != 0 )
     {
-        LogError( ( "There was an error sending the reported properties: 0x%08x", xResult ) );
+        LogError( ( "There was an error sending the reported properties: %lu", ulResult ) );
     }
 }
 
@@ -441,16 +433,12 @@ void vHandleProperties( AzureIoTHubClientPropertiesResponse_t * pxMessage,
     {
         case eAzureIoTHubPropertiesRequestedMessage:
             LogDebug( ( "Device property document GET received" ) );
-
             prvHandlePropertyUpdate( pxMessage );
-
             break;
 
         case eAzureIoTHubPropertiesWritablePropertyMessage:
             LogDebug( ( "Device writeable property received" ) );
-
             prvHandlePropertyUpdate( pxMessage );
-
             break;
 
         case eAzureIoTHubPropertiesReportedResponseMessage:

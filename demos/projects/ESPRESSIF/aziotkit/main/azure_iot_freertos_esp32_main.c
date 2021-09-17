@@ -118,6 +118,7 @@ static void prvOnWifiDisconnect( void * pvArg, esp_event_base_t xEventBase,
 
     if ( xError == ESP_ERR_WIFI_NOT_STARTED )
     {
+        ESP_LOGE( TAG, "Failed connecting to Wi-Fi" );
         return;
     }
 
@@ -134,8 +135,7 @@ static esp_netif_t * prvGetExampleNetifFromDesc( const char * pcDesc )
     {
         if ( strcmp( esp_netif_get_desc( pxNetif ), pcExpectedDesc ) == 0 )
         {
-            free( pcExpectedDesc );
-            return pxNetif;
+            break;
         }
     }
     free( pcExpectedDesc );

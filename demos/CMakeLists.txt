@@ -22,7 +22,7 @@ if(NOT (TARGET SAMPLE::AZUREIOTPNP))
 
     target_sources(SAMPLE::AZUREIOTPNP INTERFACE
       ${CMAKE_CURRENT_SOURCE_DIR}/sample_azure_iot_pnp/sample_azure_iot_pnp.c
-      ${CMAKE_CURRENT_SOURCE_DIR}/sample_azure_iot_pnp/sample_azure_iot_pnp_device.c)
+      ${CMAKE_CURRENT_SOURCE_DIR}/sample_azure_iot_pnp/sample_azure_iot_pnp_simulated_device.c)
 endif()
 
 # Target for gsg sample task

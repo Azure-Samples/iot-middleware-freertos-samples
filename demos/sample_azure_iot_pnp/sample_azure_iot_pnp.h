@@ -1,6 +1,10 @@
 /* Copyright (c) Microsoft Corporation.
  * Licensed under the MIT License. */
 
+/**
+ * @brief Defines an interface to be used by samples when interacting with sample_azure_iot_pnp.c module.
+ */
+
 #ifndef SAMPLE_AZURE_IOT_PNP_H
 #define SAMPLE_AZURE_IOT_PNP_H
 
@@ -9,8 +13,10 @@
 
 #include "azure_iot_hub_client_properties.h"
 
-// Header demo_config.h MUST define the Plug and Play Model ID
-// through the sampleazureiotMODEL_ID configuration.
+/*
+ * Header demo_config.h MUST define the Plug and Play Model ID
+ * through the sampleazureiotMODEL_ID configuration.
+ */
 #ifndef sampleazureiotMODEL_ID
     /**
      * @brief The model id for this device
@@ -34,11 +40,11 @@ extern AzureIoTHubClient_t xAzureIoTHubClient;
  *
  * @remark This function must be implemented by the specific sample.
  *         `ulCreateTelemetry` is called periodically by the sample core task (the task created by `vStartDemoTask`). 
- *         If the return is zero, telemetry is not sent to the Azure IoT Hub. 
- * 
- * @param[out] pucTelemetryData        Pointer to uint8_t* that will contain the Telemetry payload.
- * @param[in]  ulTelemetryDataSize     Size of `pucTelemetryData`
- * @param[out]  pulTelemetryDataLength The number of bytes written in `pucTelemetryData`
+ *         If `pulTelemetryDataLength` returned is zero, telemetry is not send to the Azure IoT Hub.
+ *
+ * @param[out]  pucTelemetryData        Pointer to uint8_t* that will contain the Telemetry payload.
+ * @param[in]   ulTelemetryDataSize     Size of `pucTelemetryData`
+ * @param[out]  pulTelemetryDataLength  The number of bytes written in `pucTelemetryData`
  * 
  * @return uint32_t Zero if successful, non-zero if any failure occurs.
  */
@@ -76,12 +82,12 @@ uint32_t ulCreateReportedPropertiesUpdate( uint8_t * pucPropertiesData,
  * @return uint32_t Number of bytes written to `ucCommandResponsePayloadBuffer`.
  */
 uint32_t ulHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
-                          uint32_t* pulResponseStatus,
-                          uint8_t* pucCommandResponsePayloadBuffer,
+                          uint32_t * pulResponseStatus,
+                          uint8_t * pucCommandResponsePayloadBuffer,
                           uint32_t ulCommandResponsePayloadBufferSize );
 
 /**
- * @brief Provides the payload to be sent as telemetry to the Azure IoT Hub.
+ * @brief Handles a property message received from the Azure IoT Hub.
  *
  * @remark This function must be implemented by the specific sample.
  *
@@ -97,11 +103,11 @@ void vHandleProperties( AzureIoTHubClientPropertiesResponse_t * pxMessage,
  * @remark This function can be used by a specific sample to update the device's reported properties.
  *
  * @param[in] pucProperties      Reported properties content to be updated.
- * @param[in] ulPropertiesLength Length of `ucProperties`.
+ * @param[in] ulPropertiesLength Length of `pucProperties`.
  * 
- * @return AzureIoTResult_t Result of updating properties.
+ * @return uint32_t Zero if successful, non-zero if any failure occurs.
  */
-AzureIoTResult_t xUpdateProperties( uint8_t* pucProperties, 
-                                    uint32_t ulPropertiesLength );
+uint32_t ulSendPropertiesUpdate( uint8_t* pucProperties, 
+                                 uint32_t ulPropertiesLength );
 
 #endif /* ifndef SAMPLE_AZURE_IOT_PNP_H */

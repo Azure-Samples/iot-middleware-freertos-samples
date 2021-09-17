@@ -9,6 +9,8 @@
 #define LED_STATE_ON  1
 #define LED_STATE_OFF 0
 
+#define OLED_DISPLAY_MAX_STRING_LENGTH 48
+
 #ifdef __cplusplus
 extern "C"
 {

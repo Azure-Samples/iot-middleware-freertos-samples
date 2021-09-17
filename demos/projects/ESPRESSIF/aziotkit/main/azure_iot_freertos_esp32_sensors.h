@@ -14,7 +14,7 @@
  * @param[out] pucPropertiesData       Buffer to write the data on.
  * @param[in]  ulPropertiesDataSize    Size of the buffer.
  * 
- * @return uint32_t Number of bytes written in the buffer.
+ * @return int32_t Number of bytes written in the buffer.
  */
 int32_t lGenerateDeviceInfo( uint8_t * pucPropertiesData,
                              uint32_t ulPropertiesDataSize );

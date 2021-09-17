@@ -4,7 +4,7 @@
 
 * [ESPRESSIF ESP32 Board](https://www.espressif.com/en/products/devkits)
 
-* USB 2.0 A male to Micro USB male cable
+* Micro USB 2.0 male cable
 
 * WiFi Connection
 
@@ -17,7 +17,7 @@
   Have an [Azure IoT Hub](https://docs.microsoft.com/azure/iot-hub/iot-hub-create-through-portal) created | Have an instance of [IoT Hub Device Provisioning Service](https://docs.microsoft.com/en-us/azure/iot-dps/quick-setup-auto-provision#create-a-new-iot-hub-device-provisioning-service)
   Have a [logical device](https://docs.microsoft.com/azure/iot-hub/iot-hub-create-through-portal#register-a-new-device-in-the-iot-hub) created in your Azure IoT Hub using your preferred authentication method* | Have an [individual enrollment](https://docs.microsoft.com/en-us/azure/iot-dps/how-to-manage-enrollments#create-a-device-enrollment) created in your instance of DPS using your preferred authentication method*
 
-  *While this sample supports SAS keys and Certificates, this guide will refer only to SAS keys.
+  *While this sample supports SAS keys and Certificates, for simplification, this guide will refer only to SAS keys.
 
 ## Install prerequisites
 
@@ -32,7 +32,7 @@
 3. Azure IoT Embedded middleware for FreeRTOS
 
 
-    Clone the following repo to download all sample device code, setup scripts, and offline versions of the documentation.
+    Clone the following repo to download all sample device code, setup scripts, and SDK documentation.
 
     **If you previously cloned this repo for another sample, you don't need to do it again.**
 
@@ -48,13 +48,14 @@
     ```
 
   You may also need to enable long path support for both Microsoft Windows and git:
-  * Windows: <https://docs.microsoft.com/windows/win32/fileio/maximum-file-path-limitation?tabs=cmd#enable-long-paths-in-windows-10-version-1607-and-later>
-  * Git: as Administrator run `git config --system core.longpaths true`
+  * Windows: [Enable long paths in Windows 10](<https://docs.microsoft.com/windows/win32/fileio/maximum-file-path-limitation?tabs=cmd#enable-long-paths-in-windows-10-version-1607-and-later>)
+  * Git: As administrator, run `git config --system core.longpaths true`
+  * ESP-IDF: Espressif also recommends setting the following environment variable on ESP-IDF console as workaround: `IDF_CCACHE_ENABLE=0`
 
 
 ## Prepare the sample
 
-To connect the ESPRESSIF ESP32 to Azure, you will update the sample configuration, build the image, and flash the image to the device.
+To connect the ESPRESSIF ESP32 to Azure, you will update the sample configuration settings, build the image, and flash the image to the device.
 
 ### Update sample configuration
 
@@ -63,7 +64,7 @@ The configuration of the ESPRESSIF ESP32 sample uses ESP-IDF' samples standard [
 On a [console with ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html#step-4-set-up-the-environment-variables), run the following commands:
 
 ```shell
-cd demos\projects\ESPRESSIF\esp32
+cd demos\projects\ESPRESSIF\aziotkit
 idf.py menuconfig
 ```
 
@@ -79,11 +80,10 @@ Under menu item `Azure IoT middleware for FreeRTOS Main Task Configuration`, upd
 
 Parameter | Value
 ---------|----------
- `Use PnP in Azure Sample` | Enabled by default. Disable this option to build a simpler sample without Azure Plug-and-Play.
- `Azure IoT Hub FQDN` | _{Your Azure IoT Hub Host FQDN}_
+ `Azure IoT Hub FQDN` | _{Your Azure IoT Hub Host FQDN}_ (Unused if Device Provisioning is enabled below)
  `Azure IoT Device ID` | _{Your Azure IoT Hub device ID}_
  `Azure IoT Device Symmetric Key` | _{Your Azure IoT Hub device symmetric key}_
- `Azure IoT Module ID` | _{Your Azure IoT Hub Module ID}_ (IF USING A MODULE; leave blank if not)
+ `Azure IoT Module ID` | _{Your Azure IoT Hub Module ID}_ (optional, specify module id if using a device module; else leave blank if not)
 
 > Some parameters contain default values that do not need to be updated.
 
