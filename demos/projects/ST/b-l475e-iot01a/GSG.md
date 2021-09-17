@@ -226,11 +226,11 @@ To view telemetry in IoT Central portal:
 
 > Note: You can also monitor telemetry from the device by using the Termite terminal.
 
-## Call a direct method on the device
+## Call a command on the device
 
-You can also use IoT Central to call a direct method that you have implemented on your device. Direct methods have a name, and can optionally have a JSON payload, configurable connection, and method timeout. In this section, you call a method that enables you to turn an LED on or off.
+You can also use IoT Central to call a command that you have implemented on your device. Commands have a name, and can optionally have a JSON payload, configurable connection, and timeout. In this section, you call a command that enables you to turn an LED on or off.
 
-To call a method in IoT Central portal:
+To call a command in IoT Central portal:
 
 1. Select **Command** tab from the device page.
 1. Select **State** and select **Run**.  The LED light should turn on.
@@ -244,10 +244,6 @@ You can view the device information from IoT Central.
 
 Select **About** tab from the device page.
 ![IoT Central device info](media/azure-iot-central-device-about.png)
-
-## Debugging
-
-For debugging the application, see [Debugging with Visual Studio Code](../../docs/debugging.md).
 
 ## Clean up resources
 
@@ -266,4 +262,4 @@ To remove the entire Azure IoT Central sample application and all its devices an
 
 In this tutorial you built a custom image that contains Azure FreeRTOS middleware sample code, and then flashed the image to the STM DevKit device. You also used the IoT Central portal to create Azure resources, connect the STM DevKit securely to Azure, view telemetry, and send messages.
 
-* For device developers, the suggested next step is to see the other tutorials in the series [Getting started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824).
+* For device developers, the suggested next step is to see the other tutorials in the series [Getting started with FreeRTOS]().
