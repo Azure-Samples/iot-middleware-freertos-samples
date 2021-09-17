@@ -6,8 +6,7 @@ languages:
 products:
 - azure-iot
 - azure-iot-pnp
-- azure-iot-dps
-- azure-iot-hub
+- azure-iot-central
 ---
 
 # Getting started with the STMicroelectronics B-L475E-IOT01A / B-L4S5I-IOTOA1 Discovery kits
@@ -18,8 +17,8 @@ In this tutorial you use the Azure FreeRTOS Middleware to connect either the STM
 
 You will complete the following tasks:
 
-* Install a set of embedded development tools for programming the STM DevKit in C
-* Build an image and flash it onto the STM DevKit
+* Install the embedded development tools
+* Build the image and flash it onto the STM DevKit
 * Use Azure IoT Central to create cloud components, view properties, view device telemetry, and call direct commands
 
 ## Prerequisites
@@ -162,7 +161,7 @@ After the build completes, confirm that the binary file was created in the follo
 
 ### Flash the image
 
-1. On the STM DevKit MCU, locate the **Reset** button, the Micro USB port which is labeled **USB STLink**, and the board part number. You will refer to these items in the next steps. All of them are highlighted in the following picture:
+1. On the STM DevKit, locate the **Reset** button, the Micro USB port which is labeled **USB STLink**, and the board part number. You will refer to these items in the next steps. All of them are highlighted in the following picture:
 
     ![STM DevKit reset button and micro USB port](media/stm-devkit-board.png)
 
