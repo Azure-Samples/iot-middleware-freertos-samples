@@ -197,7 +197,9 @@ You can use the ESP-IDF monitor tool to observe communication and confirm that y
 1. Check for the following output to confirm that the device is initialized and connected to Azure IoT.
 
     ```output
-    TBD
+    I (32881) AZ IOT: Keeping Connection Idle...
+    I (35021) AZ IOT: Successfully sent telemetry message
+    I (35021) AZ IOT: Attempt to receive publish message from IoT Hub.
     ```
 
 ## Verify the device status
@@ -205,7 +207,7 @@ You can use the ESP-IDF monitor tool to observe communication and confirm that y
 To view the device status in IoT Central portal:
 1. From the application dashboard, select **Devices** on the side navigation menu.
 1. Check the **Device status** of the device is updated to **Provisioned**.
-1. Check the **Device template** of the device has updated to **Getting Stared Guide**.
+1. Check the **Device template** of the device has updated to **Espressif ESP32 Azure IoT Kit**.
 
     ![IoT Central device status](media/azure-iot-central-device-view-status.png)
 
@@ -221,7 +223,7 @@ To view telemetry in IoT Central portal:
 
     ![IoT Central device telemetry](media/azure-iot-central-device-telemetry.png)
 
-> Note: You can also monitor telemetry from the device by using the Termite terminal.
+> **Note:** You can also monitor telemetry from the device by using the Termite terminal.
 
 ## Call a direct method on the device
 
