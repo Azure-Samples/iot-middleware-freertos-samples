@@ -241,7 +241,7 @@ static void prvHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
 uint32_t ulSendPropertiesUpdate( uint8_t * ucProperties,
                                  uint32_t ulPropertiesLength )
 {
-    return ( ( AzureIoTHubClient_SendPropertiesReported( &xAzureIoTHubClient, ucProperties, ulPropertiesLength, NULL ) == eAzureIoTSuccess ) ? 0 : 1 );
+    return( ( AzureIoTHubClient_SendPropertiesReported( &xAzureIoTHubClient, ucProperties, ulPropertiesLength, NULL ) == eAzureIoTSuccess ) ? 0 : 1 );
 }
 /*-----------------------------------------------------------*/
 

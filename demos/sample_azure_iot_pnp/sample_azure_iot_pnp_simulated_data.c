@@ -11,8 +11,12 @@
 #include "azure_iot_json_reader.h"
 #include "azure_iot_json_writer.h"
 
+/* FreeRTOS */
+/* This task provides taskDISABLE_INTERRUPTS, used by configASSERT */
+#include "task.h"
+
 /*
- * TODO: In future improvement, compare sampleazureiotMODEL_ID macro definition 
+ * TODO: In future improvement, compare sampleazureiotMODEL_ID macro definition
  *       and make sure that it is "dtmi:com:example:Thermostat;1",
  *       and fail compilation otherwise.
  */
