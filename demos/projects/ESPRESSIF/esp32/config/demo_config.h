@@ -6,6 +6,13 @@
 
 #include <stdlib.h>
 
+/*
+ * This Model ID is tightly tied to the code implementation in `sample_azure_iot_pnp_simulated_device.c`
+ * If you intent to test a different Model ID, please provide the implementation of the model on your application.
+ */
+#define sampleazureiotMODEL_ID                                "dtmi:com:example:Thermostat;1"
+
+
 /**************************************************/
 /******* DO NOT CHANGE the following order ********/
 /**************************************************/

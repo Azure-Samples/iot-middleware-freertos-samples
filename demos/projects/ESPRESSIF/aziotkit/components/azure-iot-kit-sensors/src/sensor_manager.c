@@ -52,7 +52,7 @@ static void i2c_master_init()
     i2c_bus = iot_i2c_bus_create(i2c_master_port, &conf);
 }
 
-void init_humiture_sensor()
+static void init_humiture_sensor()
 {
     hts221 = iot_hts221_create(i2c_bus, HTS221_I2C_ADDRESS);
 
@@ -67,7 +67,7 @@ void init_humiture_sensor()
     iot_hts221_set_activate(hts221);
 }
 
-void init_ambient_light_sensor()
+static void init_ambient_light_sensor()
 {
     bh1750 = iot_bh1750_create(i2c_bus, BH1750_I2C_ADDRESS);
     bh1750_cmd_measure_t cmd_measure = BH1750_CONTINUE_4LX_RES;
@@ -75,7 +75,7 @@ void init_ambient_light_sensor()
     iot_bh1750_set_measure_mode(bh1750, cmd_measure);
 }
 
-void init_motion_sensor()
+static void init_motion_sensor()
 {
     uint8_t range;
     mpu6050 = iot_mpu6050_create(i2c_bus, MPU6050_I2C_ADDRESS);
@@ -103,19 +103,19 @@ void init_motion_sensor()
     }
 }
 
-void init_barometer_sensor()
+static void init_barometer_sensor()
 {
     fbm320 = iot_fbm320_create(i2c_bus, FBM320_I2C_ADDRESS);
     fbm320_init(fbm320);
 }
 
-void init_magnetometer_sensor()
+static void init_magnetometer_sensor()
 {
     mag3110 = iot_mag3110_create(i2c_bus, MAG3110_I2C_ADDRESS);
     mag3110_start(mag3110);
 }
 
-void init_oled()
+static void init_oled()
 {
     oled = iot_ssd1306_create(i2c_bus, SSD1306_I2C_ADDRESS);
     oled_init(oled);
@@ -133,10 +133,10 @@ void initialize_sensors()
     initialize_leds();
 }
 
-void oled_show_message( const uint8_t * pucMessage, uint32_t ulMessageLength )
+void oled_show_message(const uint8_t *message, uint32_t messageLength)
 {
-    oled_clean( oled );
-    oled_show_string( oled, pucMessage, ulMessageLength );
+    oled_clean(oled);
+    oled_show_string(oled, message, messageLength);
 }
 
 void oled_clean_screen()

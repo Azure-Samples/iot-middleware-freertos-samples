@@ -1,7 +1,7 @@
 /* Copyright (c) Microsoft Corporation. All rights reserved. */
 /* SPDX-License-Identifier: MIT */
 
-#include "sample_azure_iot_pnp.h"
+#include "sample_azure_iot_pnp_data_if.h"
 
 /* Standard includes. */
 #include <string.h>
@@ -10,6 +10,12 @@
 /* Azure JSON includes */
 #include "azure_iot_json_reader.h"
 #include "azure_iot_json_writer.h"
+
+/*
+ * TODO: In future improvement, compare sampleazureiotMODEL_ID macro definition 
+ *       and make sure that it is "dtmi:com:example:Thermostat;1",
+ *       and fail compilation otherwise.
+ */
 
 /*-----------------------------------------------------------*/
 
@@ -245,7 +251,7 @@ static void prvSendNewMaxTemp( double xUpdatedTemperature )
 
         if( ulResult != 0 )
         {
-            LogError( ( "There was an error sending the reported properties: result %lu", ulResult ) );
+            LogError( ( "There was an error sending the reported properties: result %d", ulResult ) );
         }
     }
 }
@@ -298,7 +304,7 @@ static void prvAckIncomingTemperature( double xUpdatedTemperature,
 
     if( ulResult != 0 )
     {
-        LogError( ( "There was an error sending the reported properties: %lu", ulResult ) );
+        LogError( ( "There was an error sending the reported properties: %d", ulResult ) );
     }
 }
 

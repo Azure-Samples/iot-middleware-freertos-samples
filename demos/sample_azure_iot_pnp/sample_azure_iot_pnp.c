@@ -31,7 +31,7 @@
 #include "demo_config.h"
 
 /* Data Interface Definition */
-#include "sample_azure_iot_pnp.h"
+#include "sample_azure_iot_pnp_data_if.h"
 /*-----------------------------------------------------------*/
 
 /* Compile time error for undefined configs. */
@@ -82,11 +82,6 @@
  * @brief Date-time to use for the model id
  */
 #define sampleazureiotDATE_TIME_FORMAT                        "%Y-%m-%dT%H:%M:%S.000Z"
-
-/**
- * @brief The payload to send to the Device Provisioning Service
- */
-#define sampleazureiotPROVISIONING_PAYLOAD                    "{\"modelId\":\"" sampleazureiotMODEL_ID "\"}"
 
 /**
  * @brief Time in ticks to wait between each cycle of the demo implemented

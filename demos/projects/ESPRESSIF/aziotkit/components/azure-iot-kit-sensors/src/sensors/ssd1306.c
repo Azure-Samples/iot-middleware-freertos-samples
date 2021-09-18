@@ -141,11 +141,11 @@ void iot_ssd1306_draw_char(ssd1306_handle_t dev, uint8_t chXpos, uint8_t chYpos,
 }
 
 esp_err_t iot_ssd1306_draw_string(ssd1306_handle_t dev, uint8_t chXpos,
-        uint8_t chYpos, const uint8_t * pchString, uint32_t ulStringLength, uint8_t chSize,
+        uint8_t chYpos, const uint8_t *string, uint32_t stringLength, uint8_t chSize,
         uint8_t chMode)
 {
     esp_err_t ret = ESP_OK;
-    while ( ulStringLength > 0 ) {
+    while ( stringLength > 0 ) {
         if (chXpos > (SSD1306_WIDTH - chSize / 2)) {
             chXpos = 0;
             chYpos += chSize;
@@ -157,10 +157,10 @@ esp_err_t iot_ssd1306_draw_string(ssd1306_handle_t dev, uint8_t chXpos,
                 }
             }
         }
-        iot_ssd1306_draw_char(dev, chXpos, chYpos, *pchString, chSize, chMode);
+        iot_ssd1306_draw_char(dev, chXpos, chYpos, *string, chSize, chMode);
         chXpos += chSize / 2;
-        pchString++;
-        ulStringLength--;
+        string++;
+        stringLength--;
     }
     return ret;
 }

@@ -27,7 +27,7 @@ void oled_clean(ssd1306_handle_t dev)
     iot_ssd1306_clear_screen(dev, 0);
 }
 
-esp_err_t oled_show_string( ssd1306_handle_t dev, const uint8_t * string, uint32_t stringLength )
+esp_err_t oled_show_string(ssd1306_handle_t dev, const uint8_t *string, uint32_t stringLength)
 { 
     iot_ssd1306_draw_string(dev, 0, 16, string, stringLength, 16, 1);
 

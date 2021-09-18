@@ -23,10 +23,10 @@
 #include "azure_iot_hub_client.h"
 #include "azure_iot_hub_client_properties.h"
 
-#include "sample_azure_iot_pnp.h"
+#include "sample_azure_iot_pnp_data_if.h"
 #include "led.h"
 #include "sensor_manager.h"
-#include "azure_iot_freertos_esp32_sensors.h"
+#include "azure_iot_freertos_esp32_sensors_data.h"
 /*-----------------------------------------------------------*/
 
 #define NR_OF_IP_ADDRESSES_TO_WAIT_FOR 1
