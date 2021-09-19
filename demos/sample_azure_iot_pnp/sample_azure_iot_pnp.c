@@ -233,15 +233,64 @@ static void prvHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
         LogInfo( ( "Successfully sent command response %d", ulResponseStatus ) );
     }
 }
+
+
+static void prvDispatchPropertiesUpdate( AzureIoTHubClientPropertiesResponse_t * pxMessage )
+{
+    vHandleProperties( pxMessage,
+                       pucReportedPropertiesUpdate,
+                       sizeof( pucReportedPropertiesUpdate ),
+                       &ulReportedPropertiesUpdateLength );
+
+    if( ulReportedPropertiesUpdateLength == 0 )
+    {
+        LogError( ( "Failed to send response to writable properties update, length of response is zero." ) );
+    }
+    else
+    {
+        AzureIoTResult_t xResult = AzureIoTHubClient_SendPropertiesReported( &xAzureIoTHubClient,
+                                                                             pucReportedPropertiesUpdate,
+                                                                             ulReportedPropertiesUpdateLength,
+                                                                             NULL );
+        configASSERT( xResult == eAzureIoTSuccess );
+    }
+}
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Implements the interface for samples to send updates to reported properties.
+ * @brief Private property message callback handler.
+ *        This handler dispatches the calls to the functions defined in
+ *        sample_azure_iot_pnp_data_if.h
  */
-uint32_t ulSendPropertiesUpdate( uint8_t * ucProperties,
-                                 uint32_t ulPropertiesLength )
+static void prvHandleProperties( AzureIoTHubClientPropertiesResponse_t * pxMessage,
+                                 void * pvContext )
 {
-    return( ( AzureIoTHubClient_SendPropertiesReported( &xAzureIoTHubClient, ucProperties, ulPropertiesLength, NULL ) == eAzureIoTSuccess ) ? 0 : 1 );
+    ( void ) pvContext;
+
+    LogDebug( ( "Property document payload : %.*s \r\n",
+                pxMessage->ulPayloadLength,
+                ( const char * ) pxMessage->pvMessagePayload ) );
+
+    switch( pxMessage->xMessageType )
+    {
+        case eAzureIoTHubPropertiesRequestedMessage:
+            LogDebug( ( "Device property document GET received" ) );
+            prvDispatchPropertiesUpdate( pxMessage );
+            break;
+
+        case eAzureIoTHubPropertiesWritablePropertyMessage:
+            LogDebug( ( "Device writeable property received" ) );
+            prvDispatchPropertiesUpdate( pxMessage );
+            break;
+
+        case eAzureIoTHubPropertiesReportedResponseMessage:
+            LogDebug( ( "Device reported property response received" ) );
+            break;
+
+        default:
+            LogError( ( "Unknown property message: 0x%08x", pxMessage->xMessageType ) );
+            configASSERT( false );
+    }
 }
 /*-----------------------------------------------------------*/
 
@@ -372,7 +421,7 @@ static void prvAzureDemoTask( void * pvParameters )
                                                       &xAzureIoTHubClient, sampleazureiotSUBSCRIBE_TIMEOUT );
         configASSERT( xResult == eAzureIoTSuccess );
 
-        xResult = AzureIoTHubClient_SubscribeProperties( &xAzureIoTHubClient, vHandleProperties,
+        xResult = AzureIoTHubClient_SubscribeProperties( &xAzureIoTHubClient, prvHandleProperties,
                                                          &xAzureIoTHubClient, sampleazureiotSUBSCRIBE_TIMEOUT );
         configASSERT( xResult == eAzureIoTSuccess );
 
@@ -398,9 +447,8 @@ static void prvAzureDemoTask( void * pvParameters )
 
             if( ulReportedPropertiesUpdateLength > 0 )
             {
-                uint32_t ulResult = ulSendPropertiesUpdate( pucReportedPropertiesUpdate, ulReportedPropertiesUpdateLength );
-
-                configASSERT( ulResult == 0 );
+                xResult = AzureIoTHubClient_SendPropertiesReported( &xAzureIoTHubClient, pucReportedPropertiesUpdate, ulReportedPropertiesUpdateLength, NULL );
+                configASSERT( xResult == eAzureIoTSuccess );
             }
 
             LogInfo( ( "Attempt to receive publish message from IoT Hub.\r\n" ) );

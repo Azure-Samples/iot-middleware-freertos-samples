@@ -2,7 +2,7 @@
 
 ## What you need
 
-* [ESPRESSIF ESP32 Board](https://www.espressif.com/en/products/devkits)
+* [ESPRESSIF ESP32 Azure IoT Kit Board](https://www.espressif.com/en/news/Microsoft_Plug-and-Play_with_ESP32-Azure_IoT_Kit)
 
 * Micro USB 2.0 male cable
 

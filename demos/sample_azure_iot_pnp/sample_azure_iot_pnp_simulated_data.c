@@ -71,10 +71,6 @@ static double xDeviceAverageTemperature = sampleazureiotDEFAULT_START_TEMP_CELSI
 
 /* Command buffers */
 static uint8_t ucCommandStartTimeValueBuffer[ 32 ];
-
-/* Property buffers */
-static uint8_t ucPropertyPayloadBuffer[ 256 ];
-
 /*-----------------------------------------------------------*/
 
 /**
@@ -150,7 +146,6 @@ static AzureIoTResult_t prvInvokeMaxMinCommand( AzureIoTJSONReader_t * pxReader,
 
     return xResult;
 }
-
 /*-----------------------------------------------------------*/
 
 static void prvSkipPropertyAndValue( AzureIoTJSONReader_t * pxReader )
@@ -234,47 +229,23 @@ static uint32_t prvGetNewMaxTemp( double xUpdatedTemperature,
 
     return lBytesWritten;
 }
-
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Send updated maximum temperature value to IoT Hub.
+ * @brief Generate an update for the device's target temperature property online,
+ *        acknowledging the update from the IoT Hub.
  */
-static void prvSendNewMaxTemp( double xUpdatedTemperature )
-{
-    uint32_t ulResult;
-    int32_t lBytesWritten = prvGetNewMaxTemp( xUpdatedTemperature, ucPropertyPayloadBuffer, sizeof( ucPropertyPayloadBuffer ) );
-
-    if( lBytesWritten < 0 )
-    {
-        LogError( ( "Error getting the bytes written for the properties confirmation JSON" ) );
-    }
-    else
-    {
-        ulResult = ulSendPropertiesUpdate( ucPropertyPayloadBuffer, lBytesWritten );
-
-        if( ulResult != 0 )
-        {
-            LogError( ( "There was an error sending the reported properties: result %d", ulResult ) );
-        }
-    }
-}
-
-/*-----------------------------------------------------------*/
-
-/**
- * @brief Updates the device's target temperature property online, acknowledging the update from the IoT Hub.
- */
-static void prvAckIncomingTemperature( double xUpdatedTemperature,
-                                       uint32_t ulVersion )
+static uint32_t prvGenerateAckForIncomingTemperature( double xUpdatedTemperature,
+                                                      uint32_t ulVersion,
+                                                      uint8_t * pucResponseBuffer,
+                                                      uint32_t ulResponseBufferSize )
 {
     AzureIoTResult_t xResult;
-    uint32_t ulResult;
     AzureIoTJSONWriter_t xWriter;
     int32_t lBytesWritten;
 
     /* Building the acknowledgement payload for the temperature property to signal we successfully received and accept it. */
-    xResult = AzureIoTJSONWriter_Init( &xWriter, ucPropertyPayloadBuffer, sizeof( ucPropertyPayloadBuffer ) );
+    xResult = AzureIoTJSONWriter_Init( &xWriter, pucResponseBuffer, ulResponseBufferSize );
     configASSERT( xResult == eAzureIoTSuccess );
 
     xResult = AzureIoTJSONWriter_AppendBeginObject( &xWriter );
@@ -303,15 +274,8 @@ static void prvAckIncomingTemperature( double xUpdatedTemperature,
     lBytesWritten = AzureIoTJSONWriter_GetBytesUsed( &xWriter );
     configASSERT( lBytesWritten > 0 );
 
-    LogDebug( ( "Sending acknowledged writable property. Payload: %.*s", lBytesWritten, ucPropertyPayloadBuffer ) );
-    ulResult = ulSendPropertiesUpdate( ucPropertyPayloadBuffer, lBytesWritten );
-
-    if( ulResult != 0 )
-    {
-        LogError( ( "There was an error sending the reported properties: %d", ulResult ) );
-    }
+    return ( uint32_t ) lBytesWritten;
 }
-
 /*-----------------------------------------------------------*/
 
 /**
@@ -397,10 +361,15 @@ static AzureIoTResult_t prvProcessProperties( AzureIoTHubClientPropertiesRespons
 
     return xResult;
 }
-
 /*-----------------------------------------------------------*/
 
-static void prvHandlePropertyUpdate( AzureIoTHubClientPropertiesResponse_t * pxMessage )
+/**
+ * @brief Property message callback handler
+ */
+void vHandleProperties( AzureIoTHubClientPropertiesResponse_t * pxMessage,
+                        uint8_t * pucWritablePropertyResponseBuffer,
+                        uint32_t ulWritablePropertyResponseBufferSize,
+                        uint32_t * pulWritablePropertyResponseBufferLength )
 {
     AzureIoTResult_t xResult;
     double xIncomingTemperature;
@@ -412,55 +381,17 @@ static void prvHandlePropertyUpdate( AzureIoTHubClientPropertiesResponse_t * pxM
     if( xResult == eAzureIoTSuccess )
     {
         prvUpdateLocalProperties( xIncomingTemperature, ulVersion, &xWasMaxTemperatureChanged );
-        prvAckIncomingTemperature( xIncomingTemperature, ulVersion );
-
-        if( xWasMaxTemperatureChanged )
-        {
-            prvSendNewMaxTemp( xIncomingTemperature );
-        }
+        *pulWritablePropertyResponseBufferLength = prvGenerateAckForIncomingTemperature(
+            xIncomingTemperature,
+            ulVersion,
+            pucWritablePropertyResponseBuffer,
+            ulWritablePropertyResponseBufferSize );
     }
     else
     {
         LogError( ( "There was an error processing incoming properties: result 0x%08x", xResult ) );
     }
 }
-
-/*-----------------------------------------------------------*/
-
-/**
- * @brief Property message callback handler
- */
-void vHandleProperties( AzureIoTHubClientPropertiesResponse_t * pxMessage,
-                        void * pvContext )
-{
-    ( void ) pvContext;
-
-    LogDebug( ( "Property document payload : %.*s \r\n",
-                pxMessage->ulPayloadLength,
-                ( const char * ) pxMessage->pvMessagePayload ) );
-
-    switch( pxMessage->xMessageType )
-    {
-        case eAzureIoTHubPropertiesRequestedMessage:
-            LogDebug( ( "Device property document GET received" ) );
-            prvHandlePropertyUpdate( pxMessage );
-            break;
-
-        case eAzureIoTHubPropertiesWritablePropertyMessage:
-            LogDebug( ( "Device writeable property received" ) );
-            prvHandlePropertyUpdate( pxMessage );
-            break;
-
-        case eAzureIoTHubPropertiesReportedResponseMessage:
-            LogDebug( ( "Device reported property response received" ) );
-            break;
-
-        default:
-            LogError( ( "Unknown property message: 0x%08x", pxMessage->xMessageType ) );
-            configASSERT( false );
-    }
-}
-
 /*-----------------------------------------------------------*/
 
 /**
@@ -528,7 +459,6 @@ uint32_t ulHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
 
     return ulCommandResponsePayloadLength;
 }
-
 /*-----------------------------------------------------------*/
 
 /**
@@ -553,7 +483,6 @@ uint32_t ulCreateTelemetry( uint8_t * pucTelemetryData,
 
     return result;
 }
-
 /*-----------------------------------------------------------*/
 
 /**

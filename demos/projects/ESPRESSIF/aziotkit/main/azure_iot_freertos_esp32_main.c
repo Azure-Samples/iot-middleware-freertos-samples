@@ -284,42 +284,6 @@ static void prvInitializeTime()
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Property message callback handler
- */
-void vHandleProperties( AzureIoTHubClientPropertiesResponse_t * pxMessage,
-                        void * pvContext )
-{
-    ( void ) pvContext;
-
-    ESP_LOGI( TAG, "Property document payload : %.*s \r\n",
-              pxMessage->ulPayloadLength,
-              ( const char * ) pxMessage->pvMessagePayload );
-
-    switch( pxMessage->xMessageType )
-    {
-        case eAzureIoTHubPropertiesRequestedMessage:
-            ESP_LOGI( TAG, "Device property document GET received\r\n" );
-
-            break;
-        case eAzureIoTHubPropertiesWritablePropertyMessage:
-            ESP_LOGI( TAG, "Device writeable property received\r\n" );
-
-            vSampleHandleWritablePropertiesUpdate( pxMessage );
-
-            break;
-
-        case eAzureIoTHubPropertiesReportedResponseMessage:
-            ESP_LOGI( TAG, "Device reported property response received\r\n" );
-            break;
-
-        default:
-            ESP_LOGE( TAG, "Unknown property message: 0x%08x\r\n", pxMessage->xMessageType );
-            configASSERT( false );
-    }
-}
-/*-----------------------------------------------------------*/
-
-/**
  * @brief Implements the sample interface for generating reported properties payload.
  */
 uint32_t ulCreateReportedPropertiesUpdate( uint8_t * pucPropertiesData,

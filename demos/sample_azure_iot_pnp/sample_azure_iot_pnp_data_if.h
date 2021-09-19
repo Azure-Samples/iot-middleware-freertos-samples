@@ -75,34 +75,20 @@ uint32_t ulHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
                           uint32_t * pulResponseStatus,
                           uint8_t * pucCommandResponsePayloadBuffer,
                           uint32_t ulCommandResponsePayloadBufferSize );
-
+                          
 /**
- * @brief Handles a property message received from the Azure IoT Hub.
+ * @brief Handles a properties message received from the Azure IoT Hub (writable or get response).
  *
  * @remark This function must be implemented by the specific sample.
  *
- * @param[in] pxMessage Pointer to a structure that holds the Properties received.
- * @param[in] pvContext Context defined by the sample.
+ * @param[in]  pxMessage                               Pointer to a structure that holds the Writable Properties received.
+ * @param[out] pucWritablePropertyResponseBuffer       Buffer where to write the response for the property update.
+ * @param[out] ulWritablePropertyResponseBufferSize    Size of `pucWritablePropertyResponseBuffer`.
+ * @param[out] pulWritablePropertyResponseBufferLength Number of bytes written into `pucWritablePropertyResponseBuffer`.
  */
 void vHandleProperties( AzureIoTHubClientPropertiesResponse_t * pxMessage,
-                        void * pvContext );
-
-void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessage,
                         uint8_t * pucWritablePropertyResponseBuffer, 
-                        uint32_t ulWritablePropertyResponseBuffer,
-                        void * pvContext );
-
-/**
- * @brief Sends a reported properties update to Azure IoT Hub.
- * 
- * @remark This function can be used by a specific sample to update the device's reported properties.
- *
- * @param[in] pucProperties      Reported properties content to be updated.
- * @param[in] ulPropertiesLength Length of `pucProperties`.
- * 
- * @return uint32_t Zero if successful, non-zero if any failure occurs.
- */
-uint32_t ulSendPropertiesUpdate( uint8_t* pucProperties, 
-                                 uint32_t ulPropertiesLength );
+                        uint32_t ulWritablePropertyResponseBufferSize,
+                        uint32_t * pulWritablePropertyResponseBufferLength );
 
 #endif /* ifndef SAMPLE_AZURE_IOT_PNP_H */

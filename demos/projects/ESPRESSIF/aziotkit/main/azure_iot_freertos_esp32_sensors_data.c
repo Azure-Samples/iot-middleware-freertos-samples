@@ -88,8 +88,6 @@ static bool xLed2State = false;
 #define sampleazureiotPROPERTY_TELEMETRY_FREQUENCY ( "telemetryFrequencySecs" )
 
 static int lTelemetryFrequencySecs = 2;
-
-static uint8_t ucPropertyPayloadBuffer[ 384 ];
 /*-----------------------------------------------------------*/
 
 int32_t lGenerateDeviceInfo( uint8_t * pucPropertiesData,
@@ -318,7 +316,9 @@ uint32_t ulSampleCreateTelemetry( uint8_t * pucTelemetryData,
 /**
  * @brief Acknowledges the update of Telemetry Frequency property.
  */
-static void prvAckTelemetryFrequencyPropertyUpdate( uint8_t * pucPropertiesData, uint32_t ulPropertiesDataSize, uint32_t ulVersion )
+static uint32_t prvGenerateAckForTelemetryFrequencyPropertyUpdate( uint8_t * pucPropertiesData,
+                                                                   uint32_t ulPropertiesDataSize,
+                                                                   uint32_t ulVersion )
 {
     AzureIoTResult_t xAzIoTResult;
     AzureIoTJSONWriter_t xWriter;
@@ -352,10 +352,7 @@ static void prvAckTelemetryFrequencyPropertyUpdate( uint8_t * pucPropertiesData,
     lBytesWritten = AzureIoTJSONWriter_GetBytesUsed( &xWriter );
     configASSERT( lBytesWritten > 0 );
 
-    if ( ulSendPropertiesUpdate( pucPropertiesData, lBytesWritten ) != 0 )
-    {
-        ESP_LOGE( TAG, "Failed acking Telemetry Frequency property update.\r\n" );
-    }
+    return ( uint32_t ) lBytesWritten;
 }
 /*-----------------------------------------------------------*/
 
@@ -377,7 +374,10 @@ static void prvSkipPropertyAndValue( AzureIoTJSONReader_t * pxReader )
 /**
  * @brief Handler for writable properties updates.
  */
-void vSampleHandleWritablePropertiesUpdate( AzureIoTHubClientPropertiesResponse_t * pxMessage )
+void vHandleProperties( AzureIoTHubClientPropertiesResponse_t * pxMessage,
+                        uint8_t * pucWritablePropertyResponseBuffer, 
+                        uint32_t ulWritablePropertyResponseBufferSize,
+                        uint32_t * pulWritablePropertyResponseBufferLength )
 {
     AzureIoTResult_t xAzIoTResult;
     AzureIoTJSONReader_t xJsonReader;
@@ -409,7 +409,10 @@ void vSampleHandleWritablePropertiesUpdate( AzureIoTHubClientPropertiesResponse_
             xAzIoTResult = AzureIoTJSONReader_GetTokenInt32( &xJsonReader, &lTelemetryFrequencySecs );
             configASSERT( xAzIoTResult == eAzureIoTSuccess );
 
-            prvAckTelemetryFrequencyPropertyUpdate( ucPropertyPayloadBuffer, sizeof( ucPropertyPayloadBuffer ), ulPropertyVersion);
+            *pulWritablePropertyResponseBufferLength = prvGenerateAckForTelemetryFrequencyPropertyUpdate(
+                                                            pucWritablePropertyResponseBuffer,
+                                                            ulWritablePropertyResponseBufferSize,
+                                                            ulPropertyVersion );
 
             ESP_LOGI( TAG, "Telemetry frequency set to once every %d seconds.\r\n", lTelemetryFrequencySecs );
 
@@ -423,6 +426,15 @@ void vSampleHandleWritablePropertiesUpdate( AzureIoTHubClientPropertiesResponse_
             /* Unknown property arrived. We have to skip over the property and value to continue iterating. */
             prvSkipPropertyAndValue( &xJsonReader );
         }
+    }
+
+    if( xAzIoTResult != eAzureIoTErrorEndOfProperties )
+    {
+        LogError( ( "There was an error parsing the properties: result 0x%08x", xAzIoTResult ) );
+    }
+    else
+    {
+        LogInfo( ( "Successfully parsed properties" ) );
     }
 }
 /*-----------------------------------------------------------*/
