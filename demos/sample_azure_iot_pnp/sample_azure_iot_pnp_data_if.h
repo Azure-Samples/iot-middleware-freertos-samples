@@ -7,8 +7,8 @@
  *        with the module responsible for communicating with Azure IoT Hub.
  */
 
-#ifndef SAMPLE_AZURE_IOT_PNP_H
-#define SAMPLE_AZURE_IOT_PNP_H
+#ifndef SAMPLE_AZURE_IOT_PNP_DATA_IF_H
+#define SAMPLE_AZURE_IOT_PNP_DATA_IF_H
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -20,9 +20,6 @@
  * @brief The payload to send to the Device Provisioning Service (DO NOT MODIFY)
  */
 #define sampleazureiotPROVISIONING_PAYLOAD                    "{\"modelId\":\"" sampleazureiotMODEL_ID "\"}"
-
-
-// getModelId(buffer, size, length)
 
 extern AzureIoTHubClient_t xAzureIoTHubClient;
 
@@ -92,4 +89,4 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
                                 uint32_t ulWritablePropertyResponseBufferSize,
                                 uint32_t * pulWritablePropertyResponseBufferLength );
 
-#endif /* ifndef SAMPLE_AZURE_IOT_PNP_H */
+#endif /* ifndef SAMPLE_AZURE_IOT_PNP_DATA_IF_H */

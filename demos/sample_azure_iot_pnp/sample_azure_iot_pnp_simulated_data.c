@@ -14,6 +14,7 @@
 /* FreeRTOS */
 /* This task provides taskDISABLE_INTERRUPTS, used by configASSERT */
 #include "FreeRTOS.h"
+#include "task.h"
 
 /*
  * TODO: In future improvement, compare sampleazureiotMODEL_ID macro definition
@@ -226,6 +227,7 @@ static uint32_t prvGetNewMaxTemp( double xUpdatedTemperature,
     configASSERT( xResult == eAzureIoTSuccess );
 
     lBytesWritten = AzureIoTJSONWriter_GetBytesUsed( &xWriter );
+    configASSERT( lBytesWritten > 0 );
 
     return lBytesWritten;
 }

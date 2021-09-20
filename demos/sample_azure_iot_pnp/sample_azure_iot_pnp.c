@@ -149,7 +149,7 @@ static uint8_t ucScratchBuffer[ 512 ];
 static uint8_t ucCommandResponsePayloadBuffer[ 256 ];
 
 /* Reported Properties buffers */
-static uint8_t pucReportedPropertiesUpdate[ 320 ];
+static uint8_t ucReportedPropertiesUpdate[ 320 ];
 static uint32_t ulReportedPropertiesUpdateLength;
 /*-----------------------------------------------------------*/
 
@@ -238,8 +238,8 @@ static void prvHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
 static void prvDispatchPropertiesUpdate( AzureIoTHubClientPropertiesResponse_t * pxMessage )
 {
     vHandleWritableProperties( pxMessage,
-                               pucReportedPropertiesUpdate,
-                               sizeof( pucReportedPropertiesUpdate ),
+                               ucReportedPropertiesUpdate,
+                               sizeof( ucReportedPropertiesUpdate ),
                                &ulReportedPropertiesUpdateLength );
 
     if( ulReportedPropertiesUpdateLength == 0 )
@@ -249,7 +249,7 @@ static void prvDispatchPropertiesUpdate( AzureIoTHubClientPropertiesResponse_t *
     else
     {
         AzureIoTResult_t xResult = AzureIoTHubClient_SendPropertiesReported( &xAzureIoTHubClient,
-                                                                             pucReportedPropertiesUpdate,
+                                                                             ucReportedPropertiesUpdate,
                                                                              ulReportedPropertiesUpdateLength,
                                                                              NULL );
         configASSERT( xResult == eAzureIoTSuccess );
@@ -443,11 +443,11 @@ static void prvAzureDemoTask( void * pvParameters )
             }
 
             /* Hook for sending update to reported properties */
-            ulReportedPropertiesUpdateLength = ulCreateReportedPropertiesUpdate( pucReportedPropertiesUpdate, sizeof( pucReportedPropertiesUpdate ) );
+            ulReportedPropertiesUpdateLength = ulCreateReportedPropertiesUpdate( ucReportedPropertiesUpdate, sizeof( ucReportedPropertiesUpdate ) );
 
             if( ulReportedPropertiesUpdateLength > 0 )
             {
-                xResult = AzureIoTHubClient_SendPropertiesReported( &xAzureIoTHubClient, pucReportedPropertiesUpdate, ulReportedPropertiesUpdateLength, NULL );
+                xResult = AzureIoTHubClient_SendPropertiesReported( &xAzureIoTHubClient, ucReportedPropertiesUpdate, ulReportedPropertiesUpdateLength, NULL );
                 configASSERT( xResult == eAzureIoTSuccess );
             }
 
