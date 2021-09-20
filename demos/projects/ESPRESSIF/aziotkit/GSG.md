@@ -179,20 +179,20 @@ After the build completes, you can confirm that the binary file was created in t
 
 1. From the ESP-IDF Powershell, execute the following command, substituting the correct COM Port from the previous step  (e.g. **COM3**):
 
-```shell
-idf.py -p <COM Port> flash
-
-```
+    ```shell
+    idf.py -p <COM Port> flash
+    
+    ```
 
 1. Check the output completes with the following text for a successful flash:
 
-```output
-Hash of data verified
-
-Leaving...
-Hard resetting via RTS pin...
-Done
-```
+    ```output
+    Hash of data verified
+    
+    Leaving...
+    Hard resetting via RTS pin...
+    Done
+    ```
 
 ### Confirm device connection details
 
