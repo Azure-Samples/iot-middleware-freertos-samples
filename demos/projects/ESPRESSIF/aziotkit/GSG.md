@@ -1,4 +1,4 @@
-g---
+---
 page_type: sample
 description: Connecting ESPRESSIF ESP32-Azure IoT Kit to Azure IoT using the Azure FreeRTOS Middleware
 languages:
