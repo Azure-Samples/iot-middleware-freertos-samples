@@ -177,7 +177,7 @@ After the build completes, you can confirm that the binary file was created in t
 
     ![ESP DevKit](media/espressif-device-manager.png)
 
-1. From the ESP-IDF Powershell, execute the following command, substituting the correct COM Port from the previous step:
+1. From the ESP-IDF Powershell, execute the following command, substituting the correct COM Port from the previous step  (e.g. **COM3**):
 
 ```shell
 idf.py -p <COM Port> flash
@@ -240,10 +240,10 @@ You can also use IoT Central to send a command to your device. Commands have a n
 To call a command in IoT Central portal:
 
 1. Select **Command** tab from the device page.
-1. Select **Run**. The LED light should toggle state.
+1. For either LED, select **Run**. An LED light should toggle state.
 
     ![IoT Central invoke method](media/azure-iot-central-invoke-method.png)
-1. Select **Run**. The LED light should again toggle state.
+1. Select **Run**. An LED light should again toggle state.
 
 ## View device information
 
