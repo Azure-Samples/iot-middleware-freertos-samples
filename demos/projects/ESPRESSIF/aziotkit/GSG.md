@@ -90,7 +90,7 @@ To create a device:
 
 ## Prepare the device
 
-To connect the STM DevKit to Azure, you'll modify a configuration file for Wi-Fi and Azure IoT settings, rebuild the image, and flash the image to the device.
+To connect the ESP32 DevKit to Azure, you'll modify a configuration file for Wi-Fi and Azure IoT settings, rebuild the image, and flash the image to the device.
 
 ### Launch the ESP-IDF Powershell
 
@@ -133,7 +133,7 @@ Add **Azure IoT Central** configuration:
      `Azure IoT Device Symmetric Key` | {Your Primary key value}
      `Azure Device Provisioning Service ID Scope` | {Your ID scope value}
      `Azure Device Provisioning Service Registration ID` | {Your Device ID value}
-    
+
 1. Press **ESC** to return to the previous menu
 
 Add **Wi-Fi** configuration:
@@ -275,6 +275,4 @@ To remove the entire Azure IoT Central sample application and all its devices an
 
 ## Next Steps
 
-In this tutorial you built a custom image that contains Azure FreeRTOS middleware sample code, and then flashed the image to the STM DevKit device. You also used the IoT Central portal to create Azure resources, connect the STM DevKit securely to Azure, view telemetry, and send messages.
-
-* For device developers, the suggested next step is to see the other tutorials in the series [Getting started with FreeRTOS]().
+In this tutorial you built a custom image that contains Azure FreeRTOS middleware sample code, and then flashed the image to the ESP DevKit device. You also used the IoT Central portal to create Azure resources, connect the ESP DevKit securely to Azure, view telemetry, and send messages.
