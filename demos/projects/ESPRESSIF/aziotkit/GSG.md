@@ -107,7 +107,7 @@ Using the ESP-IDF Powershell:
 
 1. Clone the repo with the following command:
 
-    ```powershell
+    ```shell
     git clone --recursive https://github.com/Azure-Samples/iot-middleware-freertos-samples
     ```
 
@@ -118,36 +118,46 @@ Using the ESP-IDF Powershell:
 1. Navigate to the ESP-Azure IoT Kit project directory: *demos\projects\ESPRESSIF\aziotkit*
 1. Execute the following command to launch the configurator:
 
-    ```powershell
+    ```shell
         idf.py menuconfig
     ```
 
 Add **Azure IoT Central** configuration:
 
 1. Select *Azure IoT middleware for FreeRTOS Main Task Configuration  --->*
-1. Select *Azure IoT Device Symmetric Key* and enter the `Primary key`
 1. Enable *Enable Device Provisioning Sample*
-1. Select *Azure Device Provisioning Service ID Scope* and enter the `ID scope`
-1. Select *Azure Device Provisioning Server Registration ID* and enter the `Device ID`
+1. Set the following parameters, using the connection information saved after you created Azure resources.
+
+    Parameter | Value
+    ---------|----------
+     `Azure IoT Device Symmetric Key` | {Your Primary key value}
+     `Azure Device Provisioning Service ID Scope` | {Your ID scope value}
+     `Azure Device Provisioning Service Registration ID` | {Your Device ID value}
+    
 1. Press **ESC** to return to the previous menu
 
 Add **Wi-Fi** configuration:
 
-1. Select *Azure IoT middleware for FreeRTOS Sample Configuration*
-1. Select *WiFi SSID* and enter the `Wi-Fi SSID` for your local network
-1. Select *Wifi Password* enter the `Wi-Fi password` for your local network
+1. Select *Azure IoT middleware for FreeRTOS Sample Configuration  --->*
+1. Set the following parameters using your local Wi-Fi credentials.
+
+    Parameter | Value
+    ---------|----------
+     `WiFi SSID` | _{Your WiFi SSID}_
+     `WiFi Password` | _{Your WiFi password}_
+
 1. Press **ESC** to return to the previous menu
 
 Save configuration:
 
-1. Press **S** and then press **Enter** so save the configuration
+1. Press **S** and then press **Enter** so save the configuration, and **Enter** to dismiss the acknowledgment
 1. Press **Q** to quit the configuration tool
 
 ### Build the image
 
 In your console, run the following commands from the *iot-middleware-freertos-samples\demos\projects\ESPRESSIF\aziotkit* directory to build the device image:
 
-```powershell
+```shell
 idf.py build
 ```
 
@@ -169,7 +179,7 @@ After the build completes, you can confirm that the binary file was created in t
 
 1. From the ESP-IDF Powershell, execute the following command, substituting the correct COM Port from the previous step:
 
-```powershell
+```shell
 idf.py -p <COM Port> flash
 
 ```
@@ -190,7 +200,7 @@ You can use the ESP-IDF monitor tool to observe communication and confirm that y
 
 1. From the ESP-IDF Powershell, start the monitoring tool, substituting the correct COM Port:
 
-    ```powershell
+    ```shell
     idf.py -p <COM Port> monitor
     ```
 
