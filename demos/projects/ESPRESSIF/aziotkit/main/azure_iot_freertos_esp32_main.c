@@ -66,6 +66,9 @@
 #define INDEFINITE_TIME                            ( ( time_t ) -1 )
 
 #define SNTP_SERVER_FQDN                           "pool.ntp.org"
+
+#define OLED_SPLASH_MESSAGE                        "Espressif ESP32 Azure IoT Kit"
+
 /*-----------------------------------------------------------*/
 
 static const char *TAG = "sample_azureiotkit";
@@ -333,6 +336,8 @@ void app_main(void)
     vTaskDelay( pdMS_TO_TICKS( 100 ) );
 
     initialize_sensors( );
+    oled_clean_screen();
+    oled_show_message( ( uint8_t * ) OLED_SPLASH_MESSAGE, sizeof( OLED_SPLASH_MESSAGE ) - 1 );
 
     ( void ) prvConnectNetwork( );
 
