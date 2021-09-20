@@ -14,6 +14,7 @@
 #include <stdint.h>
 
 #include "azure_iot_hub_client_properties.h"
+#include "demo_config.h"
 
 /**
  * @brief The payload to send to the Device Provisioning Service (DO NOT MODIFY)
@@ -75,7 +76,7 @@ uint32_t ulHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
                           uint32_t * pulResponseStatus,
                           uint8_t * pucCommandResponsePayloadBuffer,
                           uint32_t ulCommandResponsePayloadBufferSize );
-                          
+
 /**
  * @brief Handles a properties message received from the Azure IoT Hub (writable or get response).
  *
@@ -86,9 +87,9 @@ uint32_t ulHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
  * @param[out] ulWritablePropertyResponseBufferSize    Size of `pucWritablePropertyResponseBuffer`.
  * @param[out] pulWritablePropertyResponseBufferLength Number of bytes written into `pucWritablePropertyResponseBuffer`.
  */
-void vHandleProperties( AzureIoTHubClientPropertiesResponse_t * pxMessage,
-                        uint8_t * pucWritablePropertyResponseBuffer, 
-                        uint32_t ulWritablePropertyResponseBufferSize,
-                        uint32_t * pulWritablePropertyResponseBufferLength );
+void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessage,
+                                uint8_t * pucWritablePropertyResponseBuffer, 
+                                uint32_t ulWritablePropertyResponseBufferSize,
+                                uint32_t * pulWritablePropertyResponseBufferLength );
 
 #endif /* ifndef SAMPLE_AZURE_IOT_PNP_H */

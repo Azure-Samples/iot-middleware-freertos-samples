@@ -1,5 +1,5 @@
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// SPDX-License-Identifier: MIT
+/* Copyright (c) Microsoft Corporation.
+ * Licensed under the MIT License. */
 
 #include "azure_iot_freertos_esp32_sensors_data.h"
 
@@ -187,6 +187,7 @@ uint32_t ulSampleHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
 
         *pulResponseStatus = AZ_IOT_STATUS_OK;
         ulCommandResponsePayloadLength = lengthof( sampleazureiotCOMMAND_EMPTY_PAYLOAD );
+        configASSERT( ulCommandResponsePayloadBufferSize >= ulCommandResponsePayloadLength );
         (void)memcpy( pucCommandResponsePayloadBuffer, sampleazureiotCOMMAND_EMPTY_PAYLOAD, ulCommandResponsePayloadLength );
     }
     else if ( strncmp( ( const char * ) pxMessage->pucCommandName, sampleazureiotCOMMAND_DISPLAY_TEXT, pxMessage->usCommandNameLength ) == 0)
@@ -199,12 +200,14 @@ uint32_t ulSampleHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
 
         *pulResponseStatus = AZ_IOT_STATUS_OK;
         ulCommandResponsePayloadLength = lengthof( sampleazureiotCOMMAND_EMPTY_PAYLOAD );
+        configASSERT( ulCommandResponsePayloadBufferSize >= ulCommandResponsePayloadLength );
         (void)memcpy( pucCommandResponsePayloadBuffer, sampleazureiotCOMMAND_EMPTY_PAYLOAD, ulCommandResponsePayloadLength );
     }
     else
     {
         *pulResponseStatus = AZ_IOT_STATUS_NOT_FOUND;
         ulCommandResponsePayloadLength = lengthof( sampleazureiotCOMMAND_EMPTY_PAYLOAD );
+        configASSERT( ulCommandResponsePayloadBufferSize >= ulCommandResponsePayloadLength );
         (void)memcpy( pucCommandResponsePayloadBuffer, sampleazureiotCOMMAND_EMPTY_PAYLOAD, ulCommandResponsePayloadLength );
     }
 
@@ -374,10 +377,10 @@ static void prvSkipPropertyAndValue( AzureIoTJSONReader_t * pxReader )
 /**
  * @brief Handler for writable properties updates.
  */
-void vHandleProperties( AzureIoTHubClientPropertiesResponse_t * pxMessage,
-                        uint8_t * pucWritablePropertyResponseBuffer, 
-                        uint32_t ulWritablePropertyResponseBufferSize,
-                        uint32_t * pulWritablePropertyResponseBufferLength )
+void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessage,
+                                uint8_t * pucWritablePropertyResponseBuffer, 
+                                uint32_t ulWritablePropertyResponseBufferSize,
+                                uint32_t * pulWritablePropertyResponseBufferLength )
 {
     AzureIoTResult_t xAzIoTResult;
     AzureIoTJSONReader_t xJsonReader;

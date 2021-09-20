@@ -1,5 +1,5 @@
-/* Copyright (c) Microsoft Corporation. All rights reserved. */
-/* SPDX-License-Identifier: MIT */
+/* Copyright (c) Microsoft Corporation.
+ * Licensed under the MIT License. */
 
 #include "sample_azure_iot_pnp_data_if.h"
 
@@ -13,7 +13,7 @@
 
 /* FreeRTOS */
 /* This task provides taskDISABLE_INTERRUPTS, used by configASSERT */
-#include "task.h"
+#include "FreeRTOS.h"
 
 /*
  * TODO: In future improvement, compare sampleazureiotMODEL_ID macro definition
@@ -366,10 +366,10 @@ static AzureIoTResult_t prvProcessProperties( AzureIoTHubClientPropertiesRespons
 /**
  * @brief Property message callback handler
  */
-void vHandleProperties( AzureIoTHubClientPropertiesResponse_t * pxMessage,
-                        uint8_t * pucWritablePropertyResponseBuffer,
-                        uint32_t ulWritablePropertyResponseBufferSize,
-                        uint32_t * pulWritablePropertyResponseBufferLength )
+void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessage,
+                                uint8_t * pucWritablePropertyResponseBuffer,
+                                uint32_t ulWritablePropertyResponseBufferSize,
+                                uint32_t * pulWritablePropertyResponseBufferLength )
 {
     AzureIoTResult_t xResult;
     double xIncomingTemperature;
@@ -442,6 +442,7 @@ uint32_t ulHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
 
             *pulResponseStatus = 501;
             ulCommandResponsePayloadLength = sizeof( sampleazureiotCOMMAND_EMPTY_PAYLOAD ) - 1;
+            configASSERT( ulCommandResponsePayloadBufferSize >= ulCommandResponsePayloadLength );
             ( void ) memcpy( pucCommandResponsePayloadBuffer, sampleazureiotCOMMAND_EMPTY_PAYLOAD, ulCommandResponsePayloadLength );
         }
     }
@@ -454,6 +455,7 @@ uint32_t ulHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
 
         *pulResponseStatus = AZ_IOT_STATUS_NOT_FOUND;
         ulCommandResponsePayloadLength = sizeof( sampleazureiotCOMMAND_EMPTY_PAYLOAD ) - 1;
+        configASSERT( ulCommandResponsePayloadBufferSize >= ulCommandResponsePayloadLength );
         ( void ) memcpy( pucCommandResponsePayloadBuffer, sampleazureiotCOMMAND_EMPTY_PAYLOAD, ulCommandResponsePayloadLength );
     }
 

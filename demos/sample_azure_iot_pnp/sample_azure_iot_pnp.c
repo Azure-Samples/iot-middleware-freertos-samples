@@ -1,5 +1,5 @@
-/* Copyright (c) Microsoft Corporation. All rights reserved. */
-/* SPDX-License-Identifier: MIT */
+/* Copyright (c) Microsoft Corporation.
+ * Licensed under the MIT License. */
 
 /* Standard includes. */
 #include <string.h>
@@ -237,10 +237,10 @@ static void prvHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
 
 static void prvDispatchPropertiesUpdate( AzureIoTHubClientPropertiesResponse_t * pxMessage )
 {
-    vHandleProperties( pxMessage,
-                       pucReportedPropertiesUpdate,
-                       sizeof( pucReportedPropertiesUpdate ),
-                       &ulReportedPropertiesUpdateLength );
+    vHandleWritableProperties( pxMessage,
+                               pucReportedPropertiesUpdate,
+                               sizeof( pucReportedPropertiesUpdate ),
+                               &ulReportedPropertiesUpdateLength );
 
     if( ulReportedPropertiesUpdateLength == 0 )
     {
