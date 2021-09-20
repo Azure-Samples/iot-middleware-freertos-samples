@@ -74,8 +74,6 @@ static bool xTimeInitialized = false;
 
 static xSemaphoreHandle xSemphGetIpAddrs;
 static esp_ip4_addr_t xIpAddress;
-
-static bool xUpdateDeviceProperties = true;
 /*-----------------------------------------------------------*/
 
 extern void vStartDemoTask( void );
@@ -289,16 +287,7 @@ static void prvInitializeTime()
 uint32_t ulCreateReportedPropertiesUpdate( uint8_t * pucPropertiesData,
                                            uint32_t ulPropertiesDataSize )
 {
-    uint32_t lBytesWritten = 0;
-
-    if ( xUpdateDeviceProperties )
-    {
-        lBytesWritten = lGenerateDeviceInfo( pucPropertiesData, ulPropertiesDataSize );
-
-        xUpdateDeviceProperties = false;
-    }
-
-    return lBytesWritten;
+    return ulSampleCreateReportedPropertiesUpdate( pucPropertiesData, ulPropertiesDataSize );
 }
 /*-----------------------------------------------------------*/
 

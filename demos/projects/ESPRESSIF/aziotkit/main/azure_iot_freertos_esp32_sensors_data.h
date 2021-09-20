@@ -52,4 +52,21 @@ uint32_t ulSampleCreateTelemetry( uint8_t * pucTelemetryData,
  */
 void vSampleHandleWritablePropertiesUpdate( AzureIoTHubClientPropertiesResponse_t * pxMessage );
 
+/**
+ * @brief Provides the payload to be sent as reported properties update to the Azure IoT Hub.
+ *
+ * @remark This function must be implemented by the specific sample.
+ *         `ulCreateReportedPropertiesUpdate` is called periodically by the sample 
+ *         core task (the task created by `vStartDemoTask`).
+ *         If the sample does not have any properties to update, just return zero to inform no 
+ *         update should be sent.
+ * 
+ * @param[out] pucPropertiesData    Pointer to uint8_t* that will contain the reported properties payload.
+ * @param[in]  ulPropertiesDataSize Size of `pucPropertiesData`
+ * 
+ * @return uint32_t The number of bytes written in `pucPropertiesData`.
+ */
+uint32_t ulSampleCreateReportedPropertiesUpdate( uint8_t * pucPropertiesData,
+                                                 uint32_t ulPropertiesDataSize );
+
 #endif // AZURE_IOT_FREERTOS_ESP32_SENSORS_H

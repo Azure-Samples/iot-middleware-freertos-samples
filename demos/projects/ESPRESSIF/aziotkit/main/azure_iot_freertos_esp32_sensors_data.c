@@ -441,3 +441,22 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
     }
 }
 /*-----------------------------------------------------------*/
+
+static bool xUpdateDeviceProperties = true;
+
+uint32_t ulSampleCreateReportedPropertiesUpdate( uint8_t * pucPropertiesData,
+                                                 uint32_t ulPropertiesDataSize )
+{
+    /* No reported properties to send if length is zero. */
+    uint32_t lBytesWritten = 0;
+
+    if ( xUpdateDeviceProperties )
+    {
+        lBytesWritten = lGenerateDeviceInfo( pucPropertiesData, ulPropertiesDataSize );
+        configASSERT( lBytesWritten > 0 );
+        xUpdateDeviceProperties = false;
+    }
+
+    return lBytesWritten;
+}
+/*-----------------------------------------------------------*/
