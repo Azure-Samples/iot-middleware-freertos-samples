@@ -119,7 +119,7 @@ Using the ESP-IDF Powershell:
 1. Execute the following command to launch the configurator:
 
     ```shell
-        idf.py menuconfig
+    idf.py menuconfig
     ```
 
 Add **Azure IoT Central** configuration:
