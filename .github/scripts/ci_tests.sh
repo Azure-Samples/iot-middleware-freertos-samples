@@ -36,7 +36,7 @@ function sample_build() {
 
     if [ $vendor == "ESPRESSIF" ]
     then
-      idf.py build -C ./demos/projects/ESPRESSIF/esp32
+      idf.py build -C ./demos/projects/ESPRESSIF/$board
     else
       cmake -G Ninja -DBOARD=$board -DVENDOR=$vendor -B$outdir -DFREERTOS_PATH=$TEST_FREERTOS_SRC .
       cmake --build $outdir
@@ -59,6 +59,8 @@ do
             echo -e "::group::Building sample for ESPRESSIF ESP32 port"
             sample_build "ESPRESSIF" "esp32" "build"
             exit_if_binary_does_not_exist "./demos/projects/ESPRESSIF/esp32/build" "azure_iot_freertos_esp32.bin"
+            sample_build "ESPRESSIF" "aziotkit" "build"
+            exit_if_binary_does_not_exist "./demos/projects/ESPRESSIF/aziotkit/build" "azure_iot_freertos_esp32.bin"
             ;;
         "-nxp")
             fetch_freertos

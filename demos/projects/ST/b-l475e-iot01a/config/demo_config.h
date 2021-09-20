@@ -7,6 +7,14 @@
 /* FreeRTOS config include. */
 #include "FreeRTOSConfig.h"
 
+/*
+ * This plug-and-play model can be found at:
+ * https://github.com/Azure/iot-plugandplay-models/blob/main/dtmi/com/example/thermostat-1.json
+ * This Model ID is tightly tied to the code implementation in `sample_azure_iot_pnp_simulated_device.c`
+ * If you intend to test a different Model ID, please provide the implementation of the model on your application.
+ */
+#define sampleazureiotMODEL_ID                                "dtmi:com:example:Thermostat;1"
+
 /**************************************************/
 /******* DO NOT CHANGE the following order ********/
 /**************************************************/

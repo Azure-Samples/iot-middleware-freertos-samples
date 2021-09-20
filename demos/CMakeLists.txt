@@ -21,7 +21,8 @@ if(NOT (TARGET SAMPLE::AZUREIOTPNP))
     add_library(SAMPLE::AZUREIOTPNP INTERFACE IMPORTED)
 
     target_sources(SAMPLE::AZUREIOTPNP INTERFACE
-      ${CMAKE_CURRENT_SOURCE_DIR}/sample_azure_iot_pnp/sample_azure_iot_pnp.c)
+      ${CMAKE_CURRENT_SOURCE_DIR}/sample_azure_iot_pnp/sample_azure_iot_pnp.c
+      ${CMAKE_CURRENT_SOURCE_DIR}/sample_azure_iot_pnp/sample_azure_iot_pnp_simulated_data.c)
 endif()
 
 # Target for gsg sample task

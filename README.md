@@ -35,6 +35,7 @@ Below you will find samples for development kits and simulators showing how to u
 
 * ESPRESSIF:
   * [ESP32](demos/projects/ESPRESSIF/esp32/)
+  * [ESP32 Azure IoT Kit](demos/projects/ESPRESSIF/aziotkit/)
 
 * NXP:
   * [MIMXRT1060-EVK](demos/projects/NXP/mimxrt1060/)

@@ -21,5 +21,5 @@ jobs:
       run: .github/scripts/install_software.sh
     - name: Check-in Tests
       run: sudo bash -c ".github/scripts/ci_tests.sh -st -nxp -pc"
-    - name: Build Esp32 Sample
+    - name: Build Esp32 Samples
       run: docker run -v "${PWD}:/iot-middleware-freertos-samples" -w /iot-middleware-freertos-samples espressif/idf .github/scripts/ci_tests.sh -esp
