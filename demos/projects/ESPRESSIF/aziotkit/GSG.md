@@ -13,12 +13,12 @@ products:
 
 **Total completion time**:  30 minutes
 
-In this tutorial you use the Azure FreeRTOS Middleware to connect the ESPRESSIF [ESP32-Azure IoT Kit](https://www.espressif.com/products/devkits/esp32-azure-kit/overview) (hereafter, the ESP DevKit) to Azure IoT. The article is part of the series [IoT Device Development](https://go.microsoft.com/fwlink/p/?linkid=2129824). The series introduces device developers to the Azure FreeRTOS Middleware, and shows how to connect several device evaluation kits to Azure IoT.
+In this tutorial you use the Azure FreeRTOS Middleware to connect the ESPRESSIF [ESP32-Azure IoT Kit](https://www.espressif.com/products/devkits/esp32-azure-kit/overview) (hereafter, the ESP32 DevKit) to Azure IoT. The article is part of the series [IoT Device Development](https://go.microsoft.com/fwlink/p/?linkid=2129824). The series introduces device developers to the Azure FreeRTOS Middleware, and shows how to connect several device evaluation kits to Azure IoT.
 
 You will complete the following tasks:
 
 * Install the embedded development tools
-* Build the image and flash it onto the ESP DevKit
+* Build the image and flash it onto the ESP32 DevKit
 * Use Azure IoT Central to create cloud components, view properties, view device telemetry, and call direct commands
 
 ## Prerequisites
@@ -51,6 +51,7 @@ This project is build using the [ESP-IDF](https://docs.espressif.com/projects/es
 There are several ways to connect devices to Azure IoT. In this section, you learn how to connect a device by using Azure IoT Central. IoT Central is an IoT application platform that reduces the cost and complexity of creating and managing IoT solutions.
 
 To create a new application:
+
 1. From [Azure IoT Central portal](https://apps.azureiotcentral.com/), select **My apps** on the side navigation menu.
 1. Select **+ New application**.
 1. Select **Custom apps**.
@@ -69,6 +70,7 @@ To create a new application:
 In this section, you use the IoT Central application dashboard to create a new device. You will use the connection information for the newly created device to securely connect your physical device in a later section.
 
 To create a device:
+
 1. From the application dashboard, select **Devices** on the side navigation menu.
 1. Select **+ New** to bring up the **Create a new device** window.
 1. Leave Device template as **Unassigned**.
@@ -103,6 +105,7 @@ From this point, all commands are launched from with the ESP-IDF command line. T
 Clone the following repo to download all sample device code. If you previously cloned this repo in another tutorial, you don't need to do it again.
 
 Using the ESP-IDF Powershell:
+
 1. Navigate to a directory where you wish to clone the repo.
 
 1. Clone the repo with the following command:
@@ -114,6 +117,7 @@ Using the ESP-IDF Powershell:
 ### Add configuration
 
 Using the ESP-IDF Powershell:
+
 1. Navigate to the *iot-middleware-freertos-samples* directory that was cloned in the previous steps.
 1. Navigate to the ESP-Azure IoT Kit project directory: *demos\projects\ESPRESSIF\aziotkit*
 1. Execute the following command to launch the configurator:
@@ -162,21 +166,21 @@ $env:IDF_CCACHE_ENABLE=0
 idf.py build
 ```
 
-After the build completes, you can confirm that the binary file was created in the following path:
+After the build completes, you can confirm that the binary file was created with the following path:
 
 > *iot-middleware-freertos-samples\demos\projects\ESPRESSIF\aziotkit\build\azure_iot_freertos_esp32.bin*
 
 ### Flash the image
 
-1. On the ESP DevKit, locate the Micro USB port as highlight in the image below.
+1. On the ESP32 DevKit, locate the Micro USB port as highlight in the image below.
 
-    ![ESP DevKit](media/espressif-esp-azure-iot-kit.png)
+    ![ESP32 DevKit](media/espressif-esp-azure-iot-kit.png)
 
-1. Connect the Micro USB cable to the Micro USB port on the ESP DevKit, and then connect it to your computer.
+1. Connect the Micro USB cable to the Micro USB port on the ESP32 DevKit, and then connect it to your computer.
 
-1. Within the Windows Device Manager, locate the Com Port associated with the ESP device as shown in the image below
+1. Within the **Windows Device Manager**, locate the Com Port associated with the ESP32 DevKit as shown in the image below.
 
-    ![ESP DevKit](media/espressif-device-manager.png)
+    ![Device Manager](media/espressif-device-manager.png)
 
 1. From the ESP-IDF Powershell, execute the following command, substituting the correct COM Port from the previous step  (e.g. **COM3**):
 
@@ -216,6 +220,7 @@ You can use the ESP-IDF monitor tool to observe communication and confirm that y
 ## Verify the device status
 
 To view the device status in IoT Central portal:
+
 1. From the application dashboard, select **Devices** on the side navigation menu.
 1. Check the **Device status** of the device is updated to **Provisioned**.
 1. Check the **Device template** of the device has updated to **Espressif ESP32 Azure IoT Kit**.
@@ -239,6 +244,7 @@ To view telemetry in IoT Central portal:
 You can also use IoT Central to send a command to your device. In this section, you can call a command to toggle LEDs or write to the screen.
 
 To write to the screen:
+
 1. Select the **Command** tab from the device page.
 1. Locate the **Display Text** command.
 1. In the **Content** textbox, enter the text to be displayed on the screen.
@@ -246,6 +252,7 @@ To write to the screen:
 1. The screen on the device will update with the desired text.
 
 To toggle an LED:
+
 1. Select the **Command** tab from the device page.
 1. Locate the **Toggle LED 1** or **Toggle LED 2** command
 1. Select **Run**.
@@ -265,14 +272,16 @@ Select **About** tab from the device page.
 If you no longer need the Azure resources created in this tutorial, you can delete them from the IoT Central portal. Optionally, if you continue to another tutorial in this Getting Started guide, you can keep the resources you've already created and reuse them.
 
 To keep the Azure IoT Central sample application but remove only specific devices:
+
 1. Select the **Devices** tab for your application.
 1. Select the device from the device list.
 1. Select **Delete**.
 
 To remove the entire Azure IoT Central sample application and all its devices and resources:
+
 1. Select **Administration** > **Your application**.
 1. Select **Delete**.
 
 ## Next Steps
 
-In this tutorial you built a custom image that contains Azure FreeRTOS middleware sample code, and then flashed the image to the ESP DevKit device. You also used the IoT Central portal to create Azure resources, connect the ESP DevKit securely to Azure, view telemetry, and send messages.
+In this tutorial you built a custom image that contains the Azure FreeRTOS middleware sample code, and then flashed the image to the ESP32 DevKit device. You also used the IoT Central portal to create Azure resources, connect the ESP32 DevKit securely to Azure, view telemetry, and send messages.
