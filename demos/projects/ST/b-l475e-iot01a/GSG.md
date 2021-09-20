@@ -228,11 +228,11 @@ To view telemetry in IoT Central portal:
 
 ## Call a command on the device
 
-You can also use IoT Central to call a command that you have implemented on your device. Commands have a name, and can optionally have a JSON payload, configurable connection, and timeout. In this section, you call a command that enables you to turn an LED on or off.
+You can also use IoT Central to call a command that you have implemented on your device. In this section, you call a command that enables you to turn an LED on and off.
 
 To call a command in IoT Central portal:
 
-1. Select **Command** tab from the device page.
+1. Select the **Command** tab from the device page.
 1. Select **State** and select **Run**.  The LED light should turn on.
 
     ![IoT Central invoke method](media/azure-iot-central-invoke-method.png)

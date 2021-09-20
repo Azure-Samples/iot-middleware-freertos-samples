@@ -158,6 +158,7 @@ Save configuration:
 In your console, run the following commands from the *iot-middleware-freertos-samples\demos\projects\ESPRESSIF\aziotkit* directory to build the device image:
 
 ```shell
+$env:IDF_CCACHE_ENABLE=0
 idf.py build
 ```
 
@@ -235,15 +236,22 @@ To view telemetry in IoT Central portal:
 
 ## Send a command on the device
 
-You can also use IoT Central to send a command to your device. Commands have a name, and can optionally have a JSON payload, configurable connection, and  timeout. In this section, you call a command that enables you to toggle an LED.
+You can also use IoT Central to send a command to your device. In this section, you can call a command to toggle LEDs or write to the screen.
 
-To call a command in IoT Central portal:
+To write to the screen:
+1. Select the **Command** tab from the device page.
+1. Locate the **Display Text** command.
+1. In the **Content** textbox, enter the text to be displayed on the screen.
+1. Select **Run**. 
+1. The screen on the device will update with the desired text.
 
-1. Select **Command** tab from the device page.
-1. For either LED, select **Run**. An LED light should toggle state.
+To toggle an LED:
+1. Select the **Command** tab from the device page.
+1. Locate the **Toggle LED 1** or **Toggle LED 2** command
+1. Select **Run**.
+1. An LED light on the device will toggle state.
 
-    ![IoT Central invoke method](media/azure-iot-central-invoke-method.png)
-1. Select **Run**. An LED light should again toggle state.
+![IoT Central invoke method](media/azure-iot-central-invoke-method.png)
 
 ## View device information
 
