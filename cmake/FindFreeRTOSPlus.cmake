@@ -79,7 +79,6 @@ if(NOT (TARGET FreeRTOSPlus::ThirdParty::mbedtls))
         ${FreeRTOSPlus_PATH}/ThirdParty/mbedtls/library/platform_util.c
         ${FreeRTOSPlus_PATH}/ThirdParty/mbedtls/library/poly1305.c
         ${FreeRTOSPlus_PATH}/ThirdParty/mbedtls/library/psa_crypto.c
-        ${FreeRTOSPlus_PATH}/ThirdParty/mbedtls/library/psa_crypto_driver_wrappers.c
         ${FreeRTOSPlus_PATH}/ThirdParty/mbedtls/library/psa_crypto_se.c
         ${FreeRTOSPlus_PATH}/ThirdParty/mbedtls/library/psa_crypto_slot_management.c
         ${FreeRTOSPlus_PATH}/ThirdParty/mbedtls/library/psa_crypto_storage.c
@@ -111,7 +110,7 @@ if(NOT (TARGET FreeRTOSPlus::ThirdParty::mbedtls))
         ${FreeRTOSPlus_PATH}/ThirdParty/mbedtls/library/x509write_crt.c
         ${FreeRTOSPlus_PATH}/ThirdParty/mbedtls/library/x509write_csr.c
         ${FreeRTOSPlus_PATH}/ThirdParty/mbedtls/library/xtea.c
-        ${FreeRTOSPlus_PATH}//Source/Utilities/mbedtls_freertos/mbedtls_error.c)
+        ${FreeRTOSPlus_PATH}/ThirdParty/mbedtls/library/error.c)
     target_include_directories(FreeRTOSPlus::ThirdParty::mbedtls INTERFACE
         ${FreeRTOSPlus_PATH}/ThirdParty/mbedtls/include)
     target_include_directories(FreeRTOSPlus::ThirdParty::mbedtls INTERFACE

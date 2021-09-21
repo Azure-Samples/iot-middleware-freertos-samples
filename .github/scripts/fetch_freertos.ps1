@@ -7,15 +7,11 @@ param (
 )
 
 Write-Output "::group::FreeRTOS source"
-$FREERTOS_COMMIT_ID="c8fa483b68c6c1149c2a7a8bc1e901b38860ec9b"
+$FREERTOS_TAG="202107.00"
 
 if ( !( Test-Path -Path $FREERTOS_SRC ) )
 {
-    git clone https://github.com/FreeRTOS/FreeRTOS.git $FREERTOS_SRC
-    cd $FREERTOS_SRC
-    git checkout $FREERTOS_COMMIT_ID
-    git submodule sync
-    git submodule update --init --recursive --depth=1
+    git clone --recursive --depth=1 --branch $FREERTOS_TAG https://github.com/FreeRTOS/FreeRTOS.git $FREERTOS_SRC
 }
 else
 {

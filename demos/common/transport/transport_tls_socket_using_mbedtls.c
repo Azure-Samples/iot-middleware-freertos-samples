@@ -48,12 +48,12 @@ extern void vLoggingPrintf( const char * pcFormatString,
 #include "sockets_wrapper.h"
 
 /* mbedTLS util includes. */
-#include "mbedtls_error.h"
 #include "mbedtls/ctr_drbg.h"
 #include "mbedtls/entropy.h"
 #include "mbedtls/ssl.h"
 #include "mbedtls/threading.h"
 #include "mbedtls/x509.h"
+#include "mbedtls/error.h"
 
 /*-----------------------------------------------------------*/
 
@@ -96,17 +96,17 @@ static const char * pcNoLowLevelMbedTlsCodeStr = "<No-Low-Level-Code>";
  * @brief Utility for converting the high-level code in an mbedTLS error to string,
  * if the code-contains a high-level code; otherwise, using a default string.
  */
-#define mbedtlsHighLevelCodeOrDefault( mbedTlsCode )        \
-    ( mbedtls_strerror_highlevel( mbedTlsCode ) != NULL ) ? \
-    mbedtls_strerror_highlevel( mbedTlsCode ) : pcNoHighLevelMbedTlsCodeStr
+#define mbedtlsHighLevelCodeOrDefault( mbedTlsCode )       \
+    ( mbedtls_high_level_strerr( mbedTlsCode ) != NULL ) ? \
+    mbedtls_high_level_strerr( mbedTlsCode ) : pcNoHighLevelMbedTlsCodeStr
 
 /**
  * @brief Utility for converting the level-level code in an mbedTLS error to string,
  * if the code-contains a level-level code; otherwise, using a default string.
  */
-#define mbedtlsLowLevelCodeOrDefault( mbedTlsCode )        \
-    ( mbedtls_strerror_lowlevel( mbedTlsCode ) != NULL ) ? \
-    mbedtls_strerror_lowlevel( mbedTlsCode ) : pcNoLowLevelMbedTlsCodeStr
+#define mbedtlsLowLevelCodeOrDefault( mbedTlsCode )       \
+    ( mbedtls_low_level_strerr( mbedTlsCode ) != NULL ) ? \
+    mbedtls_low_level_strerr( mbedTlsCode ) : pcNoLowLevelMbedTlsCodeStr
 
 /*-----------------------------------------------------------*/
 
