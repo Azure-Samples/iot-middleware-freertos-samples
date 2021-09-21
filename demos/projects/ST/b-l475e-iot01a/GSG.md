@@ -6,8 +6,7 @@ languages:
 products:
 - azure-iot
 - azure-iot-pnp
-- azure-iot-dps
-- azure-iot-hub
+- azure-iot-central
 ---
 
 # Getting started with the STMicroelectronics B-L475E-IOT01A / B-L4S5I-IOTOA1 Discovery kits
@@ -18,8 +17,8 @@ In this tutorial you use the Azure FreeRTOS Middleware to connect either the STM
 
 You will complete the following tasks:
 
-* Install a set of embedded development tools for programming the STM DevKit in C
-* Build an image and flash it onto the STM DevKit
+* Install the embedded development tools
+* Build the image and flash it onto the STM DevKit
 * Use Azure IoT Central to create cloud components, view properties, view device telemetry, and call direct commands
 
 ## Prerequisites
@@ -162,7 +161,7 @@ After the build completes, confirm that the binary file was created in the follo
 
 ### Flash the image
 
-1. On the STM DevKit MCU, locate the **Reset** button, the Micro USB port which is labeled **USB STLink**, and the board part number. You will refer to these items in the next steps. All of them are highlighted in the following picture:
+1. On the STM DevKit, locate the **Reset** button, the Micro USB port which is labeled **USB STLink**, and the board part number. You will refer to these items in the next steps. All of them are highlighted in the following picture:
 
     ![STM DevKit reset button and micro USB port](media/stm-devkit-board.png)
 
@@ -227,13 +226,13 @@ To view telemetry in IoT Central portal:
 
 > Note: You can also monitor telemetry from the device by using the Termite terminal.
 
-## Call a direct method on the device
+## Call a command on the device
 
-You can also use IoT Central to call a direct method that you have implemented on your device. Direct methods have a name, and can optionally have a JSON payload, configurable connection, and method timeout. In this section, you call a method that enables you to turn an LED on or off.
+You can also use IoT Central to call a command that you have implemented on your device. In this section, you call a command that enables you to turn an LED on and off.
 
-To call a method in IoT Central portal:
+To call a command in IoT Central portal:
 
-1. Select **Command** tab from the device page.
+1. Select the **Command** tab from the device page.
 1. Select **State** and select **Run**.  The LED light should turn on.
 
     ![IoT Central invoke method](media/azure-iot-central-invoke-method.png)
@@ -245,10 +244,6 @@ You can view the device information from IoT Central.
 
 Select **About** tab from the device page.
 ![IoT Central device info](media/azure-iot-central-device-about.png)
-
-## Debugging
-
-For debugging the application, see [Debugging with Visual Studio Code](../../docs/debugging.md).
 
 ## Clean up resources
 
@@ -267,4 +262,4 @@ To remove the entire Azure IoT Central sample application and all its devices an
 
 In this tutorial you built a custom image that contains Azure FreeRTOS middleware sample code, and then flashed the image to the STM DevKit device. You also used the IoT Central portal to create Azure resources, connect the STM DevKit securely to Azure, view telemetry, and send messages.
 
-* For device developers, the suggested next step is to see the other tutorials in the series [Getting started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824).
+* For device developers, the suggested next step is to see the other tutorials in the series [Getting started with FreeRTOS]().

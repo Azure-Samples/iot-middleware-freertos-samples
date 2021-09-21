@@ -16,15 +16,12 @@ We have two sets of samples:
 - **Azure IoT Central**: These samples leverage Azure DPS (Device Provisioning Service), Azure IoT Central and, device Plug and Play. Azure subscription is not required during the initial 7 days of the [IoT Central Free Trial](https://azure.microsoft.com/en-us/pricing/details/iot-central/#pricing).
 - **Azure IoT Hub**: These samples leverage DPS (Device Provisioning), Azure IoT Hub and Plug and Play.
 
-
 ### IoT Central Samples:
 
 Below you will find samples for development kits showing how to use the Azure IoT middleware for FreeRTOS. The following development kits are currently supported:
 
-<!-- ESP32 SaaS sample to be released soon
 * ESPRESSIF:
-  * [ESP32](demos/projects/ESPRESSIF/esp32/gsg.md)
--->
+  * [ESP32-Azure IoT Kit](demos/projects/ESPRESSIF/aziotkit/GSG.md)
 
 * STMicroelectronics:
   * [B-L475E-IOT01A](demos/projects/ST/b-l475e-iot01a/GSG.md)
