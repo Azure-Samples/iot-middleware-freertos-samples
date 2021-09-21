@@ -162,8 +162,7 @@ Save configuration:
 In your console, run the following commands from the *iot-middleware-freertos-samples\demos\projects\ESPRESSIF\aziotkit* directory to build the device image:
 
 ```shell
-$env:IDF_CCACHE_ENABLE=0
-idf.py build
+idf.py --no-ccache build
 ```
 
 After the build completes, you can confirm that the binary file was created with the following path:
