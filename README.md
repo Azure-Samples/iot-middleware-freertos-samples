@@ -7,18 +7,18 @@
 
 ## Getting Started with Azure IoT middleware for FreeRTOS
 
-The Azure IoT middleware for FreeRTOS simplifies the connection of devices running FreeRTOS to Azure IoT services. It implements a modular approach that brings flexibility to IoT developers by allowing them to bring their own network stack (MQTT, TLS and Socket).
+The Azure IoT middleware for FreeRTOS simplifies the connection of devices running FreeRTOS to the Azure IoT services. It implements a modular approach that brings flexibility to IoT developers by allowing them to bring their own network stack (MQTT, TLS and Socket).
 
-The [Azure IoT middleware for FreeRTOS repo](https://github.com/Azure/azure-iot-middleware-freertos) has the core functionalities of the middleware and no external dependencies, however to implement working samples, we need to bring a network stack which is the objective of this repo. 
+The [Azure IoT middleware for FreeRTOS repo](https://github.com/Azure/azure-iot-middleware-freertos) has the core functionalities of the middleware and no external dependencies, however to implement the working samples, we need to bring a network stack which is the objective of the samples in this repo. 
 
 We have two sets of samples:
 
-- **Azure IoT Central**: These samples leverage Azure DPS (Device Provisioning Service), Azure IoT Central and, device Plug and Play. Azure subscription is not required during the initial 7 days of the [IoT Central Free Trial](https://azure.microsoft.com/en-us/pricing/details/iot-central/#pricing).
-- **Azure IoT Hub**: These samples leverage DPS (Device Provisioning), Azure IoT Hub and Plug and Play.
+- **Azure IoT Central**: These samples leverage Azure IoT Central, Azure DPS (Device Provisioning Service) and, device Plug and Play. Azure subscription is not required during the initial 7 days of the [IoT Central Free Trial](https://azure.microsoft.com/en-us/pricing/details/iot-central/#pricing).
+- **Azure IoT Hub**: These samples leverage Azure IoT Hub, DPS (Device Provisioning) and device Plug and Play.
 
 ### IoT Central Samples:
 
-Below you will find samples for development kits showing how to use the Azure IoT middleware for FreeRTOS. The following development kits are currently supported:
+Below you will find samples for development kits showing how to use the Azure IoT middleware for FreeRTOS connected to Azure IoT Central. The following samples support these development kits:
 
 * ESPRESSIF:
   * [ESP32-Azure IoT Kit](demos/projects/ESPRESSIF/aziotkit/GSG.md)
@@ -28,7 +28,7 @@ Below you will find samples for development kits showing how to use the Azure Io
 
 ### IoT Hub Samples:
 
-Below you will find samples for development kits and simulators showing how to use the Azure IoT middleware for FreeRTOS. The following development kits are currently supported:
+Below you will find samples for development kits and simulators showing how to use the Azure IoT middleware for FreeRTOS connected to Azure IoT hub. The following samples support these development kits:
 
 * ESPRESSIF:
   * [ESP32](demos/projects/ESPRESSIF/esp32/)
@@ -52,7 +52,7 @@ For a video deep dive into this repo and the source code, please see the Microso
 
 ### Plug and Play Sample
 
-The easiest way to interact with the Plug and Play sample from the service side is to use Azure IoT Explorer.  To use the sample:
+The easiest way to interact with the device Plug and Play sample from the IoT service side is to use Azure IoT Explorer.  To interact with the device sample:
 
   - Install [Azure IoT Explorer](https://github.com/Azure/azure-iot-explorer/#plug-and-play).
   - Download [the Thermostat model](https://github.com/Azure/opendigitaltwins-dtdl/blob/master/DTDL/v2/samples/Thermostat.json) to a local directory.
@@ -62,7 +62,7 @@ The easiest way to interact with the Plug and Play sample from the service side 
     - Go to the devices list and select your thermostat device.  Now select `IoT Plug and Play components` and then `Default Component`.
     - You will now be able to interact with the Plug and Play device.
 
-    Additional instructions for Azure IoT Explorer, including screenshots, are available [here](https://github.com/Azure/azure-iot-explorer/#plug-and-play).
+    Additional instructions for using Azure IoT Explorer are available [here](https://github.com/Azure/azure-iot-explorer/#plug-and-play).
 
 ## Contributing
 
