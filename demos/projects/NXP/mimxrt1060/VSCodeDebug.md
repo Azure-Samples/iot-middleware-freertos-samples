@@ -2,7 +2,7 @@
 
 ## Before you start
 
-In order to debug the MIMXRT1060-EVK with Visual Studio, this guide requires Segger J-Link. While it works, currently this  experimental and [not suported scenario](https://forum.segger.com/index.php/Thread/8140-SOLVED-CMSIS-DAP-support-seems-to-be-disabled/?postID=29869) for Segger, so try it at your own risk.  
+In order to debug the MIMXRT1060-EVK with Visual Studio Code, this guide requires Segger J-Link. While it works, currently this  experimental and [not suported scenario](https://forum.segger.com/index.php/Thread/8140-SOLVED-CMSIS-DAP-support-seems-to-be-disabled/?postID=29869) for Segger, so try it at your own risk.  
 
 ## What you need
 
