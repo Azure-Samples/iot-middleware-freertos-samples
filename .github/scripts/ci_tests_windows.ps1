@@ -1,6 +1,8 @@
 # Copyright (c) Microsoft. All rights reserved.
 # Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+$test_freertos_src = Join-Path $PSScriptRoot "..\..\libs\FreeRTOS"
+
 function exit_if_binary_does_not_exist
 {
     param (
@@ -35,12 +37,14 @@ function sample_build
         [string] $additionalFlags
     )
 
-    cmake -DBOARD="$board" -DVENDOR="$vendor" -B"$outdir" "$additionalFlags" .
+    cmake -DBOARD="$board" -DVENDOR="$vendor" -B"$outdir" -DFREERTOS_PATH="$test_freertos_src" "$additionalFlags" .
     cmake --build "$outdir"
 }
 
 # FreeRTOS recursive download needs support for long path
 git config --system core.longpaths true
+$freertos_fetch_script=Join-Path $PSScriptRoot "fetch_freertos.ps1"
+& "$freertos_fetch_script" -FREERTOS_SRC $test_freertos_src
 
 Write-Output "::group::Building sample for PC windows port"
 sample_build -vendor "PC" -board "windows" -outdir "build_windows" -additionalFlags "-DCMAKE_GENERATOR_PLATFORM=Win32"
