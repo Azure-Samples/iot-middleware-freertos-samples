@@ -13,8 +13,8 @@ The [Azure IoT middleware for FreeRTOS repo](https://github.com/Azure/azure-iot-
 
 We have two sets of samples:
 
-- **Azure IoT Central**: These samples leverage Azure IoT Central, Azure DPS (Device Provisioning Service) and, device Plug and Play. Azure subscription is not required during the initial 7 days of the [IoT Central Free Trial](https://azure.microsoft.com/en-us/pricing/details/iot-central/#pricing).
-- **Azure IoT Hub**: These samples leverage Azure IoT Hub, DPS (Device Provisioning) and device Plug and Play.
+- **Azure IoT Central**: These samples leverage Azure IoT Central, Azure DPS (Device Provisioning Service) and, Plug and Play. Azure subscription is not required during the initial 7 days of the [IoT Central Free Trial](https://azure.microsoft.com/en-us/pricing/details/iot-central/#pricing).
+- **Azure IoT Hub**: These samples leverage Azure IoT Hub, DPS (Device Provisioning) and Plug and Play.
 
 ### IoT Central Samples:
 
@@ -52,7 +52,7 @@ For a video deep dive into this repo and the source code, please see the Microso
 
 ### Plug and Play Sample
 
-The easiest way to interact with the device Plug and Play sample from the IoT service side is to use Azure IoT Explorer.  To interact with the device sample:
+The easiest way to interact with the Plug and Play sample from the IoT service side is to use Azure IoT Explorer.  To interact with the device sample:
 
   - Install [Azure IoT Explorer](https://github.com/Azure/azure-iot-explorer/#plug-and-play).
   - Download [the Thermostat model](https://github.com/Azure/opendigitaltwins-dtdl/blob/master/DTDL/v2/samples/Thermostat.json) to a local directory.
