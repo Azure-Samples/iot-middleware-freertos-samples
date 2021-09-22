@@ -27,7 +27,7 @@
 
 2. ESP-IDF
 
-    For Windows users, if you don't have [Espressif ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html#get-started) installed yet, use [Espressif official installer](https://dl.espressif.com/dl/esp-idf/?idf=4.4), for other Operating Systems or to update an existing installation, follow Espressif official documentation.
+    For Windows users, if you don't have [Espressif ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html) installed yet, use [Espressif official installer](https://dl.espressif.com/dl/esp-idf/?idf=4.4), for other Operating Systems or to update an existing installation, follow [Espressif official documentation](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html#get-started).
 
 3. Azure IoT Embedded middleware for FreeRTOS
 
