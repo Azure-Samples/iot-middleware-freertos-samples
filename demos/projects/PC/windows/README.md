@@ -14,7 +14,7 @@ To initialize the repo, run the following command:
 
 ```bash
     cd iot-middleware-freertos-samples
-    git submodule update --init --recursive --depth 1
+    git submodule update --init --recursive
 ```
 
 

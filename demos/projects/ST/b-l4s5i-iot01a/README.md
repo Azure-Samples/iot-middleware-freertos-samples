@@ -47,7 +47,7 @@ git clone https://github.com/Azure-Samples/iot-middleware-freertos-samples.git
 To initialize the repo, run the following command:
 
 ```bash
-git submodule update --init --recursive --depth 1
+git submodule update --init --recursive
 ```
 
 ## Prepare the device
