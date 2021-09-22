@@ -23,7 +23,11 @@ You will complete the following tasks:
 
 ## Prerequisites
 
-* A PC running Microsoft Windows 10
+* A ESP-IDF supported Operating System:
+
+    > * *Recommended:* Windows
+    > * *Supported:* Linux, Mac OS
+
 * Hardware
 
     > * ESPRESSIF [ESP32-Azure IoT Kit](https://www.espressif.com/products/devkits/esp32-azure-kit/overview)
@@ -36,11 +40,17 @@ To set up your development environment, first you install the ESPRESSIF ESP-IDF,
 
 ### Install the tools
 
-This project is build using the [ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/latest/esp32), which includes all the tools required to checkout, build, flash and monitor your device and includes the following components.
+This project is built using the ESP-IDF, which includes all the tools required to clone, build, flash and monitor your device.
+
+For **Windows**:
 
 1. Download and launch the [ESP-IDF Online installer](https://dl.espressif.com/dl/esp-idf).
 1. When prompted for the version of ESP-IDF, choose the **latest release version**.
 1. When prompted for components to be installed, choose **Full installation**.
+
+For **Mac OS** or **Linux**:
+    
+1. Install prerequisites by following the [ESP-IDF Get Started](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started) instructions.
 
 > **NOTE:** For advanced installations, or for more information relating to the ESP-IDF, please refer to the [ESP-IDF Programming Guide](https://docs.espressif.com/projects/esp-idf/en/latest/esp32).
 
