@@ -44,7 +44,7 @@
 
     ```bash
     cd iot-middleware-freertos-samples
-    git submodule update --init --recursive --depth 1
+    git submodule update --init --recursive
     ```
 
   You may also need to enable long path support for both Microsoft Windows and git:
