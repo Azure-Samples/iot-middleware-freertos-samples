@@ -23,7 +23,7 @@ You will complete the following tasks:
 
 ## Prerequisites
 
-* A ESP-IDF supported Operating System:
+* An ESP-IDF supported Operating System:
 
     > * Windows (Recommended)
     > * Linux
