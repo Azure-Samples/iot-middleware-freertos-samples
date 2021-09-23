@@ -23,7 +23,12 @@ You will complete the following tasks:
 
 ## Prerequisites
 
-* A PC running Microsoft Windows 10
+* An ESP-IDF supported Operating System:
+
+    > * Windows (Recommended)
+    > * Linux
+    > * macOS
+
 * Hardware
 
     > * ESPRESSIF [ESP32-Azure IoT Kit](https://www.espressif.com/products/devkits/esp32-azure-kit/overview)
@@ -36,11 +41,22 @@ To set up your development environment, first you install the ESPRESSIF ESP-IDF,
 
 ### Install the tools
 
-This project is build using the [ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/latest/esp32), which includes all the tools required to checkout, build, flash and monitor your device and includes the following components.
+This project is built using the ESP-IDF, which includes all the tools required to clone, build, flash and monitor your device.
+
+For **Windows**:
 
 1. Download and launch the [ESP-IDF Online installer](https://dl.espressif.com/dl/esp-idf).
 1. When prompted for the version of ESP-IDF, choose the **latest release version**.
 1. When prompted for components to be installed, choose **Full installation**.
+
+For **Linux** or **macOS**:
+    
+1. Install the prerequisites by following the instructions at [ESP-IDF Get Started](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started).
+1. Is is recommended to checkout a release version of the ESP-IDF, the master branch may contain blocking bugs. This guide was tested against [ESP-IDF v4.3.1](https://github.com/espressif/esp-idf/tree/v4.3.1).
+    
+    ```shell
+    git checkout tags/v4.3.1
+    ```
 
 > **NOTE:** For advanced installations, or for more information relating to the ESP-IDF, please refer to the [ESP-IDF Programming Guide](https://docs.espressif.com/projects/esp-idf/en/latest/esp32).
 
@@ -98,7 +114,7 @@ To connect the ESP32 DevKit to Azure, you'll modify a configuration file for Wi-
 
 From this point, all commands are launched from with the ESP-IDF command line. To launch the command line:
 
-1. From the Windows Start menu, launch the *ESP-IDF 4.x PowerShell*.
+1. From the Windows Start menu, launch the *ESP-IDF 4.3 PowerShell*.
 
 ### Clone the repo for the tutorial
 
