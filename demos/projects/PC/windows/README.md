@@ -7,29 +7,26 @@ Clone the following repo to download all sample device code, setup scripts, and 
 **If you previously cloned this repo in another sample, you don't need to do it again.**
 
 ```bash
-    git clone https://github.com/Azure-Samples/iot-middleware-freertos-samples.git
+git clone https://github.com/Azure-Samples/iot-middleware-freertos-samples.git
 ```
 
 To initialize the repo, run the following command:
 
 ```bash
-    cd iot-middleware-freertos-samples
-    git submodule update --init --recursive
+cd iot-middleware-freertos-samples
+git submodule update --init --recursive
 ```
-
 
 ## Install Prerequisites
 
-* [CMake](https://cmake.org/download/) (Version 3.13 or higher)
-
-* An installed version of [WinPcap](https://www.winpcap.org/default.htm) (NPCap may also work). If you have Wireshark installed then this step might not be necessary. This is needed to create an Ethernet interface to be used by the simulator.
-
-* To run this sample you can use a device previously created in your IoT Hub or have the Azure IoT Middleware for FreeRTOS provision your device automatically using DPS.
+- [CMake](https://cmake.org/download/) (Version 3.13 or higher)
+- An installed version of [WinPcap](https://www.winpcap.org/default.htm) (NPCap may also work). If you have Wireshark installed then this step might not be necessary. This is needed to create an Ethernet interface to be used by the simulator.
+- To run this sample you can use a device previously created in your IoT Hub or have the Azure IoT Middleware for FreeRTOS provision your device automatically using DPS.
 
 IoT Hub | DPS
 ---------|----------
-Have an [Azure IoT Hub](https://docs.microsoft.com/azure/iot-hub/iot-hub-create-through-portal) created | Have an instance of [IoT Hub Device Provisioning Service](https://docs.microsoft.com/en-us/azure/iot-dps/quick-setup-auto-provision#create-a-new-iot-hub-device-provisioning-service)
-Have a [logical device](https://docs.microsoft.com/azure/iot-hub/iot-hub-create-through-portal#register-a-new-device-in-the-iot-hub) created in your Azure IoT Hub using your preferred authentication method* | Have an [individual enrollment](https://docs.microsoft.com/en-us/azure/iot-dps/how-to-manage-enrollments#create-a-device-enrollment) created in your instance of DPS using your preferred authentication method*
+Have an [Azure IoT Hub](https://docs.microsoft.com/azure/iot-hub/iot-hub-create-through-portal) created | Have an instance of [IoT Hub Device Provisioning Service](https://docs.microsoft.com/azure/iot-dps/quick-setup-auto-provision#create-a-new-iot-hub-device-provisioning-service)
+Have a [logical device](https://docs.microsoft.com/azure/iot-hub/iot-hub-create-through-portal#register-a-new-device-in-the-iot-hub) created in your Azure IoT Hub using your preferred authentication method* | Have an [individual enrollment](https://docs.microsoft.com/azure/iot-dps/how-to-manage-enrollments#create-a-device-enrollment) created in your instance of DPS using your preferred authentication method*
 
 *While this sample supports SAS keys and Certificates, this guide will refer only to SAS keys.
 
@@ -54,7 +51,6 @@ Parameter | Value
  `democonfigID_SCOPE` | _{Your ID scope value}_
  `democonfigREGISTRATION_ID` | _{Your Device Registration ID value}_
  `democonfigDEVICE_SYMMETRIC_KEY` | _{Your Primary Key value}_
-
 
 ## Build the image
 

@@ -65,7 +65,7 @@ extern void vLoggingPrintf( const char * pcFormatString,
 /**
  * @brief Provisioning service endpoint.
  *
- * @note https://docs.microsoft.com/en-us/azure/iot-dps/concepts-service#service-operations-endpoint
+ * @note https://docs.microsoft.com/azure/iot-dps/concepts-service#service-operations-endpoint
  * 
  */
 #define democonfigENDPOINT                  "global.azure-devices-provisioning.net"
@@ -73,7 +73,7 @@ extern void vLoggingPrintf( const char * pcFormatString,
 /**
  * @brief Id scope of provisioning service.
  * 
- * @note https://docs.microsoft.com/en-us/azure/iot-dps/concepts-service#id-scope
+ * @note https://docs.microsoft.com/azure/iot-dps/concepts-service#id-scope
  * 
  */
 #define democonfigID_SCOPE                  "<YOUR ID SCOPE HERE>"
@@ -83,7 +83,7 @@ extern void vLoggingPrintf( const char * pcFormatString,
  * 
  * @warning If using X509 authentication, this MUST match the Common Name of the cert.
  *
- *  @note https://docs.microsoft.com/en-us/azure/iot-dps/concepts-service#registration-id
+ *  @note https://docs.microsoft.com/azure/iot-dps/concepts-service#registration-id
  */
 #define democonfigREGISTRATION_ID           "<YOUR REGISTRATION ID HERE>"
 

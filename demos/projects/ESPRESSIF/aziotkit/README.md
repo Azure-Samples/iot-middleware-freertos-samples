@@ -2,22 +2,18 @@
 
 ## What you need
 
-* [ESPRESSIF ESP32 Azure IoT Kit Board](https://www.espressif.com/en/news/Microsoft_Plug-and-Play_with_ESP32-Azure_IoT_Kit)
+- [ESPRESSIF ESP32 Azure IoT Kit Board](https://www.espressif.com/en/news/Microsoft_Plug-and-Play_with_ESP32-Azure_IoT_Kit)
+- Micro USB 2.0 male cable
+- WiFi Connection
+- [ESP-IDF](https://idf.espressif.com/) (Version 4.3 for Microsoft Windows or 4.4 for Linux)
+- To run this sample you can use a device previously created in your IoT Hub or have the Azure IoT Middleware for FreeRTOS provision your device automatically using DPS.
 
-* Micro USB 2.0 male cable
+IoT Hub | DPS
+---------|----------
+Have an [Azure IoT Hub](https://docs.microsoft.com/azure/iot-hub/iot-hub-create-through-portal) created | Have an instance of [IoT Hub Device Provisioning Service](https://docs.microsoft.com/azure/iot-dps/quick-setup-auto-provision#create-a-new-iot-hub-device-provisioning-service)
+Have a [logical device](https://docs.microsoft.com/azure/iot-hub/iot-hub-create-through-portal#register-a-new-device-in-the-iot-hub) created in your Azure IoT Hub using your preferred authentication method | Have an [individual enrollment](https://docs.microsoft.com/azure/iot-dps/how-to-manage-enrollments#create-a-device-enrollment) created in your instance of DPS using your preferred authentication method
 
-* WiFi Connection
-
-* [ESP-IDF](https://idf.espressif.com/) (Version 4.3 for Microsoft Windows or 4.4 for Linux)
-
-* To run this sample you can use a device previously created in your IoT Hub or have the Azure IoT Middleware for FreeRTOS provision your device automatically using DPS.
-
-  IoT Hub | DPS
-  ---------|----------
-  Have an [Azure IoT Hub](https://docs.microsoft.com/azure/iot-hub/iot-hub-create-through-portal) created | Have an instance of [IoT Hub Device Provisioning Service](https://docs.microsoft.com/en-us/azure/iot-dps/quick-setup-auto-provision#create-a-new-iot-hub-device-provisioning-service)
-  Have a [logical device](https://docs.microsoft.com/azure/iot-hub/iot-hub-create-through-portal#register-a-new-device-in-the-iot-hub) created in your Azure IoT Hub using your preferred authentication method* | Have an [individual enrollment](https://docs.microsoft.com/en-us/azure/iot-dps/how-to-manage-enrollments#create-a-device-enrollment) created in your instance of DPS using your preferred authentication method*
-
-  *While this sample supports SAS keys and Certificates, for simplification, this guide will refer only to SAS keys.
+**While this sample supports SAS keys and Certificates, for simplification, this guide will refer only to SAS keys.**
 
 ## Install prerequisites
 
@@ -33,25 +29,25 @@
 
 3. Azure IoT Embedded middleware for FreeRTOS
 
+Clone the following repo to download all sample device code, setup scripts, and SDK documentation.
 
-    Clone the following repo to download all sample device code, setup scripts, and SDK documentation.
+**If you previously cloned this repo for another sample, you don't need to do it again.**
 
-    **If you previously cloned this repo for another sample, you don't need to do it again.**
+```bash
+git clone https://github.com/Azure-Samples/iot-middleware-freertos-samples.git
+```
 
-    ```bash
-    git clone https://github.com/Azure-Samples/iot-middleware-freertos-samples.git
+To initialize the repo, run the following commands:
+
+```bash
+cd iot-middleware-freertos-samples
+git submodule update --init --recursive
     ```
 
-    To initialize the repo, run the following commands:
+You may also need to enable long path support for both Microsoft Windows and git:
 
-    ```bash
-    cd iot-middleware-freertos-samples
-    git submodule update --init --recursive
-    ```
-
-  You may also need to enable long path support for both Microsoft Windows and git:
-  * Windows: [Enable long paths in Windows 10](<https://docs.microsoft.com/windows/win32/fileio/maximum-file-path-limitation?tabs=cmd#enable-long-paths-in-windows-10-version-1607-and-later>)
-  * Git: As administrator, run `git config --system core.longpaths true`
+- Windows: [Enable long paths in Windows 10](<https://docs.microsoft.com/windows/win32/fileio/maximum-file-path-limitation?tabs=cmd#enable-long-paths-in-windows-10-version-1607-and-later>)
+- Git: As administrator, run `git config --system core.longpaths true`
 
 
 ## Prepare the sample
@@ -75,7 +71,6 @@ Parameter | Value
 ---------|----------
  `WiFi SSID` | _{Your WiFi SSID}_
  `WiFi Password` | _{Your WiFi password}_
-
 
 Under menu item `Azure IoT middleware for FreeRTOS Main Task Configuration`, update the following configuration values:
 
@@ -307,11 +302,13 @@ I (6322) tls_freertos: (Network connection 0x3ffc8c4c) Connection to contoso-iot
 </details>
 
 ## Size Chart
+
 The following chart shows the RAM and ROM usage for the ESPRESSIF ESP32 Azure IoT Kit.
 Build options: Compile optimized for size (-Os) and no logging (-DLIBRARY_LOG_LEVEL=LOG_NONE).
 This sample can include either IoT Hub only or both IoT Hub and DPS services. Also it uses IoT Plug-and-Play. The table below shows RAM/ROM sizes considering:
--  Middleware libraries only – represents the libraries for Azure IoT connection and features.
--  Total size – which includes the Azure IoT middleware for FreeRTOS, Mbed TLS, FreeRTOS, CoreMQTT and the HAL for the dev kit.
+
+- Middleware libraries only – represents the libraries for Azure IoT connection and features.
+- Total size – which includes the Azure IoT middleware for FreeRTOS, Mbed TLS, FreeRTOS, CoreMQTT and the HAL for the dev kit.
 
 |  | Middleware library size | | Total Size | |
 |---------|----------|---------|---------|---------

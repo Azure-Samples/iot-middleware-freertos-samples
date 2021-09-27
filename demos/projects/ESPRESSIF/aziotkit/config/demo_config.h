@@ -59,7 +59,7 @@
 /**
  * @brief Provisioning service endpoint.
  *
- * @note https://docs.microsoft.com/en-us/azure/iot-dps/concepts-service#service-operations-endpoint
+ * @note https://docs.microsoft.com/azure/iot-dps/concepts-service#service-operations-endpoint
  *
  */
 #define democonfigENDPOINT "global.azure-devices-provisioning.net"
@@ -67,7 +67,7 @@
 /**
  * @brief Id scope of provisioning service.
  *
- * @note https://docs.microsoft.com/en-us/azure/iot-dps/concepts-service#id-scope
+ * @note https://docs.microsoft.com/azure/iot-dps/concepts-service#id-scope
  *
  */
 #define democonfigID_SCOPE CONFIG_AZURE_DPS_ID_SCOPE
@@ -77,7 +77,7 @@
  *
  * @warning If using X509 authentication, this MUST match the Common Name of the cert.
  *
- *  @note https://docs.microsoft.com/en-us/azure/iot-dps/concepts-service#registration-id
+ *  @note https://docs.microsoft.com/azure/iot-dps/concepts-service#registration-id
  */
 #define democonfigREGISTRATION_ID CONFIG_AZURE_DPS_REGISTRATION_ID
 
