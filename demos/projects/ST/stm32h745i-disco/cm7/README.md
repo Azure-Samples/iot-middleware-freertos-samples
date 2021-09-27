@@ -32,7 +32,7 @@ You may also need to enable long path support for both Windows and git:
 - Git: As **administrator** run
 
   ```powershell
-  `git config --system core.longpaths true`
+  git config --system core.longpaths true
   ```
 
 ## Get the middleware

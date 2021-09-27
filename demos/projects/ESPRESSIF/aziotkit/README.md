@@ -102,9 +102,9 @@ After that, close the configuration utility (`Shift + Q`).
 > On Windows, errors might still occur if a path is too long. Espressif recommends setting the following environment variable on ESP-IDF console `IDF_CCACHE_ENABLE=0` as a workaround.
 To build the device image, run the following command:
 
-  ```bash
-  idf.py build
-  ```
+```bash
+idf.py build
+```
 
 ## Flash the image
 
