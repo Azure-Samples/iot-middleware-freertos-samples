@@ -42,13 +42,12 @@ To initialize the repo, run the following commands:
 ```bash
 cd iot-middleware-freertos-samples
 git submodule update --init --recursive
-    ```
+```
 
 You may also need to enable long path support for both Microsoft Windows and git:
 
 - Windows: [Enable long paths in Windows 10](<https://docs.microsoft.com/windows/win32/fileio/maximum-file-path-limitation?tabs=cmd#enable-long-paths-in-windows-10-version-1607-and-later>)
 - Git: As administrator, run `git config --system core.longpaths true`
-
 
 ## Prepare the sample
 
