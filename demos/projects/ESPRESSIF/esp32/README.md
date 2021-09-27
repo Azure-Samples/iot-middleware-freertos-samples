@@ -27,7 +27,9 @@
 
 2. ESP-IDF
 
-    For Windows users, if you don't have [Espressif ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html) installed yet, use [Espressif official installer](https://dl.espressif.com/dl/esp-idf/?idf=4.4), for other Operating Systems or to update an existing installation, follow [Espressif official documentation](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html#get-started).
+    On Windows, install the ESPRESSIF ESP-IDF using this [download link](https://dl.espressif.com/dl/esp-idf/?idf=4.4).
+
+    For other Operating Systems or to update an existing installation, follow [Espressif official documentation](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html#get-started).
 
 3. Azure IoT Embedded middleware for FreeRTOS
 
@@ -303,3 +305,18 @@ I (6322) tls_freertos: (Network connection 0x3ffc8c4c) Connection to contoso-iot
 ...
 ```
 </details>
+
+## Size Chart
+The following chart shows the RAM and ROM usage for the ESPRESSIF ESP32 microcontroller.
+Build options: Compile optimized for size (-Os) and no logging (-DLIBRARY_LOG_LEVEL=LOG_NONE).
+This sample can include either IoT Hub only or both IoT Hub and DPS services. Also it can optionaly use IoT Plug-and-Play. The table below shows RAM/ROM sizes considering:
+-  Middleware libraries only – represents the libraries for Azure IoT connection.
+-  Total size – which includes the Azure IoT middleware for FreeRTOS, Mbed TLS, FreeRTOS, CoreMQTT and the HAL for the dev kit.
+
+|  | Middleware library size | | Total Size | |
+|---------|----------|---------|---------|---------
+|**Sample** | **Flash (code,rodata)** | **DRAM,IRAM (bss,data)** | **Flash (code,rodata)** | **DRAM,IRAM (bss,data)** |
+| IoT Hub + DPS + PnP | 38.13 KB | 12 bytes | 704.81 KB | 119.69 KB
+| IoT Hub + DPS | 38.13 KB | 12 bytes | 704.81 KB | 119.69 KB
+| IoT Hub + PnP | 28.74 KB | 12 bytes | 694.81 KB | 118.34 KB
+| IoT Hub only | 28.73 KB | 12 bytes | 694.65 KB | 118.34 KB
