@@ -2,27 +2,23 @@
 
 ## What you need
 
-* ST Microelectronics DevKit: [STM32H745I](https://www.st.com/en/evaluation-tools/stm32h745i-disco.html)
-
-* Ethernet Cable
-
-* Micro USB male cable
+- ST Microelectronics DevKit: [STM32H745I](https://www.st.com/en/evaluation-tools/stm32h745i-disco.html)
+- Ethernet Cable
+- Micro USB male cable
 
 ## Prerequisites
 
-* [CMake](https://cmake.org/download/) (Version 3.13 or higher)
-
-* [Ninja build system](https://github.com/ninja-build/ninja/releases) (Version 1.10 or higher)
-
+- [CMake](https://cmake.org/download/) (Version 3.13 or higher)
+- [Ninja build system](https://github.com/ninja-build/ninja/releases) (Version 1.10 or higher)
 - [GNU Arm Embedded Toolchain](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads) (Version 9 or higher)
-* Serial terminal tool like [Termite](https://www.compuphase.com/software_termite.htm), Putty, Tera Term, etc.
+- Serial terminal tool like [Termite](https://www.compuphase.com/software_termite.htm), Putty, Tera Term, etc.
 
 To run this sample you can use a device previously created on your Azure IoT Hub or you may have the Azure IoT middleware for FreeRTOS provision your device automatically using Azure Device Provisioning Services (DPS).
 
 IoT Hub | DPS 
 ---------|----------
-Have an [Azure IoT Hub](https://docs.microsoft.com/azure/iot-hub/iot-hub-create-through-portal) created | Have an instance of [IoT Hub Device Provisioning Service](https://docs.microsoft.com/en-us/azure/iot-dps/quick-setup-auto-provision#create-a-new-iot-hub-device-provisioning-service)
-Have a [logical device](https://docs.microsoft.com/azure/iot-hub/iot-hub-create-through-portal#register-a-new-device-in-the-iot-hub) created in your Azure IoT Hub using your preferred authentication method* | Have an [individual enrollment](https://docs.microsoft.com/en-us/azure/iot-dps/how-to-manage-enrollments#create-a-device-enrollment) created in your instance of DPS using your preferred authentication method*
+Have an [Azure IoT Hub](https://docs.microsoft.com/azure/iot-hub/iot-hub-create-through-portal) created | Have an instance of [IoT Hub Device Provisioning Service](https://docs.microsoft.com/azure/iot-dps/quick-setup-auto-provision#create-a-new-iot-hub-device-provisioning-service)
+Have a [logical device](https://docs.microsoft.com/azure/iot-hub/iot-hub-create-through-portal#register-a-new-device-in-the-iot-hub) created in your Azure IoT Hub using your preferred authentication method* | Have an [individual enrollment](https://docs.microsoft.com/azure/iot-dps/how-to-manage-enrollments#create-a-device-enrollment) created in your instance of DPS using your preferred authentication method*
 
 *While this sample supports SAS keys and Certificates, this guide will refer only to SAS keys. 
 
@@ -31,8 +27,13 @@ Have a [logical device](https://docs.microsoft.com/azure/iot-hub/iot-hub-create-
 Ensure that cmake, ninja and the ARM toolset binaries are available in the `PATH` environment variable.
 
 You may also need to enable long path support for both Windows and git:
-* Windows: <https://docs.microsoft.com/windows/win32/fileio/maximum-file-path-limitation?tabs=cmd#enable-long-paths-in-windows-10-version-1607-and-later>
-* Git: As **administrator** run `git config --system core.longpaths true`
+
+- Windows: <https://docs.microsoft.com/windows/win32/fileio/maximum-file-path-limitation?tabs=cmd#enable-long-paths-in-windows-10-version-1607-and-later>
+- Git: As **administrator** run
+
+  ```powershell
+  git config --system core.longpaths true
+  ```
 
 ## Get the middleware
 
@@ -51,6 +52,7 @@ git submodule update --init --recursive
 ```
 
 ## Prepare the device
+
 To connect the STM DevKit to Azure, you'll modify a configuration file for Wi-Fi and Azure IoT settings, rebuild the image, and flash the image to the device.
 
 Update the file `iot-middleware-freertos-samples/demos/projects/ST/stm32h745i-disco/cm7/config/demo_config.h` with your configuration values.
@@ -60,16 +62,16 @@ If you're using a device previously created in your **IoT Hub** with SAS authent
 Parameter | Value 
 ---------|----------
  `democonfigDEVICE_ID` | _{Your Device ID value}_
- `democonfigHOSTNAME` | _{Your Azure IoT Hub Host name value}_ 
- `democonfigDEVICE_SYMMETRIC_KEY` | _{Your Primary Key value}_ 
+ `democonfigHOSTNAME` | _{Your Azure IoT Hub Host name value}_
+ `democonfigDEVICE_SYMMETRIC_KEY` | _{Your Primary Key value}_
 
 If you're using **DPS** with an individual enrollment with SAS authentication, set the following parameters:
 
 Parameter | Value 
 ---------|----------
  `democonfigID_SCOPE` | _{Your DPS ID scope value}_
- `democonfigREGISTRATION_ID` | _{Your Device Registration ID value}_ 
- `democonfigDEVICE_SYMMETRIC_KEY` | _{Your Primary Key value}_ 
+ `democonfigREGISTRATION_ID` | _{Your Device Registration ID value}_
+ `democonfigDEVICE_SYMMETRIC_KEY` | _{Your Primary Key value}_
 
 ## Build the image
 
@@ -92,7 +94,7 @@ After the build completes, confirm that a folder named `stm32h745i-disco/` was c
 
 4. Paste the binary file into the root folder of the STM Devkit. Flashing starts automatically and completes in a few seconds.
 
-5. Connect an Ethernet cable to your STM DevKit and your network equipment. 
+5. Connect an Ethernet cable to your STM DevKit and your network equipment.
 
 ## Confirm device connection details
 
@@ -107,11 +109,13 @@ The following settings can be used to monitor serial data:
 - Flow Control: none
 
 ## Size Chart
-The following chart shows the RAM and ROM usage for the STM32H745I-DISCO Discovery kit from ST Microelectronics. 
+
+The following chart shows the RAM and ROM usage for the STM32H745I-DISCO Discovery kit from ST Microelectronics.
 Build options: CMAKE_BUILD_TYPE=MinSizeRel (-Os) and no logging (-DLIBRARY_LOG_LEVEL=LOG_NONE):
 This sample can includes either IoT Hub only or both IoT Hub and DPS services. The table below shows RAM/ROM sizes considering:
--  Middleware libraries only – represents the libraries for Azure IoT connection.
--  Total size – which includes the Azure IoT middleware for FreeRTOS, Mbed TLS, FreeRTOS, CoreMQTT and the HAL for the dev kit.
+
+- Middleware libraries only – represents the libraries for Azure IoT connection.
+- Total size – which includes the Azure IoT middleware for FreeRTOS, Mbed TLS, FreeRTOS, CoreMQTT and the HAL for the dev kit.
 
 |  | Middleware library size | | Total Size | |
 |---------|----------|---------|---------|---------

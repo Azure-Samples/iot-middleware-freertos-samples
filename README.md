@@ -13,38 +13,38 @@ The [Azure IoT middleware for FreeRTOS repo](https://github.com/Azure/azure-iot-
 
 We have two sets of samples:
 
-- **Azure IoT Central**: These samples leverage Azure IoT Central, Azure DPS (Device Provisioning Service) and, Plug and Play. Azure subscription is not required during the initial 7 days of the [IoT Central Free Trial](https://azure.microsoft.com/en-us/pricing/details/iot-central/#pricing).
+- **Azure IoT Central**: These samples leverage Azure IoT Central, Azure DPS (Device Provisioning Service) and, Plug and Play. Azure subscription is not required during the initial 7 days of the [IoT Central Free Trial](https://azure.microsoft.com/pricing/details/iot-central/#pricing).
 - **Azure IoT Hub**: These samples leverage Azure IoT Hub, DPS (Device Provisioning) and Plug and Play.
 
-### IoT Central Samples:
+### IoT Central Samples
 
 Below you will find samples for development kits showing how to use the Azure IoT middleware for FreeRTOS connected to Azure IoT Central. The following samples support these development kits:
 
-* ESPRESSIF:
-  * [ESP32-Azure IoT Kit](demos/projects/ESPRESSIF/aziotkit/GSG.md)
+- ESPRESSIF:
+  - [ESP32-Azure IoT Kit](demos/projects/ESPRESSIF/aziotkit/GSG.md)
 
-* STMicroelectronics:
-  * [B-L475E-IOT01A](demos/projects/ST/b-l475e-iot01a/GSG.md)
+- STMicroelectronics:
+  - [B-L475E-IOT01A](demos/projects/ST/b-l475e-iot01a/GSG.md)
 
 ### IoT Hub Samples:
 
 Below you will find samples for development kits and simulators showing how to use the Azure IoT middleware for FreeRTOS connected to Azure IoT hub. The following samples support these development kits:
 
-* ESPRESSIF:
-  * [ESP32](demos/projects/ESPRESSIF/esp32/)
-  * [ESP32 Azure IoT Kit](demos/projects/ESPRESSIF/aziotkit/)
+- ESPRESSIF:
+  - [ESP32](demos/projects/ESPRESSIF/esp32/)
+  - [ESP32 Azure IoT Kit](demos/projects/ESPRESSIF/aziotkit/)
 
-* NXP:
-  * [MIMXRT1060-EVK](demos/projects/NXP/mimxrt1060/)
+- NXP:
+  - [MIMXRT1060-EVK](demos/projects/NXP/mimxrt1060/)
 
-* STMicroelectronics:
-  * [B-L475E-IOT01A](demos/projects/ST/b-l475e-iot01a/)
-  * [B-L4S5I-IOT01A](demos/projects/ST/b-l4s5i-iot01a/)
-  * [STM32H745I-DISCO](demos/projects/ST/stm32h745i-disco/cm7)
+- STMicroelectronics:
+  - [B-L475E-IOT01A](demos/projects/ST/b-l475e-iot01a/)
+  - [B-L4S5I-IOT01A](demos/projects/ST/b-l4s5i-iot01a/)
+  - [STM32H745I-DISCO](demos/projects/ST/stm32h745i-disco/cm7)
 
-* PC Simulation:
-  * [Linux](demos/projects/PC/linux/)
-  * [Windows](demos/projects/PC/windows/)
+- PC Simulation:
+  - [Linux](demos/projects/PC/linux/)
+  - [Windows](demos/projects/PC/windows/)
 
 For a video deep dive into this repo and the source code, please see the Microsoft Developers video below.
 
@@ -54,15 +54,19 @@ For a video deep dive into this repo and the source code, please see the Microso
 
 The easiest way to interact with the Plug and Play sample from the IoT service side is to use Azure IoT Explorer.  To interact with the device sample:
 
-  - Install [Azure IoT Explorer](https://github.com/Azure/azure-iot-explorer/#plug-and-play).
-  - Download [the Thermostat model](https://github.com/Azure/opendigitaltwins-dtdl/blob/master/DTDL/v2/samples/Thermostat.json) to a local directory.
-  - Start Azure IoT Explorer and then:
-    - [Configure your hub](https://github.com/Azure/azure-iot-explorer/#configure-an-iot-hub-connection).  Once you've created your thermostat device, you should see it listed in the UX.
-    - Go to `IoT Plug and Play Settings` on the home screen, select `Local Folder` for the location of the model definitions, and point to the folder you downloaded the thermostat model.
-    - Go to the devices list and select your thermostat device.  Now select `IoT Plug and Play components` and then `Default Component`.
-    - You will now be able to interact with the Plug and Play device.
+- Install [Azure IoT Explorer](https://github.com/Azure/azure-iot-explorer/#plug-and-play).
+- Download [the Thermostat model](https://github.com/Azure/opendigitaltwins-dtdl/blob/master/DTDL/v2/samples/Thermostat.json) to a local directory.
+- Start Azure IoT Explorer and then:
+  - [Configure your hub](https://github.com/Azure/azure-iot-explorer/#configure-an-iot-hub-connection).  Once you've created your thermostat device, you should see it listed in the UX.
+  - Go to `IoT Plug and Play Settings` on the home screen, select `Local Folder` for the location of the model definitions, and point to the folder you downloaded the thermostat model.
+  - Go to the devices list and select your thermostat device.  Now select `IoT Plug and Play components` and then `Default Component`.
+  - You will now be able to interact with the Plug and Play device.
 
-    Additional instructions for using Azure IoT Explorer are available [here](https://github.com/Azure/azure-iot-explorer/#plug-and-play).
+Additional instructions for using Azure IoT Explorer are available [here](https://github.com/Azure/azure-iot-explorer/#plug-and-play).
+
+## Support
+
+If you need support, please see our [SUPPORT.md](./SUPPORT.md) file.
 
 ## Support
 
@@ -84,8 +88,8 @@ contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additio
 
 ## Trademarks
 
-This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft 
-trademarks or logos is subject to and must follow 
-[Microsoft's Trademark & Brand Guidelines](https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks/usage/general).
+This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft
+trademarks or logos is subject to and must follow
+[Microsoft's Trademark & Brand Guidelines](https://www.microsoft.com/legal/intellectualproperty/trademarks/usage/general).
 Use of Microsoft trademarks or logos in modified versions of this project must not cause confusion or imply Microsoft sponsorship.
 Any use of third-party trademarks or logos are subject to those third-party's policies
