@@ -64,6 +64,10 @@ The easiest way to interact with the Plug and Play sample from the IoT service s
 
     Additional instructions for using Azure IoT Explorer are available [here](https://github.com/Azure/azure-iot-explorer/#plug-and-play).
 
+## Support
+
+If you need support, please see our [SUPPORT.md](./SUPPORT.md) file.
+
 ## Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
