@@ -310,11 +310,11 @@ I (6322) tls_freertos: (Network connection 0x3ffc8c4c) Connection to contoso-iot
 The following chart shows the RAM and ROM usage for the ESPRESSIF ESP32 Azure IoT Kit.
 Build options: Compile optimized for size (-Os) and no logging (-DLIBRARY_LOG_LEVEL=LOG_NONE).
 This sample can include either IoT Hub only or both IoT Hub and DPS services. Also it uses IoT Plug-and-Play. The table below shows RAM/ROM sizes considering:
--  Middleware libraries only – represents the libraries for Azure IoT connection.
+-  Middleware libraries only – represents the libraries for Azure IoT connection and features.
 -  Total size – which includes the Azure IoT middleware for FreeRTOS, Mbed TLS, FreeRTOS, CoreMQTT and the HAL for the dev kit.
 
 |  | Middleware library size | | Total Size | |
 |---------|----------|---------|---------|---------
-|**Sample** | **Flash (code,rodata)** | **DRAM,IRAM (bss,data)** | **Flash (code,rodata)** | **DRAM,IRAM (bss,data)** |
+| **Sample** | **Flash (code,rodata)** | **DRAM,IRAM (bss,data)** | **Flash (code,rodata)** | **DRAM,IRAM (bss,data)** |
 | IoT Hub + DPS | 37.74 KB | 12 bytes | 704.66 KB | 124.27 KB
 | IoT Hub only | 28.34 KB | 12 bytes | 694.43 | 122.92 KB
