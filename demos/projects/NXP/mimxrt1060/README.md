@@ -18,9 +18,9 @@
 IoT Hub | DPS
 ---------|----------
 Have an [Azure IoT Hub](https://docs.microsoft.com/azure/iot-hub/iot-hub-create-through-portal) created | Have an instance of [IoT Hub Device Provisioning Service](https://docs.microsoft.com/azure/iot-dps/quick-setup-auto-provision#create-a-new-iot-hub-device-provisioning-service)
-Have a [logical device](https://docs.microsoft.com/azure/iot-hub/iot-hub-create-through-portal#register-a-new-device-in-the-iot-hub) created in your Azure IoT Hub using your preferred authentication method* | Have an [individual enrollment](https://docs.microsoft.com/azure/iot-dps/how-to-manage-enrollments#create-a-device-enrollment) created in your instance of DPS using your preferred authentication method*
+Have a [logical device](https://docs.microsoft.com/azure/iot-hub/iot-hub-create-through-portal#register-a-new-device-in-the-iot-hub) created in your Azure IoT Hub using your preferred authentication method | Have an [individual enrollment](https://docs.microsoft.com/azure/iot-dps/how-to-manage-enrollments#create-a-device-enrollment) created in your instance of DPS using your preferred authentication method
 
-*While this sample supports SAS keys and Certificates, this guide will refer only to SAS keys. 
+**While this sample supports SAS keys and Certificates, this guide will refer only to SAS keys.**
 
 ### Install prerequisites on Windows
 
@@ -29,7 +29,11 @@ Ensure that cmake, ninja and the ARM toolset binaries are available in the `PATH
 You may also need to enable long path support for both Windows and git:
 
 - Windows: <https://docs.microsoft.com/windows/win32/fileio/maximum-file-path-limitation?tabs=cmd#enable-long-paths-in-windows-10-version-1607-and-later>
-- Git: as Administrator run `git config --system core.longpaths true`
+- Git: as **administrator** run
+
+  ```powershell
+  git config --system core.longpaths true
+  ```
 
 ## Get the middleware
 
