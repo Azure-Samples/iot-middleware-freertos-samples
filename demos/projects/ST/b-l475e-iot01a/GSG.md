@@ -150,9 +150,9 @@ To connect the STM DevKit to Azure, you'll modify a configuration file for Wi-Fi
 
 In your console, run the following commands from the *iot-middleware-freertos-samples* directory to build the device image:
 
-```shell
-cmake --preset b-l475e-iot01a
-cmake --build --preset b-l475e-iot01a
+```bash
+  cmake -G Ninja -DVENDOR=ST -DBOARD=b-l475e-iot01a -Bb-l475e-iot01a .
+  cmake --build b-l475e-iot01a
 ```
 
 After the build completes, confirm that the binary file was created in the following path:
