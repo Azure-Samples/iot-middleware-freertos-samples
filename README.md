@@ -68,10 +68,6 @@ Additional instructions for using Azure IoT Explorer are available [here](https:
 
 If you need support, please see our [SUPPORT.md](./SUPPORT.md) file.
 
-## Support
-
-If you need support, please see our [SUPPORT.md](./SUPPORT.md) file.
-
 ## Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
