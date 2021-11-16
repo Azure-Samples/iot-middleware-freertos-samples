@@ -21,7 +21,7 @@
             "type": "shell",
             "isBackground": false,
             "windows" : {
-                "command": "pwsh .github/scripts/fetch_freertos.ps1 libs/FreeRTOS",
+                "command": "powershell .github/scripts/fetch_freertos.ps1 libs/FreeRTOS",
             },
             "linux" : {
                 "command": ".github/scripts/fetch_freertos.sh libs/FreeRTOS"
