@@ -11,7 +11,7 @@ jobs:
 
     runs-on: ubuntu-latest
     steps:
-    - uses: docker://espressif/idf:release-v4.4
+    - uses: docker://espressif/idf:v4.3
     - uses: actions/checkout@v2
     - name: Style Check
       run: .github/scripts/code_style.sh check
@@ -22,4 +22,4 @@ jobs:
     - name: Check-in Tests
       run: sudo bash -c ".github/scripts/ci_tests.sh -st -nxp -pc"
     - name: Build Esp32 Samples
-      run: docker run -v "${PWD}:/iot-middleware-freertos-samples" -w /iot-middleware-freertos-samples espressif/idf:release-v4.4 .github/scripts/ci_tests.sh -esp
+      run: docker run -v "${PWD}:/iot-middleware-freertos-samples" -w /iot-middleware-freertos-samples espressif/idf:v4.3 .github/scripts/ci_tests.sh -esp
