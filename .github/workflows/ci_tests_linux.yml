@@ -11,7 +11,7 @@ jobs:
 
     runs-on: ubuntu-latest
     steps:
-    - uses: docker://espressif/idf:v4.3
+    - uses: docker://espressif/idf:release-v4.4
     - uses: actions/checkout@v2
     - name: Style Check
       run: .github/scripts/code_style.sh check
