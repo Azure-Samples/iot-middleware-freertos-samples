@@ -203,6 +203,7 @@ After the build completes, you can confirm that the binary file was created with
     idf.py -p <COM Port> flash
     
     ```
+    **Important**: You might get an error after executing the command above ("No such file or directory"). This is a known ESP-IDF error, and the workaround is documented [here](https://github.com/Azure-Samples/iot-middleware-freertos-samples/issues/124)
 
 1. Check the output completes with the following text for a successful flash:
 
