@@ -163,7 +163,7 @@ idf.py --no-ccache -B "C:\espbuild" build
     On **Linux**:
 
     ```shell
-    idf.py --no-ccache -B "C:\espbuild" -p /dev/ttyUSB0 flash
+    idf.py -p /dev/ttyUSB0 flash
     ```
     </details>
 
@@ -183,7 +183,7 @@ The output should show traces similar to:
 <summary>See more...</summary>
 
 ```shell
-$ idf.py -B "C:\espbuild" -p /dev/ttyUSB0 monitor
+$ idf.py -p /dev/ttyUSB0 monitor
 Executing action: monitor
 Running idf_monitor in directory /iot-middleware-freertos-samples-ew/demos/projects/ESPRESSIF/esp32
 Executing "/home/user/.espressif/python_env/idf4.4_py3.8_env/bin/python /esp/esp-idf/tools/idf_monitor.py -p /dev/ttyUSB0 -b 115200 --toolchain-prefix xtensa-esp32-elf- --target esp32 --revision 0 /iot-middleware-freertos-samples-ew/demos/projects/ESPRESSIF/esp32/build/azure_iot_freertos_esp32.elf -m '/home/user/.espressif/python_env/idf4.4_py3.8_env/bin/python' '/esp/esp-idf/tools/idf.py' '-p' '/dev/ttyUSB0'"...
