@@ -222,7 +222,7 @@ You can use the ESP-IDF monitor tool to observe communication and confirm that y
 1. From the ESP-IDF Powershell, start the monitoring tool, substituting the correct COM Port:
 
     ```shell
-    idf.py -B "C:\espbuild" -p <COM port> monitorr
+    idf.py -B "C:\espbuild" -p <COM port> monitor
     ```
 
 1. Check for the following output to confirm that the device is initialized and connected to Azure IoT.
