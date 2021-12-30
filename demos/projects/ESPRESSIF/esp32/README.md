@@ -59,7 +59,7 @@ To connect the ESPRESSIF ESP32 to Azure, you will update the sample configuratio
 
 The configuration of the ESPRESSIF ESP32 sample uses ESP-IDF' samples standard [kconfig](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/kconfig.html) configuration.
 
-On a [console with ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html#step-4-set-up-the-environment-variables), navigate to the ESP-Azure IoT Kit project directory: `demos\projects\ESPRESSIF\aziotkit` and run the following commands:
+On a [console with ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html#step-4-set-up-the-environment-variables), navigate to the ESP-Azure IoT Kit project directory: `demos\projects\ESPRESSIF\esp32` and run the following commands:
 
 ```shell
 idf.py menuconfig
