@@ -100,7 +100,7 @@ static ethernetif_config_t xEnetConfig =
     .phyHandle  = &xPhyHandle,
     .macAddress = mainConfigMAC_ADDR,
 };
-static uint64_t ulGlobalEntryTime = 1639093301;
+static uint64_t ulGlobalEntryTime = 1673769600;
 
 /*
  * Prototypes for the demos that can be started from this project.
