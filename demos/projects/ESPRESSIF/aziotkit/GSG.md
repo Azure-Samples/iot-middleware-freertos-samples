@@ -33,7 +33,7 @@ You will complete the following tasks:
 
     > * ESPRESSIF [ESP32-Azure IoT Kit](https://www.espressif.com/products/devkits/esp32-azure-kit/overview)
     > * Wi-Fi 2.4 GHz
-    > * USB 2.0 A male to Micro USB male cable
+    > * USB 2.0 A male to Micro USB male data cable
 
 ## Prepare the development environment
 
@@ -178,7 +178,7 @@ Save configuration:
 In your console, run the following commands from the *iot-middleware-freertos-samples\demos\projects\ESPRESSIF\aziotkit* directory to build the device image:
 
 ```shell
-idf.py --no-ccache build
+idf.py --no-ccache -B "C:\espbuild" build
 ```
 
 After the build completes, you can confirm that the binary file was created with the following path:
@@ -200,10 +200,10 @@ After the build completes, you can confirm that the binary file was created with
 1. From the ESP-IDF Powershell, execute the following command, substituting the correct COM Port from the previous step  (e.g. **COM3**):
 
     ```shell
-    idf.py -p <COM Port> flash
+    idf.py --no-ccache -B "C:\espbuild" -p <COM port> flash
     
     ```
-    **Important**: You might get an error after executing the command above ("No such file or directory"). This is a known ESP-IDF error, and the workaround is documented [here](https://github.com/Azure-Samples/iot-middleware-freertos-samples/issues/124)
+    The path `"C:\espbuild"` above is only a suggestion, feel free to use a different one, as long as it is near your root directory, for a shorter path.
 
 1. Check the output completes with the following text for a successful flash:
 
@@ -222,7 +222,7 @@ You can use the ESP-IDF monitor tool to observe communication and confirm that y
 1. From the ESP-IDF Powershell, start the monitoring tool, substituting the correct COM Port:
 
     ```shell
-    idf.py -p <COM Port> monitor
+    idf.py -B "C:\espbuild" -p <COM port> monitor
     ```
 
 1. Check for the following output to confirm that the device is initialized and connected to Azure IoT.

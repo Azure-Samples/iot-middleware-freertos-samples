@@ -4,7 +4,8 @@
 
 - [ESPRESSIF ESP32 Azure IoT Kit Board](https://www.espressif.com/en/news/Microsoft_Plug-and-Play_with_ESP32-Azure_IoT_Kit)
 - Micro USB 2.0 male cable
-- WiFi Connection
+- Wi-Fi 2.4 GHz
+- USB 2.0 A male to Micro USB male data cable
 - [ESP-IDF](https://idf.espressif.com/) (Version 4.3 for Microsoft Windows or 4.4 for Linux)
 - To run this sample you can use a device previously created in your IoT Hub or have the Azure IoT Middleware for FreeRTOS provision your device automatically using DPS.
 
@@ -57,10 +58,9 @@ To connect the ESPRESSIF ESP32 to Azure, you will update the sample configuratio
 
 The configuration of the ESPRESSIF ESP32 sample uses ESP-IDF' samples standard [kconfig](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/kconfig.html) configuration.
 
-On a [console with ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html#step-4-set-up-the-environment-variables), run the following commands:
+On a [console with ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html#step-4-set-up-the-environment-variables), navigate to the ESP-Azure IoT Kit project directory: `demos\projects\ESPRESSIF\aziotkit` and run the following commands:
 
 ```shell
-cd demos\projects\ESPRESSIF\aziotkit
 idf.py menuconfig
 ```
 
@@ -99,11 +99,10 @@ After that, close the configuration utility (`Shift + Q`).
 
 > This step assumes you are in the ESPRESSIF ESP32 sample directory (same as configuration step above).
 
-> On Windows, errors might still occur if a path is too long. Espressif recommends setting the following environment variable on ESP-IDF console `IDF_CCACHE_ENABLE=0` as a workaround.
-To build the device image, run the following command:
+To build the device image, run the following command (the path `"C:\espbuild"` is only a suggestion, feel free to use a different one, as long as it is near your root directory, for a shorter path):
 
 ```bash
-idf.py build
+idf.py --no-ccache -B "C:\espbuild" build
 ```
 
 ## Flash the image
@@ -149,7 +148,7 @@ idf.py build
     > This step assumes you are in the ESPRESSIF ESP32 sample directory (same as configuration step above).
 
     ```bash
-    idf.py -p <COM port> flash
+    idf.py --no-ccache -B "C:\espbuild" -p <COM port> flash    
     ```
 
     <details>
@@ -158,7 +157,7 @@ idf.py build
     On **Windows**:
 
     ```shell
-    idf.py -p COM5 flash
+    idf.py --no-ccache -B "C:\espbuild" -p COM5 flash
     ```
 
     On **Linux**:
@@ -175,7 +174,7 @@ You can use any terminal application to monitor the operation of the device and 
 Alternatively you can use ESP-IDF monitor:
 
 ```bash
-idf.py -p <COM port> monitor
+idf.py -B "C:\espbuild" -p <COM port> monitor 
 ```
 
 The output should show traces similar to:
