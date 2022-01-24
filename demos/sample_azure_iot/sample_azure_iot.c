@@ -405,7 +405,7 @@ static void prvAzureDemoTask( void * pvParameters )
         configASSERT( xResult == eAzureIoTSuccess );
 
         /* Create a bag of properties for the telemetry */
-        xResult = AzureIoTMessage_PropertiesInit( &xPropertyBag, ucPropertyBuffer, 0, sizeof( xPropertyBag ) );
+        xResult = AzureIoTMessage_PropertiesInit( &xPropertyBag, ucPropertyBuffer, 0, sizeof( ucPropertyBuffer ) );
         configASSERT( xResult == eAzureIoTSuccess );
 
         xResult = AzureIoTMessage_PropertiesAppend( &xPropertyBag, ( uint8_t * ) "name", sizeof( "name" ) - 1,
