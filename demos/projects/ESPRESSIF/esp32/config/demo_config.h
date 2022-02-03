@@ -129,6 +129,9 @@
  *  - DigiCert Global Root G2 
  *  - Microsoft RSA Root Certificate Authority 2017
  *
+ * @warning Hard coding certificates is not recommended by Microsoft as a best
+ * practice for production scenarios. Please see our document here for notes on best practices.
+ * https://github.com/Azure-Samples/iot-middleware-freertos-samples/blob/main/docs/certificate-notice.md
  */
 static unsigned char root_cert_array[] = {
     /* Baltimore */
