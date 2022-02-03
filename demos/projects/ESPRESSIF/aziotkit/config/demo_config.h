@@ -130,6 +130,9 @@
  * @warning Hard coding certificates is not recommended by Microsoft as a best
  * practice for production scenarios. Please see our document here for notes on best practices.
  * https://github.com/Azure-Samples/iot-middleware-freertos-samples/blob/main/docs/certificate-notice.md
+ *
+ * These certs are DER formats of the above listed certificates.
+ * `openssl x509 -in <path-to-cert> -C`
  */
 static unsigned char root_cert_array[] = {
     /* Baltimore */
