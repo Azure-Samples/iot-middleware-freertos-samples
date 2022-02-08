@@ -9,4 +9,10 @@ __IMPORTANT:__
 
 ## Additional Information
 
+The certificates used in these samples are DER formats of the root CA certificates. The following openssl command can be used to generate those byte arrays.
+
+```bash
+openssl x509 -in <path-to-cert> -C
+```
+
 For additional guidance and important information about certificates, please refer to [this blog post](https://techcommunity.microsoft.com/t5/internet-of-things/azure-iot-tls-critical-changes-are-almost-here-and-why-you/ba-p/2393169) from the security team.
