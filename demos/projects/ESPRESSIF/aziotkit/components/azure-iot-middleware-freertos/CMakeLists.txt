@@ -20,7 +20,7 @@ list(APPEND COMPONENT_SOURCES
 idf_component_get_property(FREERTOS_DIR freertos COMPONENT_DIR)
 
 set(COMPONENT_INCLUDE_DIRS
-    ${FREERTOS_DIR}/include/freertos
+    ${FREERTOS_DIR}/FreeRTOS-Kernel/include/freertos
     ${AZURE_IOT_MIDDLEWARE_FREERTOS}/source/include
     ${AZURE_IOT_MIDDLEWARE_FREERTOS}/source/interface
     ${AZURE_IOT_MIDDLEWARE_FREERTOS}/ports/coreMQTT
