@@ -149,7 +149,7 @@ static uint8_t ucScratchBuffer[ 512 ];
 static uint8_t ucCommandResponsePayloadBuffer[ 256 ];
 
 /* Reported Properties buffers */
-static uint8_t ucReportedPropertiesUpdate[ 320 ];
+static uint8_t ucReportedPropertiesUpdate[ 380 ];
 static uint32_t ulReportedPropertiesUpdateLength;
 /*-----------------------------------------------------------*/
 
