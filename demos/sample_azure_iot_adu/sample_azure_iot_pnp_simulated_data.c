@@ -316,11 +316,10 @@ static AzureIoTResult_t prvProcessProperties( AzureIoTHubClientPropertiesRespons
         {
             if( ulComponentNameLength > 0 )
             {
-                LogInfo( ( "Unknown component name received" ) );
-
-                /* Unknown component name arrived (there are none for this device).
-                 * We have to skip over the property and value to continue iterating */
-                prvSkipPropertyAndValue( &xReader );
+                if( AzureIoTADUClient_IsADUComponent( &xAzureIoTADUClient, pucComponentName, ulComponentNameLength ) )
+                {
+                    AzureIoTADUClient_ADUProcessComponent( &xAzureIoTADUClient, xReader );
+                }
             }
             else if( AzureIoTJSONReader_TokenIsTextEqual( &xReader,
                                                           ( const uint8_t * ) sampleazureiotPROPERTY_TARGET_TEMPERATURE_TEXT,
