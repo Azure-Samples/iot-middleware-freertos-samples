@@ -351,7 +351,6 @@ MigrationBackup/
 
 # Build directories
 /build
-build/
 /mimxrt1060
 /build_linux
 /build_windows
