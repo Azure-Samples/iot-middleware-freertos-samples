@@ -28,8 +28,6 @@ jobs:
 
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v1.1
-      with:
-        vs-version: '[,17)'
 
     - name: Get specific version CMake, v3.21.1
       uses: lukka/get-cmake@v3.21.1
