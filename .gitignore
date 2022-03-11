@@ -350,7 +350,8 @@ MigrationBackup/
 .ionide/
 
 # Build directories
-/build/
+build/
+/build
 /mimxrt1060
 /build_linux
 /build_windows
