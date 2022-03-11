@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.13)
 set(CMAKE_C_STANDARD 99)
 
 # Add modules and include compiler options/switches
-include(../cmake/build/compile_options.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/../cmake/build/compile_options.cmake)
 
 # Add coreMQTT Lib
 add_library(coremqtt
