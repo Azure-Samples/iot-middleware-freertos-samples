@@ -151,8 +151,6 @@ static uint8_t ucCommandResponsePayloadBuffer[ 256 ];
 /* Reported Properties buffers */
 static uint8_t ucReportedPropertiesUpdate[ 380 ];
 static uint32_t ulReportedPropertiesUpdateLength;
-
-static uint8_t ucAduContextBuffer[ 1024 ];
 /*-----------------------------------------------------------*/
 
 #ifdef democonfigENABLE_DPS_SAMPLE
@@ -331,7 +329,6 @@ static void prvAzureDemoTask( void * pvParameters )
     AzureIoTResult_t xResult;
     uint32_t ulStatus;
     AzureIoTHubClientOptions_t xHubOptions = { 0 };
-    AzureIoT_ADUClient_t xAzureIoTADUClient = { 0 };
     bool xSessionPresent;
 
     #ifdef democonfigENABLE_DPS_SAMPLE
@@ -403,12 +400,6 @@ static void prvAzureDemoTask( void * pvParameters )
                                           &xTransport );
         configASSERT( xResult == eAzureIoTSuccess );
 
-        xResult = AzureIoTADUClient_Init( &xAzureIoTADUClient,
-                                          &xAzureIoTHubClient,
-                                          ucAduContextBuffer,
-                                          sizeof( ucAduContextBuffer ) );
-        configASSERT( xResult == eAzureIoTSuccess );
-
         #ifdef democonfigDEVICE_SYMMETRIC_KEY
             xResult = AzureIoTHubClient_SetSymmetricKey( &xAzureIoTHubClient,
                                                          ( const uint8_t * ) democonfigDEVICE_SYMMETRIC_KEY,
@@ -463,11 +454,6 @@ static void prvAzureDemoTask( void * pvParameters )
             LogInfo( ( "Attempt to receive publish message from IoT Hub.\r\n" ) );
             xResult = AzureIoTHubClient_ProcessLoop( &xAzureIoTHubClient,
                                                      sampleazureiotPROCESS_LOOP_TIMEOUT_MS );
-            configASSERT( xResult == eAzureIoTSuccess );
-
-            LogInfo( ( "Attempting to process ADU messages.\r\n" ) );
-            xResult = AzureIoTADUClient_ADUProcessLoop( &xAzureIoTADUClient,
-                                                        sampleazureiotPROCESS_LOOP_TIMEOUT_MS );
             configASSERT( xResult == eAzureIoTSuccess );
 
             /* Leave Connection Idle for some time. */
