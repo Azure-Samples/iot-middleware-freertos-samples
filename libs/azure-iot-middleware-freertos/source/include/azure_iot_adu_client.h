@@ -9,6 +9,8 @@
 
 #include "azure_iot_result.h"
 #include "azure_iot_hub_client.h"
+#include "azure_iot_json_reader.h"
+#include "azure_iot_http.h"
 
 
 /**************************ADU SECTION******************************** // */

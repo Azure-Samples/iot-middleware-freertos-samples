@@ -1,6 +1,4 @@
-#include "azure_iot_crypto.h"
-#include "azure_iot_hub_client.h"
-#include "azure_iot_http.h"
+#include "azure_iot_adu_client.h"
 
 /*
  *
