@@ -37,7 +37,7 @@ function sample_build
         [string] $additionalFlags
     )
 
-    cmake -DBOARD="$board" -DVENDOR="$vendor" -B"$outdir" -DFREERTOS_PATH="$test_freertos_src" "$additionalFlags" .
+    cmake -G "Visual Studio 17 2022" -A Win32 -DBOARD="$board" -DVENDOR="$vendor" -B"$outdir" -DFREERTOS_PATH="$test_freertos_src" "$additionalFlags" .
     cmake --build "$outdir"
 }
 
