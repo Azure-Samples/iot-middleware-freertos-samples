@@ -1,0 +1,18 @@
+{
+  "lib_name": "coreHTTP",
+  "src": [
+    "source/core_http_client.c",
+    {
+      "file": "source/dependency/3rdparty/http_parser/http_parser.c",
+      "tag": "http-parser"
+    }
+  ],
+  "include": [
+    "source/include",
+    "source/interface",
+    "source/dependency/3rdparty/http_parser"
+  ],
+  "compiler_flags": [
+    "HTTP_DO_NOT_USE_CUSTOM_CONFIG"
+  ]
+}
