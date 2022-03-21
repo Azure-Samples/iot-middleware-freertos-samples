@@ -13,11 +13,10 @@ typedef struct AzureADUImage
     void * unused;
 } AzureADUImage_t;
 
-AzureIoTResult_t AzureIoTPlatform_WriteBlock( AzureADUImage_t * const pFileContext,
-                                              uint32_t offset,
+AzureIoTResult_t AzureIoTPlatform_WriteBlock( AzureADUImage_t * const pxFileContext,
+                                              uint32_t ulOffset,
                                               uint8_t * const pData,
-                                              uint32_t blockSize );
-
+                                              uint32_t ulBlockSize );
 
 AzureIoTResult_t AzureIoTPlatform_EnableImage();
 

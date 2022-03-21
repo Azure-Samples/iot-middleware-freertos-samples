@@ -20,7 +20,10 @@ target_include_directories(FreeRTOSPlus::TCPIP::PORT INTERFACE
     ${FreeRTOSPlus_PATH}/Source/FreeRTOS-Plus-TCP/portable/Compiler/GCC/)
 
 # Add demo files and dependencies
-add_executable(${PROJECT_NAME} main.c)
+add_executable(${PROJECT_NAME}
+  main.c
+  ${CMAKE_CURRENT_LIST_DIR}/port/azure_iot_flash_platform.c
+)
 target_link_libraries(${PROJECT_NAME} PRIVATE
     FreeRTOS::Timers
     FreeRTOS::Heap::3

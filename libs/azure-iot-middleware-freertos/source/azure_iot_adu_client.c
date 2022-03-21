@@ -1,5 +1,8 @@
 #include "azure_iot_adu_client.h"
 
+#include "azure_iot_json_writer.h"
+#include "azure_iot_flash_platform.h"
+
 /*
  *
  * Missing features
@@ -73,16 +76,34 @@
  * }
  */
 
+AzureIoTResult_t AzureIoTADUClient_Init( AzureIoT_ADUClient_t * pxAduClient,
+                                         AzureIoTHubClient_t * pxAzureIoTHubClient,
+                                         AzureIoTTransportInterface_t * pxAzureIoTTransport,
+                                         AzureIoT_TransportConnectCallback_t pxAzureIoTHTTPConnectCallback,
+                                         const uint8_t * pucAduContextBuffer,
+                                         uint32_t ulAduContextBuffer )
+{
+    pxAduClient->pxHubClient = pxAzureIoTHubClient;
+    pxAduClient->pxHTTPTransport = pxAzureIoTTransport;
+    pxAduClient->xHTTPConnectCallback = pxAzureIoTHTTPConnectCallback;
+    pxAduClient->pucAduContextBuffer = pucAduContextBuffer;
+    pxAduClient->ulAduContextBufferLength = ulAduContextBuffer;
+
+    return eAzureIoTSuccess;
+}
+
 /**
  * @brief Process and copy out fields in the Device Twin for this update.
  *
  */
-AzureIoTResult_t prvAzureIoT_ADUProcessProperties( AzureIoTHubClient_t * pxAzureIoTHubClient,
-                                                   AzureIoTJSONReader_t * pxReader )
+static AzureIoTResult_t prvAzureIoT_ADUProcessProperties( AzureIoT_ADUClient_t * pxAduClient,
+                                                        AzureIoTJSONReader_t * pxReader )
 {
+    (void)pxAduClient;
+    (void)pxReader;
     /* Go through Device Twin */
-    // TODO: review logic and assign result properly.
-    return eAzureIoTErrorFailed;
+
+    return eAzureIoTSuccess;
 }
 
 /**
@@ -92,9 +113,11 @@ AzureIoTResult_t prvAzureIoT_ADUProcessProperties( AzureIoTHubClient_t * pxAzure
  * @param pxReader
  * @return AzureIoTResult_t
  */
-AzureIoTResult_t prvAzureIoT_ADUProcessUpdateManifest( AzureIoTHubClient_t * pxAzureIoTHubClient,
-                                                       AzureIoTJSONReader_t * pxReader )
+static AzureIoTResult_t prvAzureIoT_ADUProcessUpdateManifest( AzureIoT_ADUClient_t * pxAduClient,
+                                                        AzureIoTJSONReader_t * pxReader )
 {
+    (void)pxAduClient;
+    (void)pxReader;
     /*Use the context buffer which was passed in options and the */
     /*AzureIoTJSONReader_GetTokenString to copy out relevant values */
     /*(since we will copy values out and act on then outside of the twin message callback) */
@@ -107,34 +130,39 @@ AzureIoTResult_t prvAzureIoT_ADUProcessUpdateManifest( AzureIoTHubClient_t * pxA
 
     /*Find Files */
 
-    // TODO: review logic and assign result properly.
-    return eAzureIoTErrorFailed;
+    return eAzureIoTSuccess;
 }
 
-AzureIoTResult_t AzureIoTHubClient_ADUProcessComponent( AzureIoTHubClient_t * pxAzureIoTHubClient,
+AzureIoTResult_t AzureIoTADUClient_ADUProcessComponent( AzureIoT_ADUClient_t * pxAduClient,
                                                         AzureIoTJSONReader_t * pxReader )
 {
     /* Iterate through the JSON and pull out the components that are useful. */
-    prvAzureIoT_ADUProcessProperties(pxAzureIoTHubClient, pxReader);
+    prvAzureIoT_ADUProcessProperties( pxAduClient, pxReader );
 
-    prvAzureIoT_ADUProcessUpdateManifest(pxAzureIoTHubClient, pxReader);
+    prvAzureIoT_ADUProcessUpdateManifest( pxAduClient, pxReader );
 
-    // TODO: fix 'error: 'struct <anonymous>' has no member named 'pxADUContext'; did you mean 'xMQTTContext'?' and uncomment.
-    // pxAzureIoTHubClient->_internal.pxADUContext.xState = eAzureIoTADUStateDeploymentInProgress;
+    pxAduClient->xState = eAzureIoTADUStateDeploymentInProgress;
 
-    // TODO: review logic and assign result properly.
-    return eAzureIoTErrorFailed;
+    return eAzureIoTSuccess;
 }
 
-AzureIoTResult_t prvAzureIoT_ADUSendPropertyUpdate( AzureIoTHubClient_t * pxAzureIoTHubClient,
-                                                    AzureIoTJSONReader_t * pxReader )
+static AzureIoTResult_t prvAzureIoT_ADUSendPropertyUpdate( AzureIoTHubClient_t * pxAzureIoTHubClient,
+                                                           AzureIoTJSONWriter_t * pxWriter )
 {
+    (void)pxAzureIoTHubClient;
+    (void)pxWriter;
     /*Send state update about the stage of the ADU process we are in */
     return eAzureIoTSuccess;
 }
 
-AzureIoTResult_t prvHandleSteps( AzureIoT_ADUClient_t * pxAduClient )
+static AzureIoTResult_t prvHandleSteps( AzureIoT_ADUClient_t * pxAduClient )
 {
+    AzureIoTResult_t xResult;
+    AzureIoTJSONWriter_t xWriter;
+
+    AzureADUImage_t xImage;
+    uint8_t ucDataBuffer[] = { 0, 1, 2, 3, 4, 5, 6, 7 };
+
     switch( pxAduClient->xUpdateStepState )
     {
         case eAzureIoTADUUpdateStepIdle:
@@ -145,20 +173,26 @@ AzureIoTResult_t prvHandleSteps( AzureIoT_ADUClient_t * pxAduClient )
         /* Only used in proxy update */
         case eAzureIoTADUUpdateStepFirmwareDownloadStarted:
 
-            pxADUContext.pxFiles[ 0 ].pucFileURL = "adu-ewertons-2--adu-ewertons-2.b.nlu.dl.adu.microsoft.com/westus2/adu-ewertons-2--adu-ewertons-2/260c33ee559a4671bedf9515652e4371/image.bin";
-            pxADUContext.pxFiles[ 0 ].ulFileURLLength = strlen( "adu-ewertons-2--adu-ewertons-2.b.nlu.dl.adu.microsoft.com/westus2/adu-ewertons-2--adu-ewertons-2/260c33ee559a4671bedf9515652e4371/image.bin" );
+            xResult = prvAzureIoT_ADUSendPropertyUpdate( pxAduClient->pxHubClient,
+                                                         &xWriter );
 
-            pxAduClient.xHTTPConnectCallback( pxAduClient->pxHTTPTransport, pxADUContext.pxFiles[ 0 ].pucFileURL );
+            pxAduClient->xManifest.pxFiles[ 0 ].pucFileURL = (const uint8_t *)"adu-ewertons-2--adu-ewertons-2.b.nlu.dl.adu.microsoft.com/westus2/adu-ewertons-2--adu-ewertons-2/260c33ee559a4671bedf9515652e4371/image.bin";
+            pxAduClient->xManifest.pxFiles[ 0 ].ulFileURLLength = strlen( "adu-ewertons-2--adu-ewertons-2.b.nlu.dl.adu.microsoft.com/westus2/adu-ewertons-2--adu-ewertons-2/260c33ee559a4671bedf9515652e4371/image.bin" );
 
-            AzureIoTHTTP_Init( pxAduClient->xHTTP, pxAduClient->pxHTTPTransport, pxADUContext.pxFiles[ 0 ].pucFileURL, pxADUContext.pxFiles[ 0 ].ulFileURLLength );
-            AzureIoTHTTP_Request( pxAduClient->xHTTP );
+            xResult = pxAduClient->xHTTPConnectCallback( pxAduClient->pxHTTPTransport, ( const char * ) pxAduClient->xManifest.pxFiles[ 0 ].pucFileURL );
+
+            AzureIoTHTTP_Init( &pxAduClient->xHTTP, pxAduClient->pxHTTPTransport, ( const char * ) pxAduClient->xManifest.pxFiles[ 0 ].pucFileURL, pxAduClient->xManifest.pxFiles[ 0 ].ulFileURLLength );
+            AzureIoTHTTP_Request( &pxAduClient->xHTTP );
             break;
 
         case eAzureIoTADUUpdateStepFirmwareDownloadSucceeded:
 
         case eAzureIoTADUUpdateStepFirmwareInstallStarted:
 
-            AzureIoTPlatform_WriteBlock();
+            AzureIoTPlatform_WriteBlock( &xImage,
+                                         0,
+                                         ucDataBuffer,
+                                         8 );
             break;
 
         case eAzureIoTADUUpdateStepFirmwareInstallSucceeded:
@@ -174,19 +208,21 @@ AzureIoTResult_t prvHandleSteps( AzureIoT_ADUClient_t * pxAduClient )
             break;
 
         case eAzureIoTADUUpdateStepFailed:
-            break;
         default:
             break;
     }
 
-    // TODO: review logic and assign result properly.
-    return eAzureIoTErrorFailed;
+    ( void ) xResult;
+
+    return eAzureIoTSuccess;
 }
 
 AzureIoTResult_t AzureIoTADUClient_ADUProcessLoop( AzureIoT_ADUClient_t * pxAduClient,
                                                    uint32_t ulTimeoutMilliseconds )
 {
     AzureIoTResult_t xResult;
+
+    ( void ) ulTimeoutMilliseconds;
 
     switch( pxAduClient->xState )
     {
@@ -202,7 +238,15 @@ AzureIoTResult_t AzureIoTADUClient_ADUProcessLoop( AzureIoT_ADUClient_t * pxAduC
         case eAzureIoTADUStateError:
             xResult = eAzureIoTErrorFailed;
             break;
+
+        case eAzureIotADUStateFailed:
+            break;
+
+        default:
+            break;
     }
+
+    xResult = eAzureIoTSuccess;
 
     return xResult;
 }

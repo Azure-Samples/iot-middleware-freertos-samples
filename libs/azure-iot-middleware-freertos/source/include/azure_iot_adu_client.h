@@ -167,6 +167,15 @@ typedef enum AzureIoTADUUpdateStepState
     eAzureIoTADUUpdateStepFailed = 255
 } AzureIoTADUUpdateStepState_t;
 
+typedef AzureIoTResult_t (* AzureIoT_TransportConnectCallback_t)( AzureIoTTransportInterface_t * pxAzureIoTTransport,
+                                                                  const char * pucURL );
+
+
+typedef struct AzureIoTUpdateID
+{
+    uint32_t xUnused;
+} AzureIoTUpdateID_t;
+
 /**
  * @brief ADU workflow struct.
  * Format:
@@ -186,7 +195,7 @@ typedef struct AzureIoTHubClient_ADUWorkflow
     uint32_t ulIDLength;
 
     const uint8_t ucRetryTimestamp[ azureiotaduWORKFLOW_RETRY_TIMESTAMP_SIZE ];
-    uint32_t ucRetryTimestampLength;
+    uint32_t ulRetryTimestampLength;
 } AzureIoTHubClient_ADUWorkflow_t;
 
 typedef struct AzureIoTHubClient_ADUStepResult
@@ -248,8 +257,7 @@ typedef struct AzureIoTADUClient_ADUManifest
     uint32_t pulManifestVersionLength;
 
     /* Update Id.  */
-    // TODO: fix this type, which is not defined.
-    // AzureIoTUpdateID xUpdateID;
+    AzureIoTUpdateID_t xUpdateID;
 
     /* Compatibility: deviceManufacturer.  */
     const uint8_t * pucDeviceManufacturer;
@@ -293,9 +301,6 @@ typedef struct AzureIoT_ADUClient
  * @brief Callback which will be invoked to connect to the HTTP endpoint to download the new image.
  *
  */
-typedef AzureIoTResult_t (* AzureIoT_TransportConnectCallback_t)( AzureIoTTransportInterface_t * pxAzureIoTTransport,
-                                                                  const char * pucURL );
-
 
 /**
  * @brief Initialize Azure IoT ADU Client

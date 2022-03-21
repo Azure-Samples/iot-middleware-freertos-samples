@@ -327,7 +327,7 @@ static AzureIoTResult_t prvConnectHTTP( AzureIoTTransportInterface_t * pxHTTPTra
     ulStatus = prvSetupNetworkCredentials( &xNetworkCredentials );
     configASSERT( ulStatus == 0 );
 
-    ulStatus = prvConnectToServerWithBackoffRetries( pucURL, 80, &xNetworkCredentials, pxHTTPTransport.pxNetworkContext );
+    ulStatus = prvConnectToServerWithBackoffRetries( pucURL, 80, &xNetworkCredentials, &pxHTTPTransport->pxNetworkContext );
     configASSERT( ulStatus == 0 );
 
     return eAzureIoTSuccess;

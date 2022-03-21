@@ -12,13 +12,16 @@
 
 #include <stdio.h>
 
+#include "azure_iot_transport_interface.h"
+
 #include "core_http_client.h"
 
 typedef struct AzureIoTCoreMQTTContext
 {
-  HTTPRequestInfo_t xRequestInfo;
-  HTTPRequestHeaders_t xRequestHeaders;
-  HTTPResponse_t xResponse;
+    HTTPRequestInfo_t xRequestInfo;
+    HTTPRequestHeaders_t xRequestHeaders;
+    HTTPResponse_t xResponse;
+    AzureIoTTransportInterface_t * pxHTTPTransport;
 } AzureIoTCoreMQTTContext_t;
 
 /* Maps MQTTContext directly to AzureIoTMQTT */
