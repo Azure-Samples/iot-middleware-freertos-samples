@@ -148,7 +148,9 @@ AzureIoTResult_t prvHandleSteps( AzureIoT_ADUClient_t * pxAduClient )
             pxADUContext.pxFiles[ 0 ].pucFileURL = "adu-ewertons-2--adu-ewertons-2.b.nlu.dl.adu.microsoft.com/westus2/adu-ewertons-2--adu-ewertons-2/260c33ee559a4671bedf9515652e4371/image.bin";
             pxADUContext.pxFiles[ 0 ].ulFileURLLength = strlen("adu-ewertons-2--adu-ewertons-2.b.nlu.dl.adu.microsoft.com/westus2/adu-ewertons-2--adu-ewertons-2/260c33ee559a4671bedf9515652e4371/image.bin");
 
-            AzureIoTHTTP_Init( pxAduClient->xHTTP, pxADUContext.pxFiles[ 0 ].pucFileURL, pxADUContext.pxFiles[ 0 ].ulFileURLLength );
+            pxAduClient.xHTTPConnectCallback(pxAduClient->pxHTTPTransport, pxADUContext.pxFiles[ 0 ].pucFileURL);
+
+            AzureIoTHTTP_Init( pxAduClient->xHTTP, pxAduClient->pxHTTPTransport, pxADUContext.pxFiles[ 0 ].pucFileURL, pxADUContext.pxFiles[ 0 ].ulFileURLLength );
             AzureIoTHTTP_Request( pxAduClient->xHTTP );
             break;
 

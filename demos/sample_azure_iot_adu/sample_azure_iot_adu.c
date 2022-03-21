@@ -316,6 +316,24 @@ static uint32_t prvSetupNetworkCredentials( NetworkCredentials_t * pxNetworkCred
 }
 /*-----------------------------------------------------------*/
 
+static AzureIoTResult_t prvConnectHTTP( AzureIoTTransportInterface_t * pxHTTPTransport, const char * pucURL )
+{
+  uint32_t ulStatus;
+  NetworkCredentials_t xNetworkCredentials = { 0 };
+
+  // If necessary, tear down the connection to the IoT Hub here
+
+  ulStatus = prvSetupNetworkCredentials( &xNetworkCredentials );
+  configASSERT( ulStatus == 0 );
+
+  ulStatus = prvConnectToServerWithBackoffRetries(pucURL, 80, &xNetworkCredentials, pxHTTPTransport.pxNetworkContext);
+  configASSERT( ulStatus == 0 );
+
+  return eAzureIoTSuccess;
+}
+
+/*-----------------------------------------------------------*/
+
 /**
  * @brief Azure IoT demo task that gets started in the platform specific project.
  *  In this demo task, middleware API's are used to connect to Azure IoT Hub and
@@ -324,10 +342,17 @@ static uint32_t prvSetupNetworkCredentials( NetworkCredentials_t * pxNetworkCred
 static void prvAzureDemoTask( void * pvParameters )
 {
     uint32_t ulScratchBufferLength = 0U;
+    // MQTT Connection
     NetworkCredentials_t xNetworkCredentials = { 0 };
     AzureIoTTransportInterface_t xTransport;
     NetworkContext_t xNetworkContext = { 0 };
     TlsTransportParams_t xTlsTransportParams = { 0 };
+    
+    //HTTP Connection
+    AzureIoTTransportInterface_t xHTTPTransport;
+    NetworkContext_t xHTTPNetworkContext = { 0 };
+    TlsTransportParams_t xHTTPTlsTransportParams = { 0 };
+
     AzureIoTResult_t xResult;
     uint32_t ulStatus;
     AzureIoTHubClientOptions_t xHubOptions = { 0 };
@@ -366,6 +391,7 @@ static void prvAzureDemoTask( void * pvParameters )
     #endif /* democonfigENABLE_DPS_SAMPLE */
 
     xNetworkContext.pParams = &xTlsTransportParams;
+    xHTTPNetworkContext.pParams = &xHTTPTlsTransportParams;
 
     for( ; ; )
     {
@@ -384,6 +410,11 @@ static void prvAzureDemoTask( void * pvParameters )
         xTransport.pxNetworkContext = &xNetworkContext;
         xTransport.xSend = TLS_Socket_Send;
         xTransport.xRecv = TLS_Socket_Recv;
+
+        /* Fill in Transport Interface send and receive function pointers. */
+        xHTTPTransport.pxNetworkContext = &xHTTPNetworkContext;
+        xHTTPTransport.xSend = TLS_Socket_Send;
+        xHTTPTransport.xRecv = TLS_Socket_Recv;
 
         /* Init IoT Hub option */
         xResult = AzureIoTHubClient_OptionsInit( &xHubOptions );
@@ -405,6 +436,8 @@ static void prvAzureDemoTask( void * pvParameters )
 
         xResult = AzureIoTADUClient_Init( &xAzureIoTADUClient,
                                           &xAzureIoTHubClient,
+                                          &xHTTPTransport,
+                                          prvConnectHTTP,
                                           ucAduContextBuffer,
                                           sizeof( ucAduContextBuffer ) );
         configASSERT( xResult == eAzureIoTSuccess );

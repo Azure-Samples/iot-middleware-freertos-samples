@@ -281,11 +281,10 @@ typedef struct AzureIoT_ADUClient
     AzureIoTHubClient_t * pxHubClient;
     AzureIoTADUState_t xState;
     AzureIoTADUUpdateStepState_t xUpdateStepState;
-    // TODO: double-check this type `AzureIoTHubClient_ADUManifest_t` is correct.
-    //       It was `AzureIoTADUClient_ADUManifest_t` before, which was undefined.
-    AzureIoTHubClient_ADUManifest_t xManifest;
-    // TODO: fix `error: field 'xHTTP' has incomplete type` and uncomment.
-    // AzureIoTHTTP_t xHTTP;
+    AzureIoTADUClient_ADUManifest_t xManifest;
+    AzureIoTHTTP_t xHTTP;
+    AzureIoT_TransportConnectCallback_t xHTTPConnectCallback;
+    AzureIoTTransportInterface_t * pxHTTPTransport;
     const uint8_t * pucAduContextBuffer;
     uint32_t ulAduContextBufferLength;
 } AzureIoT_ADUClient_t;
@@ -294,7 +293,7 @@ typedef struct AzureIoT_ADUClient
  * @brief Callback which will be invoked to connect to the HTTP endpoint to download the new image.
  * 
  */
-typedef AzureIoTResult_t (* AzureIoT_TransportConnectCallback_t)(AzureIoTTransportInterface_t * pxAzureIoTTransport);
+typedef AzureIoTResult_t (* AzureIoT_TransportConnectCallback_t)(AzureIoTTransportInterface_t * pxAzureIoTTransport, const char* pucURL );
 
 
 /**

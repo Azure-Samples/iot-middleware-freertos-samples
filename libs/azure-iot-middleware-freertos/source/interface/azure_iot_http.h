@@ -15,6 +15,7 @@
 typedef AzureIoTHTTP_t       * AzureIoTHTTPHandle_t;
 
 uint32_t AzureIoTHTTP_Init( AzureIoTHTTPHandle_t xHTTPHandle,
+                              AzureIoTTransportInterface_t * pxHTTPTransport,
                               const char * pucURL,
                               uint32_t ulURLLength );
 
