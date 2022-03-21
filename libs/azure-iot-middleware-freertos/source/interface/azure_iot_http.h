@@ -9,15 +9,15 @@
 
 #include <stdint.h>
 
-/* Maps MQTTContext directly to AzureIoTHTTP */
-/* Defined in the .c for the port */
-typedef struct HTTPContext   AzureIoTHTTP_t;
+#include "azure_iot_http_port.h"
+#include "azure_iot_transport_interface.h"
 
 typedef AzureIoTHTTP_t       * AzureIoTHTTPHandle_t;
 
-uint32_t ulAzureIoTHTTP_Init( AzureIoTHTTPHandle_t xHTTPHandle,
-                              const char * pucURL );
+uint32_t AzureIoTHTTP_Init( AzureIoTHTTPHandle_t xHTTPHandle,
+                              const char * pucURL,
+                              uint32_t ulURLLength );
 
-uint32_t ulAzureIoTHTTP_Request( AzureIoTHTTPHandle_t xHTTPHandle );
+uint32_t AzureIoTHTTP_Request( AzureIoTHTTPHandle_t xHTTPHandle );
 
 uint32_t ulAzureIoTHTTP_Deinit( AzureIoTHTTPHandle_t xHTTPHandle );

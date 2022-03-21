@@ -130,16 +130,12 @@ AzureIoTResult_t prvAzureIoT_ADUSendPropertyUpdate( AzureIoTHubClient_t * pxAzur
                                                     AzureIoTJSONReader_t * pxReader )
 {
     /*Send state update about the stage of the ADU process we are in */
-    // TODO: review logic and assign result properly.
-    return eAzureIoTErrorFailed;
+    return eAzureIoTSuccess;
 }
 
-// TODO: validate this.
-//       It was failing with 'error: unknown type name 'AzureIoT_ADUContext'; did you mean 'AzureIoT_ADUClient_t'?'.
-//       Renamed AzureIoT_ADUContext to AzureIoT_ADUClient_t as it seems to be the expected type. 
-AzureIoTResult_t prvHandleSteps( AzureIoT_ADUClient_t * pxAduContext )
+AzureIoTResult_t prvHandleSteps( AzureIoT_ADUClient_t * pxAduClient )
 {
-    switch( pxAduContext->xUpdateStepState )
+    switch( pxAduClient->xUpdateStepState )
     {
         case eAzureIoTADUUpdateStepIdle:
         /* We are at the beginning. Kick off the update. */
@@ -148,32 +144,31 @@ AzureIoTResult_t prvHandleSteps( AzureIoT_ADUClient_t * pxAduContext )
         case eAzureIoTADUUpdateStepManifestDownloadSucceeded:
         /* Only used in proxy update */
         case eAzureIoTADUUpdateStepFirmwareDownloadStarted:
-            // TODO: fix xHTTP issue and uncomment these lines.
-            // ulAzureIoTHTTP_Init( pxAduContext->xHTTP, AzureIoTHubClient_ADUManifest_t.pxFiles[ 0 ].pucFileURL );
-            // ulAzureIoTHTTP_Request( pxAduContext->xHTTP );
+
+            pxADUContext.pxFiles[ 0 ].pucFileURL = "adu-ewertons-2--adu-ewertons-2.b.nlu.dl.adu.microsoft.com/westus2/adu-ewertons-2--adu-ewertons-2/260c33ee559a4671bedf9515652e4371/image.bin";
+            pxADUContext.pxFiles[ 0 ].ulFileURLLength = strlen("adu-ewertons-2--adu-ewertons-2.b.nlu.dl.adu.microsoft.com/westus2/adu-ewertons-2--adu-ewertons-2/260c33ee559a4671bedf9515652e4371/image.bin");
+
+            AzureIoTHTTP_Init( pxAduClient->xHTTP, pxADUContext.pxFiles[ 0 ].pucFileURL, pxADUContext.pxFiles[ 0 ].ulFileURLLength );
+            AzureIoTHTTP_Request( pxAduClient->xHTTP );
             break;
 
         case eAzureIoTADUUpdateStepFirmwareDownloadSucceeded:
 
         case eAzureIoTADUUpdateStepFirmwareInstallStarted:
-            // TODO: fix error below and uncomment.
-            //       error: implicit declaration of function 'ulAzureIoTPlatform_WriteBlock'
-            // ulAzureIoTPlatform_WriteBlock();
+
+            AzureIoTPlatform_WriteBlock();
             break;
 
         case eAzureIoTADUUpdateStepFirmwareInstallSucceeded:
 
         case eAzureIoTADUUpdateStepFirmwareApplyStarted:
-            // TODO: fix error below and uncomment.
-            //       error: implicit declaration of function 'ulAzureIoTPlatform_EnableImage'
-            // ulAzureIoTPlatform_EnableImage();
+
+            AzureIoTPlatform_EnableImage();
             break;
 
         case eAzureIoTADUUpdateStepFirmwareApplySucceeded:
 
-            // TODO: fix error below and uncomment.
-            //       error: implicit declaration of function 'ulAzureIoTPlatform_ResetDevice'
-            // ulAzureIoTPlatform_ResetDevice();
+            AzureIoTPlatform_ResetDevice();
             break;
 
         case eAzureIoTADUUpdateStepFailed:
@@ -186,29 +181,26 @@ AzureIoTResult_t prvHandleSteps( AzureIoT_ADUClient_t * pxAduContext )
     return eAzureIoTErrorFailed;
 }
 
-AzureIoTResult_t AzureIoTHubClient_ADUProcessLoop( AzureIoTHubClient_t * pxAzureIoTHubClient,
+AzureIoTResult_t AzureIoTADUClient_ADUProcessLoop( AzureIoT_ADUClient_t * pxAduClient,
                                                    uint32_t ulTimeoutMilliseconds )
 {
     AzureIoTResult_t xResult;
 
-    // TODO: fix issue below and uncomment
-    xResult = eAzureIoTErrorFailed;
-    //       error: 'struct <anonymous>' has no member named 'pxADUContext'; did you mean 'xMQTTContext'?
-    // switch( pxAzureIoTHubClient->_internal.pxADUContext.xState )
-    // {
-    //     case eAzureIoTADUStateIdle:
-    //         /*Do Nothing */
-    //         break;
+    switch( pxAduClient->xState )
+    {
+        case eAzureIoTADUStateIdle:
+            /*Do Nothing */
+            break;
 
-    //     case eAzureIoTADUStateDeploymentInProgress:
-    //         /* The incoming payload has been parsed and the AzureIoT_ADUContext_t is valid. */
-    //         prvHandleSteps( pxAzureIoTHubClient->_internal.pxADUContext );
-    //         break;
+        case eAzureIoTADUStateDeploymentInProgress:
+            /* The incoming payload has been parsed and the AzureIoT_ADUContext_t is valid. */
+            prvHandleSteps( pxAduClient );
+            break;
 
-    //     case eAzureIoTADUStateError:
-    //         xResult = eAzureIoTErrorFailed;
-    //         break;
-    // }
+        case eAzureIoTADUStateError:
+            xResult = eAzureIoTErrorFailed;
+            break;
+    }
 
     return xResult;
 }
