@@ -241,7 +241,7 @@ typedef struct AzureIoTHubClient_ADUFile
     uint32_t ulFileURLLength;
 } AzureIoTHubClient_ADUFile_t;
 
-typedef struct AzureIoTHubClient_ADUManifest
+typedef struct AzureIoTADUClient_ADUManifest
 {
     /* Manifest version.  */
     const uint8_t * pucManifestVersion;
@@ -270,7 +270,7 @@ typedef struct AzureIoTHubClient_ADUManifest
     /* Files.  */
     AzureIoTHubClient_ADUFile_t pxFiles[ azureiotaduAGENT_FILES_MAX ];
     uint32_t ulFilesCount;
-} AzureIoTHubClient_ADUManifest_t;
+} AzureIoTADUClient_ADUManifest_t;
 
 /**
  * @brief ADU Client to handle stages of the ADU process.
@@ -290,6 +290,12 @@ typedef struct AzureIoT_ADUClient
     uint32_t ulAduContextBufferLength;
 } AzureIoT_ADUClient_t;
 
+/**
+ * @brief Callback which will be invoked to connect to the HTTP endpoint to download the new image.
+ * 
+ */
+typedef AzureIoTResult_t (* AzureIoT_TransportConnectCallback_t)(AzureIoTTransportInterface_t * pxAzureIoTTransport);
+
 
 /**
  * @brief Initialize Azure IoT ADU Client
@@ -302,6 +308,8 @@ typedef struct AzureIoT_ADUClient
  */
 AzureIoTResult_t AzureIoTADUClient_Init( AzureIoT_ADUClient_t * pxAduClient,
                                          AzureIoTHubClient_t * pxAzureIoTHubClient,
+                                         AzureIoTTransportInterface_t * pxAzureIoTTransport,
+                                         AzureIoT_TransportConnectCallback_t pxAzureIoTHTTPConnectCallback,
                                          const uint8_t * pucAduContextBuffer,
                                          uint32_t ulAduContextBuffer );
 
