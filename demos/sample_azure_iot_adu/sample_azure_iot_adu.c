@@ -316,20 +316,21 @@ static uint32_t prvSetupNetworkCredentials( NetworkCredentials_t * pxNetworkCred
 }
 /*-----------------------------------------------------------*/
 
-static AzureIoTResult_t prvConnectHTTP( AzureIoTTransportInterface_t * pxHTTPTransport, const char * pucURL )
+static AzureIoTResult_t prvConnectHTTP( AzureIoTTransportInterface_t * pxHTTPTransport,
+                                        const char * pucURL )
 {
-  uint32_t ulStatus;
-  NetworkCredentials_t xNetworkCredentials = { 0 };
+    uint32_t ulStatus;
+    NetworkCredentials_t xNetworkCredentials = { 0 };
 
-  // If necessary, tear down the connection to the IoT Hub here
+    /* If necessary, tear down the connection to the IoT Hub here */
 
-  ulStatus = prvSetupNetworkCredentials( &xNetworkCredentials );
-  configASSERT( ulStatus == 0 );
+    ulStatus = prvSetupNetworkCredentials( &xNetworkCredentials );
+    configASSERT( ulStatus == 0 );
 
-  ulStatus = prvConnectToServerWithBackoffRetries(pucURL, 80, &xNetworkCredentials, pxHTTPTransport.pxNetworkContext);
-  configASSERT( ulStatus == 0 );
+    ulStatus = prvConnectToServerWithBackoffRetries( pucURL, 80, &xNetworkCredentials, pxHTTPTransport.pxNetworkContext );
+    configASSERT( ulStatus == 0 );
 
-  return eAzureIoTSuccess;
+    return eAzureIoTSuccess;
 }
 
 /*-----------------------------------------------------------*/
@@ -342,13 +343,13 @@ static AzureIoTResult_t prvConnectHTTP( AzureIoTTransportInterface_t * pxHTTPTra
 static void prvAzureDemoTask( void * pvParameters )
 {
     uint32_t ulScratchBufferLength = 0U;
-    // MQTT Connection
+    /* MQTT Connection */
     NetworkCredentials_t xNetworkCredentials = { 0 };
     AzureIoTTransportInterface_t xTransport;
     NetworkContext_t xNetworkContext = { 0 };
     TlsTransportParams_t xTlsTransportParams = { 0 };
-    
-    //HTTP Connection
+
+    /*HTTP Connection */
     AzureIoTTransportInterface_t xHTTPTransport;
     NetworkContext_t xHTTPNetworkContext = { 0 };
     TlsTransportParams_t xHTTPTlsTransportParams = { 0 };
