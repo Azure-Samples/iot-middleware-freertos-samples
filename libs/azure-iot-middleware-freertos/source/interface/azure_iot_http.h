@@ -12,12 +12,12 @@
 #include "azure_iot_http_port.h"
 #include "azure_iot_transport_interface.h"
 
-typedef AzureIoTHTTP_t       * AzureIoTHTTPHandle_t;
+typedef AzureIoTHTTP_t * AzureIoTHTTPHandle_t;
 
 uint32_t AzureIoTHTTP_Init( AzureIoTHTTPHandle_t xHTTPHandle,
-                              AzureIoTTransportInterface_t * pxHTTPTransport,
-                              const char * pucURL,
-                              uint32_t ulURLLength );
+                            AzureIoTTransportInterface_t * pxHTTPTransport,
+                            const char * pucURL,
+                            uint32_t ulURLLength );
 
 uint32_t AzureIoTHTTP_Request( AzureIoTHTTPHandle_t xHTTPHandle );
 

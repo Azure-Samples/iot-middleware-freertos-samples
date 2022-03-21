@@ -291,9 +291,10 @@ typedef struct AzureIoT_ADUClient
 
 /**
  * @brief Callback which will be invoked to connect to the HTTP endpoint to download the new image.
- * 
+ *
  */
-typedef AzureIoTResult_t (* AzureIoT_TransportConnectCallback_t)(AzureIoTTransportInterface_t * pxAzureIoTTransport, const char* pucURL );
+typedef AzureIoTResult_t (* AzureIoT_TransportConnectCallback_t)( AzureIoTTransportInterface_t * pxAzureIoTTransport,
+                                                                  const char * pucURL );
 
 
 /**
