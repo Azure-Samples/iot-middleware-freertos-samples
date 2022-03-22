@@ -16,6 +16,15 @@ if(NOT (TARGET SAMPLE::AZUREIOT))
       ${CMAKE_CURRENT_SOURCE_DIR}/sample_azure_iot/sample_azure_iot.c)
 endif()
 
+# Target for adu sample task
+if(NOT (TARGET SAMPLE::AZUREIOTADU))
+    add_library(SAMPLE::AZUREIOTADU INTERFACE IMPORTED)
+
+    target_sources(SAMPLE::AZUREIOTADU INTERFACE
+        ${CMAKE_CURRENT_SOURCE_DIR}/sample_azure_iot_adu/sample_azure_iot_adu.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/sample_azure_iot_adu/sample_azure_iot_pnp_simulated_data.c)
+endif()
+
 # Target for pnp sample task
 if(NOT (TARGET SAMPLE::AZUREIOTPNP))
     add_library(SAMPLE::AZUREIOTPNP INTERFACE IMPORTED)

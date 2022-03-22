@@ -13,6 +13,7 @@
 #include "azure_iot_hub_client.h"
 #include "azure_iot_hub_client_properties.h"
 #include "azure_iot_provisioning_client.h"
+#include "azure_iot_adu_client.h"
 
 /* Azure JSON includes */
 #include "azure_iot_json_reader.h"
@@ -141,6 +142,7 @@ struct NetworkContext
 };
 
 AzureIoTHubClient_t xAzureIoTHubClient;
+AzureIoT_ADUClient_t xAzureIoTADUClient;
 
 /* Telemetry buffers */
 static uint8_t ucScratchBuffer[ 512 ];
@@ -327,7 +329,7 @@ static AzureIoTResult_t prvConnectHTTP( AzureIoTTransportInterface_t * pxHTTPTra
     ulStatus = prvSetupNetworkCredentials( &xNetworkCredentials );
     configASSERT( ulStatus == 0 );
 
-    ulStatus = prvConnectToServerWithBackoffRetries( pucURL, 80, &xNetworkCredentials, &pxHTTPTransport->pxNetworkContext );
+    ulStatus = prvConnectToServerWithBackoffRetries( pucURL, 80, &xNetworkCredentials, pxHTTPTransport->pxNetworkContext );
     configASSERT( ulStatus == 0 );
 
     return eAzureIoTSuccess;
@@ -357,7 +359,6 @@ static void prvAzureDemoTask( void * pvParameters )
     AzureIoTResult_t xResult;
     uint32_t ulStatus;
     AzureIoTHubClientOptions_t xHubOptions = { 0 };
-    AzureIoT_ADUClient_t xAzureIoTADUClient = { 0 };
     bool xSessionPresent;
 
     #ifdef democonfigENABLE_DPS_SAMPLE

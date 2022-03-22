@@ -3,6 +3,8 @@
 #include "azure_iot_json_writer.h"
 #include "azure_iot_flash_platform.h"
 
+#define AZURE_IOT_ADU_OTA_AGENT_COMPONENT_NAME    "deviceUpdate"
+
 /*
  *
  * Missing features
@@ -92,15 +94,25 @@ AzureIoTResult_t AzureIoTADUClient_Init( AzureIoT_ADUClient_t * pxAduClient,
     return eAzureIoTSuccess;
 }
 
+bool AzureIoTADUClient_IsADUComponent( AzureIoT_ADUClient_t * pxAduClient,
+                                       const char * pucComponentName,
+                                       uint32_t ulComponentNameLength )
+{
+    ( void ) pxAduClient;
+
+    return ulComponentNameLength == sizeof( AZURE_IOT_ADU_OTA_AGENT_COMPONENT_NAME ) - 1 &&
+           strncmp( pucComponentName, AZURE_IOT_ADU_OTA_AGENT_COMPONENT_NAME, sizeof( AZURE_IOT_ADU_OTA_AGENT_COMPONENT_NAME ) - 1 );
+}
+
 /**
  * @brief Process and copy out fields in the Device Twin for this update.
  *
  */
 static AzureIoTResult_t prvAzureIoT_ADUProcessProperties( AzureIoT_ADUClient_t * pxAduClient,
-                                                        AzureIoTJSONReader_t * pxReader )
+                                                          AzureIoTJSONReader_t * pxReader )
 {
-    (void)pxAduClient;
-    (void)pxReader;
+    ( void ) pxAduClient;
+    ( void ) pxReader;
     /* Go through Device Twin */
 
     return eAzureIoTSuccess;
@@ -114,10 +126,10 @@ static AzureIoTResult_t prvAzureIoT_ADUProcessProperties( AzureIoT_ADUClient_t *
  * @return AzureIoTResult_t
  */
 static AzureIoTResult_t prvAzureIoT_ADUProcessUpdateManifest( AzureIoT_ADUClient_t * pxAduClient,
-                                                        AzureIoTJSONReader_t * pxReader )
+                                                              AzureIoTJSONReader_t * pxReader )
 {
-    (void)pxAduClient;
-    (void)pxReader;
+    ( void ) pxAduClient;
+    ( void ) pxReader;
     /*Use the context buffer which was passed in options and the */
     /*AzureIoTJSONReader_GetTokenString to copy out relevant values */
     /*(since we will copy values out and act on then outside of the twin message callback) */
@@ -149,8 +161,8 @@ AzureIoTResult_t AzureIoTADUClient_ADUProcessComponent( AzureIoT_ADUClient_t * p
 static AzureIoTResult_t prvAzureIoT_ADUSendPropertyUpdate( AzureIoTHubClient_t * pxAzureIoTHubClient,
                                                            AzureIoTJSONWriter_t * pxWriter )
 {
-    (void)pxAzureIoTHubClient;
-    (void)pxWriter;
+    ( void ) pxAzureIoTHubClient;
+    ( void ) pxWriter;
     /*Send state update about the stage of the ADU process we are in */
     return eAzureIoTSuccess;
 }
@@ -176,7 +188,7 @@ static AzureIoTResult_t prvHandleSteps( AzureIoT_ADUClient_t * pxAduClient )
             xResult = prvAzureIoT_ADUSendPropertyUpdate( pxAduClient->pxHubClient,
                                                          &xWriter );
 
-            pxAduClient->xManifest.pxFiles[ 0 ].pucFileURL = (const uint8_t *)"adu-ewertons-2--adu-ewertons-2.b.nlu.dl.adu.microsoft.com/westus2/adu-ewertons-2--adu-ewertons-2/260c33ee559a4671bedf9515652e4371/image.bin";
+            pxAduClient->xManifest.pxFiles[ 0 ].pucFileURL = ( const uint8_t * ) "adu-ewertons-2--adu-ewertons-2.b.nlu.dl.adu.microsoft.com/westus2/adu-ewertons-2--adu-ewertons-2/260c33ee559a4671bedf9515652e4371/image.bin";
             pxAduClient->xManifest.pxFiles[ 0 ].ulFileURLLength = strlen( "adu-ewertons-2--adu-ewertons-2.b.nlu.dl.adu.microsoft.com/westus2/adu-ewertons-2--adu-ewertons-2/260c33ee559a4671bedf9515652e4371/image.bin" );
 
             xResult = pxAduClient->xHTTPConnectCallback( pxAduClient->pxHTTPTransport, ( const char * ) pxAduClient->xManifest.pxFiles[ 0 ].pucFileURL );

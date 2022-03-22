@@ -3,6 +3,8 @@
  *
  * @brief Defines the flash platform interface for devices enabling ADU.
  */
+#ifndef AZURE_IOT_FLASH_PLATFORM_H
+#define AZURE_IOT_FLASH_PLATFORM_H
 
 #include <stdint.h>
 
@@ -21,3 +23,5 @@ AzureIoTResult_t AzureIoTPlatform_WriteBlock( AzureADUImage_t * const pxFileCont
 AzureIoTResult_t AzureIoTPlatform_EnableImage();
 
 AzureIoTResult_t AzureIoTPlatform_ResetDevice();
+
+#endif /* AZURE_IOT_FLASH_PLATFORM_H */

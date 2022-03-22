@@ -13,6 +13,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "azure_iot_adu_client.h"
 #include "azure_iot_hub_client_properties.h"
 #include "demo_config.h"
 
@@ -22,6 +23,7 @@
 #define sampleazureiotPROVISIONING_PAYLOAD    "{\"modelId\":\"" sampleazureiotMODEL_ID "\"}"
 
 extern AzureIoTHubClient_t xAzureIoTHubClient;
+extern AzureIoT_ADUClient_t xAzureIoTADUClient;
 
 /**
  * @brief Provides the payload to be sent as telemetry to the Azure IoT Hub.

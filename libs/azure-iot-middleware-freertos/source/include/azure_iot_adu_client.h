@@ -4,6 +4,8 @@
  * @brief
  *
  */
+#ifndef AZURE_IOT_ADU_CLIENT_H
+#define AZURE_IOT_ADU_CLIENT_H
 
 #include <stdint.h>
 
@@ -361,3 +363,5 @@ bool AzureIoTADUClient_IsADUComponent( AzureIoT_ADUClient_t * pxAduClient,
  * @return AzureIoTADUUpdateStepState_t
  */
 AzureIoTADUUpdateStepState_t AzureIoTADUClient_GetState( AzureIoT_ADUClient_t * pxAduClient );
+
+#endif /* AZURE_IOT_ADU_CLIENT_H */
