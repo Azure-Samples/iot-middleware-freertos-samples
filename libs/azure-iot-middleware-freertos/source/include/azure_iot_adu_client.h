@@ -185,8 +185,8 @@ typedef struct AzureIoTHubClient_ADUWorkflow
     const uint8_t ucID[ azureiotaduWORKFLOW_ID_SIZE ];
     uint32_t ulIDLength;
 
-    const uint8_t ucID[ azureiotaduWORKFLOW_RETRY_TIMESTAMP_SIZE ];
-    uint32_t ulIDLength;
+    const uint8_t ucRetryTimestamp[ azureiotaduWORKFLOW_RETRY_TIMESTAMP_SIZE ];
+    uint32_t ucRetryTimestampLength;
 } AzureIoTHubClient_ADUWorkflow_t;
 
 typedef struct AzureIoTHubClient_ADUStepResult
@@ -222,7 +222,7 @@ typedef struct AzureIoTHubClient_ADUStep
 typedef struct AzureIoTHubClient_ADUFile
 {
     /* File number.  */
-    const const uint8_t * pucFileID;
+    const uint8_t * pucFileID;
     uint32_t ulFileIDLength;
 
     /* File name.  */
@@ -248,7 +248,8 @@ typedef struct AzureIoTHubClient_ADUManifest
     uint32_t pulManifestVersionLength;
 
     /* Update Id.  */
-    AzureIoTUpdateID xUpdateID;
+    // TODO: fix this type, which is not defined.
+    // AzureIoTUpdateID xUpdateID;
 
     /* Compatibility: deviceManufacturer.  */
     const uint8_t * pucDeviceManufacturer;
@@ -275,13 +276,16 @@ typedef struct AzureIoTHubClient_ADUManifest
  * @brief ADU Client to handle stages of the ADU process.
  *
  */
-typedef AzureIoT_ADUClient
+typedef struct AzureIoT_ADUClient
 {
     AzureIoTHubClient_t * pxHubClient;
     AzureIoTADUState_t xState;
     AzureIoTADUUpdateStepState_t xUpdateStepState;
-    AzureIoTADUClient_ADUManifest_t xManifest;
-    AzureIoTHTTP_t xHTTP;
+    // TODO: double-check this type `AzureIoTHubClient_ADUManifest_t` is correct.
+    //       It was `AzureIoTADUClient_ADUManifest_t` before, which was undefined.
+    AzureIoTHubClient_ADUManifest_t xManifest;
+    // TODO: fix `error: field 'xHTTP' has incomplete type` and uncomment.
+    // AzureIoTHTTP_t xHTTP;
     const uint8_t * pucAduContextBuffer;
     uint32_t ulAduContextBufferLength;
 } AzureIoT_ADUClient_t;
