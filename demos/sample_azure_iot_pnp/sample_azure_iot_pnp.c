@@ -149,7 +149,7 @@ static uint8_t ucScratchBuffer[ 512 ];
 static uint8_t ucCommandResponsePayloadBuffer[ 256 ];
 
 /* Reported Properties buffers */
-static uint8_t ucReportedPropertiesUpdate[ 380 ];
+static uint8_t ucReportedPropertiesUpdate[ 1500 ];
 static uint32_t ulReportedPropertiesUpdateLength;
 /*-----------------------------------------------------------*/
 
@@ -390,6 +390,14 @@ static void prvAzureDemoTask( void * pvParameters )
         xHubOptions.ulModuleIDLength = sizeof( democonfigMODULE_ID ) - 1;
         xHubOptions.pucModelID = ( const uint8_t * ) sampleazureiotMODEL_ID;
         xHubOptions.ulModelIDLength = sizeof( sampleazureiotMODEL_ID ) - 1;
+
+       // ADU OTA
+        #ifdef democonfigPNP_COMPONENTS_LIST_LENGTH
+        #if democonfigPNP_COMPONENTS_LIST_LENGTH > 0
+        xHubOptions.pxComponentList = democonfigPNP_COMPONENTS_LIST;
+        xHubOptions.ulComponentListLength = democonfigPNP_COMPONENTS_LIST_LENGTH;
+        #endif // > 0
+        #endif // democonfigPNP_COMPONENTS_LIST_LENGTH
 
         xResult = AzureIoTHubClient_Init( &xAzureIoTHubClient,
                                           pucIotHubHostname, pulIothubHostnameLength,

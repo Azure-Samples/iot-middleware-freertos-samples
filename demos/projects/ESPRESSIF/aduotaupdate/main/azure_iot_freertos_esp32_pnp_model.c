@@ -8,6 +8,7 @@
 #include <time.h>
 
 /* Azure Provisioning/IoT Hub library includes */
+#include <azure/iot/az_iot_adu_ota.h>
 #include "azure_iot_hub_client.h"
 #include "azure_iot_hub_client_properties.h"
 
@@ -78,168 +79,52 @@ static const char *TAG = "sample_azureiotkit";
 #define sampleazureiotPROPERTY_TELEMETRY_FREQUENCY ( "telemetryFrequencySecs" )
 
 static int lTelemetryFrequencySecs = 2;
+
 /*-----------------------------------------------------------*/
+// ADU OTA
+#define OTA_BUFFER_SIZE 5000
+static uint8_t uOtaBuffer[OTA_BUFFER_SIZE];
+static int32_t uOtaAgentState = AZ_IOT_ADU_OTA_AGENT_STATE_IDLE;
+static bool xOtaAgentSendProperties = true;
+static bool xOtaServiceActionReceived = false;
 
-// TODO: rename and re-organize
 
-/* Define the ADU agent component name.  */
-#define NX_AZURE_IOT_ADU_AGENT_COMPONENT_NAME                           "deviceUpdate"
-
-/* Define the ADU agent interface ID.  */
-#define NX_AZURE_IOT_ADU_AGENT_INTERFACE_ID                             "dtmi:azure:iot:deviceUpdate;1"
-
-/* Define the compatibility.  */
-#define NX_AZURE_IOT_ADU_AGENT_COMPATIBILITY                            "manufacturer,model"
-
-/* Define the ADU agent property name "agent" and sub property names.  */
-#define NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_AGENT                      "agent"
-
-#define NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_DEVICEPROPERTIES           "deviceProperties"
-#define NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_MANUFACTURER               "manufacturer"
-#define NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_MODEL                      "model"
-#define NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_INTERFACE_ID               "interfaceId"
-#define NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_ADU_VERSION                "aduVer"
-#define NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_DO_VERSION                 "doVer"
-
-#define NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_COMPAT_PROPERTY_NAMES      "compatPropertyNames"
-
-#define NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_INSTALLED_CONTENT_ID       "installedUpdateId"
-#define NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_PROVIDER                   "provider"
-#define NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_NAME                       "name"
-#define NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_VERSION                    "version"
-
-#define NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_LAST_INSTALL_RESULT        "lastInstallResult"
-#define NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_RESULT_CODE                "resultCode"
-#define NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_EXTENDED_RESULT_CODE       "extendedResultCode"
-#define NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_RESULT_DETAILS             "resultDetails"
-#define NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_STEP_RESULTS               "stepResults"
-
-#define NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_STATE                      "state"
-
-/* Define the ADU agent property name "service" and sub property names.  */
-#define NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_SERVICE                    "service"
-
-#define NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_WORKFLOW                   "workflow"
-#define NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_ACTION                     "action"
-#define NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_ID                         "id"
-#define NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_RETRY_TIMESTAMP            "retryTimestamp"
-
-#define NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_UPDATE_MANIFEST            "updateManifest"
-#define NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_UPDATE_MANIFEST_SIGNATURE  "updateManifestSignature"
-#define NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_FILEURLS                   "fileUrls"
-
-#define NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_MANIFEST_VERSION           "manifestVersion"
-#define NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_UPDATE_ID                  "updateId"
-#define NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_COMPATIBILITY              "compatibility"
-#define NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_DEVICE_MANUFACTURER        "deviceManufacturer"
-#define NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_DEVICE_MODEL               "deviceModel"
-#define NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_GROUP                      "group"
-#define NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_INSTRUCTIONS               "instructions"
-#define NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_STEPS                      "steps"
-#define NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_TYPE                       "type"
-#define NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_HANDLE                     "handler"
-#define NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_FILES                      "files"
-#define NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_DETACHED_MANIFEST_FILED    "detachedManifestFileId"
-#define NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_INSTALLED_CRITERIA         "installedCriteria"
-#define NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_FILE_NAME                  "fileName"
-#define NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_SIZE_IN_BYTES              "sizeInBytes"
-#define NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_HASHES                     "hashes"
-#define NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_SHA256                     "sha256"
-#define NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_CREATED_DATE_TIME          "createdDateTime"
 
 /*-----------------------------------------------------------*/
 
 static int32_t lGenerateAduAgentPayload( uint8_t * pucPropertiesData,
                                          uint32_t ulPropertiesDataSize )
 {
-    AzureIoTResult_t xAzIoTResult;
-    AzureIoTJSONWriter_t xWriter;
-    int32_t lBytesWritten;
+    az_span xPayload = az_span_create(pucPropertiesData, ulPropertiesDataSize);
 
-    int32_t azure_iot_adu_agent_state = 0;
-    const char * azure_iot_adu_device_manufacturer = "ESPRESSIF";
-    const char * azure_iot_adu_device_model = "ESP32-Azure-IoT-Kit";
-    const char * installed_update_id = "{\"provider\":\"ESPRESSIF\",\"Name\":\"ESP32-Azure-IoT-Kit\",\"Version\":\"1.0\"}";
+    // TODO: remove this hardcoded part, read from manifest. 
+    az_iot_adu_ota_step_result step_results[1];
+    step_results[0].step_id = AZ_SPAN_FROM_STR("step1");
+    step_results[0].result_code = 700;
+    step_results[0].extended_result_code = 0;
+    step_results[0].result_details = AZ_SPAN_FROM_STR("");
 
-    /* Update reported property */
-    xAzIoTResult = AzureIoTJSONWriter_Init( &xWriter, pucPropertiesData, ulPropertiesDataSize );
-    configASSERT( xAzIoTResult == eAzureIoTSuccess );
+    az_iot_adu_ota_install_result last_install_result;
+    last_install_result.result_code = 700;
+    last_install_result.extended_result_code = 0;
+    last_install_result.result_details = AZ_SPAN_FROM_STR("");
+    last_install_result.step_results_count = 1;
+    last_install_result.step_results = step_results;
 
-    xAzIoTResult = AzureIoTJSONWriter_AppendBeginObject( &xWriter );
-    configASSERT( xAzIoTResult == eAzureIoTSuccess );
-
-        /* Fill the ADU agent component name.  */
-        xAzIoTResult = AzureIoTHubClientProperties_BuilderBeginComponent(
-            &xAzureIoTHubClient, &xWriter, ( const uint8_t * ) NX_AZURE_IOT_ADU_AGENT_COMPONENT_NAME, strlen( NX_AZURE_IOT_ADU_AGENT_COMPONENT_NAME ) );
-        configASSERT( xAzIoTResult == eAzureIoTSuccess );
-
-            /* Fill the agent property name.  */
-            xAzIoTResult = AzureIoTJSONWriter_AppendPropertyName(&xWriter, ( uint8_t * ) NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_AGENT, lengthof( NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_AGENT ));
-            configASSERT( xAzIoTResult == eAzureIoTSuccess );
-
-            xAzIoTResult = AzureIoTJSONWriter_AppendBeginObject( &xWriter );
-            configASSERT( xAzIoTResult == eAzureIoTSuccess );
-
-                /* Fill the state.   */
-                xAzIoTResult = AzureIoTJSONWriter_AppendPropertyWithInt32Value( &xWriter, ( uint8_t * ) NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_STATE, lengthof( NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_STATE ),
-                                                                                azure_iot_adu_agent_state );
-                configASSERT( xAzIoTResult == eAzureIoTSuccess );
-
-                /* Fill the workflow.  */
-                /* Append retry timestamp in workflow if existed.  */
-                /* Fill installed update id.  */
-                xAzIoTResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_INSTALLED_CONTENT_ID, lengthof( NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_INSTALLED_CONTENT_ID ),
-                                                                                ( uint8_t * ) installed_update_id, strlen( installed_update_id ) );
-                configASSERT( xAzIoTResult == eAzureIoTSuccess );                
-
-                /* Fill the deviceProperties.  */
-                xAzIoTResult = AzureIoTJSONWriter_AppendPropertyName(&xWriter, ( uint8_t * ) NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_DEVICEPROPERTIES, lengthof( NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_DEVICEPROPERTIES ));
-                configASSERT( xAzIoTResult == eAzureIoTSuccess );
-
-                xAzIoTResult = AzureIoTJSONWriter_AppendBeginObject( &xWriter );
-                configASSERT( xAzIoTResult == eAzureIoTSuccess );
-
-                    xAzIoTResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_MANUFACTURER, lengthof( NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_MANUFACTURER ),
-                                                                                    ( uint8_t * ) azure_iot_adu_device_manufacturer, strlen( azure_iot_adu_device_manufacturer ) );
-                    configASSERT( xAzIoTResult == eAzureIoTSuccess );
-
-                    xAzIoTResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_MODEL, lengthof( NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_MODEL ),
-                                                                                    ( uint8_t * ) azure_iot_adu_device_model, strlen( azure_iot_adu_device_model ) );
-                    configASSERT( xAzIoTResult == eAzureIoTSuccess );
-
-                    xAzIoTResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_INTERFACE_ID, lengthof( NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_INTERFACE_ID ),
-                                                                                    ( uint8_t * ) NX_AZURE_IOT_ADU_AGENT_INTERFACE_ID, lengthof( NX_AZURE_IOT_ADU_AGENT_INTERFACE_ID ) );
-                    configASSERT( xAzIoTResult == eAzureIoTSuccess );
-
-                xAzIoTResult = AzureIoTJSONWriter_AppendEndObject( &xWriter );
-                configASSERT( xAzIoTResult == eAzureIoTSuccess );
-
-                /* Fill the comatability property.  */
-                xAzIoTResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_COMPAT_PROPERTY_NAMES, lengthof( NX_AZURE_IOT_ADU_AGENT_PROPERTY_NAME_COMPAT_PROPERTY_NAMES ),
-                                                                                ( uint8_t * ) NX_AZURE_IOT_ADU_AGENT_COMPATIBILITY, lengthof( NX_AZURE_IOT_ADU_AGENT_COMPATIBILITY ) );
-                configASSERT( xAzIoTResult == eAzureIoTSuccess );
-
-                /* Fill the last install result.  */
-
-
-            xAzIoTResult = AzureIoTJSONWriter_AppendEndObject( &xWriter );
-            configASSERT( xAzIoTResult == eAzureIoTSuccess );
-
-        xAzIoTResult = AzureIoTHubClientProperties_BuilderEndComponent( &xAzureIoTHubClient, &xWriter );
-        configASSERT( xAzIoTResult == eAzureIoTSuccess );
-
-    xAzIoTResult = AzureIoTJSONWriter_AppendEndObject( &xWriter );
-    configASSERT( xAzIoTResult == eAzureIoTSuccess );
-
-    lBytesWritten = AzureIoTJSONWriter_GetBytesUsed( &xWriter );
-
-    if( lBytesWritten < 0 )
+    if (az_result_failed(
+        az_iot_adu_ota_get_properties_payload(
+            &xAzureIoTHubClient._internal.xAzureIoTHubClientCore,
+            &xOtaDeviceInformation,
+            uOtaAgentState,
+            pxOtaLastWorkflow,
+            pxOtaLastWorkflow != NULL && xOtaLastInstalledVersion == 1.1 ? NULL : &last_install_result,
+            xPayload,
+            &xPayload)))
     {
-        LogError( ( "Error getting the bytes written for the device properties JSON" ) );
-        lBytesWritten = 0;
+        return 0;
     }
 
-    return lBytesWritten;
+    return az_span_size(xPayload);
 }
 /*-----------------------------------------------------------*/
 
@@ -341,28 +226,189 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
                                 uint32_t ulWritablePropertyResponseBufferSize,
                                 uint32_t * pulWritablePropertyResponseBufferLength )
 {
+    AzureIoTResult_t xAzIoTResult;
+    AzureIoTJSONReader_t xJsonReader;
+    const uint8_t * pucComponentName = NULL;
+    uint32_t ulComponentNameLength = 0;
+    az_span uOtaBufferRemainder;
+    uint32_t ulPropertyVersion;
+    az_result azres;
 
-    * pulWritablePropertyResponseBufferLength = 0;
+    // TODO: remove printfs
     printf( "Writable properties received: %.*s\r\n",
         pxMessage->ulPayloadLength, ( char * ) pxMessage->pvMessagePayload );
+
+    xAzIoTResult = AzureIoTJSONReader_Init( &xJsonReader, pxMessage->pvMessagePayload, pxMessage->ulPayloadLength );
+    if ( xAzIoTResult != eAzureIoTSuccess )
+    {
+        LogError( ( "AzureIoTJSONReader_Init failed: result 0x%08x", xAzIoTResult ) );
+        * pulWritablePropertyResponseBufferLength = 0;
+        return;
+    }
+
+    xAzIoTResult = AzureIoTHubClientProperties_GetPropertiesVersion( &xAzureIoTHubClient, &xJsonReader, pxMessage->xMessageType, &ulPropertyVersion );
+    if ( xAzIoTResult != eAzureIoTSuccess )
+    {
+        LogError( ( "AzureIoTHubClientProperties_GetPropertiesVersion failed: result 0x%08x", xAzIoTResult ) );
+        * pulWritablePropertyResponseBufferLength = 0;
+        return;
+    }
+
+    xAzIoTResult = AzureIoTJSONReader_Init( &xJsonReader, pxMessage->pvMessagePayload, pxMessage->ulPayloadLength );
+    if ( xAzIoTResult != eAzureIoTSuccess )
+    {
+        LogError( ( "AzureIoTJSONReader_Init failed: result 0x%08x", xAzIoTResult ) );
+        * pulWritablePropertyResponseBufferLength = 0;
+        return;
+    }
+
+    * pulWritablePropertyResponseBufferLength = 0;
+
+    while( ( xAzIoTResult = AzureIoTHubClientProperties_GetNextComponentProperty( &xAzureIoTHubClient, &xJsonReader,
+                                                                                  pxMessage->xMessageType, eAzureIoTHubClientPropertyWritable,
+                                                                                  &pucComponentName, &ulComponentNameLength ) ) == eAzureIoTSuccess )
+    {
+        LogInfo( ( "Properties component name: %.*s", ulComponentNameLength, pucComponentName ) );
+
+        if ( az_iot_adu_ota_is_component_device_update( az_span_create( ( uint8_t* ) pucComponentName, ulComponentNameLength ) ) )
+        {
+            az_json_reader* jr = &xJsonReader._internal.xCoreReader;
+            LogInfo( ( "Device update received: %.*s\r\n", ulComponentNameLength, pucComponentName ) );
+
+            if ( az_result_failed(
+                az_iot_adu_ota_parse_service_properties(
+                    &xAzureIoTHubClient._internal.xAzureIoTHubClientCore,
+                    jr,
+                    AZ_SPAN_FROM_BUFFER( uOtaBuffer ),
+                    &xOtaUpdateRequest,
+                    &uOtaBufferRemainder ) ) )
+            {
+                LogError( ( "az_iot_adu_ota_parse_service_properties failed" ) );
+                return; 
+            }
+            else
+            {
+                az_span xWritablePropertyResponse = az_span_create( pucWritablePropertyResponseBuffer, ulWritablePropertyResponseBufferSize );
+                azres = az_iot_adu_ota_get_service_properties_response(
+                    &xAzureIoTHubClient._internal.xAzureIoTHubClientCore,
+                    &xOtaUpdateRequest,
+                    ulPropertyVersion,
+                    200,
+                    xWritablePropertyResponse,
+                    &xWritablePropertyResponse );
+                
+                if ( az_result_failed( azres ) )
+                {
+                    LogError( ( "az_iot_adu_ota_get_service_properties_response failed: 0x%08x (%d)", azres, ulWritablePropertyResponseBufferSize ) );
+                    return;
+                }
+                else
+                {
+                    * pulWritablePropertyResponseBufferLength = az_span_size( xWritablePropertyResponse ) ;
+                    pxOtaLastWorkflow = &xOtaUpdateRequest.workflow;
+                    xOtaServiceActionReceived = true;
+                }
+            }
+        }
+        else
+        {
+            LogInfo( ( "Component not ADU OTA: %.*s", ulComponentNameLength, pucComponentName ) );
+            prvSkipPropertyAndValue( &xJsonReader );
+        }
+    }
 }
 /*-----------------------------------------------------------*/
 
-static bool xSendProperties = true;
+#define TIME_UNDEFINED (time_t)-1
+static time_t xOtaLastStepTime = TIME_UNDEFINED;
+static double xOtaStepDelaySeconds = 3;
 
+#define prvIsOtaStepCompleted( ) \
+    ( xOtaLastStepTime == TIME_UNDEFINED || difftime( time(NULL), xOtaLastStepTime ) >= xOtaStepDelaySeconds )
+#define prvSetOtaStepStartTime( ) \
+    xOtaLastStepTime = time(NULL)
+
+// TODO: [NOTE] the ADU logic was implemented here because this is a frequently called function from
+//              the FreeRTOS middleware samples main task.  
+//              Ref: https://github.com/Azure/iot-hub-device-update/blob/main/docs/agent-reference/goal-state-support.md
 uint32_t ulSampleCreateReportedPropertiesUpdate( uint8_t * pucPropertiesData,
                                                  uint32_t ulPropertiesDataSize )
 {
     /* No reported properties to send if length is zero. */
     uint32_t lBytesWritten = 0;
 
-    if ( xSendProperties )
+    if ( xOtaAgentSendProperties )
     {
         lBytesWritten = lGenerateAduAgentPayload( pucPropertiesData, ulPropertiesDataSize );
 
-        printf( "otaPayload=%.*s\r\n", lBytesWritten, pucPropertiesData );
+        LogInfo( ( "[OTA] Agent properties payload=%.*s\r\n", lBytesWritten, pucPropertiesData ) );
 
-        xSendProperties = false;
+        xOtaAgentSendProperties = false;
+
+        if ( uOtaAgentState == AZ_IOT_ADU_OTA_AGENT_STATE_FAILED )
+        {
+            LogInfo( ( "[OTA] deployment failed. Setting agent to IDLE." ) );
+            uOtaAgentState = AZ_IOT_ADU_OTA_AGENT_STATE_IDLE;
+        }
+    }
+    else if ( xOtaServiceActionReceived )
+    {
+        if ( xOtaUpdateRequest.workflow.action == AZ_IOT_ADU_OTA_SERVICE_ACTION_APPLY_DEPLOYMENT )
+        {
+            if ( uOtaAgentState == AZ_IOT_ADU_OTA_AGENT_STATE_IDLE )
+            {
+                // TODO: check incoming version and compare with currently installed.
+                LogInfo( ( "[OTA] starting deployment" ) );
+
+                uOtaAgentState = AZ_IOT_ADU_OTA_AGENT_STATE_DEPLOYMENT_IN_PROGRESS;
+                xOtaAgentSendProperties = true;
+                prvSetOtaStepStartTime( );
+            }
+            else
+            {
+                LogError( ( "[OTA] deployment started, but agent is in failed state" ) );
+                // TODO: Fail? (send AZ_IOT_ADU_OTA_AGENT_STATE_FAILED?)
+            }
+        }
+        else if ( xOtaUpdateRequest.workflow.action == AZ_IOT_ADU_OTA_SERVICE_ACTION_CANCEL )
+        {
+            if ( uOtaAgentState == AZ_IOT_ADU_OTA_AGENT_STATE_DEPLOYMENT_IN_PROGRESS )
+            {
+                LogInfo( ( "[OTA] cancelling deployment" ) );
+                uOtaAgentState = AZ_IOT_ADU_OTA_AGENT_STATE_IDLE;
+                xOtaAgentSendProperties = true;
+            }
+            else
+            {
+                LogError( ( "[OTA] deployment cancelled, but agent is not in DIP state" ) );
+                // TODO: Fail? (send AZ_IOT_ADU_OTA_AGENT_STATE_FAILED?)
+                //       If already in FAILED state, should reset to IDLE?
+            }
+        }
+
+        xOtaServiceActionReceived = false;
+    }
+    else if ( uOtaAgentState == AZ_IOT_ADU_OTA_AGENT_STATE_DEPLOYMENT_IN_PROGRESS )
+    {
+        /*
+         * Download started
+         * Download Succeeded
+         * Install started
+         * Install succeeded
+         * Apply started
+         * Apply succeeded
+         * 
+         * prvIsOtaStepCompleted simulates a delay to complete all the steps above.
+         */
+        if ( prvIsOtaStepCompleted( ) )
+        {
+            // Simulating increment of version...
+            xOtaLastInstalledVersion += 0.1; // TODO: read from manifest.
+            xOtaDeviceInformation.adu_version = xGetOtaLastInstalledVersion( );
+            uOtaAgentState = AZ_IOT_ADU_OTA_AGENT_STATE_IDLE;
+            xOtaAgentSendProperties = true;
+            LogInfo( ( "[OTA] deployment completed" ) );
+        }
     }
 
     return lBytesWritten;

@@ -53,7 +53,7 @@ menu "Azure IoT middleware for FreeRTOS Main Task Configuration"
 
     config NETWORK_BUFFER_SIZE
         int "MQTT packet buffer size"
-        default 5120
+        default 5500
         help
             "Set the size of the network buffer for MQTT packets."
 
