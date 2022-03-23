@@ -5,7 +5,7 @@
 
 #include "sockets_wrapper.h"
 
-typedef struct NetworkContext   NetworkContext_t;
+#include "transport_abstraction.h"
 
 /* SSL Context Handle */
 typedef void                    * SSLContextHandle;

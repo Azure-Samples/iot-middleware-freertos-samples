@@ -24,6 +24,7 @@
 
 /* Transport interface implementation include header for TLS. */
 #include "transport_tls_socket.h"
+#include "transport_socket.h"
 
 /* Crypto helper header. */
 #include "crypto.h"
@@ -321,15 +322,42 @@ static uint32_t prvSetupNetworkCredentials( NetworkCredentials_t * pxNetworkCred
 static AzureIoTResult_t prvConnectHTTP( AzureIoTTransportInterface_t * pxHTTPTransport,
                                         const char * pucURL )
 {
+    BaseType_t xSocketStatus;
     uint32_t ulStatus;
-    NetworkCredentials_t xNetworkCredentials = { 0 };
+    TickType_t xRecvTimeout = pdMS_TO_TICKS( sampleazureiotTRANSPORT_SEND_RECV_TIMEOUT_MS );
+    TickType_t xSendTimeout = pdMS_TO_TICKS( sampleazureiotTRANSPORT_SEND_RECV_TIMEOUT_MS );
 
-    /* If necessary, tear down the connection to the IoT Hub here */
+    if( ( pxHTTPTransport->pxNetworkContext->pParams->xTCPSocket = Sockets_Open() ) == SOCKETS_INVALID_SOCKET )
+    {
+        LogError( ( "Failed to open socket." ) );
+        ulStatus = eTLSTransportConnectFailure;
+    }
+    else if( ( xSocketStatus = Sockets_SetSockOpt( pxHTTPTransport->pxNetworkContext->pParams->xTCPSocket,
+                                                    SOCKETS_SO_RCVTIMEO,
+                                                    &xRecvTimeout,
+                                                    sizeof( xRecvTimeout ) ) != 0 ) )
+    {
+        LogError( ( "Failed to set receive timeout on socket %d.", xSocketStatus ) );
+        ulStatus = eTLSTransportInternalError;
+    }
+    else if( ( xSocketStatus = Sockets_SetSockOpt( pxHTTPTransport->pxNetworkContext->pParams->xTCPSocket,
+                                                    SOCKETS_SO_SNDTIMEO,
+                                                    &xSendTimeout,
+                                                    sizeof( xSendTimeout ) ) != 0 ) )
+    {
+        LogError( ( "Failed to set send timeout on socket %d.", xSocketStatus ) );
+        ulStatus = eTLSTransportInternalError;
+    }
+    else if( ( xSocketStatus = Sockets_Connect( pxHTTPTransport->pxNetworkContext->pParams->xTCPSocket,
+                                                pucURL,
+                                                80 ) ) != 0 )
+    {
+        LogError( ( "Failed to connect to %s with error %d.",
+                    pucURL,
+                    xSocketStatus ) );
+        ulStatus = eTLSTransportConnectFailure;
+    }
 
-    ulStatus = prvSetupNetworkCredentials( &xNetworkCredentials );
-    configASSERT( ulStatus == 0 );
-
-    ulStatus = prvConnectToServerWithBackoffRetries( pucURL, 80, &xNetworkCredentials, pxHTTPTransport->pxNetworkContext );
     configASSERT( ulStatus == 0 );
 
     return eAzureIoTSuccess;
@@ -415,8 +443,8 @@ static void prvAzureDemoTask( void * pvParameters )
 
         /* Fill in Transport Interface send and receive function pointers. */
         xHTTPTransport.pxNetworkContext = &xHTTPNetworkContext;
-        xHTTPTransport.xSend = TLS_Socket_Send;
-        xHTTPTransport.xRecv = TLS_Socket_Recv;
+        xHTTPTransport.xSend = Foo_Socket_Send;
+        xHTTPTransport.xRecv = Foo_Socket_Recv;
 
         /* Init IoT Hub option */
         xResult = AzureIoTHubClient_OptionsInit( &xHubOptions );

@@ -24,13 +24,14 @@ target_include_directories(coremqtt
 # Add coreHTTP Lib
 add_library(corehttp
   ${CMAKE_CURRENT_LIST_DIR}/../libraries/coreHTTP/source/core_http_client.c
+  ${CMAKE_CURRENT_LIST_DIR}/../libraries/coreHTTP/source/dependency/3rdparty/http-parser/http_parser.c
 )
 
 target_include_directories(corehttp
   PUBLIC
+    ${CMAKE_CURRENT_LIST_DIR}/../libraries/coreHTTP/source/dependency/3rdparty/http-parser
     ${CMAKE_CURRENT_LIST_DIR}/../libraries/coreHTTP/source/include
     ${CMAKE_CURRENT_LIST_DIR}/../libraries/coreHTTP/source/interface
-    ${CMAKE_CURRENT_LIST_DIR}/../libraries/coreHTTP/source/dependency/3rdparty/http-parser
 )
 
 # Add embedded SDK lib

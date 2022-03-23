@@ -117,85 +117,42 @@
     #define HTTP_SEND_RETRY_TIMEOUT_MS    ( 10U )
 #endif
 
-/**
- * @brief Macro that is called in the HTTP Client library for logging "Error" level
- * messages.
- *
- * To enable error level logging in the HTTP Client library, this macro should be mapped to the
- * application-specific logging implementation that supports error logging.
- *
- * @note This logging macro is called in the HTTP Client library with parameters wrapped in
- * double parentheses to be ISO C89/C90 standard compliant. For a reference
- * POSIX implementation of the logging macros, refer to core_http_config.h files, and the
- * logging-stack in demos folder of the
- * [AWS IoT Embedded C SDK repository](https://github.com/aws/aws-iot-device-sdk-embedded-C).
- *
- * <b>Default value</b>: Error logging is turned off, and no code is generated for calls
- * to the macro in the HTTP Client library on compilation.
+/**************************************************/
+/******* DO NOT CHANGE the following order ********/
+/**************************************************/
+
+/* Include logging header files and define logging macros in the following order:
+ * 1. Include the header file "logging_levels.h".
+ * 2. Define the LIBRARY_LOG_NAME and LIBRARY_LOG_LEVEL macros depending on
+ * the logging configuration for HTTP.
+ * 3. Include the header file "logging_stack.h", if logging is enabled for HTTP.
  */
-#ifndef LogError
-    #define LogError( message )
+
+#include "logging_levels.h"
+
+/* Logging configuration for the HTTP library. */
+#ifndef LIBRARY_LOG_NAME
+    #define LIBRARY_LOG_NAME    "HTTP"
 #endif
 
-/**
- * @brief Macro that is called in the HTTP Client library for logging "Warning" level
- * messages.
- *
- * To enable warning level logging in the HTTP Client library, this macro should be mapped to the
- * application-specific logging implementation that supports warning logging.
- *
- * @note This logging macro is called in the HTTP Client library with parameters wrapped in
- * double parentheses to be ISO C89/C90 standard compliant. For a reference
- * POSIX implementation of the logging macros, refer to core_http_config.h files, and the
- * logging-stack in demos folder of the
- * [AWS IoT Embedded C SDK repository](https://github.com/aws/aws-iot-device-sdk-embedded-C).
- *
- * <b>Default value</b>: Warning logs are turned off, and no code is generated for calls
- * to the macro in the HTTP Client library on compilation.
- */
-#ifndef LogWarn
-    #define LogWarn( message )
+#ifndef LIBRARY_LOG_LEVEL
+    #define LIBRARY_LOG_LEVEL    LOG_INFO
 #endif
 
-/**
- * @brief Macro that is called in the HTTP Client library for logging "Info" level
- * messages.
- *
- * To enable info level logging in the HTTP Client library, this macro should be mapped to the
- * application-specific logging implementation that supports info logging.
- *
- * @note This logging macro is called in the HTTP Client library with parameters wrapped in
- * double parentheses to be ISO C89/C90 standard compliant. For a reference
- * POSIX implementation of the logging macros, refer to core_http_config.h files, and the
- * logging-stack in demos folder of the
- * [AWS IoT Embedded C SDK repository](https://github.com/aws/aws-iot-device-sdk-embedded-C).
- *
- * <b>Default value</b>: Info logging is turned off, and no code is generated for calls
- * to the macro in the HTTP Client library on compilation.
- */
-#ifndef LogInfo
-    #define LogInfo( message )
+/* Prototype for the function used to print to console on Windows simulator
+ * of FreeRTOS.
+ * The function prints to the console before the network is connected;
+ * then a UDP port after the network has connected. */
+extern void vLoggingPrintf( const char * pcFormatString,
+                            ... );
+
+/* Map the SdkLog macro to the logging function to enable logging
+ * on Windows simulator. */
+#ifndef SdkLog
+    #define SdkLog( message )    vLoggingPrintf message
 #endif
 
-/**
- * @brief Macro that is called in the HTTP Client library for logging "Debug" level
- * messages.
- *
- * To enable debug level logging from HTTP Client library, this macro should be mapped to the
- * application-specific logging implementation that supports debug logging.
- *
- * @note This logging macro is called in the HTTP Client library with parameters wrapped in
- * double parentheses to be ISO C89/C90 standard compliant. For a reference
- * POSIX implementation of the logging macros, refer to core_http_config.h files, and the
- * logging-stack in demos folder of the
- * [AWS IoT Embedded C SDK repository](https://github.com/aws/aws-iot-device-sdk-embedded-C).
- *
- * <b>Default value</b>: Debug logging is turned off, and no code is generated for calls
- * to the macro in the HTTP Client library on compilation.
- */
-#ifndef LogDebug
-    #define LogDebug( message )
-#endif
+#include "logging_stack.h"
 
 /* *INDENT-OFF* */
 #ifdef __cplusplus
