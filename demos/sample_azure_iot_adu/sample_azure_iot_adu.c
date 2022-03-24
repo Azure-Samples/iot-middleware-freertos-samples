@@ -411,13 +411,13 @@ static void prvAzureDemoTask( void * pvParameters )
 
     #ifdef democonfigENABLE_DPS_SAMPLE
         /* Run DPS.  */
-        if( ( ulStatus = prvIoTHubInfoGet( &xNetworkCredentials, &pucIotHubHostname,
-                                           &pulIothubHostnameLength, &pucIotHubDeviceId,
-                                           &pulIothubDeviceIdLength ) ) != 0 )
-        {
-            LogError( ( "Failed on sample_dps_entry!: error code = 0x%08x\r\n", ulStatus ) );
-            return;
-        }
+        // if( ( ulStatus = prvIoTHubInfoGet( &xNetworkCredentials, &pucIotHubHostname,
+        //                                    &pulIothubHostnameLength, &pucIotHubDeviceId,
+        //                                    &pulIothubDeviceIdLength ) ) != 0 )
+        // {
+        //     LogError( ( "Failed on sample_dps_entry!: error code = 0x%08x\r\n", ulStatus ) );
+        //     return;
+        // }
     #endif /* democonfigENABLE_DPS_SAMPLE */
 
     xNetworkContext.pParams = &xTlsTransportParams;
@@ -431,9 +431,9 @@ static void prvAzureDemoTask( void * pvParameters )
          * value is reached. The function returns a failure status if the TCP
          * connection cannot be established to the IoT Hub after the configured
          * number of attempts. */
-        ulStatus = prvConnectToServerWithBackoffRetries( ( const char * ) pucIotHubHostname,
-                                                         democonfigIOTHUB_PORT,
-                                                         &xNetworkCredentials, &xNetworkContext );
+        // ulStatus = prvConnectToServerWithBackoffRetries( ( const char * ) pucIotHubHostname,
+        //                                                  democonfigIOTHUB_PORT,
+        //                                                  &xNetworkCredentials, &xNetworkContext );
         configASSERT( ulStatus == 0 );
 
         /* Fill in Transport Interface send and receive function pointers. */
@@ -484,49 +484,49 @@ static void prvAzureDemoTask( void * pvParameters )
          * and waits for connection acknowledgment (CONNACK) packet. */
         LogInfo( ( "Creating an MQTT connection to %s.\r\n", pucIotHubHostname ) );
 
-        xResult = AzureIoTHubClient_Connect( &xAzureIoTHubClient,
-                                             false, &xSessionPresent,
-                                             sampleazureiotCONNACK_RECV_TIMEOUT_MS );
-        configASSERT( xResult == eAzureIoTSuccess );
+        // xResult = AzureIoTHubClient_Connect( &xAzureIoTHubClient,
+        //                                      false, &xSessionPresent,
+        //                                      sampleazureiotCONNACK_RECV_TIMEOUT_MS );
+        // configASSERT( xResult == eAzureIoTSuccess );
 
-        xResult = AzureIoTHubClient_SubscribeCommand( &xAzureIoTHubClient, prvHandleCommand,
-                                                      &xAzureIoTHubClient, sampleazureiotSUBSCRIBE_TIMEOUT );
-        configASSERT( xResult == eAzureIoTSuccess );
+        // xResult = AzureIoTHubClient_SubscribeCommand( &xAzureIoTHubClient, prvHandleCommand,
+        //                                               &xAzureIoTHubClient, sampleazureiotSUBSCRIBE_TIMEOUT );
+        // configASSERT( xResult == eAzureIoTSuccess );
 
-        xResult = AzureIoTHubClient_SubscribeProperties( &xAzureIoTHubClient, prvHandleProperties,
-                                                         &xAzureIoTHubClient, sampleazureiotSUBSCRIBE_TIMEOUT );
-        configASSERT( xResult == eAzureIoTSuccess );
+        // xResult = AzureIoTHubClient_SubscribeProperties( &xAzureIoTHubClient, prvHandleProperties,
+        //                                                  &xAzureIoTHubClient, sampleazureiotSUBSCRIBE_TIMEOUT );
+        // configASSERT( xResult == eAzureIoTSuccess );
 
-        /* Get property document after initial connection */
-        xResult = AzureIoTHubClient_RequestPropertiesAsync( &xAzureIoTHubClient );
-        configASSERT( xResult == eAzureIoTSuccess );
+        // /* Get property document after initial connection */
+        // xResult = AzureIoTHubClient_RequestPropertiesAsync( &xAzureIoTHubClient );
+        // configASSERT( xResult == eAzureIoTSuccess );
 
         /* Publish messages with QoS1, send and process Keep alive messages. */
         for( ; ; )
         {
             /* Hook for sending Telemetry */
-            if( ( ulCreateTelemetry( ucScratchBuffer, sizeof( ucScratchBuffer ), &ulScratchBufferLength ) == 0 ) &&
-                ( ulScratchBufferLength > 0 ) )
-            {
-                xResult = AzureIoTHubClient_SendTelemetry( &xAzureIoTHubClient,
-                                                           ucScratchBuffer, ulScratchBufferLength,
-                                                           NULL, eAzureIoTHubMessageQoS1, NULL );
-                configASSERT( xResult == eAzureIoTSuccess );
-            }
+            // if( ( ulCreateTelemetry( ucScratchBuffer, sizeof( ucScratchBuffer ), &ulScratchBufferLength ) == 0 ) &&
+            //     ( ulScratchBufferLength > 0 ) )
+            // {
+            //     xResult = AzureIoTHubClient_SendTelemetry( &xAzureIoTHubClient,
+            //                                                ucScratchBuffer, ulScratchBufferLength,
+            //                                                NULL, eAzureIoTHubMessageQoS1, NULL );
+            //     configASSERT( xResult == eAzureIoTSuccess );
+            // }
 
-            /* Hook for sending update to reported properties */
-            ulReportedPropertiesUpdateLength = ulCreateReportedPropertiesUpdate( ucReportedPropertiesUpdate, sizeof( ucReportedPropertiesUpdate ) );
+            // /* Hook for sending update to reported properties */
+            // ulReportedPropertiesUpdateLength = ulCreateReportedPropertiesUpdate( ucReportedPropertiesUpdate, sizeof( ucReportedPropertiesUpdate ) );
 
-            if( ulReportedPropertiesUpdateLength > 0 )
-            {
-                xResult = AzureIoTHubClient_SendPropertiesReported( &xAzureIoTHubClient, ucReportedPropertiesUpdate, ulReportedPropertiesUpdateLength, NULL );
-                configASSERT( xResult == eAzureIoTSuccess );
-            }
+            // if( ulReportedPropertiesUpdateLength > 0 )
+            // {
+            //     xResult = AzureIoTHubClient_SendPropertiesReported( &xAzureIoTHubClient, ucReportedPropertiesUpdate, ulReportedPropertiesUpdateLength, NULL );
+            //     configASSERT( xResult == eAzureIoTSuccess );
+            // }
 
-            LogInfo( ( "Attempt to receive publish message from IoT Hub.\r\n" ) );
-            xResult = AzureIoTHubClient_ProcessLoop( &xAzureIoTHubClient,
-                                                     sampleazureiotPROCESS_LOOP_TIMEOUT_MS );
-            configASSERT( xResult == eAzureIoTSuccess );
+            // LogInfo( ( "Attempt to receive publish message from IoT Hub.\r\n" ) );
+            // xResult = AzureIoTHubClient_ProcessLoop( &xAzureIoTHubClient,
+            //                                          sampleazureiotPROCESS_LOOP_TIMEOUT_MS );
+            // configASSERT( xResult == eAzureIoTSuccess );
 
             LogInfo( ( "Attempting to process ADU messages.\r\n" ) );
             xResult = AzureIoTADUClient_ADUProcessLoop( &xAzureIoTADUClient,
