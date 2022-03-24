@@ -6,4 +6,4 @@ typedef struct NetworkContext   NetworkContext_t;
 /* SSL Context Handle */
 typedef void                    * SSLContextHandle;
 
-#endif // TRANSPORT_ABSTRACTION_H
+#endif /* TRANSPORT_ABSTRACTION_H */

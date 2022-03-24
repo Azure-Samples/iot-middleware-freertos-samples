@@ -211,10 +211,17 @@ static AzureIoTResult_t prvHandleSteps( AzureIoT_ADUClient_t * pxAduClient )
                                strlen( "/westus2/adu-ewertons-2--adu-ewertons-2/260c33ee559a4671bedf9515652e4371/image.bin" ) );
 
             printf( ( "[ADU] Send HTTP request.\r\n" ) );
-            AzureIoTHTTP_Request( &pxAduClient->xHTTP );
+            if (AzureIoTHTTP_Request( &pxAduClient->xHTTP ) == HTTPSuccess )
+            {
+              printf(" [ADU] HTTP Request was successful");
+            }
+
+            pxAduClient->xUpdateStepState = eAzureIoTADUUpdateStepFirmwareDownloadSucceeded;
             break;
 
         case eAzureIoTADUUpdateStepFirmwareDownloadSucceeded:
+
+            // Move to write block
 
         case eAzureIoTADUUpdateStepFirmwareInstallStarted:
 
@@ -222,6 +229,9 @@ static AzureIoTResult_t prvHandleSteps( AzureIoT_ADUClient_t * pxAduClient )
                                          0,
                                          ucDataBuffer,
                                          8 );
+
+            // Should we write block and then loop back to the initiate download with a certain range?
+            // We would then move on to the install succeeded if all the parts are correctly written.
             break;
 
         case eAzureIoTADUUpdateStepFirmwareInstallSucceeded:

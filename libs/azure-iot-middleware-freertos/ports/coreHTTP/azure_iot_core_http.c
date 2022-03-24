@@ -74,7 +74,7 @@ uint32_t AzureIoTHTTP_Request( AzureIoTHTTPHandle_t xHTTPHandle )
         }
     }
 
-    return 0;
+    return httpLibraryStatus;
 }
 
 uint32_t ulAzureIoTHTTP_Deinit( AzureIoTHTTPHandle_t xHTTPHandle )

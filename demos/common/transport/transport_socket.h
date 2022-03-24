@@ -17,4 +17,4 @@ int32_t Foo_Socket_Recv( NetworkContext_t * pxNetworkContext,
                          void * pvBuffer,
                          size_t xBytesToRecv );
 
-#endif // TRANSPORT_SOCKET_H
+#endif /* TRANSPORT_SOCKET_H */

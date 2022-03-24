@@ -8,7 +8,7 @@
 #include "transport_abstraction.h"
 
 /* SSL Context Handle */
-typedef void                    * SSLContextHandle;
+typedef void * SSLContextHandle;
 
 typedef struct TlsTransportParams
 {
