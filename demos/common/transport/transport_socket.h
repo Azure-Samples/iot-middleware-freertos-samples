@@ -1,5 +1,11 @@
 /* Copyright (c) Microsoft Corporation.
  * Licensed under the MIT License. */
+
+/**
+ * @brief Socket transport for plaintext writing.
+ * 
+ */
+
 #ifndef TRANSPORT_SOCKET_H
 #define TRANSPORT_SOCKET_H
 

@@ -1,3 +1,6 @@
+/* Copyright (c) Microsoft Corporation.
+ * Licensed under the MIT License. */
+
 #include "transport_socket.h"
 
 #include "sockets_wrapper.h"
