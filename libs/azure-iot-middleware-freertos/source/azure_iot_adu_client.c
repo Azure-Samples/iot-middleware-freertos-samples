@@ -182,18 +182,34 @@ static AzureIoTResult_t prvHandleSteps( AzureIoTADUClient_t * pxAduClient )
     AzureADUImage_t xImage;
     uint8_t ucDataBuffer[] = { 0, 1, 2, 3, 4, 5, 6, 7 };
 
-    /* Hardcode the update step to the download of HTTP */
-    pxAduClient->xUpdateStepState = eAzureIoTADUUpdateStepFirmwareDownloadStarted;
-
     switch( pxAduClient->xUpdateStepState )
     {
         case eAzureIoTADUUpdateStepIdle:
+
+            printf( ( "[ADU] Step: eAzureIoTADUUpdateStepIdle\r\n" ) );
+
+            pxAduClient->xUpdateStepState = eAzureIoTADUUpdateStepFirmwareDownloadStarted;
+
+            break;
+
         /* We are at the beginning. Kick off the update. */
         case eAzureIoTADUUpdateStepManifestDownloadStarted:
+
+            printf( ( "[ADU] Step: eAzureIoTADUUpdateStepManifestDownloadStarted\r\n" ) );
+
+            break;
+
         /* Only used in proxy update */
         case eAzureIoTADUUpdateStepManifestDownloadSucceeded:
+
+            printf( ( "[ADU] Step: eAzureIoTADUUpdateStepManifestDownloadSucceeded\r\n" ) );
+
+            break;
+
         /* Only used in proxy update */
         case eAzureIoTADUUpdateStepFirmwareDownloadStarted:
+
+            printf( ( "[ADU] Step: eAzureIoTADUUpdateStepFirmwareDownloadStarted\r\n" ) );
 
             printf( ( "[ADU] Send property update.\r\n" ) );
             xResult = prvAzureIoT_ADUSendPropertyUpdate( pxAduClient->pxHubClient,
@@ -217,17 +233,23 @@ static AzureIoTResult_t prvHandleSteps( AzureIoTADUClient_t * pxAduClient )
 
             if( AzureIoTHTTP_Request( &pxAduClient->xHTTP ) == HTTPSuccess )
             {
-                printf( " [ADU] HTTP Request was successful" );
+                printf( " [ADU] HTTP Request was successful\r\n" );
+                pxAduClient->xUpdateStepState = eAzureIoTADUUpdateStepFirmwareDownloadSucceeded;
             }
 
-            pxAduClient->xUpdateStepState = eAzureIoTADUUpdateStepFirmwareDownloadSucceeded;
             break;
 
         case eAzureIoTADUUpdateStepFirmwareDownloadSucceeded:
 
-        /* Move to write block */
+            printf( ( "[ADU] Step: eAzureIoTADUUpdateStepFirmwareDownloadSucceeded\r\n" ) );
+
+            pxAduClient->xUpdateStepState = eAzureIoTADUUpdateStepFirmwareInstallStarted;
+
+            break;
 
         case eAzureIoTADUUpdateStepFirmwareInstallStarted:
+
+            printf( ( "[ADU] Step: eAzureIoTADUUpdateStepFirmwareInstallStarted\r\n" ) );
 
             AzureIoTPlatform_WriteBlock( &xImage,
                                          0,
@@ -236,21 +258,41 @@ static AzureIoTResult_t prvHandleSteps( AzureIoTADUClient_t * pxAduClient )
 
             /* Should we write block and then loop back to the initiate download with a certain range? */
             /* We would then move on to the install succeeded if all the parts are correctly written. */
+            pxAduClient->xUpdateStepState = eAzureIoTADUUpdateStepFirmwareInstallSucceeded;
+
             break;
 
         case eAzureIoTADUUpdateStepFirmwareInstallSucceeded:
 
+            printf( ( "[ADU] Step: eAzureIoTADUUpdateStepFirmwareInstallSucceeded\r\n" ) );
+
+            pxAduClient->xUpdateStepState = eAzureIoTADUUpdateStepFirmwareApplyStarted;
+
+            break;
+
         case eAzureIoTADUUpdateStepFirmwareApplyStarted:
 
+            printf( ( "[ADU] Step: eAzureIoTADUUpdateStepFirmwareApplyStarted\r\n" ) );
+
             AzureIoTPlatform_EnableImage();
+
+            pxAduClient->xUpdateStepState = eAzureIoTADUUpdateStepFirmwareApplySucceeded;
             break;
 
         case eAzureIoTADUUpdateStepFirmwareApplySucceeded:
 
+            printf( ( "[ADU] Step: eAzureIoTADUUpdateStepFirmwareApplySucceeded\r\n" ) );
+
             AzureIoTPlatform_ResetDevice();
+
             break;
 
         case eAzureIoTADUUpdateStepFailed:
+
+            printf( ( "[ADU] Step: eAzureIoTADUUpdateStepFailed\r\n" ) );
+
+            break;
+
         default:
             break;
     }
@@ -295,4 +337,9 @@ AzureIoTResult_t AzureIoTADUClient_ADUProcessLoop( AzureIoTADUClient_t * pxAduCl
     xResult = eAzureIoTSuccess;
 
     return xResult;
+}
+
+AzureIoTADUUpdateStepState_t AzureIoTADUClient_GetState( AzureIoTADUClient_t * pxAduClient )
+{
+    return pxAduClient->xUpdateStepState;
 }

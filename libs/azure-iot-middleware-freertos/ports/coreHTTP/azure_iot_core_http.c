@@ -74,6 +74,7 @@ uint32_t AzureIoTHTTP_Request( AzureIoTHTTPHandle_t xHTTPHandle )
         {
             /* Handle an error */
             printf( "[HTTP] Failed %d.\r\n", xHTTPHandle->xResponse.statusCode );
+            httpLibraryStatus = 1;
         }
     }
 

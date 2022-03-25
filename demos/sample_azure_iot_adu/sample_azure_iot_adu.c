@@ -533,6 +533,14 @@ static void prvAzureDemoTask( void * pvParameters )
                                                         sampleazureiotPROCESS_LOOP_TIMEOUT_MS );
             configASSERT( xResult == eAzureIoTSuccess );
 
+            if ( AzureIoTADUClient_GetState(&xAzureIoTADUClient) == eAzureIoTADUUpdateStepFirmwareInstallSucceeded )
+            {
+                LogInfo( ( "Disconnecting and closing socket" ) );
+                // If update has been downloaded and written, close the socket.
+                ( void ) Sockets_Disconnect( xHTTPTransport.pxNetworkContext->pParams->xTCPSocket );
+                ( void ) Sockets_Close( xHTTPTransport.pxNetworkContext->pParams->xTCPSocket );
+            }
+
             /* Leave Connection Idle for some time. */
             LogInfo( ( "Keeping Connection Idle...\r\n\r\n" ) );
             vTaskDelay( sampleazureiotDELAY_BETWEEN_PUBLISHES_TICKS );
