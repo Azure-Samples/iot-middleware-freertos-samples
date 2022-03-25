@@ -82,8 +82,8 @@ static int lTelemetryFrequencySecs = 2;
 
 /*-----------------------------------------------------------*/
 // ADU OTA
-#define OTA_BUFFER_SIZE 5000
-static uint8_t uOtaBuffer[OTA_BUFFER_SIZE];
+#define OTA_CONTEXT_BUFFER_SIZE 5000
+static uint8_t uOtaContextBuffer[OTA_CONTEXT_BUFFER_SIZE];
 static int32_t uOtaAgentState = AZ_IOT_ADU_OTA_AGENT_STATE_IDLE;
 static bool xOtaAgentSendProperties = true;
 static bool xOtaServiceActionReceived = false;
@@ -224,13 +224,12 @@ static void prvSkipPropertyAndValue( AzureIoTJSONReader_t * pxReader )
 void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessage,
                                 uint8_t * pucWritablePropertyResponseBuffer, 
                                 uint32_t ulWritablePropertyResponseBufferSize,
-                                uint32_t * pulWritablePropertyResponseBufferLength )
+                                uint32_t *pulWritablePropertyResponseBufferLength )
 {
     AzureIoTResult_t xAzIoTResult;
     AzureIoTJSONReader_t xJsonReader;
     const uint8_t * pucComponentName = NULL;
     uint32_t ulComponentNameLength = 0;
-    az_span uOtaBufferRemainder;
     uint32_t ulPropertyVersion;
     az_result azres;
 
@@ -279,9 +278,9 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
                 az_iot_adu_ota_parse_service_properties(
                     &xAzureIoTHubClient._internal.xAzureIoTHubClientCore,
                     jr,
-                    AZ_SPAN_FROM_BUFFER( uOtaBuffer ),
+                    AZ_SPAN_FROM_BUFFER( uOtaContextBuffer ),
                     &xOtaUpdateRequest,
-                    &uOtaBufferRemainder ) ) )
+                    NULL ) ) )
             {
                 LogError( ( "az_iot_adu_ota_parse_service_properties failed" ) );
                 return; 

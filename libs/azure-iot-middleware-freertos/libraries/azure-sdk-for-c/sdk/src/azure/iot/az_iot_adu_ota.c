@@ -455,6 +455,7 @@ AZ_NODISCARD az_result az_iot_adu_ota_get_service_properties_response(
 
     az_json_writer jw;
     
+    // Component and response status
     _az_RETURN_IF_FAILED(az_json_writer_init(&jw, payload, NULL));
     _az_RETURN_IF_FAILED(az_json_writer_append_begin_object(&jw));
     _az_RETURN_IF_FAILED(az_iot_hub_client_properties_writer_begin_component(
@@ -502,9 +503,16 @@ static az_span split_az_span(az_span span, int32_t size, az_span* remainder)
 {
   az_span result = az_span_slice(span, 0, size);
 
-  if (remainder != NULL && !az_span_is_content_equal(AZ_SPAN_EMPTY, result))
+  if (remainder != NULL)
   {
-    *remainder = az_span_slice(span, size, az_span_size(span));
+    if (az_span_is_content_equal(AZ_SPAN_EMPTY, result))
+    {
+        *remainder = AZ_SPAN_EMPTY;
+    }
+    else 
+    {
+        *remainder = az_span_slice(span, size, az_span_size(span));
+    }
   }
 
   return result;

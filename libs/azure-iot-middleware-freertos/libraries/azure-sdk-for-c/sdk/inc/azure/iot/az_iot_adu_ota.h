@@ -39,6 +39,9 @@
 /* Maximum Number of Files Handled by this ADU Agent */
 #define AZ_IOT_ADU_OTA_FILE_URL_MAX_COUNT 10
 
+/*
+ * For reference: https://docs.microsoft.com/en-us/azure/iot-hub-device-update/device-update-plug-and-play
+ */
 typedef struct
 {
     az_span manufacturer;
