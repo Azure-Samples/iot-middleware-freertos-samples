@@ -143,7 +143,7 @@ struct NetworkContext
 };
 
 AzureIoTHubClient_t xAzureIoTHubClient;
-AzureIoT_ADUClient_t xAzureIoTADUClient;
+AzureIoTADUClient_t xAzureIoTADUClient;
 
 /* Telemetry buffers */
 static uint8_t ucScratchBuffer[ 512 ];

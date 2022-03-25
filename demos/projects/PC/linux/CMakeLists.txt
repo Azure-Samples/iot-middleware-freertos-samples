@@ -65,7 +65,7 @@ target_link_libraries(${PROJECT_NAME}-adu PRIVATE
     SAMPLE::TRANSPORT::SOCKET
     SAMPLE::SOCKET::FREERTOSTCPIP)
 
-add_map_file(${PROJECT_NAME} ${PROJECT_NAME}.map)
+add_map_file(${PROJECT_NAME}-adu ${PROJECT_NAME}-adu.map)
 
 # Add demo files and dependencies for PnP Sample
 add_executable(${PROJECT_NAME}-pnp main.c)

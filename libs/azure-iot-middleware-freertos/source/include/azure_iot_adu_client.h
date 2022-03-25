@@ -189,7 +189,7 @@ typedef struct AzureIoTUpdateID
  *
  *  https://docs.microsoft.com/en-us/azure/iot-hub-device-update/understand-device-update#device-update-agent
  */
-typedef struct AzureIoTHubClient_ADUWorkflow
+typedef struct AzureIoTHubClientADUWorkflow
 {
     uint32_t ulAction;
 
@@ -198,18 +198,18 @@ typedef struct AzureIoTHubClient_ADUWorkflow
 
     const uint8_t ucRetryTimestamp[ azureiotaduWORKFLOW_RETRY_TIMESTAMP_SIZE ];
     uint32_t ulRetryTimestampLength;
-} AzureIoTHubClient_ADUWorkflow_t;
+} AzureIoTHubClientADUWorkflow_t;
 
-typedef struct AzureIoTHubClient_ADUStepResult
+typedef struct AzureIoTHubClientADUStepResult
 {
     uint32_t ulResultCode;
     uint32_t ulExtendedResultCode;
-} AzureIoTHubClient_ADUStepResult_t;
+} AzureIoTHubClientADUStepResult_t;
 
 /**
  * @brief ADU update manifest steps struct.
  */
-typedef struct AzureIoTHubClient_ADUStep
+typedef struct AzureIoTHubClientADUStep_t
 {
     /* Type.  */
     const uint8_t * pucType;
@@ -227,10 +227,10 @@ typedef struct AzureIoTHubClient_ADUStep
     uint32_t ulState;
 
     /* Result.  */
-    AzureIoTHubClient_ADUStepResult_t xResult;
-} AzureIoTHubClient_ADUStep_t;
+    AzureIoTHubClientADUStepResult_t xResult;
+} AzureIoTHubClientADUStep_t_t;
 
-typedef struct AzureIoTHubClient_ADUFile
+typedef struct AzureIoTHubClientADUFile
 {
     /* File number.  */
     const uint8_t * pucFileID;
@@ -250,9 +250,9 @@ typedef struct AzureIoTHubClient_ADUFile
     /* File url.  */
     const uint8_t * pucFileURL;
     uint32_t ulFileURLLength;
-} AzureIoTHubClient_ADUFile_t;
+} AzureIoTHubClientADUFile_t;
 
-typedef struct AzureIoTADUClient_ADUManifest
+typedef struct AzureIoTADUClientADUManifest
 {
     /* Manifest version.  */
     const uint8_t * pucManifestVersion;
@@ -274,30 +274,30 @@ typedef struct AzureIoTADUClient_ADUManifest
     uint32_t pulGroupLength;
 
     /* Instructions: steps.  */
-    AzureIoTHubClient_ADUStep_t pxSteps[ azureiotaduSTEPS_MAX ];
+    AzureIoTHubClientADUStep_t_t pxSteps[ azureiotaduSTEPS_MAX ];
     uint32_t ulStepsCount;
 
     /* Files.  */
-    AzureIoTHubClient_ADUFile_t pxFiles[ azureiotaduAGENT_FILES_MAX ];
+    AzureIoTHubClientADUFile_t pxFiles[ azureiotaduAGENT_FILES_MAX ];
     uint32_t ulFilesCount;
-} AzureIoTADUClient_ADUManifest_t;
+} AzureIoTADUClientADUManifest_t;
 
 /**
  * @brief ADU Client to handle stages of the ADU process.
  *
  */
-typedef struct AzureIoT_ADUClient
+typedef struct AzureIoTADUClient
 {
     AzureIoTHubClient_t * pxHubClient;
     AzureIoTADUState_t xState;
     AzureIoTADUUpdateStepState_t xUpdateStepState;
-    AzureIoTADUClient_ADUManifest_t xManifest;
+    AzureIoTADUClientADUManifest_t xManifest;
     AzureIoTHTTP_t xHTTP;
     AzureIoT_TransportConnectCallback_t xHTTPConnectCallback;
     AzureIoTTransportInterface_t * pxHTTPTransport;
     const uint8_t * pucAduContextBuffer;
     uint32_t ulAduContextBufferLength;
-} AzureIoT_ADUClient_t;
+} AzureIoTADUClient_t;
 
 /**
  * @brief Callback which will be invoked to connect to the HTTP endpoint to download the new image.
@@ -313,7 +313,7 @@ typedef struct AzureIoT_ADUClient
  * @param ulAduContextBuffer
  * @return AzureIoTResult_t
  */
-AzureIoTResult_t AzureIoTADUClient_Init( AzureIoT_ADUClient_t * pxAduClient,
+AzureIoTResult_t AzureIoTADUClient_Init( AzureIoTADUClient_t * pxAduClient,
                                          AzureIoTHubClient_t * pxAzureIoTHubClient,
                                          AzureIoTTransportInterface_t * pxAzureIoTTransport,
                                          AzureIoT_TransportConnectCallback_t pxAzureIoTHTTPConnectCallback,
@@ -323,21 +323,21 @@ AzureIoTResult_t AzureIoTADUClient_Init( AzureIoT_ADUClient_t * pxAduClient,
 /**
  * @brief Process ADU Messages and iterate through ADU state machine.
  *
- * @param[in] pxAduClient The #AzureIoT_ADUClient_t * to use for this call.
+ * @param[in] pxAduClient The #AzureIoTADUClient_t * to use for this call.
  * @param[in] ulTimeoutMilliseconds Minimum time (in milliseconds) for the loop to run. If `0` is passed, it will only run once.
  * @return An #AzureIoTResult_t with the result of the operation.
  */
-AzureIoTResult_t AzureIoTADUClient_ADUProcessLoop( AzureIoT_ADUClient_t * pxAduClient,
+AzureIoTResult_t AzureIoTADUClient_ADUProcessLoop( AzureIoTADUClient_t * pxAduClient,
                                                    uint32_t ulTimeoutMilliseconds );
 
 /**
- * @brief Process the ADU subcomponent into the AzureIoT_ADUClient
+ * @brief Process the ADU subcomponent into the AzureIoTADUClient
  *
  * @param pxAduClient
  * @param pxReader
  * @return AzureIoTResult_t
  */
-AzureIoTResult_t AzureIoTADUClient_ADUProcessComponent( AzureIoT_ADUClient_t * pxAduClient,
+AzureIoTResult_t AzureIoTADUClient_ADUProcessComponent( AzureIoTADUClient_t * pxAduClient,
                                                         AzureIoTJSONReader_t * pxReader );
 
 /**
@@ -345,14 +345,14 @@ AzureIoTResult_t AzureIoTADUClient_ADUProcessComponent( AzureIoT_ADUClient_t * p
  *
  * @note If it is, user should follow by parsing the component with the
  * AzureIoTHubClient_ADUProcessComponent() call. The properties will be
- * processed into the AzureIoT_ADUClient.
+ * processed into the AzureIoTADUClient.
  *
  * @param pucComponentName
  * @param ulComponentNameLength
  * @return true
  * @return false
  */
-bool AzureIoTADUClient_IsADUComponent( AzureIoT_ADUClient_t * pxAduClient,
+bool AzureIoTADUClient_IsADUComponent( AzureIoTADUClient_t * pxAduClient,
                                        const char * pucComponentName,
                                        uint32_t ulComponentNameLength );
 
@@ -362,6 +362,6 @@ bool AzureIoTADUClient_IsADUComponent( AzureIoT_ADUClient_t * pxAduClient,
  * @param pxAduClient
  * @return AzureIoTADUUpdateStepState_t
  */
-AzureIoTADUUpdateStepState_t AzureIoTADUClient_GetState( AzureIoT_ADUClient_t * pxAduClient );
+AzureIoTADUUpdateStepState_t AzureIoTADUClient_GetState( AzureIoTADUClient_t * pxAduClient );
 
 #endif /* AZURE_IOT_ADU_CLIENT_H */

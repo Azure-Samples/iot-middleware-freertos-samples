@@ -23,7 +23,7 @@
 #define sampleazureiotPROVISIONING_PAYLOAD    "{\"modelId\":\"" sampleazureiotMODEL_ID "\"}"
 
 extern AzureIoTHubClient_t xAzureIoTHubClient;
-extern AzureIoT_ADUClient_t xAzureIoTADUClient;
+extern AzureIoTADUClient_t xAzureIoTADUClient;
 
 /**
  * @brief Provides the payload to be sent as telemetry to the Azure IoT Hub.

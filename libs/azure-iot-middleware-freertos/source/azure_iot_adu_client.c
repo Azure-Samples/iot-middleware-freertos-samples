@@ -85,7 +85,7 @@
  * }
  */
 
-AzureIoTResult_t AzureIoTADUClient_Init( AzureIoT_ADUClient_t * pxAduClient,
+AzureIoTResult_t AzureIoTADUClient_Init( AzureIoTADUClient_t * pxAduClient,
                                          AzureIoTHubClient_t * pxAzureIoTHubClient,
                                          AzureIoTTransportInterface_t * pxAzureIoTTransport,
                                          AzureIoT_TransportConnectCallback_t pxAzureIoTHTTPConnectCallback,
@@ -101,7 +101,7 @@ AzureIoTResult_t AzureIoTADUClient_Init( AzureIoT_ADUClient_t * pxAduClient,
     return eAzureIoTSuccess;
 }
 
-bool AzureIoTADUClient_IsADUComponent( AzureIoT_ADUClient_t * pxAduClient,
+bool AzureIoTADUClient_IsADUComponent( AzureIoTADUClient_t * pxAduClient,
                                        const char * pucComponentName,
                                        uint32_t ulComponentNameLength )
 {
@@ -115,7 +115,7 @@ bool AzureIoTADUClient_IsADUComponent( AzureIoT_ADUClient_t * pxAduClient,
  * @brief Process and copy out fields in the Device Twin for this update.
  *
  */
-static AzureIoTResult_t prvAzureIoT_ADUProcessProperties( AzureIoT_ADUClient_t * pxAduClient,
+static AzureIoTResult_t prvAzureIoT_ADUProcessProperties( AzureIoTADUClient_t * pxAduClient,
                                                           AzureIoTJSONReader_t * pxReader )
 {
     ( void ) pxAduClient;
@@ -132,7 +132,7 @@ static AzureIoTResult_t prvAzureIoT_ADUProcessProperties( AzureIoT_ADUClient_t *
  * @param pxReader
  * @return AzureIoTResult_t
  */
-static AzureIoTResult_t prvAzureIoT_ADUProcessUpdateManifest( AzureIoT_ADUClient_t * pxAduClient,
+static AzureIoTResult_t prvAzureIoT_ADUProcessUpdateManifest( AzureIoTADUClient_t * pxAduClient,
                                                               AzureIoTJSONReader_t * pxReader )
 {
     ( void ) pxAduClient;
@@ -152,7 +152,7 @@ static AzureIoTResult_t prvAzureIoT_ADUProcessUpdateManifest( AzureIoT_ADUClient
     return eAzureIoTSuccess;
 }
 
-AzureIoTResult_t AzureIoTADUClient_ADUProcessComponent( AzureIoT_ADUClient_t * pxAduClient,
+AzureIoTResult_t AzureIoTADUClient_ADUProcessComponent( AzureIoTADUClient_t * pxAduClient,
                                                         AzureIoTJSONReader_t * pxReader )
 {
     /* Iterate through the JSON and pull out the components that are useful. */
@@ -174,7 +174,7 @@ static AzureIoTResult_t prvAzureIoT_ADUSendPropertyUpdate( AzureIoTHubClient_t *
     return eAzureIoTSuccess;
 }
 
-static AzureIoTResult_t prvHandleSteps( AzureIoT_ADUClient_t * pxAduClient )
+static AzureIoTResult_t prvHandleSteps( AzureIoTADUClient_t * pxAduClient )
 {
     AzureIoTResult_t xResult;
     AzureIoTJSONWriter_t xWriter;
@@ -214,9 +214,10 @@ static AzureIoTResult_t prvHandleSteps( AzureIoT_ADUClient_t * pxAduClient )
                                strlen( "/westus2/adu-ewertons-2--adu-ewertons-2/260c33ee559a4671bedf9515652e4371/image.bin" ) );
 
             printf( ( "[ADU] Send HTTP request.\r\n" ) );
-            if (AzureIoTHTTP_Request( &pxAduClient->xHTTP ) == HTTPSuccess )
+
+            if( AzureIoTHTTP_Request( &pxAduClient->xHTTP ) == HTTPSuccess )
             {
-              printf(" [ADU] HTTP Request was successful");
+                printf( " [ADU] HTTP Request was successful" );
             }
 
             pxAduClient->xUpdateStepState = eAzureIoTADUUpdateStepFirmwareDownloadSucceeded;
@@ -224,7 +225,7 @@ static AzureIoTResult_t prvHandleSteps( AzureIoT_ADUClient_t * pxAduClient )
 
         case eAzureIoTADUUpdateStepFirmwareDownloadSucceeded:
 
-            // Move to write block
+        /* Move to write block */
 
         case eAzureIoTADUUpdateStepFirmwareInstallStarted:
 
@@ -233,8 +234,8 @@ static AzureIoTResult_t prvHandleSteps( AzureIoT_ADUClient_t * pxAduClient )
                                          ucDataBuffer,
                                          8 );
 
-            // Should we write block and then loop back to the initiate download with a certain range?
-            // We would then move on to the install succeeded if all the parts are correctly written.
+            /* Should we write block and then loop back to the initiate download with a certain range? */
+            /* We would then move on to the install succeeded if all the parts are correctly written. */
             break;
 
         case eAzureIoTADUUpdateStepFirmwareInstallSucceeded:
@@ -259,7 +260,7 @@ static AzureIoTResult_t prvHandleSteps( AzureIoT_ADUClient_t * pxAduClient )
     return eAzureIoTSuccess;
 }
 
-AzureIoTResult_t AzureIoTADUClient_ADUProcessLoop( AzureIoT_ADUClient_t * pxAduClient,
+AzureIoTResult_t AzureIoTADUClient_ADUProcessLoop( AzureIoTADUClient_t * pxAduClient,
                                                    uint32_t ulTimeoutMilliseconds )
 {
     AzureIoTResult_t xResult;
