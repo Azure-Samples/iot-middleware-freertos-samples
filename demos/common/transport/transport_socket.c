@@ -16,14 +16,14 @@ struct NetworkContext
     TlsTransportParams_t * pParams;
 };
 
-int32_t Foo_Socket_Send( NetworkContext_t * pxNetworkContext,
+int32_t Azure_Socket_Send( NetworkContext_t * pxNetworkContext,
                          const void * pvBuffer,
                          size_t xBytesToSend )
 {
     return Sockets_Send( pxNetworkContext->pParams->xTCPSocket, pvBuffer, xBytesToSend );
 }
 
-int32_t Foo_Socket_Recv( NetworkContext_t * pxNetworkContext,
+int32_t Azure_Socket_Recv( NetworkContext_t * pxNetworkContext,
                          void * pvBuffer,
                          size_t xBytesToRecv )
 {

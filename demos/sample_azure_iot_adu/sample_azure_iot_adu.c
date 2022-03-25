@@ -443,8 +443,8 @@ static void prvAzureDemoTask( void * pvParameters )
 
         /* Fill in Transport Interface send and receive function pointers. */
         xHTTPTransport.pxNetworkContext = &xHTTPNetworkContext;
-        xHTTPTransport.xSend = Foo_Socket_Send;
-        xHTTPTransport.xRecv = Foo_Socket_Recv;
+        xHTTPTransport.xSend = Azure_Socket_Send;
+        xHTTPTransport.xRecv = Azure_Socket_Recv;
 
         /* Init IoT Hub option */
         xResult = AzureIoTHubClient_OptionsInit( &xHubOptions );
@@ -535,7 +535,7 @@ static void prvAzureDemoTask( void * pvParameters )
 
             if ( AzureIoTADUClient_GetState(&xAzureIoTADUClient) == eAzureIoTADUUpdateStepFirmwareInstallSucceeded )
             {
-                LogInfo( ( "Disconnecting and closing socket\r\n" ) );
+                LogInfo( ( "Firmware Installed. Disconnecting and closing socket\r\n" ) );
                 // If update has been downloaded and written, close the socket.
                 ( void ) Sockets_Disconnect( xHTTPTransport.pxNetworkContext->pParams->xTCPSocket );
                 ( void ) Sockets_Close( xHTTPTransport.pxNetworkContext->pParams->xTCPSocket );
