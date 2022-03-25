@@ -19,6 +19,7 @@
  */
 
 #include "esp_log.h"
+#include <azure/iot/az_iot_adu_ota.h>
 
 #ifndef LIBRARY_LOG_NAME
     #define LIBRARY_LOG_NAME    "AzureIoTOTADemo"
@@ -108,6 +109,12 @@
  *
  */
 #define democonfigDEVICE_SYMMETRIC_KEY CONFIG_AZURE_IOT_DEVICE_SYMMETRIC_KEY
+
+#define democonfigPNP_COMPONENTS_LIST_LENGTH 1
+static AzureIoTHubClientComponent_t pnp_components[democonfigPNP_COMPONENTS_LIST_LENGTH] = {
+    AZ_SPAN_FROM_STR(AZ_IOT_ADU_PROPERTIES_COMPONENT_NAME)
+};
+#define democonfigPNP_COMPONENTS_LIST pnp_components
 
 /**
  * @brief Client's X509 Certificate.
