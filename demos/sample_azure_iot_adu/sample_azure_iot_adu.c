@@ -535,7 +535,7 @@ static void prvAzureDemoTask( void * pvParameters )
 
             if ( AzureIoTADUClient_GetState(&xAzureIoTADUClient) == eAzureIoTADUUpdateStepFirmwareInstallSucceeded )
             {
-                LogInfo( ( "Disconnecting and closing socket" ) );
+                LogInfo( ( "Disconnecting and closing socket\r\n" ) );
                 // If update has been downloaded and written, close the socket.
                 ( void ) Sockets_Disconnect( xHTTPTransport.pxNetworkContext->pParams->xTCPSocket );
                 ( void ) Sockets_Close( xHTTPTransport.pxNetworkContext->pParams->xTCPSocket );
