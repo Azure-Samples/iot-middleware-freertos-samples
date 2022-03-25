@@ -11,8 +11,8 @@
 /* Kernel includes. */
 #include "FreeRTOS.h"
 
-static uint8_t pucHeaderBuffer[ 200 ];
-static uint8_t pucResponseBuffer[ 512 ];
+static uint8_t pucHeaderBuffer[ azureiothttpHEADER_BUFFER_SIZE ];
+static uint8_t pucResponseBuffer[ azureiothttpCHUNK_DOWNLOAD_BUFFER_SIZE ];
 
 
 uint32_t AzureIoTHTTP_Init( AzureIoTHTTPHandle_t xHTTPHandle,

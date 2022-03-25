@@ -17,6 +17,9 @@
 #include "azure_iot_http_port.h"
 #include "azure_iot_transport_interface.h"
 
+#define azureiothttpHEADER_BUFFER_SIZE            256
+#define azureiothttpCHUNK_DOWNLOAD_BUFFER_SIZE    512
+
 typedef AzureIoTHTTP_t * AzureIoTHTTPHandle_t;
 
 uint32_t AzureIoTHTTP_Init( AzureIoTHTTPHandle_t xHTTPHandle,
