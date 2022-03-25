@@ -3,7 +3,7 @@
 
 /**
  * @brief Transport abstraction to be used between TLS or Sockets
- * 
+ *
  */
 
 #ifndef TRANSPORT_ABSTRACTION_H

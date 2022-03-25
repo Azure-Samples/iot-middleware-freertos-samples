@@ -3,7 +3,7 @@
 
 /**
  * @brief Socket transport for plaintext writing.
- * 
+ *
  */
 
 #ifndef TRANSPORT_SOCKET_H

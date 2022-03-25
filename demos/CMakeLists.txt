@@ -61,7 +61,7 @@ if(NOT (TARGET SAMPLE::SOCKET::LWIP))
         ${CMAKE_CURRENT_SOURCE_DIR}/common/transport)
 endif()
 
-# Target for transport using Mbedtls
+# Target for transport using sockets
 if(NOT (TARGET SAMPLE::TRANSPORT::SOCKET))
     add_library(SAMPLE::TRANSPORT::SOCKET INTERFACE IMPORTED)
     target_sources(SAMPLE::TRANSPORT::SOCKET INTERFACE 
