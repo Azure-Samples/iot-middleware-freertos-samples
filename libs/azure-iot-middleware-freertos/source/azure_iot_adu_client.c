@@ -266,6 +266,8 @@ static AzureIoTResult_t prvHandleSteps( AzureIoTADUClient_t * pxAduClient )
 
             printf( ( "[ADU] Step: eAzureIoTADUUpdateStepFirmwareInstallSucceeded\r\n" ) );
 
+            ulAzureIoTHTTP_Deinit( &pxAduClient->xHTTP );
+
             pxAduClient->xUpdateStepState = eAzureIoTADUUpdateStepFirmwareApplyStarted;
 
             break;
