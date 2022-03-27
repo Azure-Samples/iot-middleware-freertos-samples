@@ -231,7 +231,7 @@ static AzureIoTResult_t prvHandleSteps( AzureIoTADUClient_t * pxAduClient )
 
             printf( ( "[ADU] Send HTTP request.\r\n" ) );
 
-            if( AzureIoTHTTP_Request( &pxAduClient->xHTTP ) == HTTPSuccess )
+            if( AzureIoTHTTP_Request( &pxAduClient->xHTTP ) == eAzureIoTHTTPSuccess )
             {
                 printf( " [ADU] HTTP Request was successful\r\n" );
                 pxAduClient->xUpdateStepState = eAzureIoTADUUpdateStepFirmwareDownloadSucceeded;

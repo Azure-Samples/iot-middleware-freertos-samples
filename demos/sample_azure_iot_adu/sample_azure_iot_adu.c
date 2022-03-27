@@ -327,36 +327,38 @@ static AzureIoTResult_t prvConnectHTTP( AzureIoTTransportInterface_t * pxHTTPTra
     TickType_t xRecvTimeout = pdMS_TO_TICKS( sampleazureiotTRANSPORT_SEND_RECV_TIMEOUT_MS );
     TickType_t xSendTimeout = pdMS_TO_TICKS( sampleazureiotTRANSPORT_SEND_RECV_TIMEOUT_MS );
 
-    if( ( pxHTTPTransport->pxNetworkContext->pParams->xTCPSocket = Sockets_Open() ) == SOCKETS_INVALID_SOCKET )
-    {
-        LogError( ( "Failed to open socket." ) );
-        ulStatus = eTLSTransportConnectFailure;
-    }
-    else if( ( xSocketStatus = Sockets_SetSockOpt( pxHTTPTransport->pxNetworkContext->pParams->xTCPSocket,
-                                                   SOCKETS_SO_RCVTIMEO,
-                                                   &xRecvTimeout,
-                                                   sizeof( xRecvTimeout ) ) != 0 ) )
-    {
-        LogError( ( "Failed to set receive timeout on socket %d.", xSocketStatus ) );
-        ulStatus = eTLSTransportInternalError;
-    }
-    else if( ( xSocketStatus = Sockets_SetSockOpt( pxHTTPTransport->pxNetworkContext->pParams->xTCPSocket,
-                                                   SOCKETS_SO_SNDTIMEO,
-                                                   &xSendTimeout,
-                                                   sizeof( xSendTimeout ) ) != 0 ) )
-    {
-        LogError( ( "Failed to set send timeout on socket %d.", xSocketStatus ) );
-        ulStatus = eTLSTransportInternalError;
-    }
-    else if( ( xSocketStatus = Sockets_Connect( pxHTTPTransport->pxNetworkContext->pParams->xTCPSocket,
-                                                pucURL,
-                                                80 ) ) != 0 )
-    {
-        LogError( ( "Failed to connect to %s with error %d.",
-                    pucURL,
-                    xSocketStatus ) );
-        ulStatus = eTLSTransportConnectFailure;
-    }
+    Azure_Socket_Connect(pxHTTPTransport->pxNetworkContext, pucURL, 80, xRecvTimeout, xSendTimeout);
+
+    // if( ( pxHTTPTransport->pxNetworkContext->pParams->xTCPSocket = Sockets_Open() ) == SOCKETS_INVALID_SOCKET )
+    // {
+    //     LogError( ( "Failed to open socket." ) );
+    //     ulStatus = eTLSTransportConnectFailure;
+    // }
+    // else if( ( xSocketStatus = Sockets_SetSockOpt( pxHTTPTransport->pxNetworkContext->pParams->xTCPSocket,
+    //                                                SOCKETS_SO_RCVTIMEO,
+    //                                                &xRecvTimeout,
+    //                                                sizeof( xRecvTimeout ) ) != 0 ) )
+    // {
+    //     LogError( ( "Failed to set receive timeout on socket %d.", xSocketStatus ) );
+    //     ulStatus = eTLSTransportInternalError;
+    // }
+    // else if( ( xSocketStatus = Sockets_SetSockOpt( pxHTTPTransport->pxNetworkContext->pParams->xTCPSocket,
+    //                                                SOCKETS_SO_SNDTIMEO,
+    //                                                &xSendTimeout,
+    //                                                sizeof( xSendTimeout ) ) != 0 ) )
+    // {
+    //     LogError( ( "Failed to set send timeout on socket %d.", xSocketStatus ) );
+    //     ulStatus = eTLSTransportInternalError;
+    // }
+    // else if( ( xSocketStatus = Sockets_Connect( pxHTTPTransport->pxNetworkContext->pParams->xTCPSocket,
+    //                                             pucURL,
+    //                                             80 ) ) != 0 )
+    // {
+    //     LogError( ( "Failed to connect to %s with error %d.",
+    //                 pucURL,
+    //                 xSocketStatus ) );
+    //     ulStatus = eTLSTransportConnectFailure;
+    // }
 
     configASSERT( ulStatus == 0 );
 
@@ -537,8 +539,7 @@ static void prvAzureDemoTask( void * pvParameters )
             {
                 LogInfo( ( "Firmware Installed. Disconnecting and closing socket\r\n" ) );
                 // If update has been downloaded and written, close the socket.
-                ( void ) Sockets_Disconnect( xHTTPTransport.pxNetworkContext->pParams->xTCPSocket );
-                ( void ) Sockets_Close( xHTTPTransport.pxNetworkContext->pParams->xTCPSocket );
+                ( void ) Azure_Socket_Disconnect( xHTTPTransport.pxNetworkContext );
             }
 
             /* Leave Connection Idle for some time. */

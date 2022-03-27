@@ -14,8 +14,21 @@
 static uint8_t pucHeaderBuffer[ azureiothttpHEADER_BUFFER_SIZE ];
 static uint8_t pucResponseBuffer[ azureiothttpCHUNK_DOWNLOAD_BUFFER_SIZE ];
 
+static AzureIoTHTTPResult_t prvTranslateToAzureIoTMQTTResult( HTTPStatus_t xResult )
+{
+  switch(xResult)
+  {
+    case HTTPSuccess:
+      return eAzureIoTHTTPSuccess;
+    default:
+      return eAzureIoTHTTPFailed;
+  }
 
-uint32_t AzureIoTHTTP_Init( AzureIoTHTTPHandle_t xHTTPHandle,
+  return eAzureIoTHTTPFailed;
+}
+
+
+AzureIoTHTTPResult_t AzureIoTHTTP_Init( AzureIoTHTTPHandle_t xHTTPHandle,
                             AzureIoTTransportInterface_t * pxHTTPTransport,
                             const char * pucURL,
                             uint32_t ulURLLength,
@@ -51,7 +64,7 @@ uint32_t AzureIoTHTTP_Init( AzureIoTHTTPHandle_t xHTTPHandle,
     return 0;
 }
 
-uint32_t AzureIoTHTTP_Request( AzureIoTHTTPHandle_t xHTTPHandle )
+AzureIoTHTTPResult_t AzureIoTHTTP_Request( AzureIoTHTTPHandle_t xHTTPHandle )
 {
     ( void ) xHTTPHandle;
 
@@ -81,7 +94,7 @@ uint32_t AzureIoTHTTP_Request( AzureIoTHTTPHandle_t xHTTPHandle )
     return httpLibraryStatus;
 }
 
-uint32_t ulAzureIoTHTTP_Deinit( AzureIoTHTTPHandle_t xHTTPHandle )
+AzureIoTHTTPResult_t ulAzureIoTHTTP_Deinit( AzureIoTHTTPHandle_t xHTTPHandle )
 {
     ( void ) xHTTPHandle;
 

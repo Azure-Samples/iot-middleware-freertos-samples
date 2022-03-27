@@ -15,6 +15,14 @@
 
 #include "transport_abstraction.h"
 
+int32_t Azure_Socket_Connect( NetworkContext_t * pxNetworkContext,
+                                        const char * pHostName,
+                                         uint16_t usPort,
+                                         uint32_t ulReceiveTimeoutMs,
+                                         uint32_t ulSendTimeoutMs );
+
+void Azure_Socket_Disconnect( NetworkContext_t * pNetworkContext );
+
 int32_t Azure_Socket_Send( NetworkContext_t * pxNetworkContext,
                          const void * pvBuffer,
                          size_t xBytesToSend );
