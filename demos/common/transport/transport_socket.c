@@ -90,7 +90,7 @@ SocketTransportStatus_t Azure_Socket_Connect( NetworkContext_t * pxNetworkContex
     return xSocketStatus;
 }
 
-void Azure_Socket_Disconnect( NetworkContext_t * pNetworkContext )
+void Azure_Socket_Close( NetworkContext_t * pNetworkContext )
 {
     ( void ) pNetworkContext;
 }

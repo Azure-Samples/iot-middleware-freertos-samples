@@ -507,7 +507,7 @@ static void prvAzureDemoTask( void * pvParameters )
             {
                 LogInfo( ( "Firmware Installed. Disconnecting and closing socket\r\n" ) );
                 /* If update has been downloaded and written, close the socket. */
-                ( void ) Azure_Socket_Disconnect( xHTTPTransport.pxNetworkContext );
+                ( void ) Azure_Socket_Close( xHTTPTransport.pxNetworkContext );
             }
 
             /* Leave Connection Idle for some time. */

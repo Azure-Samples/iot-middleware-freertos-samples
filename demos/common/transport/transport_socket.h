@@ -34,7 +34,7 @@ SocketTransportStatus_t Azure_Socket_Connect( NetworkContext_t * pxNetworkContex
                                               uint32_t ulReceiveTimeoutMs,
                                               uint32_t ulSendTimeoutMs );
 
-void Azure_Socket_Disconnect( NetworkContext_t * pNetworkContext );
+void Azure_Socket_Close( NetworkContext_t * pNetworkContext );
 
 int32_t Azure_Socket_Send( NetworkContext_t * pxNetworkContext,
                            const void * pvBuffer,
