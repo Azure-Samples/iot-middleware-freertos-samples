@@ -15,7 +15,20 @@
 
 #include "transport_abstraction.h"
 
-int32_t Azure_Socket_Connect( NetworkContext_t * pxNetworkContext,
+/**
+ * @brief Socket Connect / Disconnect return status.
+ */
+typedef enum SocketTransportStatus
+{
+    eSocketTransportSuccess = 0,        /**< Function successfully completed. */
+    eSocketTransportInvalidParameter,   /**< At least one parameter was invalid. */
+    eSocketTransportInSufficientMemory, /**< Insufficient memory required to establish connection. */
+    eSocketTransportHandshakeFailed,    /**< Performing Socket handshake with server failed. */
+    eSocketTransportInternalError,      /**< A call to a system API resulted in an internal error. */
+    eSocketTransportConnectFailure      /**< Initial connection to the server failed. */
+} SocketTransportStatus_t;
+
+SocketTransportStatus_t Azure_Socket_Connect( NetworkContext_t * pxNetworkContext,
                                         const char * pHostName,
                                          uint16_t usPort,
                                          uint32_t ulReceiveTimeoutMs,

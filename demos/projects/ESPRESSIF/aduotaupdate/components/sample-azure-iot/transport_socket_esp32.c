@@ -20,29 +20,28 @@
  */
 
 /**
- * @file transport_tls_esp32.c
- * @brief TLS transport interface implementations. This implementation uses
- * mbedTLS.
+ * @file transport_socket_esp32.c
+ * @brief Socket transport interface implementations.
  */
 
 /* Standard includes. */
+#include <errno.h>
 
 /* FreeRTOS includes. */
 #include "freertos/FreeRTOS.h"
 
-/* TLS transport header. */
-#include "transport_tls_socket.h"
+/* Socket transport header. */
+#include "transport_socket.h"
 
 #include "esp_log.h"
 
-/* TLS includes. */
+/* Socket includes. */
 #include "esp_transport.h"
 #include "esp_transport_tcp.h"
-#include "esp_transport_ssl.h"
 
 /**
  * @brief Definition of the network context for the transport interface
- * implementation that uses mbedTLS and FreeRTOS+TLS sockets.
+ * implementation that uses ESP sockets.
  */
 struct NetworkContext
 {
@@ -54,13 +53,13 @@ struct NetworkContext
 static const char *TAG = "esp_sockets";
 /*-----------------------------------------------------------*/
 
-TlsTransportStatus_t Azure_Socket_Connect( NetworkContext_t * pNetworkContext,
+SocketTransportStatus_t Azure_Socket_Connect( NetworkContext_t * pNetworkContext,
                                          const char * pHostName,
                                          uint16_t usPort,
                                          uint32_t ulReceiveTimeoutMs,
                                          uint32_t ulSendTimeoutMs )
 {
-    TlsTransportStatus_t xReturnStatus = eTLSTransportSuccess;
+    SocketTransportStatus_t xReturnStatus = eSocketTransportSuccess;
 
     if( ( pNetworkContext == NULL ) ||
         ( pHostName == NULL ) )
@@ -69,7 +68,7 @@ TlsTransportStatus_t Azure_Socket_Connect( NetworkContext_t * pNetworkContext,
                   "pHostName=%p.",
                   pNetworkContext,
                   pHostName );
-        return eTLSTransportInvalidParameter;
+        return eSocketTransportInvalidParameter;
     }
 
     pNetworkContext->xTransport = esp_transport_tcp_init( );
@@ -78,16 +77,16 @@ TlsTransportStatus_t Azure_Socket_Connect( NetworkContext_t * pNetworkContext,
 
     if ( esp_transport_connect( pNetworkContext->xTransport, pHostName, usPort, ulReceiveTimeoutMs ) < 0 )
     {
-        ESP_LOGE( TAG, "Failed establishing TLS connection (esp_transport_connect failed)" );
-        xReturnStatus = eTLSTransportConnectFailure;
+        ESP_LOGE( TAG, "Failed establishing socket connection (esp_transport_connect failed)" );
+        xReturnStatus = eSocketTransportConnectFailure;
     }
     else
     {
-        xReturnStatus = eTLSTransportSuccess;
+        xReturnStatus = eSocketTransportSuccess;
     }
 
     /* Clean up on failure. */
-    if( xReturnStatus != eTLSTransportSuccess )
+    if( xReturnStatus != eSocketTransportSuccess )
     {
         if( pNetworkContext != NULL )
         {
@@ -114,10 +113,10 @@ void Azure_Socket_Disconnect( NetworkContext_t * pNetworkContext )
         return;
     }
 
-    /* Attempting to terminate TLS connection. */
+    /* Attempting to terminate socket connection. */
     esp_transport_close( pNetworkContext->xTransport );
 
-    /* Free TLS contexts. */
+    /* Free socket contexts. */
     esp_transport_destroy( pNetworkContext->xTransport );
 }
 /*-----------------------------------------------------------*/
@@ -126,7 +125,7 @@ int32_t Azure_Socket_Recv( NetworkContext_t * pNetworkContext,
                            void * pBuffer,
                            size_t xBytesToRecv )
 {
-    int32_t tlsStatus = 0;
+    int32_t lsocketStatus = 0;
 
     if (( pNetworkContext == NULL ) ||
         ( pBuffer == NULL) ||
@@ -134,17 +133,17 @@ int32_t Azure_Socket_Recv( NetworkContext_t * pNetworkContext,
     {
         ESP_LOGE( TAG, "Invalid input parameter(s): Arguments cannot be NULL. pNetworkContext=%p, "
                 "pBuffer=%p, xBytesToRecv=%d.", pNetworkContext, pBuffer, xBytesToRecv );
-        return eTLSTransportInvalidParameter;
+        return eSocketTransportInvalidParameter;
     }
 
-    tlsStatus = esp_transport_read( pNetworkContext->xTransport, pBuffer, xBytesToRecv, pNetworkContext->ulReceiveTimeoutMs );
-    if ( tlsStatus < 0 )
+    lsocketStatus = esp_transport_read( pNetworkContext->xTransport, pBuffer, xBytesToRecv, pNetworkContext->ulReceiveTimeoutMs );
+    if ( lsocketStatus < 0 )
     {
         ESP_LOGE( TAG, "Reading failed, errno= %d", errno );
         return ESP_FAIL;
     }
 
-    return tlsStatus;
+    return lsocketStatus;
 }
 /*-----------------------------------------------------------*/
 
@@ -152,7 +151,7 @@ int32_t Azure_Socket_Send( NetworkContext_t * pNetworkContext,
                            const void * pBuffer,
                            size_t xBytesToSend )
 {
-    int32_t tlsStatus = 0;
+    int32_t lsocketStatus = 0;
 
     if (( pNetworkContext == NULL ) ||
         ( pBuffer == NULL) ||
@@ -160,16 +159,16 @@ int32_t Azure_Socket_Send( NetworkContext_t * pNetworkContext,
     {
         ESP_LOGE( TAG, "Invalid input parameter(s): Arguments cannot be NULL. pNetworkContext=%p, "
                 "pBuffer=%p, xBytesToSend=%d.", pNetworkContext, pBuffer, xBytesToSend );
-        return eTLSTransportInvalidParameter;
+        return eSocketTransportInvalidParameter;
     }
 
-    tlsStatus = esp_transport_write( pNetworkContext->xTransport, pBuffer, xBytesToSend, pNetworkContext->ulSendTimeoutMs );
-    if ( tlsStatus < 0 )
+    lsocketStatus = esp_transport_write( pNetworkContext->xTransport, pBuffer, xBytesToSend, pNetworkContext->ulSendTimeoutMs );
+    if ( lsocketStatus < 0 )
     {
         ESP_LOGE( TAG, "Writing failed, errno= %d", errno );
         return ESP_FAIL;
     }
 
-    return tlsStatus;
+    return lsocketStatus;
 }
 /*-----------------------------------------------------------*/
