@@ -14,7 +14,7 @@
 static uint8_t pucHeaderBuffer[ azureiothttpHEADER_BUFFER_SIZE ];
 static uint8_t pucResponseBuffer[ azureiothttpCHUNK_DOWNLOAD_BUFFER_SIZE ];
 
-static AzureIoTHTTPResult_t prvTranslateToAzureIoTMQTTResult( HTTPStatus_t xResult )
+static AzureIoTHTTPResult_t prvTranslateToAzureIoTHTTPResult( HTTPStatus_t xResult )
 {
   switch(xResult)
   {
@@ -35,8 +35,7 @@ AzureIoTHTTPResult_t AzureIoTHTTP_Init( AzureIoTHTTPHandle_t xHTTPHandle,
                             const char * pucPath,
                             uint32_t ulPathLength )
 {
-    ( void ) xHTTPHandle;
-    ( void ) pucURL;
+    HTTPStatus_t xHttpLibraryStatus = HTTPSuccess;
 
     if( xHTTPHandle == NULL )
     {
@@ -61,21 +60,19 @@ AzureIoTHTTPResult_t AzureIoTHTTP_Init( AzureIoTHTTPHandle_t xHTTPHandle,
     printf( ( "[HTTP] Initialize Request Headers.\r\n" ) );
     HTTPClient_InitializeRequestHeaders( &xHTTPHandle->xRequestHeaders, &xHTTPHandle->xRequestInfo );
 
-    return 0;
+    return prvTranslateToAzureIoTHTTPResult(xHttpLibraryStatus);
 }
 
 AzureIoTHTTPResult_t AzureIoTHTTP_Request( AzureIoTHTTPHandle_t xHTTPHandle )
 {
-    ( void ) xHTTPHandle;
-
-    HTTPStatus_t httpLibraryStatus = HTTPSuccess;
+    HTTPStatus_t xHttpLibraryStatus = HTTPSuccess;
 
     xHTTPHandle->xResponse.pBuffer = pucResponseBuffer;
     xHTTPHandle->xResponse.bufferLen = sizeof( pucResponseBuffer );
 
-    httpLibraryStatus = HTTPClient_Send( ( TransportInterface_t * ) xHTTPHandle->pxHTTPTransport, &xHTTPHandle->xRequestHeaders, NULL, 0, &xHTTPHandle->xResponse, 0 );
+    xHttpLibraryStatus = HTTPClient_Send( ( TransportInterface_t * ) xHTTPHandle->pxHTTPTransport, &xHTTPHandle->xRequestHeaders, NULL, 0, &xHTTPHandle->xResponse, 0 );
 
-    if( httpLibraryStatus == HTTPSuccess )
+    if( xHttpLibraryStatus == HTTPSuccess )
     {
         if( xHTTPHandle->xResponse.statusCode == 200 )
         {
@@ -87,16 +84,18 @@ AzureIoTHTTPResult_t AzureIoTHTTP_Request( AzureIoTHTTPHandle_t xHTTPHandle )
         {
             /* Handle an error */
             printf( "[HTTP] Failed %d.\r\n", xHTTPHandle->xResponse.statusCode );
-            httpLibraryStatus = 1;
+            xHttpLibraryStatus = 1;
         }
     }
 
-    return httpLibraryStatus;
+    return prvTranslateToAzureIoTHTTPResult(xHttpLibraryStatus);
 }
 
 AzureIoTHTTPResult_t ulAzureIoTHTTP_Deinit( AzureIoTHTTPHandle_t xHTTPHandle )
 {
     ( void ) xHTTPHandle;
 
-    return 0;
+    HTTPStatus_t xHttpLibraryStatus = HTTPSuccess;
+
+    return prvTranslateToAzureIoTHTTPResult(xHttpLibraryStatus);
 }

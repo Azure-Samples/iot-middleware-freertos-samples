@@ -16,15 +16,15 @@
 
 #include "core_http_client.h"
 
-typedef struct AzureIoTCoreMQTTContext
+typedef struct AzureIoTCoreHTTPContext
 {
     HTTPRequestInfo_t xRequestInfo;
     HTTPRequestHeaders_t xRequestHeaders;
     HTTPResponse_t xResponse;
     AzureIoTTransportInterface_t * pxHTTPTransport;
-} AzureIoTCoreMQTTContext_t;
+} AzureIoTCoreHTTPContext_t;
 
-/* Maps MQTTContext directly to AzureIoTMQTT */
-typedef AzureIoTCoreMQTTContext_t AzureIoTHTTP_t;
+/* Maps HTTPContext directly to AzureIoTHTTP */
+typedef AzureIoTCoreHTTPContext_t AzureIoTHTTP_t;
 
 #endif /* AZURE_IOT_HTTP_PORT_H */

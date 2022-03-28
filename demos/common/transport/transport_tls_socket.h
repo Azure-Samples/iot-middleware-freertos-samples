@@ -47,7 +47,7 @@ typedef enum TlsTransportStatus
 {
     eTLSTransportSuccess = 0,        /**< Function successfully completed. */
     eTLSTransportInvalidParameter,   /**< At least one parameter was invalid. */
-    eTLSTransportInSufficientMemory, /**< Insufficient memory required to establish connection. */
+    eTLSTransportInsufficientMemory, /**< Insufficient memory required to establish connection. */
     eTLSTransportInvalidCredentials, /**< Provided credentials were invalid. */
     eTLSTransportHandshakeFailed,    /**< Performing TLS handshake with server failed. */
     eTLSTransportInternalError,      /**< A call to a system API resulted in an internal error. */
