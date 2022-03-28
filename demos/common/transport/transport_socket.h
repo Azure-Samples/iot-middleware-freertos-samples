@@ -29,19 +29,19 @@ typedef enum SocketTransportStatus
 } SocketTransportStatus_t;
 
 SocketTransportStatus_t Azure_Socket_Connect( NetworkContext_t * pxNetworkContext,
-                                        const char * pHostName,
-                                         uint16_t usPort,
-                                         uint32_t ulReceiveTimeoutMs,
-                                         uint32_t ulSendTimeoutMs );
+                                              const char * pHostName,
+                                              uint16_t usPort,
+                                              uint32_t ulReceiveTimeoutMs,
+                                              uint32_t ulSendTimeoutMs );
 
 void Azure_Socket_Disconnect( NetworkContext_t * pNetworkContext );
 
 int32_t Azure_Socket_Send( NetworkContext_t * pxNetworkContext,
-                         const void * pvBuffer,
-                         size_t xBytesToSend );
+                           const void * pvBuffer,
+                           size_t xBytesToSend );
 
 int32_t Azure_Socket_Recv( NetworkContext_t * pxNetworkContext,
-                         void * pvBuffer,
-                         size_t xBytesToRecv );
+                           void * pvBuffer,
+                           size_t xBytesToRecv );
 
 #endif /* TRANSPORT_SOCKET_H */

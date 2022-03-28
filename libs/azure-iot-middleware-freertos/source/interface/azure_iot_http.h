@@ -39,11 +39,11 @@ typedef enum AzureIoTHTTPResult
 } AzureIoTHTTPResult_t;
 
 AzureIoTHTTPResult_t AzureIoTHTTP_Init( AzureIoTHTTPHandle_t xHTTPHandle,
-                            AzureIoTTransportInterface_t * pxHTTPTransport,
-                            const char * pucURL,
-                            uint32_t ulURLLength,
-                            const char * pucPath,
-                            uint32_t ulPathLength );
+                                        AzureIoTTransportInterface_t * pxHTTPTransport,
+                                        const char * pucURL,
+                                        uint32_t ulURLLength,
+                                        const char * pucPath,
+                                        uint32_t ulPathLength );
 
 AzureIoTHTTPResult_t AzureIoTHTTP_Request( AzureIoTHTTPHandle_t xHTTPHandle );
 

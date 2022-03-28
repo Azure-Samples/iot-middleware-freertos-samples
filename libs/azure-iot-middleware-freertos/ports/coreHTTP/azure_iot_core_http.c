@@ -16,24 +16,25 @@ static uint8_t pucResponseBuffer[ azureiothttpCHUNK_DOWNLOAD_BUFFER_SIZE ];
 
 static AzureIoTHTTPResult_t prvTranslateToAzureIoTHTTPResult( HTTPStatus_t xResult )
 {
-  switch(xResult)
-  {
-    case HTTPSuccess:
-      return eAzureIoTHTTPSuccess;
-    default:
-      return eAzureIoTHTTPFailed;
-  }
+    switch( xResult )
+    {
+        case HTTPSuccess:
+            return eAzureIoTHTTPSuccess;
 
-  return eAzureIoTHTTPFailed;
+        default:
+            return eAzureIoTHTTPFailed;
+    }
+
+    return eAzureIoTHTTPFailed;
 }
 
 
 AzureIoTHTTPResult_t AzureIoTHTTP_Init( AzureIoTHTTPHandle_t xHTTPHandle,
-                            AzureIoTTransportInterface_t * pxHTTPTransport,
-                            const char * pucURL,
-                            uint32_t ulURLLength,
-                            const char * pucPath,
-                            uint32_t ulPathLength )
+                                        AzureIoTTransportInterface_t * pxHTTPTransport,
+                                        const char * pucURL,
+                                        uint32_t ulURLLength,
+                                        const char * pucPath,
+                                        uint32_t ulPathLength )
 {
     HTTPStatus_t xHttpLibraryStatus = HTTPSuccess;
 
@@ -60,7 +61,7 @@ AzureIoTHTTPResult_t AzureIoTHTTP_Init( AzureIoTHTTPHandle_t xHTTPHandle,
     printf( ( "[HTTP] Initialize Request Headers.\r\n" ) );
     HTTPClient_InitializeRequestHeaders( &xHTTPHandle->xRequestHeaders, &xHTTPHandle->xRequestInfo );
 
-    return prvTranslateToAzureIoTHTTPResult(xHttpLibraryStatus);
+    return prvTranslateToAzureIoTHTTPResult( xHttpLibraryStatus );
 }
 
 AzureIoTHTTPResult_t AzureIoTHTTP_Request( AzureIoTHTTPHandle_t xHTTPHandle )
@@ -88,7 +89,7 @@ AzureIoTHTTPResult_t AzureIoTHTTP_Request( AzureIoTHTTPHandle_t xHTTPHandle )
         }
     }
 
-    return prvTranslateToAzureIoTHTTPResult(xHttpLibraryStatus);
+    return prvTranslateToAzureIoTHTTPResult( xHttpLibraryStatus );
 }
 
 AzureIoTHTTPResult_t ulAzureIoTHTTP_Deinit( AzureIoTHTTPHandle_t xHTTPHandle )
@@ -97,5 +98,5 @@ AzureIoTHTTPResult_t ulAzureIoTHTTP_Deinit( AzureIoTHTTPHandle_t xHTTPHandle )
 
     HTTPStatus_t xHttpLibraryStatus = HTTPSuccess;
 
-    return prvTranslateToAzureIoTHTTPResult(xHttpLibraryStatus);
+    return prvTranslateToAzureIoTHTTPResult( xHttpLibraryStatus );
 }

@@ -326,7 +326,7 @@ static AzureIoTResult_t prvConnectHTTP( AzureIoTTransportInterface_t * pxHTTPTra
     TickType_t xRecvTimeout = pdMS_TO_TICKS( sampleazureiotTRANSPORT_SEND_RECV_TIMEOUT_MS );
     TickType_t xSendTimeout = pdMS_TO_TICKS( sampleazureiotTRANSPORT_SEND_RECV_TIMEOUT_MS );
 
-    ulStatus = Azure_Socket_Connect(pxHTTPTransport->pxNetworkContext, pucURL, 80, xRecvTimeout, xSendTimeout);
+    ulStatus = Azure_Socket_Connect( pxHTTPTransport->pxNetworkContext, pucURL, 80, xRecvTimeout, xSendTimeout );
 
     configASSERT( ulStatus == 0 );
 
@@ -382,7 +382,7 @@ static void prvAzureDemoTask( void * pvParameters )
     #ifdef democonfigENABLE_DPS_SAMPLE
         /* Run DPS.  */
         if( ( ulStatus = prvIoTHubInfoGet( &xNetworkCredentials, &pucIotHubHostname,
-                                            &pulIothubHostnameLength, &pucIotHubDeviceId,
+                                           &pulIothubHostnameLength, &pucIotHubDeviceId,
                                            &pulIothubDeviceIdLength ) ) != 0 )
         {
             LogError( ( "Failed on sample_dps_entry!: error code = 0x%08x\r\n", ulStatus ) );
@@ -471,7 +471,7 @@ static void prvAzureDemoTask( void * pvParameters )
         xResult = AzureIoTHubClient_RequestPropertiesAsync( &xAzureIoTHubClient );
         configASSERT( xResult == eAzureIoTSuccess );
 
-        // Publish messages with QoS1, send and process Keep alive messages.
+        /* Publish messages with QoS1, send and process Keep alive messages. */
         for( ; ; )
         {
             /* Hook for sending Telemetry */
@@ -503,10 +503,10 @@ static void prvAzureDemoTask( void * pvParameters )
                                                         sampleazureiotPROCESS_LOOP_TIMEOUT_MS );
             configASSERT( xResult == eAzureIoTSuccess );
 
-            if ( AzureIoTADUClient_GetState(&xAzureIoTADUClient) == eAzureIoTADUUpdateStepFirmwareInstallSucceeded )
+            if( AzureIoTADUClient_GetState( &xAzureIoTADUClient ) == eAzureIoTADUUpdateStepFirmwareInstallSucceeded )
             {
                 LogInfo( ( "Firmware Installed. Disconnecting and closing socket\r\n" ) );
-                // If update has been downloaded and written, close the socket.
+                /* If update has been downloaded and written, close the socket. */
                 ( void ) Azure_Socket_Disconnect( xHTTPTransport.pxNetworkContext );
             }
 
