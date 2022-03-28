@@ -3,6 +3,34 @@
 
 #include "transport_socket.h"
 
+/* Include header that defines log levels. */
+#include "logging_levels.h"
+
+/* Logging configuration for the Sockets. */
+#ifndef LIBRARY_LOG_NAME
+    #define LIBRARY_LOG_NAME     "SocketTransport"
+#endif
+#ifndef LIBRARY_LOG_LEVEL
+    #define LIBRARY_LOG_LEVEL    LOG_ERROR
+#endif
+
+/* Prototype for the function used to print to console on Windows simulator
+ * of FreeRTOS.
+ * The function prints to the console before the network is connected;
+ * then a UDP port after the network has connected. */
+extern void vLoggingPrintf( const char * pcFormatString,
+                            ... );
+
+/* Map the SdkLog macro to the logging function to enable logging
+ * on Windows simulator. */
+#ifndef SdkLog
+    #define SdkLog( message )    vLoggingPrintf message
+#endif
+
+#include "logging_stack.h"
+
+/************ End of logging configuration ****************/
+
 #include "sockets_wrapper.h"
 
 typedef struct TlsTransportParams
@@ -16,46 +44,55 @@ struct NetworkContext
     TlsTransportParams_t * pParams;
 };
 
-int32_t Azure_Socket_Connect( NetworkContext_t * pxNetworkContext,
-                              const char * pHostName,
-                              uint16_t usPort,
-                              uint32_t ulReceiveTimeoutMs,
-                              uint32_t ulSendTimeoutMs )
+SocketTransportStatus_t Azure_Socket_Connect( NetworkContext_t * pxNetworkContext,
+                                              const char * pHostName,
+                                              uint16_t usPort,
+                                              uint32_t ulReceiveTimeoutMs,
+                                              uint32_t ulSendTimeoutMs )
 {
-    BaseType_t xSocketStatus;
+    int32_t ulStatus;
+    SocketTransportStatus_t xSocketStatus;
 
-    if( ( pxHTTPTransport->pxNetworkContext->pParams->xTCPSocket = Sockets_Open() ) == SOCKETS_INVALID_SOCKET )
+    TickType_t xRecvTimeout = pdMS_TO_TICKS( ulReceiveTimeoutMs );
+    TickType_t xSendTimeout = pdMS_TO_TICKS( ulSendTimeoutMs );
+
+    if( ( pxNetworkContext->pParams->xTCPSocket = Sockets_Open() ) == SOCKETS_INVALID_SOCKET )
     {
         LogError( ( "Failed to open socket." ) );
-        ulStatus = eTLSTransportConnectFailure;
+        xSocketStatus = eSocketTransportConnectFailure;
     }
-    else if( ( xSocketStatus = Sockets_SetSockOpt( pxHTTPTransport->pxNetworkContext->pParams->xTCPSocket,
-                                                   SOCKETS_SO_RCVTIMEO,
-                                                   &xRecvTimeout,
-                                                   sizeof( xRecvTimeout ) ) != 0 ) )
+    else if( ( ulStatus = Sockets_SetSockOpt( pxNetworkContext->pParams->xTCPSocket,
+                                              SOCKETS_SO_RCVTIMEO,
+                                              &xRecvTimeout,
+                                              sizeof( xRecvTimeout ) ) != 0 ) )
     {
         LogError( ( "Failed to set receive timeout on socket %d.", xSocketStatus ) );
-        ulStatus = eTLSTransportInternalError;
+        xSocketStatus = eSocketTransportInternalError;
     }
-    else if( ( xSocketStatus = Sockets_SetSockOpt( pxHTTPTransport->pxNetworkContext->pParams->xTCPSocket,
-                                                   SOCKETS_SO_SNDTIMEO,
-                                                   &xSendTimeout,
-                                                   sizeof( xSendTimeout ) ) != 0 ) )
+    else if( ( ulStatus = Sockets_SetSockOpt( pxNetworkContext->pParams->xTCPSocket,
+                                              SOCKETS_SO_SNDTIMEO,
+                                              &xSendTimeout,
+                                              sizeof( xSendTimeout ) ) != 0 ) )
     {
         LogError( ( "Failed to set send timeout on socket %d.", xSocketStatus ) );
-        ulStatus = eTLSTransportInternalError;
+        xSocketStatus = eSocketTransportInternalError;
     }
-    else if( ( xSocketStatus = Sockets_Connect( pxHTTPTransport->pxNetworkContext->pParams->xTCPSocket,
-                                                pucURL,
-                                                80 ) ) != 0 )
+    else if( ( ulStatus = Sockets_Connect( pxNetworkContext->pParams->xTCPSocket,
+                                           pHostName,
+                                           80 ) ) != 0 )
     {
         LogError( ( "Failed to connect to %s with error %d.",
-                    pucURL,
+                    pHostName,
                     xSocketStatus ) );
-        ulStatus = eTLSTransportConnectFailure;
+        xSocketStatus = eSocketTransportConnectFailure;
     }
 
     return xSocketStatus;
+}
+
+void Azure_Socket_Disconnect( NetworkContext_t * pNetworkContext )
+{
+    ( void ) pNetworkContext;
 }
 
 int32_t Azure_Socket_Send( NetworkContext_t * pxNetworkContext,
