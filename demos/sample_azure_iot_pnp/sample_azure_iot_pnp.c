@@ -397,7 +397,7 @@ static void prvAzureDemoTask( void * pvParameters )
                 xHubOptions.pxComponentList = democonfigPNP_COMPONENTS_LIST;
                 xHubOptions.ulComponentListLength = democonfigPNP_COMPONENTS_LIST_LENGTH;
             #endif /* > 0 */
-        #endif     /* democonfigPNP_COMPONENTS_LIST_LENGTH */
+        #endif /* democonfigPNP_COMPONENTS_LIST_LENGTH */
 
         xResult = AzureIoTHubClient_Init( &xAzureIoTHubClient,
                                           pucIotHubHostname, pulIothubHostnameLength,
