@@ -7,6 +7,8 @@
 #include <string.h>
 #include <stdio.h>
 
+#include "azure_iot_adu_client.h"
+
 /* Azure JSON includes */
 #include "azure_iot_json_reader.h"
 #include "azure_iot_json_writer.h"
@@ -318,7 +320,7 @@ static AzureIoTResult_t prvProcessProperties( AzureIoTHubClientPropertiesRespons
             {
                 if( AzureIoTADUClient_IsADUComponent( &xAzureIoTADUClient, pucComponentName, ulComponentNameLength ) )
                 {
-                    AzureIoTADUClient_ADUProcessComponent( &xAzureIoTADUClient, xReader );
+                    AzureIoTADUClient_ADUProcessComponent( &xAzureIoTADUClient, &xReader );
                 }
             }
             else if( AzureIoTJSONReader_TokenIsTextEqual( &xReader,

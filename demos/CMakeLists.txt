@@ -16,6 +16,15 @@ if(NOT (TARGET SAMPLE::AZUREIOT))
       ${CMAKE_CURRENT_SOURCE_DIR}/sample_azure_iot/sample_azure_iot.c)
 endif()
 
+# Target for adu sample task
+if(NOT (TARGET SAMPLE::AZUREIOTADU))
+    add_library(SAMPLE::AZUREIOTADU INTERFACE IMPORTED)
+
+    target_sources(SAMPLE::AZUREIOTADU INTERFACE
+        ${CMAKE_CURRENT_SOURCE_DIR}/sample_azure_iot_adu/sample_azure_iot_adu.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/sample_azure_iot_adu/sample_azure_iot_pnp_simulated_data.c)
+endif()
+
 # Target for pnp sample task
 if(NOT (TARGET SAMPLE::AZUREIOTPNP))
     add_library(SAMPLE::AZUREIOTPNP INTERFACE IMPORTED)
@@ -50,6 +59,16 @@ if(NOT (TARGET SAMPLE::SOCKET::LWIP))
         ${CMAKE_CURRENT_SOURCE_DIR}/common/transport/sockets_wrapper_lwip.c)
     target_include_directories(SAMPLE::SOCKET::LWIP INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}/common/transport)
+endif()
+
+# Target for transport using sockets
+if(NOT (TARGET SAMPLE::TRANSPORT::SOCKET))
+    add_library(SAMPLE::TRANSPORT::SOCKET INTERFACE IMPORTED)
+    target_sources(SAMPLE::TRANSPORT::SOCKET INTERFACE 
+        ${CMAKE_CURRENT_SOURCE_DIR}/common/transport/transport_socket.c)
+    target_include_directories(SAMPLE::TRANSPORT::SOCKET INTERFACE
+        ${CMAKE_CURRENT_SOURCE_DIR}/common/transport/
+        ${CMAKE_CURRENT_SOURCE_DIR}/common/utilities/)
 endif()
 
 # Target for transport using Mbedtls

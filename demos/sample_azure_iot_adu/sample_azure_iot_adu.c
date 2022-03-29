@@ -13,6 +13,7 @@
 #include "azure_iot_hub_client.h"
 #include "azure_iot_hub_client_properties.h"
 #include "azure_iot_provisioning_client.h"
+#include "azure_iot_adu_client.h"
 
 /* Azure JSON includes */
 #include "azure_iot_json_reader.h"
@@ -23,6 +24,7 @@
 
 /* Transport interface implementation include header for TLS. */
 #include "transport_tls_socket.h"
+#include "transport_socket.h"
 
 /* Crypto helper header. */
 #include "crypto.h"
@@ -106,7 +108,7 @@
 /**
  * @brief Transport timeout in milliseconds for transport send and receive.
  */
-#define sampleazureiotTRANSPORT_SEND_RECV_TIMEOUT_MS          ( 2000U )
+#define sampleazureiotTRANSPORT_SEND_RECV_TIMEOUT_MS          ( 5000U )
 
 /**
  * @brief Transport timeout in milliseconds for transport send and receive.
@@ -141,6 +143,7 @@ struct NetworkContext
 };
 
 AzureIoTHubClient_t xAzureIoTHubClient;
+AzureIoTADUClient_t xAzureIoTADUClient;
 
 /* Telemetry buffers */
 static uint8_t ucScratchBuffer[ 512 ];
@@ -316,6 +319,22 @@ static uint32_t prvSetupNetworkCredentials( NetworkCredentials_t * pxNetworkCred
 }
 /*-----------------------------------------------------------*/
 
+static AzureIoTResult_t prvConnectHTTP( AzureIoTTransportInterface_t * pxHTTPTransport,
+                                        const char * pucURL )
+{
+    uint32_t ulStatus;
+    TickType_t xRecvTimeout = pdMS_TO_TICKS( sampleazureiotTRANSPORT_SEND_RECV_TIMEOUT_MS );
+    TickType_t xSendTimeout = pdMS_TO_TICKS( sampleazureiotTRANSPORT_SEND_RECV_TIMEOUT_MS );
+
+    ulStatus = Azure_Socket_Connect( pxHTTPTransport->pxNetworkContext, pucURL, 80, xRecvTimeout, xSendTimeout );
+
+    configASSERT( ulStatus == 0 );
+
+    return eAzureIoTSuccess;
+}
+
+/*-----------------------------------------------------------*/
+
 /**
  * @brief Azure IoT demo task that gets started in the platform specific project.
  *  In this demo task, middleware API's are used to connect to Azure IoT Hub and
@@ -324,14 +343,20 @@ static uint32_t prvSetupNetworkCredentials( NetworkCredentials_t * pxNetworkCred
 static void prvAzureDemoTask( void * pvParameters )
 {
     uint32_t ulScratchBufferLength = 0U;
+    /* MQTT Connection */
     NetworkCredentials_t xNetworkCredentials = { 0 };
     AzureIoTTransportInterface_t xTransport;
     NetworkContext_t xNetworkContext = { 0 };
     TlsTransportParams_t xTlsTransportParams = { 0 };
+
+    /*HTTP Connection */
+    AzureIoTTransportInterface_t xHTTPTransport;
+    NetworkContext_t xHTTPNetworkContext = { 0 };
+    TlsTransportParams_t xHTTPTlsTransportParams = { 0 };
+
     AzureIoTResult_t xResult;
     uint32_t ulStatus;
     AzureIoTHubClientOptions_t xHubOptions = { 0 };
-    AzureIoT_ADUClient_t xAzureIoTADUClient = { 0 };
     bool xSessionPresent;
 
     #ifdef democonfigENABLE_DPS_SAMPLE
@@ -366,6 +391,7 @@ static void prvAzureDemoTask( void * pvParameters )
     #endif /* democonfigENABLE_DPS_SAMPLE */
 
     xNetworkContext.pParams = &xTlsTransportParams;
+    xHTTPNetworkContext.pParams = &xHTTPTlsTransportParams;
 
     for( ; ; )
     {
@@ -384,6 +410,11 @@ static void prvAzureDemoTask( void * pvParameters )
         xTransport.pxNetworkContext = &xNetworkContext;
         xTransport.xSend = TLS_Socket_Send;
         xTransport.xRecv = TLS_Socket_Recv;
+
+        /* Fill in Transport Interface send and receive function pointers. */
+        xHTTPTransport.pxNetworkContext = &xHTTPNetworkContext;
+        xHTTPTransport.xSend = Azure_Socket_Send;
+        xHTTPTransport.xRecv = Azure_Socket_Recv;
 
         /* Init IoT Hub option */
         xResult = AzureIoTHubClient_OptionsInit( &xHubOptions );
@@ -405,6 +436,8 @@ static void prvAzureDemoTask( void * pvParameters )
 
         xResult = AzureIoTADUClient_Init( &xAzureIoTADUClient,
                                           &xAzureIoTHubClient,
+                                          &xHTTPTransport,
+                                          prvConnectHTTP,
                                           ucAduContextBuffer,
                                           sizeof( ucAduContextBuffer ) );
         configASSERT( xResult == eAzureIoTSuccess );
@@ -469,6 +502,13 @@ static void prvAzureDemoTask( void * pvParameters )
             xResult = AzureIoTADUClient_ADUProcessLoop( &xAzureIoTADUClient,
                                                         sampleazureiotPROCESS_LOOP_TIMEOUT_MS );
             configASSERT( xResult == eAzureIoTSuccess );
+
+            if( AzureIoTADUClient_GetState( &xAzureIoTADUClient ) == eAzureIoTADUUpdateStepFirmwareInstallSucceeded )
+            {
+                LogInfo( ( "Firmware Installed. Disconnecting and closing socket\r\n" ) );
+                /* If update has been downloaded and written, close the socket. */
+                ( void ) Azure_Socket_Close( xHTTPTransport.pxNetworkContext );
+            }
 
             /* Leave Connection Idle for some time. */
             LogInfo( ( "Keeping Connection Idle...\r\n\r\n" ) );

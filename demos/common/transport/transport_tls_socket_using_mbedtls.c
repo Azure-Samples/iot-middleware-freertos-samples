@@ -202,7 +202,7 @@ static void setOptionalConfigurations( MbedSSLContext_t * pxSslContext,
  * @param[in] pcHostName Remote host name, used for server name indication.
  * @param[in] pxNetworkCredentials TLS setup parameters.
  *
- * @return #eTLSTransportSuccess, #eTLSTransportInSufficientMemory, #eTLSTransportInvalidCredentials,
+ * @return #eTLSTransportSuccess, #eTLSTransportInsufficientMemory, #eTLSTransportInvalidCredentials,
  * or #eTLSTransportInternalError.
  */
 static TlsTransportStatus_t tlsSetup( NetworkContext_t * pxNetworkContext,
@@ -488,7 +488,7 @@ static TlsTransportStatus_t tlsSetup( NetworkContext_t * pxNetworkContext,
                     mbedtlsLowLevelCodeOrDefault( lMbedtlsError ) ) );
 
         /* Per mbed TLS docs, mbedtls_ssl_config_defaults only fails on memory allocation. */
-        xRetVal = eTLSTransportInSufficientMemory;
+        xRetVal = eTLSTransportInsufficientMemory;
     }
 
     if( xRetVal == eTLSTransportSuccess )
@@ -677,7 +677,7 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pxNetworkContext,
     else if( ( pxSSLContext = pvPortMalloc( sizeof( MbedSSLContext_t ) ) ) == NULL )
     {
         LogError( ( "Failed to allocate mbed ssl context memmory ." ) );
-        xRetVal = eTLSTransportInSufficientMemory;
+        xRetVal = eTLSTransportInsufficientMemory;
     }
     else
     {

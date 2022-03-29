@@ -35,6 +35,8 @@ if [[ "$FIX" == "check" ]]; then
     ./source/*.h                                              \
     ./source/include/*.h                                      \
     ./source/interface/*.h                                    \
+    ./ports/coreHTTP/*.c                                      \
+    ./ports/coreHTTP/*.h                                      \
     ./ports/coreMQTT/*.c                                      \
     ./ports/coreMQTT/*.h                                      \
     ./.github/config/*.h                                      \
@@ -54,6 +56,8 @@ elif [[ "$FIX" == "fix" ]]; then
     ./source/*.h                                              \
     ./source/include/*.h                                      \
     ./source/interface/*.h                                    \
+    ./ports/coreHTTP/*.c                                      \
+    ./ports/coreHTTP/*.h                                      \
     ./ports/coreMQTT/*.c                                      \
     ./ports/coreMQTT/*.h                                      \
     ./.github/config/*.h                                      \

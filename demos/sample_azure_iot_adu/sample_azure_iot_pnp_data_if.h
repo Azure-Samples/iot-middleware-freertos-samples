@@ -13,27 +13,29 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "azure_iot_adu_client.h"
 #include "azure_iot_hub_client_properties.h"
 #include "demo_config.h"
 
 /**
  * @brief The payload to send to the Device Provisioning Service (DO NOT MODIFY)
  */
-#define sampleazureiotPROVISIONING_PAYLOAD                    "{\"modelId\":\"" sampleazureiotMODEL_ID "\"}"
+#define sampleazureiotPROVISIONING_PAYLOAD    "{\"modelId\":\"" sampleazureiotMODEL_ID "\"}"
 
 extern AzureIoTHubClient_t xAzureIoTHubClient;
+extern AzureIoTADUClient_t xAzureIoTADUClient;
 
 /**
  * @brief Provides the payload to be sent as telemetry to the Azure IoT Hub.
  *
  * @remark This function must be implemented by the specific sample.
- *         `ulCreateTelemetry` is called periodically by the sample core task (the task created by `vStartDemoTask`). 
+ *         `ulCreateTelemetry` is called periodically by the sample core task (the task created by `vStartDemoTask`).
  *         If `pulTelemetryDataLength` returned is zero, telemetry is not send to the Azure IoT Hub.
  *
  * @param[out]  pucTelemetryData        Pointer to uint8_t* that will contain the Telemetry payload.
  * @param[in]   ulTelemetryDataSize     Size of `pucTelemetryData`
  * @param[out]  pulTelemetryDataLength  The number of bytes written in `pucTelemetryData`
- * 
+ *
  * @return uint32_t Zero if successful, non-zero if any failure occurs.
  */
 uint32_t ulCreateTelemetry( uint8_t * pucTelemetryData,
@@ -44,14 +46,14 @@ uint32_t ulCreateTelemetry( uint8_t * pucTelemetryData,
  * @brief Provides the payload to be sent as reported properties update to the Azure IoT Hub.
  *
  * @remark This function must be implemented by the specific sample.
- *         `ulCreateReportedPropertiesUpdate` is called periodically by the sample 
+ *         `ulCreateReportedPropertiesUpdate` is called periodically by the sample
  *         core task (the task created by `vStartDemoTask`).
- *         If the sample does not have any properties to update, just return zero to inform no 
+ *         If the sample does not have any properties to update, just return zero to inform no
  *         update should be sent.
- * 
+ *
  * @param[out] pucPropertiesData    Pointer to uint8_t* that will contain the reported properties payload.
  * @param[in]  ulPropertiesDataSize Size of `pucPropertiesData`
- * 
+ *
  * @return uint32_t The number of bytes written in `pucPropertiesData`.
  */
 uint32_t ulCreateReportedPropertiesUpdate( uint8_t * pucPropertiesData,
@@ -59,14 +61,14 @@ uint32_t ulCreateReportedPropertiesUpdate( uint8_t * pucPropertiesData,
 
 /**
  * @brief Handles a Command received from the Azure IoT Hub.
- * 
+ *
  * @remark This function must be implemented by the specific sample.
  *
  * @param[in]  pxMessage                          Pointer to a structure that holds details of the Command.
  * @param[out] pulResponseStatus                  Status code to be sent as response for Command request.
  * @param[out] pucCommandResponsePayloadBuffer    Buffer in which to write a payload for the Command response.
  * @param[in]  ulCommandResponsePayloadBufferSize Total size of `ucCommandResponsePayloadBuffer`.
- * 
+ *
  * @return uint32_t Number of bytes written to `ucCommandResponsePayloadBuffer`.
  */
 uint32_t ulHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
@@ -85,7 +87,7 @@ uint32_t ulHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
  * @param[out] pulWritablePropertyResponseBufferLength Number of bytes written into `pucWritablePropertyResponseBuffer`.
  */
 void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessage,
-                                uint8_t * pucWritablePropertyResponseBuffer, 
+                                uint8_t * pucWritablePropertyResponseBuffer,
                                 uint32_t ulWritablePropertyResponseBufferSize,
                                 uint32_t * pulWritablePropertyResponseBufferLength );
 

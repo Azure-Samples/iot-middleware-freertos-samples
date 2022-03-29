@@ -8,9 +8,10 @@ set(ROOT_PATH
 idf_component_get_property(MBEDTLS_DIR mbedtls COMPONENT_DIR)
 
 set(COMPONENT_SOURCES
-    ${ROOT_PATH}/demos/sample_azure_iot_pnp/sample_azure_iot_pnp.c
+    ${ROOT_PATH}/demos/sample_azure_iot_adu/sample_azure_iot_adu.c
     ${CMAKE_CURRENT_LIST_DIR}/backoff_algorithm.c
     ${CMAKE_CURRENT_LIST_DIR}/transport_tls_esp32.c
+    ${CMAKE_CURRENT_LIST_DIR}/transport_socket_esp32.c
     ${CMAKE_CURRENT_LIST_DIR}/crypto_esp32.c
 )
 
@@ -20,7 +21,7 @@ set(COMPONENT_INCLUDE_DIRS
     ${MBEDTLS_DIR}/mbedtls/include
     ${ROOT_PATH}/demos/common/transport
     ${ROOT_PATH}/demos/common/utilities
-    ${ROOT_PATH}/demos/sample_azure_iot_pnp
+    ${ROOT_PATH}/demos/sample_azure_iot_adu
 )
 
 idf_component_register(
