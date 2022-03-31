@@ -23,6 +23,7 @@ idf_component_get_property(FREERTOS_DIR freertos COMPONENT_DIR)
 
 set(COMPONENT_INCLUDE_DIRS
     ${FREERTOS_DIR}/include/freertos
+    ${CMAKE_CURRENT_LIST_DIR}../../../port
     ${AZURE_IOT_MIDDLEWARE_FREERTOS}/source/include
     ${AZURE_IOT_MIDDLEWARE_FREERTOS}/source/interface
     ${AZURE_IOT_MIDDLEWARE_FREERTOS}/ports/coreMQTT
@@ -32,4 +33,4 @@ set(COMPONENT_INCLUDE_DIRS
 idf_component_register(
     SRCS ${COMPONENT_SOURCES}
     INCLUDE_DIRS ${COMPONENT_INCLUDE_DIRS}
-    REQUIRES freertos azure-sdk-for-c coreMQTT coreHTTP)
+    REQUIRES freertos azure-sdk-for-c coreMQTT coreHTTP spi_flash app_update)

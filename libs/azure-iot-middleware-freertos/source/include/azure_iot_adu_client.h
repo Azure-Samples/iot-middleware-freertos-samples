@@ -13,6 +13,7 @@
 #include "azure_iot_hub_client.h"
 #include "azure_iot_json_reader.h"
 #include "azure_iot_http.h"
+#include "azure_iot_flash_platform.h"
 
 
 /**************************ADU SECTION******************************** // */
@@ -293,6 +294,7 @@ typedef struct AzureIoTADUClient
     AzureIoTADUUpdateStepState_t xUpdateStepState;
     AzureIoTADUClientADUManifest_t xManifest;
     AzureIoTHTTP_t xHTTP;
+    AzureADUImage_t xImage;
     AzureIoT_TransportConnectCallback_t xHTTPConnectCallback;
     AzureIoTTransportInterface_t * pxHTTPTransport;
     const uint8_t * pucAduContextBuffer;
