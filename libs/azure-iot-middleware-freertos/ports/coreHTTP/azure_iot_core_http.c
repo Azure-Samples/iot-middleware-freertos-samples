@@ -64,21 +64,35 @@ AzureIoTHTTPResult_t AzureIoTHTTP_Init( AzureIoTHTTPHandle_t xHTTPHandle,
     return prvTranslateToAzureIoTHTTPResult( xHttpLibraryStatus );
 }
 
-AzureIoTHTTPResult_t AzureIoTHTTP_Request( AzureIoTHTTPHandle_t xHTTPHandle )
+AzureIoTHTTPResult_t AzureIoTHTTP_Request( AzureIoTHTTPHandle_t xHTTPHandle, uint32_t ulRangeStart, uint32_t ulRangeEnd )
 {
     HTTPStatus_t xHttpLibraryStatus = HTTPSuccess;
 
     xHTTPHandle->xResponse.pBuffer = pucResponseBuffer;
     xHTTPHandle->xResponse.bufferLen = sizeof( pucResponseBuffer );
 
+    if ( ulRangeStart != 0 && ulRangeEnd != azureiothttpHttpRangeRequestEndOfFile)
+    {
+        // Add range headers if not the whole image.
+        xHttpLibraryStatus = HTTPClient_AddRangeHeader( &xHTTPHandle->xRequestHeaders, ulRangeStart, ulRangeEnd );
+        if( xHttpLibraryStatus != HTTPSuccess )
+        {
+          return prvTranslateToAzureIoTHTTPResult( xHttpLibraryStatus );
+        }
+    }
+
     xHttpLibraryStatus = HTTPClient_Send( ( TransportInterface_t * ) xHTTPHandle->pxHTTPTransport, &xHTTPHandle->xRequestHeaders, NULL, 0, &xHTTPHandle->xResponse, 0 );
+    if( xHttpLibraryStatus != HTTPSuccess )
+    {
+      return prvTranslateToAzureIoTHTTPResult( xHttpLibraryStatus );
+    }
 
     if( xHttpLibraryStatus == HTTPSuccess )
     {
         if( xHTTPHandle->xResponse.statusCode == 200 )
         {
             /* Handle a response Status-Code of 200 OK. */
-            printf( ( "[HTTP] Success 200.\r\n" ) );
+            printf( "[HTTP] Success 200 | Range %d to %d\r\n", ulRangeStart, ulRangeEnd );
             printf( "[HTTP] Payload: %.*s\r\n", ( int ) xHTTPHandle->xResponse.bodyLen, ( char * ) xHTTPHandle->xResponse.pBody );
         }
         else

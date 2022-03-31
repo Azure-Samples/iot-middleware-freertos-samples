@@ -214,26 +214,30 @@ static AzureIoTResult_t prvHandleSteps( AzureIoTADUClient_t * pxAduClient )
             xResult = prvAzureIoT_ADUSendPropertyUpdate( pxAduClient->pxHubClient,
                                                          &xWriter );
 
-            printf( ( "[ADU] Set file URL and URL length.\r\n" ) );
-            pxAduClient->xManifest.pxFiles[ 0 ].pucFileURL = ( const uint8_t * ) "adu-ewertons-2--adu-ewertons-2.b.nlu.dl.adu.microsoft.com/westus2/adu-ewertons-2--adu-ewertons-2/260c33ee559a4671bedf9515652e4371/image.bin";
-            pxAduClient->xManifest.pxFiles[ 0 ].ulFileURLLength = strlen( "adu-ewertons-2--adu-ewertons-2.b.nlu.dl.adu.microsoft.com/westus2/adu-ewertons-2--adu-ewertons-2/260c33ee559a4671bedf9515652e4371/image.bin" );
-
             printf( ( "[ADU] Invoke HTTP Connect Callback.\r\n" ) );
-            xResult = pxAduClient->xHTTPConnectCallback( pxAduClient->pxHTTPTransport, ( const char * ) "adu-ewertons-2--adu-ewertons-2.b.nlu.dl.adu.microsoft.com" );
+            xResult = pxAduClient->xHTTPConnectCallback( pxAduClient->pxHTTPTransport, ( const char * ) "http://dawalton.blob.core.windows.net" );
 
             printf( ( "[ADU] Initialize HTTP client.\r\n" ) );
             AzureIoTHTTP_Init( &pxAduClient->xHTTP, pxAduClient->pxHTTPTransport,
-                               "adu-ewertons-2--adu-ewertons-2.b.nlu.dl.adu.microsoft.com",
-                               strlen( "adu-ewertons-2--adu-ewertons-2.b.nlu.dl.adu.microsoft.com" ),
-                               "/westus2/adu-ewertons-2--adu-ewertons-2/260c33ee559a4671bedf9515652e4371/image.bin",
-                               strlen( "/westus2/adu-ewertons-2--adu-ewertons-2/260c33ee559a4671bedf9515652e4371/image.bin" ) );
+                               "http://dawalton.blob.core.windows.net",
+                               strlen( "http://dawalton.blob.core.windows.net" ),
+                               "/adu/azure_iot_freertos_esp32.bin",
+                               strlen( "/adu/azure_iot_freertos_esp32.bin" ) );
 
             printf( ( "[ADU] Send HTTP request.\r\n" ) );
 
-            if( AzureIoTHTTP_Request( &pxAduClient->xHTTP ) == eAzureIoTHTTPSuccess )
+            while ( pxAduClient->xImage.ulCurrentOffset < pxAduClient->xImage.ulImageFileSize)
             {
-                printf( " [ADU] HTTP Request was successful\r\n" );
-                pxAduClient->xUpdateStepState = eAzureIoTADUUpdateStepFirmwareDownloadSucceeded;
+                if( AzureIoTHTTP_Request( &pxAduClient->xHTTP, pxAduClient->xImage.ulCurrentOffset,
+                      pxAduClient->xImage.ulCurrentOffset + azureiothttpCHUNK_DOWNLOAD_BUFFER_SIZE ) == eAzureIoTHTTPSuccess )
+                {
+                    printf( " [ADU] HTTP Request was successful\r\n" );
+                    pxAduClient->xUpdateStepState = eAzureIoTADUUpdateStepFirmwareDownloadSucceeded;
+                }
+                else
+                {
+                    pxAduClient->xImage.ulCurrentOffset += azureiothttpCHUNK_DOWNLOAD_BUFFER_SIZE;
+                }
             }
 
             break;
@@ -257,10 +261,7 @@ static AzureIoTResult_t prvHandleSteps( AzureIoTADUClient_t * pxAduClient )
                                          ucDataBuffer,
                                          8 );
 
-            if ( xResult == eAzureIoTSuccess )
-            {
-                pxAduClient->xImage.ulCurrentOffset += sizeof(ucDataBuffer);
-            }
+
 
             if ( pxAduClient->xImage.ulCurrentOffset == pxAduClient->xImage.ulImageFileSize )
             {

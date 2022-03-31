@@ -19,6 +19,7 @@
 
 #define azureiothttpHEADER_BUFFER_SIZE            256
 #define azureiothttpCHUNK_DOWNLOAD_BUFFER_SIZE    512
+#define azureiothttpHttpRangeRequestEndOfFile     -1
 
 typedef AzureIoTHTTP_t * AzureIoTHTTPHandle_t;
 
@@ -45,7 +46,9 @@ AzureIoTHTTPResult_t AzureIoTHTTP_Init( AzureIoTHTTPHandle_t xHTTPHandle,
                                         const char * pucPath,
                                         uint32_t ulPathLength );
 
-AzureIoTHTTPResult_t AzureIoTHTTP_Request( AzureIoTHTTPHandle_t xHTTPHandle );
+AzureIoTHTTPResult_t AzureIoTHTTP_Request( AzureIoTHTTPHandle_t xHTTPHandle,
+uint32_t ulRangeStart,
+uint32_t ulRangeEnd );
 
 AzureIoTHTTPResult_t ulAzureIoTHTTP_Deinit( AzureIoTHTTPHandle_t xHTTPHandle );
 
