@@ -22,8 +22,8 @@ AzureIoTResult_t AzureIoTPlatform_WriteBlock( AzureADUImage_t * const pxAduImage
                                               uint8_t * const pData,
                                               uint32_t ulBlockSize );
 
-AzureIoTResult_t AzureIoTPlatform_EnableImage(AzureADUImage_t * const pxAduImage);
+AzureIoTResult_t AzureIoTPlatform_EnableImage( AzureADUImage_t * const pxAduImage );
 
-AzureIoTResult_t AzureIoTPlatform_ResetDevice(AzureADUImage_t * const pxAduImage);
+AzureIoTResult_t AzureIoTPlatform_ResetDevice( AzureADUImage_t * const pxAduImage );
 
 #endif /* AZURE_IOT_FLASH_PLATFORM_H */

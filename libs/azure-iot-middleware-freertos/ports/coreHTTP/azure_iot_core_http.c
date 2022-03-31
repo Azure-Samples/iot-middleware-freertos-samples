@@ -64,27 +64,31 @@ AzureIoTHTTPResult_t AzureIoTHTTP_Init( AzureIoTHTTPHandle_t xHTTPHandle,
     return prvTranslateToAzureIoTHTTPResult( xHttpLibraryStatus );
 }
 
-AzureIoTHTTPResult_t AzureIoTHTTP_Request( AzureIoTHTTPHandle_t xHTTPHandle, uint32_t ulRangeStart, uint32_t ulRangeEnd )
+AzureIoTHTTPResult_t AzureIoTHTTP_Request( AzureIoTHTTPHandle_t xHTTPHandle,
+                                           uint32_t ulRangeStart,
+                                           uint32_t ulRangeEnd )
 {
     HTTPStatus_t xHttpLibraryStatus = HTTPSuccess;
 
     xHTTPHandle->xResponse.pBuffer = pucResponseBuffer;
     xHTTPHandle->xResponse.bufferLen = sizeof( pucResponseBuffer );
 
-    if ( ulRangeStart != 0 && ulRangeEnd != azureiothttpHttpRangeRequestEndOfFile)
+    if( ( ulRangeStart != 0 ) && ( ulRangeEnd != azureiothttpHttpRangeRequestEndOfFile ) )
     {
-        // Add range headers if not the whole image.
+        /* Add range headers if not the whole image. */
         xHttpLibraryStatus = HTTPClient_AddRangeHeader( &xHTTPHandle->xRequestHeaders, ulRangeStart, ulRangeEnd );
+
         if( xHttpLibraryStatus != HTTPSuccess )
         {
-          return prvTranslateToAzureIoTHTTPResult( xHttpLibraryStatus );
+            return prvTranslateToAzureIoTHTTPResult( xHttpLibraryStatus );
         }
     }
 
     xHttpLibraryStatus = HTTPClient_Send( ( TransportInterface_t * ) xHTTPHandle->pxHTTPTransport, &xHTTPHandle->xRequestHeaders, NULL, 0, &xHTTPHandle->xResponse, 0 );
+
     if( xHttpLibraryStatus != HTTPSuccess )
     {
-      return prvTranslateToAzureIoTHTTPResult( xHttpLibraryStatus );
+        return prvTranslateToAzureIoTHTTPResult( xHttpLibraryStatus );
     }
 
     if( xHttpLibraryStatus == HTTPSuccess )

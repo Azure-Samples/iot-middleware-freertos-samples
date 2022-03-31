@@ -47,8 +47,8 @@ AzureIoTHTTPResult_t AzureIoTHTTP_Init( AzureIoTHTTPHandle_t xHTTPHandle,
                                         uint32_t ulPathLength );
 
 AzureIoTHTTPResult_t AzureIoTHTTP_Request( AzureIoTHTTPHandle_t xHTTPHandle,
-uint32_t ulRangeStart,
-uint32_t ulRangeEnd );
+                                           uint32_t ulRangeStart,
+                                           uint32_t ulRangeEnd );
 
 AzureIoTHTTPResult_t ulAzureIoTHTTP_Deinit( AzureIoTHTTPHandle_t xHTTPHandle );
 

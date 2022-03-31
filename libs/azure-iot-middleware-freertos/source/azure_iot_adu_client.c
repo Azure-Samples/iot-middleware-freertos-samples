@@ -226,10 +226,10 @@ static AzureIoTResult_t prvHandleSteps( AzureIoTADUClient_t * pxAduClient )
 
             printf( ( "[ADU] Send HTTP request.\r\n" ) );
 
-            while ( pxAduClient->xImage.ulCurrentOffset < pxAduClient->xImage.ulImageFileSize)
+            while( pxAduClient->xImage.ulCurrentOffset < pxAduClient->xImage.ulImageFileSize )
             {
                 if( AzureIoTHTTP_Request( &pxAduClient->xHTTP, pxAduClient->xImage.ulCurrentOffset,
-                      pxAduClient->xImage.ulCurrentOffset + azureiothttpCHUNK_DOWNLOAD_BUFFER_SIZE ) == eAzureIoTHTTPSuccess )
+                                          pxAduClient->xImage.ulCurrentOffset + azureiothttpCHUNK_DOWNLOAD_BUFFER_SIZE ) == eAzureIoTHTTPSuccess )
                 {
                     printf( " [ADU] HTTP Request was successful\r\n" );
                     pxAduClient->xUpdateStepState = eAzureIoTADUUpdateStepFirmwareDownloadSucceeded;
@@ -257,15 +257,13 @@ static AzureIoTResult_t prvHandleSteps( AzureIoTADUClient_t * pxAduClient )
             printf( ( "[ADU] Step: eAzureIoTADUUpdateStepFirmwareInstallStarted\r\n" ) );
 
             xResult = AzureIoTPlatform_WriteBlock( &pxAduClient->xImage,
-                                         pxAduClient->xImage.ulCurrentOffset,
-                                         ucDataBuffer,
-                                         8 );
+                                                   pxAduClient->xImage.ulCurrentOffset,
+                                                   ucDataBuffer,
+                                                   8 );
 
-
-
-            if ( pxAduClient->xImage.ulCurrentOffset == pxAduClient->xImage.ulImageFileSize )
+            if( pxAduClient->xImage.ulCurrentOffset == pxAduClient->xImage.ulImageFileSize )
             {
-                // We are done writing the whole image
+                /* We are done writing the whole image */
 
                 /* Should we write block and then loop back to the initiate download with a certain range? */
                 /* We would then move on to the install succeeded if all the parts are correctly written. */
@@ -288,7 +286,7 @@ static AzureIoTResult_t prvHandleSteps( AzureIoTADUClient_t * pxAduClient )
 
             printf( ( "[ADU] Step: eAzureIoTADUUpdateStepFirmwareApplyStarted\r\n" ) );
 
-            AzureIoTPlatform_EnableImage(&pxAduClient->xImage);
+            AzureIoTPlatform_EnableImage( &pxAduClient->xImage );
 
             pxAduClient->xUpdateStepState = eAzureIoTADUUpdateStepFirmwareApplySucceeded;
             break;
@@ -297,7 +295,7 @@ static AzureIoTResult_t prvHandleSteps( AzureIoTADUClient_t * pxAduClient )
 
             printf( ( "[ADU] Step: eAzureIoTADUUpdateStepFirmwareApplySucceeded\r\n" ) );
 
-            AzureIoTPlatform_ResetDevice(&pxAduClient->xImage);
+            AzureIoTPlatform_ResetDevice( &pxAduClient->xImage );
 
             break;
 
