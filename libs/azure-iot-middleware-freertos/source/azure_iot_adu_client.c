@@ -217,12 +217,12 @@ static AzureIoTResult_t prvHandleSteps( AzureIoTADUClient_t * pxAduClient )
             printf( ( "[ADU] Invoke HTTP Connect Callback.\r\n" ) );
             xResult = pxAduClient->xHTTPConnectCallback( pxAduClient->pxHTTPTransport, ( const char * ) "dawalton.blob.core.windows.net" );
 
-            // Range Check
+            /* Range Check */
             AzureIoTHTTP_Init( &pxAduClient->xHTTP, pxAduClient->pxHTTPTransport,
-                    "dawalton.blob.core.windows.net",
-                    strlen( "dawalton.blob.core.windows.net" ),
-                    "/adu/azure_iot_freertos_esp32.bin",
-                    strlen( "/adu/azure_iot_freertos_esp32.bin" ));
+                               "dawalton.blob.core.windows.net",
+                               strlen( "dawalton.blob.core.windows.net" ),
+                               "/adu/azure_iot_freertos_esp32.bin",
+                               strlen( "/adu/azure_iot_freertos_esp32.bin" ) );
 
             if( ( pxAduClient->xImage.ulImageFileSize = AzureIoTHTTP_RequestSize( &pxAduClient->xHTTP ) ) == -1 )
             {
@@ -230,7 +230,7 @@ static AzureIoTResult_t prvHandleSteps( AzureIoTADUClient_t * pxAduClient )
             }
             else
             {
-                LogError( ( " [ADU] Error getting the headers.\r\n ") );
+                LogError( ( " [ADU] Error getting the headers.\r\n " ) );
             }
 
             printf( ( "[ADU] Initialize HTTP client.\r\n" ) );

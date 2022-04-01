@@ -71,7 +71,7 @@ AzureIoTHTTPResult_t AzureIoTHTTP_Request( AzureIoTHTTPHandle_t xHTTPHandle,
     xHTTPHandle->xResponse.pBuffer = pucResponseBuffer;
     xHTTPHandle->xResponse.bufferLen = sizeof( pucResponseBuffer );
     xHTTPHandle->xRequestInfo.pMethod = "GET";
-    xHTTPHandle->xRequestInfo.methodLen = strlen("GET") - 1;
+    xHTTPHandle->xRequestInfo.methodLen = strlen( "GET" ) - 1;
 
     if( ( ulRangeStart != 0 ) && ( ulRangeEnd != azureiothttpHttpRangeRequestEndOfFile ) )
     {
@@ -117,7 +117,7 @@ uint32_t AzureIoTHTTP_RequestSize( AzureIoTHTTPHandle_t xHTTPHandle )
     xHTTPHandle->xResponse.pBuffer = pucResponseBuffer;
     xHTTPHandle->xResponse.bufferLen = sizeof( pucResponseBuffer );
     xHTTPHandle->xRequestInfo.pMethod = "HEAD";
-    xHTTPHandle->xRequestInfo.methodLen = strlen("HEAD") - 1;
+    xHTTPHandle->xRequestInfo.methodLen = strlen( "HEAD" ) - 1;
 
     xHttpLibraryStatus = HTTPClient_Send( ( TransportInterface_t * ) xHTTPHandle->pxHTTPTransport, &xHTTPHandle->xRequestHeaders, NULL, 0, &xHTTPHandle->xResponse, 0 );
 
