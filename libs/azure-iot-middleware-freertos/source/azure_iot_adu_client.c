@@ -215,12 +215,28 @@ static AzureIoTResult_t prvHandleSteps( AzureIoTADUClient_t * pxAduClient )
                                                          &xWriter );
 
             printf( ( "[ADU] Invoke HTTP Connect Callback.\r\n" ) );
-            xResult = pxAduClient->xHTTPConnectCallback( pxAduClient->pxHTTPTransport, ( const char * ) "http://dawalton.blob.core.windows.net" );
+            xResult = pxAduClient->xHTTPConnectCallback( pxAduClient->pxHTTPTransport, ( const char * ) "dawalton.blob.core.windows.net" );
+
+            // Range Check
+            AzureIoTHTTP_Init( &pxAduClient->xHTTP, pxAduClient->pxHTTPTransport,
+                    "dawalton.blob.core.windows.net",
+                    strlen( "dawalton.blob.core.windows.net" ),
+                    "/adu/azure_iot_freertos_esp32.bin",
+                    strlen( "/adu/azure_iot_freertos_esp32.bin" ));
+
+            if( ( pxAduClient->xImage.ulImageFileSize = AzureIoTHTTP_RequestSize( &pxAduClient->xHTTP ) ) == -1 )
+            {
+                printf( " [ADU] HTTP Range Request was successful\r\n" );
+            }
+            else
+            {
+                LogError( ( " [ADU] Error getting the headers.\r\n ") );
+            }
 
             printf( ( "[ADU] Initialize HTTP client.\r\n" ) );
             AzureIoTHTTP_Init( &pxAduClient->xHTTP, pxAduClient->pxHTTPTransport,
-                               "http://dawalton.blob.core.windows.net",
-                               strlen( "http://dawalton.blob.core.windows.net" ),
+                               "dawalton.blob.core.windows.net",
+                               strlen( "dawalton.blob.core.windows.net" ),
                                "/adu/azure_iot_freertos_esp32.bin",
                                strlen( "/adu/azure_iot_freertos_esp32.bin" ) );
 

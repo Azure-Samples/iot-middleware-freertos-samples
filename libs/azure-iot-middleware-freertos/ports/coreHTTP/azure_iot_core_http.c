@@ -53,8 +53,6 @@ AzureIoTHTTPResult_t AzureIoTHTTP_Init( AzureIoTHTTPHandle_t xHTTPHandle,
     xHTTPHandle->xRequestInfo.hostLen = ulURLLength;
     xHTTPHandle->xRequestInfo.pPath = pucPath;
     xHTTPHandle->xRequestInfo.pathLen = ulPathLength;
-    xHTTPHandle->xRequestInfo.pMethod = "GET";
-    xHTTPHandle->xRequestInfo.methodLen = sizeof( "GET" ) - 1;
 
     xHTTPHandle->pxHTTPTransport = pxHTTPTransport;
 
@@ -72,6 +70,8 @@ AzureIoTHTTPResult_t AzureIoTHTTP_Request( AzureIoTHTTPHandle_t xHTTPHandle,
 
     xHTTPHandle->xResponse.pBuffer = pucResponseBuffer;
     xHTTPHandle->xResponse.bufferLen = sizeof( pucResponseBuffer );
+    xHTTPHandle->xRequestInfo.pMethod = "GET";
+    xHTTPHandle->xRequestInfo.methodLen = strlen("GET") - 1;
 
     if( ( ulRangeStart != 0 ) && ( ulRangeEnd != azureiothttpHttpRangeRequestEndOfFile ) )
     {
@@ -108,6 +108,41 @@ AzureIoTHTTPResult_t AzureIoTHTTP_Request( AzureIoTHTTPHandle_t xHTTPHandle,
     }
 
     return prvTranslateToAzureIoTHTTPResult( xHttpLibraryStatus );
+}
+
+uint32_t AzureIoTHTTP_RequestSize( AzureIoTHTTPHandle_t xHTTPHandle )
+{
+    HTTPStatus_t xHttpLibraryStatus = HTTPSuccess;
+
+    xHTTPHandle->xResponse.pBuffer = pucResponseBuffer;
+    xHTTPHandle->xResponse.bufferLen = sizeof( pucResponseBuffer );
+    xHTTPHandle->xRequestInfo.pMethod = "HEAD";
+    xHTTPHandle->xRequestInfo.methodLen = strlen("HEAD") - 1;
+
+    xHttpLibraryStatus = HTTPClient_Send( ( TransportInterface_t * ) xHTTPHandle->pxHTTPTransport, &xHTTPHandle->xRequestHeaders, NULL, 0, &xHTTPHandle->xResponse, 0 );
+
+    if( xHttpLibraryStatus != HTTPSuccess )
+    {
+        return -1;
+    }
+
+    if( xHttpLibraryStatus == HTTPSuccess )
+    {
+        if( xHTTPHandle->xResponse.statusCode == 200 )
+        {
+            /* Handle a response Status-Code of 200 OK. */
+            printf( "[HTTP] Success 200\r\n" );
+            return xHTTPHandle->xResponse.contentLength;
+        }
+        else
+        {
+            /* Handle an error */
+            printf( "[HTTP] Failed %d.\r\n", xHTTPHandle->xResponse.statusCode );
+            return -1;
+        }
+    }
+
+    return -1;
 }
 
 AzureIoTHTTPResult_t ulAzureIoTHTTP_Deinit( AzureIoTHTTPHandle_t xHTTPHandle )
