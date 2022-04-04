@@ -208,6 +208,8 @@ static AzureIoTResult_t prvHandleSteps( AzureIoTADUClient_t * pxAduClient )
         /* Only used in proxy update */
         case eAzureIoTADUUpdateStepFirmwareDownloadStarted:
 
+            AzureIoTPlatform_Init( &pxAduClient->xImage );
+
             printf( ( "[ADU] Step: eAzureIoTADUUpdateStepFirmwareDownloadStarted\r\n" ) );
 
             printf( ( "[ADU] Send property update.\r\n" ) );
@@ -218,20 +220,22 @@ static AzureIoTResult_t prvHandleSteps( AzureIoTADUClient_t * pxAduClient )
             xResult = pxAduClient->xHTTPConnectCallback( pxAduClient->pxHTTPTransport, ( const char * ) "dawalton.blob.core.windows.net" );
 
             /* Range Check */
-            AzureIoTHTTP_Init( &pxAduClient->xHTTP, pxAduClient->pxHTTPTransport,
-                               "dawalton.blob.core.windows.net",
-                               strlen( "dawalton.blob.core.windows.net" ),
-                               "/adu/azure_iot_freertos_esp32.bin",
-                               strlen( "/adu/azure_iot_freertos_esp32.bin" ) );
+            // AzureIoTHTTP_RequestSizeInit( &pxAduClient->xHTTP, pxAduClient->pxHTTPTransport,
+            //                    "dawalton.blob.core.windows.net",
+            //                    strlen( "dawalton.blob.core.windows.net" ),
+            //                    "/adu/azure_iot_freertos_esp32.bin",
+            //                    strlen( "/adu/azure_iot_freertos_esp32.bin" ) );
 
-            if( ( pxAduClient->xImage.ulImageFileSize = AzureIoTHTTP_RequestSize( &pxAduClient->xHTTP ) ) == -1 )
-            {
-                printf( " [ADU] HTTP Range Request was successful\r\n" );
-            }
-            else
-            {
-                LogError( ( " [ADU] Error getting the headers.\r\n " ) );
-            }
+            // if( ( pxAduClient->xImage.ulImageFileSize = AzureIoTHTTP_RequestSize( &pxAduClient->xHTTP ) ) != -1 )
+            // {
+            //     printf( "[ADU] HTTP Range Request was successful: size %d bytes\r\n", pxAduClient->xImage.ulImageFileSize );
+            // }
+            // else
+            // {
+            //     LogError( ( "[ADU] Error getting the headers.\r\n " ) );
+            // }
+
+            pxAduClient->xImage.ulImageFileSize = 867648;
 
             printf( ( "[ADU] Initialize HTTP client.\r\n" ) );
             AzureIoTHTTP_Init( &pxAduClient->xHTTP, pxAduClient->pxHTTPTransport,
@@ -244,17 +248,22 @@ static AzureIoTResult_t prvHandleSteps( AzureIoTADUClient_t * pxAduClient )
 
             while( pxAduClient->xImage.ulCurrentOffset < pxAduClient->xImage.ulImageFileSize )
             {
+                printf( "[ADU] HTTP Requesting | %d:%d\r\n", pxAduClient->xImage.ulCurrentOffset, pxAduClient->xImage.ulCurrentOffset + azureiothttpCHUNK_DOWNLOAD_BUFFER_SIZE - 1 );
                 if( AzureIoTHTTP_Request( &pxAduClient->xHTTP, pxAduClient->xImage.ulCurrentOffset,
-                                          pxAduClient->xImage.ulCurrentOffset + azureiothttpCHUNK_DOWNLOAD_BUFFER_SIZE ) == eAzureIoTHTTPSuccess )
+                                          pxAduClient->xImage.ulCurrentOffset + azureiothttpCHUNK_DOWNLOAD_BUFFER_SIZE - 1 ) == eAzureIoTHTTPSuccess )
                 {
-                    printf( " [ADU] HTTP Request was successful\r\n" );
-                    pxAduClient->xUpdateStepState = eAzureIoTADUUpdateStepFirmwareDownloadSucceeded;
+                    printf( "[ADU] HTTP Request was successful | %d:%d\r\n",
+                      pxAduClient->xImage.ulCurrentOffset,
+                      pxAduClient->xImage.ulCurrentOffset + azureiothttpCHUNK_DOWNLOAD_BUFFER_SIZE - 1 );
+                    pxAduClient->xImage.ulCurrentOffset += azureiothttpCHUNK_DOWNLOAD_BUFFER_SIZE;
                 }
                 else
                 {
-                    pxAduClient->xImage.ulCurrentOffset += azureiothttpCHUNK_DOWNLOAD_BUFFER_SIZE;
+                  break;
                 }
             }
+
+            pxAduClient->xUpdateStepState = eAzureIoTADUUpdateStepFirmwareDownloadSucceeded;
 
             break;
 
@@ -263,8 +272,6 @@ static AzureIoTResult_t prvHandleSteps( AzureIoTADUClient_t * pxAduClient )
             printf( ( "[ADU] Step: eAzureIoTADUUpdateStepFirmwareDownloadSucceeded\r\n" ) );
 
             pxAduClient->xUpdateStepState = eAzureIoTADUUpdateStepFirmwareInstallStarted;
-
-            AzureIoTPlatform_Init( &pxAduClient->xImage );
 
             break;
 
