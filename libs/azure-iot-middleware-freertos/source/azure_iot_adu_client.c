@@ -177,6 +177,7 @@ static AzureIoTResult_t prvAzureIoT_ADUSendPropertyUpdate( AzureIoTHubClient_t *
 static AzureIoTResult_t prvHandleSteps( AzureIoTADUClient_t * pxAduClient )
 {
     AzureIoTResult_t xResult;
+    AzureIoTHTTPResult_t xHttpResult;
     AzureIoTJSONWriter_t xWriter;
 
     uint8_t ucDataBuffer[] = { 0, 1, 2, 3, 4, 5, 6, 7 };
@@ -237,25 +238,37 @@ static AzureIoTResult_t prvHandleSteps( AzureIoTADUClient_t * pxAduClient )
 
             pxAduClient->xImage.ulImageFileSize = 867648;
 
-            printf( ( "[ADU] Initialize HTTP client.\r\n" ) );
-            AzureIoTHTTP_Init( &pxAduClient->xHTTP, pxAduClient->pxHTTPTransport,
+            printf( ( "[ADU] Send HTTP request.\r\n" ) );
+
+            while( pxAduClient->xImage.ulCurrentOffset < pxAduClient->xImage.ulImageFileSize )
+            {
+                printf( ( "[ADU] Initialize HTTP client.\r\n" ) );
+                AzureIoTHTTP_Init( &pxAduClient->xHTTP, pxAduClient->pxHTTPTransport,
                                "dawalton.blob.core.windows.net",
                                strlen( "dawalton.blob.core.windows.net" ),
                                "/adu/azure_iot_freertos_esp32.bin",
                                strlen( "/adu/azure_iot_freertos_esp32.bin" ) );
 
-            printf( ( "[ADU] Send HTTP request.\r\n" ) );
-
-            while( pxAduClient->xImage.ulCurrentOffset < pxAduClient->xImage.ulImageFileSize )
-            {
-                printf( "[ADU] HTTP Requesting | %d:%d\r\n", pxAduClient->xImage.ulCurrentOffset, pxAduClient->xImage.ulCurrentOffset + azureiothttpCHUNK_DOWNLOAD_BUFFER_SIZE - 1 );
-                if( AzureIoTHTTP_Request( &pxAduClient->xHTTP, pxAduClient->xImage.ulCurrentOffset,
-                                          pxAduClient->xImage.ulCurrentOffset + azureiothttpCHUNK_DOWNLOAD_BUFFER_SIZE - 1 ) == eAzureIoTHTTPSuccess )
+                printf( "[ADU] HTTP Requesting | %d:%d\r\n",
+                  pxAduClient->xImage.ulCurrentOffset,
+                pxAduClient->xImage.ulCurrentOffset + azureiothttpCHUNK_DOWNLOAD_SIZE - 1 );
+                if( (xHttpResult = AzureIoTHTTP_Request( &pxAduClient->xHTTP, pxAduClient->xImage.ulCurrentOffset,
+                                          pxAduClient->xImage.ulCurrentOffset + azureiothttpCHUNK_DOWNLOAD_SIZE - 1 )) == eAzureIoTHTTPSuccess )
                 {
                     printf( "[ADU] HTTP Request was successful | %d:%d\r\n",
                       pxAduClient->xImage.ulCurrentOffset,
-                      pxAduClient->xImage.ulCurrentOffset + azureiothttpCHUNK_DOWNLOAD_BUFFER_SIZE - 1 );
-                    pxAduClient->xImage.ulCurrentOffset += azureiothttpCHUNK_DOWNLOAD_BUFFER_SIZE;
+                      pxAduClient->xImage.ulCurrentOffset + azureiothttpCHUNK_DOWNLOAD_SIZE - 1 );
+                    pxAduClient->xImage.ulCurrentOffset += azureiothttpCHUNK_DOWNLOAD_SIZE;
+                }
+                else if(xHttpResult == eAzureIoTHTTPNoResponse)
+                {
+                    printf("[ADU] Reconnecting...\r\n");
+                    printf( "[ADU] Invoke HTTP Connect Callback.\r\n" );
+                    xResult = pxAduClient->xHTTPConnectCallback( pxAduClient->pxHTTPTransport, ( const char * ) "dawalton.blob.core.windows.net" );
+                    if (xResult != eAzureIoTSuccess)
+                    {
+                      break;
+                    }
                 }
                 else
                 {

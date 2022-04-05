@@ -108,7 +108,7 @@
 /**
  * @brief Transport timeout in milliseconds for transport send and receive.
  */
-#define sampleazureiotTRANSPORT_SEND_RECV_TIMEOUT_MS          ( 5000U )
+#define sampleazureiotTRANSPORT_SEND_RECV_TIMEOUT_MS          ( 8000U )
 
 /**
  * @brief Transport timeout in milliseconds for transport send and receive.

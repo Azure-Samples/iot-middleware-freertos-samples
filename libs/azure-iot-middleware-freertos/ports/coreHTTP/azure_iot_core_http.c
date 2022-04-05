@@ -21,11 +21,42 @@ static AzureIoTHTTPResult_t prvTranslateToAzureIoTHTTPResult( HTTPStatus_t xResu
         case HTTPSuccess:
             return eAzureIoTHTTPSuccess;
 
-        default:
-            return eAzureIoTHTTPFailed;
+        case HTTPInvalidParameter:
+            return eAzureIoTHTTPInvalidParameter;
+        case HTTPNetworkError:
+            return eAzureIoTHTTPNetworkError;
+        case HTTPPartialResponse:
+            return eAzureIoTHTTPPartialResponse;
+        case HTTPNoResponse:
+            return eAzureIoTHTTPNoResponse;
+        case HTTPInsufficientMemory:
+            return eAzureIoTHTTPInsufficientMemory;
+        case HTTPSecurityAlertResponseHeadersSizeLimitExceeded:
+            return eAzureIoTHTTPSecurityAlertResponseHeadersSizeLimitExceeded;
+        case HTTPSecurityAlertExtraneousResponseData:
+            return eAzureIoTHTTPSecurityAlertExtraneousResponseData;
+        case HTTPSecurityAlertInvalidChunkHeader:
+            return eAzureIoTHTTPSecurityAlertInvalidChunkHeader;
+        case HTTPSecurityAlertInvalidProtocolVersion:
+            return eAzureIoTHTTPSecurityAlertInvalidProtocolVersion;
+        case HTTPSecurityAlertInvalidStatusCode:
+            return eAzureIoTHTTPSecurityAlertInvalidStatusCode;
+        case HTTPSecurityAlertInvalidCharacter:
+            return eAzureIoTHTTPSecurityAlertInvalidCharacter;
+        case HTTPSecurityAlertInvalidContentLength:
+            return eAzureIoTHTTPSecurityAlertInvalidContentLength;
+        case HTTPParserInternalError:
+            return eAzureIoTHTTPParserInternalError;
+        case HTTPHeaderNotFound:
+            return eAzureIoTHTTPHeaderNotFound;
+        case HTTPInvalidResponse:
+            return eAzureIoTHTTPInvalidResponse;
+
+    default:
+        return eAzureIoTHTTPError;
     }
 
-    return eAzureIoTHTTPFailed;
+    return eAzureIoTHTTPError;
 }
 
 
@@ -55,6 +86,7 @@ AzureIoTHTTPResult_t AzureIoTHTTP_Init( AzureIoTHTTPHandle_t xHTTPHandle,
     xHTTPHandle->xRequestInfo.pathLen = ulPathLength;
     xHTTPHandle->xRequestInfo.pMethod = "GET";
     xHTTPHandle->xRequestInfo.methodLen = strlen( "GET" );
+    xHTTPHandle->xRequestInfo.reqFlags |= HTTP_REQUEST_KEEP_ALIVE_FLAG;
 
     xHTTPHandle->pxHTTPTransport = pxHTTPTransport;
 
@@ -81,9 +113,11 @@ AzureIoTHTTPResult_t AzureIoTHTTP_Request( AzureIoTHTTPHandle_t xHTTPHandle,
         char headerbuffer[32] = { 0 };
         int valueLength = snprintf(headerbuffer, sizeof(headerbuffer), "bytes=%d-%d", ulRangeStart, ulRangeEnd);
 
-        printf( "Adding <%s>", headerbuffer);
         xHttpLibraryStatus = HTTPClient_AddHeader( &xHTTPHandle->xRequestHeaders, "x-ms-range", sizeof("x-ms-range") - 1,
                                                    headerbuffer, valueLength );
+
+        printf( "Total header buffer: %.*s\r\n",
+              xHTTPHandle->xRequestHeaders.headersLen, xHTTPHandle->xRequestHeaders.pBuffer);
 
         if( xHttpLibraryStatus != HTTPSuccess )
         {
@@ -95,6 +129,7 @@ AzureIoTHTTPResult_t AzureIoTHTTP_Request( AzureIoTHTTPHandle_t xHTTPHandle,
 
     if( xHttpLibraryStatus != HTTPSuccess )
     {
+        printf ("[HTTP] ERROR: %d\r\n", xHttpLibraryStatus);
         return prvTranslateToAzureIoTHTTPResult( xHttpLibraryStatus );
     }
 
@@ -105,6 +140,23 @@ AzureIoTHTTPResult_t AzureIoTHTTP_Request( AzureIoTHTTPHandle_t xHTTPHandle,
             /* Handle a response Status-Code of 200 OK. */
             printf( "[HTTP] Success 200 | Range %d to %d\r\n", ulRangeStart, ulRangeEnd );
             printf( "[HTTP] Payload: %.*s\r\n", ( int ) xHTTPHandle->xResponse.bodyLen, ( char * ) xHTTPHandle->xResponse.pBody );
+        }
+        else if( xHTTPHandle->xResponse.statusCode == 206 )
+        {
+            /* Handle a response Status-Code of 200 OK. */
+            printf( "[HTTP] Partial Content 206 | Range %d to %d\r\n", ulRangeStart, ulRangeEnd );
+            printf( "[HTTP] ----- Headers -----\r\n");
+            printf( "%.*s\r\n", xHTTPHandle->xResponse.headersLen, xHTTPHandle->xResponse.pHeaders);
+            printf( "[HTTP] ----- Payload -----\r\n" );
+            for (int i = 0; i < xHTTPHandle->xResponse.bodyLen; i++)
+            {
+                printf("%02X", xHTTPHandle->xResponse.pBody[i]);
+                if ( i % 31 == 0)
+                {
+                  printf("\r\n");
+                }
+            }
+            printf("\r\n");
         }
         else
         {
