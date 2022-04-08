@@ -355,7 +355,7 @@ static AzureIoTResult_t prvHandleSteps( AzureIoTADUClient_t * pxAduClient )
             else
             {
                 /* There was an error writing to the flash */
-                AZLogError( "[ADU] Error with firmware install: memory offset doesn't match image size\r\n" );
+                AZLogError(( "[ADU] Error with firmware install: memory offset doesn't match image size\r\n" ));
                 pxAduClient->xUpdateStepState = eAzureIoTADUUpdateStepFailed;
             }
 
@@ -375,7 +375,7 @@ static AzureIoTResult_t prvHandleSteps( AzureIoTADUClient_t * pxAduClient )
 
             AZLogInfo( ( "[ADU] Step: eAzureIoTADUUpdateStepFirmwareApplyStarted\r\n" ) );
 
-            AZLogInfo( "[ADU] Enable the update image\r\n" );
+            AZLogInfo(( "[ADU] Enable the update image\r\n" ));
             AzureIoTPlatform_EnableImage( &pxAduClient->xImage );
 
             pxAduClient->xUpdateStepState = eAzureIoTADUUpdateStepFirmwareApplySucceeded;
@@ -385,7 +385,7 @@ static AzureIoTResult_t prvHandleSteps( AzureIoTADUClient_t * pxAduClient )
 
             AZLogInfo( ( "[ADU] Step: eAzureIoTADUUpdateStepFirmwareApplySucceeded\r\n" ) );
 
-            AZLogInfo( "[ADU] Reset the device\r\n" );
+            AZLogInfo(( "[ADU] Reset the device\r\n" ) );
             AzureIoTPlatform_ResetDevice( &pxAduClient->xImage );
 
             break;
