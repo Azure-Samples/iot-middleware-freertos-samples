@@ -192,7 +192,7 @@ AzureIoTResult_t AzureIoTADUClient_ADUProcessComponent( AzureIoTADUClient_t * px
             }
             else
             {
-                * pulWritablePropertyResponseBufferLength = az_span_size( xWritablePropertyResponse ) ;
+                *pulWritablePropertyResponseBufferLength = az_span_size( xWritablePropertyResponse ) ;
                 pxAduClient->xState = eAzureIoTADUStateDeploymentInProgress;
             }
         }
