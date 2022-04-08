@@ -485,7 +485,7 @@ static void prvAzureDemoTask( void * pvParameters )
         xResult = AzureIoTHubClient_RequestPropertiesAsync( &xAzureIoTHubClient );
         configASSERT( xResult == eAzureIoTSuccess );
 
-        // Publish messages with QoS1, send and process Keep alive messages.
+        /* Publish messages with QoS1, send and process Keep alive messages. */
         for( ; ; )
         {
             /* Hook for sending Telemetry */

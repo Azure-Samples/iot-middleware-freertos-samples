@@ -107,7 +107,7 @@ bool AzureIoTADUClient_IsADUComponent( AzureIoTADUClient_t * pxAduClient,
     ( void ) pxAduClient;
 
     return az_iot_adu_ota_is_component_device_update(
-        az_span_create( (uint8_t*) pucComponentName, ulComponentNameLength ) );
+        az_span_create( ( uint8_t * ) pucComponentName, ulComponentNameLength ) );
 }
 
 /**
@@ -140,25 +140,25 @@ static AzureIoTResult_t prvAzureIoT_ADUProcessUpdateManifest( AzureIoTADUClient_
 AzureIoTResult_t AzureIoTADUClient_ADUProcessComponent( AzureIoTADUClient_t * pxAduClient,
                                                         AzureIoTJSONReader_t * pxReader,
                                                         uint32_t ulPropertyVersion,
-                                                        uint8_t * pucWritablePropertyResponseBuffer, 
+                                                        uint8_t * pucWritablePropertyResponseBuffer,
                                                         uint32_t ulWritablePropertyResponseBufferSize,
-                                                        uint32_t *pulWritablePropertyResponseBufferLength )
+                                                        uint32_t * pulWritablePropertyResponseBufferLength )
 {
     /* Iterate through the JSON and pull out the components that are useful. */
 
-    // prvAzureIoT_ADUProcessUpdateManifest( pxAduClient, pxReader );
+    /* prvAzureIoT_ADUProcessUpdateManifest( pxAduClient, pxReader ); */
 
-    if ( az_result_failed(
-        az_iot_adu_ota_parse_service_properties(
-            &pxAduClient->pxHubClient->_internal.xAzureIoTHubClientCore,
-            &pxReader->_internal.xCoreReader,
-            pxAduClient->xAduContextBuffer,
-            &pxAduClient->xUpdateRequest,
-            &pxAduClient->xAduContextBuffer ) ) )
+    if( az_result_failed(
+            az_iot_adu_ota_parse_service_properties(
+                &pxAduClient->pxHubClient->_internal.xAzureIoTHubClientCore,
+                &pxReader->_internal.xCoreReader,
+                pxAduClient->xAduContextBuffer,
+                &pxAduClient->xUpdateRequest,
+                &pxAduClient->xAduContextBuffer ) ) )
     {
         LogError( ( "az_iot_adu_ota_parse_service_properties failed" ) );
-        // TODO: return individualized/specific errors.
-        return eAzureIoTErrorFailed; 
+        /* TODO: return individualized/specific errors. */
+        return eAzureIoTErrorFailed;
     }
     else
     {
@@ -171,11 +171,11 @@ AzureIoTResult_t AzureIoTADUClient_ADUProcessComponent( AzureIoTADUClient_t * px
             200,
             xWritablePropertyResponse,
             &xWritablePropertyResponse );
-        
-        if ( az_result_failed( azres ) )
+
+        if( az_result_failed( azres ) )
         {
             LogError( ( "az_iot_adu_ota_get_service_properties_response failed: 0x%08x (%d)", azres, ulWritablePropertyResponseBufferSize ) );
-            // TODO: return individualized/specific errors.
+            /* TODO: return individualized/specific errors. */
             return eAzureIoTErrorFailed;
         }
         else
@@ -184,15 +184,15 @@ AzureIoTResult_t AzureIoTADUClient_ADUProcessComponent( AzureIoTADUClient_t * px
                 pxAduClient->xUpdateRequest.update_manifest,
                 &pxAduClient->xUpdateManifest );
 
-            if ( az_result_failed( azres ) )
+            if( az_result_failed( azres ) )
             {
                 LogError( ( "az_iot_adu_ota_parse_update_manifest failed: 0x%08x (%d)", azres, ulWritablePropertyResponseBufferSize ) );
-                // TODO: return individualized/specific errors.
+                /* TODO: return individualized/specific errors. */
                 return eAzureIoTErrorFailed;
             }
             else
             {
-                *pulWritablePropertyResponseBufferLength = az_span_size( xWritablePropertyResponse ) ;
+                *pulWritablePropertyResponseBufferLength = az_span_size( xWritablePropertyResponse );
                 pxAduClient->xState = eAzureIoTADUStateDeploymentInProgress;
             }
         }

@@ -350,9 +350,9 @@ AzureIoTResult_t AzureIoTADUClient_ADUProcessLoop( AzureIoTADUClient_t * pxAduCl
 AzureIoTResult_t AzureIoTADUClient_ADUProcessComponent( AzureIoTADUClient_t * pxAduClient,
                                                         AzureIoTJSONReader_t * pxReader,
                                                         uint32_t ulPropertyVersion,
-                                                        uint8_t * pucWritablePropertyResponseBuffer, 
+                                                        uint8_t * pucWritablePropertyResponseBuffer,
                                                         uint32_t ulWritablePropertyResponseBufferSize,
-                                                        uint32_t *pulWritablePropertyResponseBufferLength );
+                                                        uint32_t * pulWritablePropertyResponseBufferLength );
 
 /**
  * @brief Returns whether the component is the ADU component
