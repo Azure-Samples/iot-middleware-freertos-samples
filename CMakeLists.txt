@@ -38,5 +38,8 @@ set(FREERTOS_DIRECTORY ${FREERTOS_PATH} CACHE STRING "FreeRTOS Path")
 set(CONFIG_DIRECTORY ${BOARD_DEMO_CONFIG_PATH} CACHE STRING "Demo config")
 set(FREERTOS_PORT_DIRECTORY ${BOARD_DEMO_FREERTOS_PORT_PATH} CACHE STRING "FreeRTOS port")
 
+# Include port path for lib
+include_directories(${BOARD_DEMO_PORT_PATH})
+
 # Add middleware
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/azure-iot-middleware-freertos)

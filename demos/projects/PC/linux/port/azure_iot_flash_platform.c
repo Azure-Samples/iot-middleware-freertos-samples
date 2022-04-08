@@ -1,6 +1,13 @@
 
 #include "azure_iot_flash_platform.h"
 
+AzureIoTResult_t AzureIoTPlatform_Init( AzureADUImage_t * const pxAduImage )
+{
+  (void)pxAduImage;
+
+  return eAzureIoTSuccess;
+}
+
 AzureIoTResult_t AzureIoTPlatform_WriteBlock( AzureADUImage_t * const pxFileContext,
                                               uint32_t ulOffset,
                                               uint8_t * const pData,
@@ -14,13 +21,12 @@ AzureIoTResult_t AzureIoTPlatform_WriteBlock( AzureADUImage_t * const pxFileCont
   return eAzureIoTSuccess;
 }
 
-
-AzureIoTResult_t AzureIoTPlatform_EnableImage()
+AzureIoTResult_t AzureIoTPlatform_EnableImage( AzureADUImage_t * const pxAduImage )
 {
   return eAzureIoTSuccess;
 }
 
-AzureIoTResult_t AzureIoTPlatform_ResetDevice()
+AzureIoTResult_t AzureIoTPlatform_ResetDevice( AzureADUImage_t * const pxAduImage )
 {
   return eAzureIoTSuccess;
 }

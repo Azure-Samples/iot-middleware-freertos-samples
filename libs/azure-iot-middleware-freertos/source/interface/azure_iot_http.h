@@ -53,8 +53,8 @@ AzureIoTHTTPResult_t AzureIoTHTTP_Init( AzureIoTHTTPHandle_t xHTTPHandle,
                                         uint32_t ulPathLength );
 
 AzureIoTHTTPResult_t AzureIoTHTTP_Request( AzureIoTHTTPHandle_t xHTTPHandle,
-                                           uint32_t ulRangeStart,
-                                           uint32_t ulRangeEnd,
+                                           int32_t lRangeStart,
+                                           int32_t lRangeEnd,
                                            char ** ppucDataBuffer,
                                            uint32_t * pulDataLength );
 
@@ -65,7 +65,7 @@ AzureIoTHTTPResult_t AzureIoTHTTP_RequestSizeInit( AzureIoTHTTPHandle_t xHTTPHan
                                                    const char * pucPath,
                                                    uint32_t ulPathLength );
 
-uint32_t AzureIoTHTTP_RequestSize( AzureIoTHTTPHandle_t xHTTPHandle );
+int32_t AzureIoTHTTP_RequestSize( AzureIoTHTTPHandle_t xHTTPHandle );
 
 AzureIoTHTTPResult_t ulAzureIoTHTTP_Deinit( AzureIoTHTTPHandle_t xHTTPHandle );
 

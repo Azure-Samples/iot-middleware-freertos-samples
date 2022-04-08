@@ -113,7 +113,7 @@ AzureIoTHTTPResult_t AzureIoTHTTP_Init( AzureIoTHTTPHandle_t xHTTPHandle,
 static void prvLogHttpResponse( AzureIoTHTTPHandle_t xHTTPHandle )
 {
     printf( "[HTTP] ----- Headers -----\r\n" );
-    printf( "%.*s\r\n", xHTTPHandle->xResponse.headersLen, xHTTPHandle->xResponse.pHeaders );
+    printf( "%.*s\r\n", ( int ) xHTTPHandle->xResponse.headersLen, xHTTPHandle->xResponse.pHeaders );
     printf( "[HTTP] ----- Payload -----\r\n" );
 
     /* for( int i = 0; i < xHTTPHandle->xResponse.bodyLen; i++ ) */
@@ -129,8 +129,8 @@ static void prvLogHttpResponse( AzureIoTHTTPHandle_t xHTTPHandle )
 }
 
 AzureIoTHTTPResult_t AzureIoTHTTP_Request( AzureIoTHTTPHandle_t xHTTPHandle,
-                                           uint32_t ulRangeStart,
-                                           uint32_t ulRangeEnd,
+                                           int32_t lRangeStart,
+                                           int32_t lRangeEnd,
                                            char ** ppucDataBuffer,
                                            uint32_t * pulDataLength )
 {
@@ -139,19 +139,19 @@ AzureIoTHTTPResult_t AzureIoTHTTP_Request( AzureIoTHTTPHandle_t xHTTPHandle,
     xHTTPHandle->xResponse.pBuffer = pucResponseBuffer;
     xHTTPHandle->xResponse.bufferLen = sizeof( pucResponseBuffer );
 
-    if( !( ( ulRangeStart == 0 ) && ( ulRangeEnd == azureiothttpHttpRangeRequestEndOfFile ) ) )
+    if( !( ( lRangeStart == 0 ) && ( lRangeEnd == azureiothttpHttpRangeRequestEndOfFile ) ) )
     {
-        printf( "[HTTP] Adding range headers | Range %d to %d\r\n", ulRangeStart, ulRangeEnd );
+        printf( "[HTTP] Adding range headers | Range %d to %d\r\n", lRangeStart, lRangeEnd );
         /* Add range headers if not the whole image. */
         /*TODO: this is hacky */
         char headerbuffer[ 32 ] = { 0 };
-        int valueLength = snprintf( headerbuffer, sizeof( headerbuffer ), "bytes=%d-%d", ulRangeStart, ulRangeEnd );
+        int valueLength = snprintf( headerbuffer, sizeof( headerbuffer ), "bytes=%d-%d", lRangeStart, lRangeEnd );
 
         xHttpLibraryStatus = HTTPClient_AddHeader( &xHTTPHandle->xRequestHeaders, "x-ms-range", sizeof( "x-ms-range" ) - 1,
-                                                   headerbuffer, valueLength );
+                                                   headerbuffer, ( size_t ) valueLength );
 
         printf( "Total header buffer: %.*s\r\n",
-                xHTTPHandle->xRequestHeaders.headersLen, xHTTPHandle->xRequestHeaders.pBuffer );
+                ( int ) xHTTPHandle->xRequestHeaders.headersLen, xHTTPHandle->xRequestHeaders.pBuffer );
 
         if( xHttpLibraryStatus != HTTPSuccess )
         {
@@ -178,11 +178,11 @@ AzureIoTHTTPResult_t AzureIoTHTTP_Request( AzureIoTHTTPHandle_t xHTTPHandle,
         else if( xHTTPHandle->xResponse.statusCode == 206 )
         {
             /* Handle a response Status-Code of 200 OK. */
-            printf( "[HTTP] Partial Content 206 | Range %d to %d\r\n", ulRangeStart, ulRangeEnd );
+            printf( "[HTTP] Partial Content 206 | Range %d to %d\r\n", lRangeStart, lRangeEnd );
             prvLogHttpResponse( xHTTPHandle );
 
-            *ppucDataBuffer = xHTTPHandle->xResponse.pBody;
-            *pulDataLength = xHTTPHandle->xResponse.bodyLen;
+            *ppucDataBuffer = ( char * ) xHTTPHandle->xResponse.pBody;
+            *pulDataLength = ( uint32_t ) xHTTPHandle->xResponse.bodyLen;
         }
         else
         {
@@ -230,7 +230,7 @@ AzureIoTHTTPResult_t AzureIoTHTTP_RequestSizeInit( AzureIoTHTTPHandle_t xHTTPHan
     return prvTranslateToAzureIoTHTTPResult( xHttpLibraryStatus );
 }
 
-uint32_t AzureIoTHTTP_RequestSize( AzureIoTHTTPHandle_t xHTTPHandle )
+int32_t AzureIoTHTTP_RequestSize( AzureIoTHTTPHandle_t xHTTPHandle )
 {
     HTTPStatus_t xHttpLibraryStatus = HTTPSuccess;
 
@@ -250,7 +250,7 @@ uint32_t AzureIoTHTTP_RequestSize( AzureIoTHTTPHandle_t xHTTPHandle )
         {
             /* Handle a response Status-Code of 200 OK. */
             printf( "[HTTP] Size Request Success 200\r\n" );
-            return xHTTPHandle->xResponse.contentLength;
+            return ( int32_t ) xHTTPHandle->xResponse.contentLength;
         }
         else
         {
