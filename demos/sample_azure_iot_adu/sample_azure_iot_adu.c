@@ -376,7 +376,7 @@ static void prvAzureDemoTask( void * pvParameters )
         uint8_t * pucIotHubDeviceId = ( uint8_t * ) democonfigDEVICE_ID;
         uint32_t pulIothubHostnameLength = sizeof( democonfigHOSTNAME ) - 1;
         uint32_t pulIothubDeviceIdLength = sizeof( democonfigDEVICE_ID ) - 1;
-    #endif / * democonfigENABLE_DPS_SAMPLE * /
+    #endif /* democonfigENABLE_DPS_SAMPLE */
 
     ( void ) pvParameters;
 
@@ -411,7 +411,7 @@ static void prvAzureDemoTask( void * pvParameters )
         ulStatus = prvConnectToServerWithBackoffRetries( ( const char * ) pucIotHubHostname,
                                                          democonfigIOTHUB_PORT,
                                                          &xNetworkCredentials, &xNetworkContext );
-        configASSERT( ulStatus == 0 ); */
+        configASSERT( ulStatus == 0 );
 
         /* Fill in Transport Interface send and receive function pointers. */
         xTransport.pxNetworkContext = &xNetworkContext;
@@ -462,10 +462,10 @@ static void prvAzureDemoTask( void * pvParameters )
                                                          sizeof( democonfigDEVICE_SYMMETRIC_KEY ) - 1,
                                                          Crypto_HMAC );
             configASSERT( xResult == eAzureIoTSuccess );
-        #endif / * democonfigDEVICE_SYMMETRIC_KEY * /
+        #endif /* democonfigDEVICE_SYMMETRIC_KEY */
 
-        / * Sends an MQTT Connect packet over the already established TLS connection,
-         * and waits for connection acknowledgment (CONNACK) packet. * /
+        /* Sends an MQTT Connect packet over the already established TLS connection,
+         * and waits for connection acknowledgment (CONNACK) packet. */
         LogInfo( ( "Creating an MQTT connection to %s.\r\n", pucIotHubHostname ) );
 
         xResult = AzureIoTHubClient_Connect( &xAzureIoTHubClient,
@@ -481,14 +481,14 @@ static void prvAzureDemoTask( void * pvParameters )
                                                          &xAzureIoTHubClient, sampleazureiotSUBSCRIBE_TIMEOUT );
         configASSERT( xResult == eAzureIoTSuccess );
 
-        / * Get property document after initial connection * /
+        /* Get property document after initial connection */
         xResult = AzureIoTHubClient_RequestPropertiesAsync( &xAzureIoTHubClient );
         configASSERT( xResult == eAzureIoTSuccess );
 
-        Publish messages with QoS1, send and process Keep alive messages.
+        // Publish messages with QoS1, send and process Keep alive messages.
         for( ; ; )
         {
-            Hook for sending Telemetry
+            /* Hook for sending Telemetry */
             if( ( ulCreateTelemetry( ucScratchBuffer, sizeof( ucScratchBuffer ), &ulScratchBufferLength ) == 0 ) &&
                 ( ulScratchBufferLength > 0 ) )
             {
@@ -498,7 +498,7 @@ static void prvAzureDemoTask( void * pvParameters )
                 configASSERT( xResult == eAzureIoTSuccess );
             }
 
-            / * Hook for sending update to reported properties * /
+            /* Hook for sending update to reported properties */
             ulReportedPropertiesUpdateLength = ulCreateReportedPropertiesUpdate( ucReportedPropertiesUpdate, sizeof( ucReportedPropertiesUpdate ) );
 
             if( ulReportedPropertiesUpdateLength > 0 )
