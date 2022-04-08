@@ -3,13 +3,15 @@
 
 # set global path
 set(BOARD_DEMO_CONFIG_PATH ${CMAKE_CURRENT_SOURCE_DIR}/config CACHE INTERNAL "Config path")
+set(BOARD_DEMO_PORT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/port CACHE INTERNAL "Port path")
 set(BOARD_DEMO_FREERTOS_PORT_PATH ${FreeRTOS_Posix_PATH} CACHE INTERNAL "FreeRTOS Port used ")
 
 # include flags
 include(${CMAKE_CURRENT_SOURCE_DIR}/gcc_flags.cmake)
 
 # include config path as global
-include_directories(${BOARD_DEMO_CONFIG_PATH})
+include_directories(${BOARD_DEMO_CONFIG_PATH}
+${CMAKE_CURRENT_LIST_DIR}/port)
 
 # Add port specific source file
 target_sources(FreeRTOSPlus::TCPIP::PORT INTERFACE 
@@ -64,6 +66,11 @@ target_link_libraries(${PROJECT_NAME}-adu PRIVATE
     SAMPLE::TRANSPORT::MBEDTLS
     SAMPLE::TRANSPORT::SOCKET
     SAMPLE::SOCKET::FREERTOSTCPIP)
+
+target_include_directories(${PROJECT_NAME}-adu
+    PUBLIC
+        ${CMAKE_CURRENT_LIST_DIR}/port
+)
 
 add_map_file(${PROJECT_NAME}-adu ${PROJECT_NAME}-adu.map)
 

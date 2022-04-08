@@ -286,21 +286,20 @@ static uint32_t prvGenerateAckForIncomingTemperature( double xUpdatedTemperature
  * @brief Properties callback handler
  */
 static AzureIoTResult_t prvProcessProperties( AzureIoTHubClientPropertiesResponse_t * pxMessage,
-                                              AzureIoTHubClientPropertyType_t xPropertyType,
-                                              double * pxOutTemperature,
-                                              uint32_t * ulOutVersion )
+                                              uint8_t * pucWritablePropertyResponseBuffer,
+                                              uint32_t ulWritablePropertyResponseBufferSize,
+                                              uint32_t * pulWritablePropertyResponseBufferLength )
 {
     AzureIoTResult_t xResult;
     AzureIoTJSONReader_t xReader;
     const uint8_t * pucComponentName = NULL;
     uint32_t ulComponentNameLength = 0;
-
-    *pxOutTemperature = 0.0;
+    uint32_t ulPropertyVersion;
 
     xResult = AzureIoTJSONReader_Init( &xReader, pxMessage->pvMessagePayload, pxMessage->ulPayloadLength );
     configASSERT( xResult == eAzureIoTSuccess );
 
-    xResult = AzureIoTHubClientProperties_GetPropertiesVersion( &xAzureIoTHubClient, &xReader, pxMessage->xMessageType, ulOutVersion );
+    xResult = AzureIoTHubClientProperties_GetPropertiesVersion( &xAzureIoTHubClient, &xReader, pxMessage->xMessageType, &ulPropertyVersion );
 
     if( xResult != eAzureIoTSuccess )
     {
@@ -313,34 +312,21 @@ static AzureIoTResult_t prvProcessProperties( AzureIoTHubClientPropertiesRespons
         configASSERT( xResult == eAzureIoTSuccess );
 
         while( ( xResult = AzureIoTHubClientProperties_GetNextComponentProperty( &xAzureIoTHubClient, &xReader,
-                                                                                 pxMessage->xMessageType, xPropertyType,
+                                                                                 pxMessage->xMessageType, eAzureIoTHubClientPropertyWritable,
                                                                                  &pucComponentName, &ulComponentNameLength ) ) == eAzureIoTSuccess )
         {
             if( ulComponentNameLength > 0 )
             {
-                if( AzureIoTADUClient_IsADUComponent( &xAzureIoTADUClient, pucComponentName, ulComponentNameLength ) )
+                if( AzureIoTADUClient_IsADUComponent( &xAzureIoTADUClient, ( const char * ) pucComponentName, ulComponentNameLength ) )
                 {
-                    AzureIoTADUClient_ADUProcessComponent( &xAzureIoTADUClient, &xReader );
+                    xResult = AzureIoTADUClient_ADUProcessComponent(
+                        &xAzureIoTADUClient,
+                        &xReader,
+                        ulPropertyVersion,
+                        pucWritablePropertyResponseBuffer,
+                        ulWritablePropertyResponseBufferSize,
+                        pulWritablePropertyResponseBufferLength );
                 }
-            }
-            else if( AzureIoTJSONReader_TokenIsTextEqual( &xReader,
-                                                          ( const uint8_t * ) sampleazureiotPROPERTY_TARGET_TEMPERATURE_TEXT,
-                                                          sizeof( sampleazureiotPROPERTY_TARGET_TEMPERATURE_TEXT ) - 1 ) )
-            {
-                xResult = AzureIoTJSONReader_NextToken( &xReader );
-                configASSERT( xResult == eAzureIoTSuccess );
-
-                /* Get desired temperature */
-                xResult = AzureIoTJSONReader_GetTokenDouble( &xReader, pxOutTemperature );
-
-                if( xResult != eAzureIoTSuccess )
-                {
-                    LogError( ( "Error getting the property version: result 0x%08x", xResult ) );
-                    break;
-                }
-
-                xResult = AzureIoTJSONReader_NextToken( &xReader );
-                configASSERT( xResult == eAzureIoTSuccess );
             }
             else
             {
@@ -379,7 +365,10 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
     uint32_t ulVersion;
     bool xWasMaxTemperatureChanged = false;
 
-    xResult = prvProcessProperties( pxMessage, eAzureIoTHubClientPropertyWritable, &xIncomingTemperature, &ulVersion );
+    xResult = prvProcessProperties( pxMessage,
+                                    pucWritablePropertyResponseBuffer,
+                                    ulWritablePropertyResponseBufferSize,
+                                    pulWritablePropertyResponseBufferLength );
 
     if( xResult == eAzureIoTSuccess )
     {

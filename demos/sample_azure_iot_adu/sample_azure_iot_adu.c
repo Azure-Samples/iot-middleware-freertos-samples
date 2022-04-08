@@ -156,6 +156,8 @@ static uint8_t ucReportedPropertiesUpdate[ 1500 ];
 static uint32_t ulReportedPropertiesUpdateLength;
 
 static uint8_t ucAduContextBuffer[ 1024 ];
+
+static uint8_t ulDemoVersion = 1;
 /*-----------------------------------------------------------*/
 
 #ifdef democonfigENABLE_DPS_SAMPLE
@@ -323,9 +325,11 @@ static AzureIoTResult_t prvConnectHTTP( AzureIoTTransportInterface_t * pxHTTPTra
                                         const char * pucURL )
 {
     uint32_t ulStatus;
-    TickType_t xRecvTimeout = pdMS_TO_TICKS( sampleazureiotTRANSPORT_SEND_RECV_TIMEOUT_MS );
-    TickType_t xSendTimeout = pdMS_TO_TICKS( sampleazureiotTRANSPORT_SEND_RECV_TIMEOUT_MS );
+    TickType_t xRecvTimeout = sampleazureiotTRANSPORT_SEND_RECV_TIMEOUT_MS;
+    TickType_t xSendTimeout = sampleazureiotTRANSPORT_SEND_RECV_TIMEOUT_MS;
 
+
+    LogInfo( ( "Connecting socket to %s\r\n", pucURL ) );
     ulStatus = Azure_Socket_Connect( pxHTTPTransport->pxNetworkContext, pucURL, 80, xRecvTimeout, xSendTimeout );
 
     configASSERT( ulStatus == 0 );
@@ -342,6 +346,9 @@ static AzureIoTResult_t prvConnectHTTP( AzureIoTTransportInterface_t * pxHTTPTra
  */
 static void prvAzureDemoTask( void * pvParameters )
 {
+    printf( "----------Version----------\r\n" );
+    printf( "             %d             \r\n", ulDemoVersion );
+    printf( "---------------------------\r\n" );
     uint32_t ulScratchBufferLength = 0U;
     /* MQTT Connection */
     NetworkCredentials_t xNetworkCredentials = { 0 };
