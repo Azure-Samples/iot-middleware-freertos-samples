@@ -17,25 +17,32 @@
 #include "azure_iot_http_port.h"
 #include "azure_iot_transport_interface.h"
 
-#define azureiothttpHEADER_BUFFER_SIZE            256
-#define azureiothttpCHUNK_DOWNLOAD_BUFFER_SIZE    512
+#define azureiothttpHEADER_BUFFER_SIZE            512
+#define azureiothttpCHUNK_DOWNLOAD_SIZE           4096
+#define azureiothttpCHUNK_DOWNLOAD_BUFFER_SIZE    ( azureiothttpCHUNK_DOWNLOAD_SIZE + 512 )
+#define azureiothttpHttpRangeRequestEndOfFile     -1
 
 typedef AzureIoTHTTP_t * AzureIoTHTTPHandle_t;
 
 typedef enum AzureIoTHTTPResult
 {
-    eAzureIoTHTTPSuccess = 0,      /** Function completed successfully. */
-    eAzureIoTHTTPBadParameter,     /** At least one parameter was invalid. */
-    eAzureIoTHTTPNoMemory,         /** A provided buffer was too small. */
-    eAzureIoTHTTPSendFailed,       /** The transport send function failed. */
-    eAzureIoTHTTPRecvFailed,       /** The transport receive function failed. */
-    eAzureIoTHTTPBadResponse,      /** An invalid packet was received from the server. */
-    eAzureIoTHTTPServerRefused,    /** The server refused a CONNECT or SUBSCRIBE. */
-    eAzureIoTHTTPNoDataAvailable,  /** No data available from the transport interface. */
-    eAzureIoTHTTPIllegalState,     /** An illegal state in the state record. */
-    eAzureIoTHTTPStateCollision,   /** A collision with an existing state record entry. */
-    eAzureIoTHTTPKeepAliveTimeout, /** Timeout while waiting for PINGRESP. */
-    eAzureIoTHTTPFailed            /** Function failed with Unknown Error. */
+    eAzureIoTHTTPSuccess = 0,
+    eAzureIoTHTTPInvalidParameter,
+    eAzureIoTHTTPNetworkError,
+    eAzureIoTHTTPPartialResponse,
+    eAzureIoTHTTPNoResponse,
+    eAzureIoTHTTPInsufficientMemory,
+    eAzureIoTHTTPSecurityAlertResponseHeadersSizeLimitExceeded,
+    eAzureIoTHTTPSecurityAlertExtraneousResponseData,
+    eAzureIoTHTTPSecurityAlertInvalidChunkHeader,
+    eAzureIoTHTTPSecurityAlertInvalidProtocolVersion,
+    eAzureIoTHTTPSecurityAlertInvalidStatusCode,
+    eAzureIoTHTTPSecurityAlertInvalidCharacter,
+    eAzureIoTHTTPSecurityAlertInvalidContentLength,
+    eAzureIoTHTTPParserInternalError,
+    eAzureIoTHTTPHeaderNotFound,
+    eAzureIoTHTTPInvalidResponse,
+    eAzureIoTHTTPError
 } AzureIoTHTTPResult_t;
 
 AzureIoTHTTPResult_t AzureIoTHTTP_Init( AzureIoTHTTPHandle_t xHTTPHandle,
@@ -45,7 +52,20 @@ AzureIoTHTTPResult_t AzureIoTHTTP_Init( AzureIoTHTTPHandle_t xHTTPHandle,
                                         const char * pucPath,
                                         uint32_t ulPathLength );
 
-AzureIoTHTTPResult_t AzureIoTHTTP_Request( AzureIoTHTTPHandle_t xHTTPHandle );
+AzureIoTHTTPResult_t AzureIoTHTTP_Request( AzureIoTHTTPHandle_t xHTTPHandle,
+                                           uint32_t ulRangeStart,
+                                           uint32_t ulRangeEnd,
+                                           char ** ppucDataBuffer,
+                                           uint32_t * pulDataLength );
+
+AzureIoTHTTPResult_t AzureIoTHTTP_RequestSizeInit( AzureIoTHTTPHandle_t xHTTPHandle,
+                                                   AzureIoTTransportInterface_t * pxHTTPTransport,
+                                                   const char * pucURL,
+                                                   uint32_t ulURLLength,
+                                                   const char * pucPath,
+                                                   uint32_t ulPathLength );
+
+uint32_t AzureIoTHTTP_RequestSize( AzureIoTHTTPHandle_t xHTTPHandle );
 
 AzureIoTHTTPResult_t ulAzureIoTHTTP_Deinit( AzureIoTHTTPHandle_t xHTTPHandle );
 

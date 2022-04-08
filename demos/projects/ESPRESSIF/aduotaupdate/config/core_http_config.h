@@ -67,7 +67,7 @@
  * <b>Default value:</b> `my-platform-name`
  */
 #ifndef HTTP_USER_AGENT_VALUE
-    #define HTTP_USER_AGENT_VALUE    "my-platform-name"
+    #define HTTP_USER_AGENT_VALUE    "az-esp32"
 #endif
 
 /**
@@ -120,7 +120,7 @@
 #include "esp_log.h"
 
 #ifndef LIBRARY_LOG_NAME
-    #define LIBRARY_LOG_NAME    "MQTT"
+    #define LIBRARY_LOG_NAME    "HTTP"
 #endif
 
 #define SINGLE_PARENTHESIS_LOGE( x, ... ) ESP_LOGE( LIBRARY_LOG_NAME, x, ##__VA_ARGS__ )
