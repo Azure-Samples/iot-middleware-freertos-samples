@@ -269,44 +269,20 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
     {
         LogInfo( ( "Properties component name: %.*s", ulComponentNameLength, pucComponentName ) );
 
-        if ( az_iot_adu_ota_is_component_device_update( az_span_create( ( uint8_t* ) pucComponentName, ulComponentNameLength ) ) )
+        // TODO: fix sign of pucComponentName in AzureIoTADUClient_IsADUComponent (should be uint8_t*)
+        if ( AzureIoTADUClient_IsADUComponent( &xAzureIoTADUClient, ( const char * ) pucComponentName, ulComponentNameLength ) )
         {
-            az_json_reader* jr = &xJsonReader._internal.xCoreReader;
-            LogInfo( ( "Device update received: %.*s\r\n", ulComponentNameLength, pucComponentName ) );
+            xAzIoTResult = AzureIoTADUClient_ADUProcessComponent(
+                                &xAzureIoTADUClient,
+                                &xJsonReader,
+                                ulPropertyVersion,
+                                pucWritablePropertyResponseBuffer,
+                                ulWritablePropertyResponseBufferSize,
+                                pulWritablePropertyResponseBufferLength );
 
-            if ( az_result_failed(
-                az_iot_adu_ota_parse_service_properties(
-                    &xAzureIoTHubClient._internal.xAzureIoTHubClientCore,
-                    jr,
-                    AZ_SPAN_FROM_BUFFER( uOtaContextBuffer ),
-                    &xOtaUpdateRequest,
-                    NULL ) ) )
+            if ( xAzIoTResult != eAzureIoTSuccess )
             {
-                LogError( ( "az_iot_adu_ota_parse_service_properties failed" ) );
-                return; 
-            }
-            else
-            {
-                az_span xWritablePropertyResponse = az_span_create( pucWritablePropertyResponseBuffer, ulWritablePropertyResponseBufferSize );
-                azres = az_iot_adu_ota_get_service_properties_response(
-                    &xAzureIoTHubClient._internal.xAzureIoTHubClientCore,
-                    &xOtaUpdateRequest,
-                    ulPropertyVersion,
-                    200,
-                    xWritablePropertyResponse,
-                    &xWritablePropertyResponse );
-                
-                if ( az_result_failed( azres ) )
-                {
-                    LogError( ( "az_iot_adu_ota_get_service_properties_response failed: 0x%08x (%d)", azres, ulWritablePropertyResponseBufferSize ) );
-                    return;
-                }
-                else
-                {
-                    * pulWritablePropertyResponseBufferLength = az_span_size( xWritablePropertyResponse ) ;
-                    pxOtaLastWorkflow = &xOtaUpdateRequest.workflow;
-                    xOtaServiceActionReceived = true;
-                }
+                LogError( ( "Failed updating ADU context." ) );
             }
         }
         else

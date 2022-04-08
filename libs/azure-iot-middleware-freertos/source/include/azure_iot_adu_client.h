@@ -13,6 +13,7 @@
 #include "azure_iot_hub_client.h"
 #include "azure_iot_json_reader.h"
 #include "azure_iot_http.h"
+#include <azure/iot/az_iot_adu_ota.h>
 
 
 /**************************ADU SECTION******************************** // */
@@ -297,6 +298,9 @@ typedef struct AzureIoTADUClient
     AzureIoTTransportInterface_t * pxHTTPTransport;
     const uint8_t * pucAduContextBuffer;
     uint32_t ulAduContextBufferLength;
+    az_iot_adu_ota_update_request xUpdateRequest;
+    az_span xAduContextBuffer;
+    az_iot_adu_ota_update_manifest xUpdateManifest;
 } AzureIoTADUClient_t;
 
 /**
@@ -335,10 +339,18 @@ AzureIoTResult_t AzureIoTADUClient_ADUProcessLoop( AzureIoTADUClient_t * pxAduCl
  *
  * @param pxAduClient
  * @param pxReader
+ * @param ulPropertyVersion
+ * @param pucWritablePropertyResponseBuffer
+ * @param ulWritablePropertyResponseBufferSize
+ * @param pulWritablePropertyResponseBufferLength
  * @return AzureIoTResult_t
  */
 AzureIoTResult_t AzureIoTADUClient_ADUProcessComponent( AzureIoTADUClient_t * pxAduClient,
-                                                        AzureIoTJSONReader_t * pxReader );
+                                                        AzureIoTJSONReader_t * pxReader,
+                                                        uint32_t ulPropertyVersion,
+                                                        uint8_t * pucWritablePropertyResponseBuffer, 
+                                                        uint32_t ulWritablePropertyResponseBufferSize,
+                                                        uint32_t *pulWritablePropertyResponseBufferLength );
 
 /**
  * @brief Returns whether the component is the ADU component

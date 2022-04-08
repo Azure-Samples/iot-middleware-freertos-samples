@@ -38,6 +38,8 @@
 
 /* Maximum Number of Files Handled by this ADU Agent */
 #define AZ_IOT_ADU_OTA_FILE_URL_MAX_COUNT 10
+#define MAX_INSTRUCTIONS_STEPS 10
+#define MAX_FILE_HASH_COUNT 2
 
 /*
  * For reference: https://docs.microsoft.com/en-us/azure/iot-hub-device-update/device-update-plug-and-play
@@ -90,7 +92,67 @@ typedef struct
     az_span update_manifest_signature;
     az_iot_adu_ota_file_url file_urls[AZ_IOT_ADU_OTA_FILE_URL_MAX_COUNT];
     uint32_t file_urls_count;
-} az_iot_adu_ota_update_request; 
+} az_iot_adu_ota_update_request;
+
+typedef struct
+{
+	az_span provider;
+	az_span name;
+	az_span version;
+} az_iot_adu_ota_update_manifest_update_id;
+
+typedef struct
+{
+	az_span device_manufacturer;
+	az_span device_model;
+} az_iot_adu_ota_update_manifest_compatibility;
+
+typedef struct
+{
+	az_span installed_criteria;
+} az_iot_adu_ota_update_manifest_instructions_step_handler_properties;
+
+typedef struct
+{
+	az_span handler;
+	az_span files[AZ_IOT_ADU_OTA_FILE_URL_MAX_COUNT];
+	uint32_t files_count;
+	az_iot_adu_ota_update_manifest_instructions_step_handler_properties handler_properties;
+} az_iot_adu_ota_update_manifest_instructions_step;
+
+typedef struct
+{
+	az_iot_adu_ota_update_manifest_instructions_step steps[MAX_INSTRUCTIONS_STEPS];
+	uint32_t steps_count;
+} az_iot_adu_ota_update_manifest_instructions;
+
+typedef struct
+{
+    az_span id;
+    az_span hash;
+} az_iot_adu_ota_update_manifest_file_hash;
+
+typedef struct
+{
+    az_span id;
+    az_span file_name;
+    uint32_t size_in_bytes;
+    az_iot_adu_ota_update_manifest_file_hash hashes[MAX_FILE_HASH_COUNT];
+    uint32_t hashes_count;
+} az_iot_adu_ota_update_manifest_file;
+
+typedef struct
+{
+    az_span manifest_version;
+	az_iot_adu_ota_update_manifest_update_id update_id;
+	// TODO: confirm compat is always through manufacturer and model.
+	//       It might not be, so this needs to be a generic property bag instead.
+	az_iot_adu_ota_update_manifest_compatibility compatibility;
+	az_iot_adu_ota_update_manifest_instructions instructions;
+    az_iot_adu_ota_update_manifest_file files[AZ_IOT_ADU_OTA_FILE_URL_MAX_COUNT];
+    uint32_t files_count;
+	az_span create_date_time;
+} az_iot_adu_ota_update_manifest;
 
 AZ_NODISCARD bool az_iot_adu_ota_is_component_device_update(
     az_span component_name);
@@ -119,10 +181,9 @@ AZ_NODISCARD az_result az_iot_adu_ota_get_service_properties_response(
     az_span payload,
     az_span* out_payload);
 
-// Discussion:
-// Think on avoiding having 2 state machines (one in azure-sdk-for-c and one in middleware of FreeRTOS)
-// Maybe later we will move the "state machine" out of the azure-sdk-for-c, and have only parsing and composition functions.
-// 
+AZ_NODISCARD az_result az_iot_adu_ota_parse_update_manifest(
+    az_span payload,
+    az_iot_adu_ota_update_manifest* update_manifest);
 
 #include <azure/core/_az_cfg_suffix.h>
 

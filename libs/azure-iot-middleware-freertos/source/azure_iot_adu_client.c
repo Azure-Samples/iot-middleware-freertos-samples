@@ -9,8 +9,7 @@
 
 #include "azure_iot_json_writer.h"
 #include "azure_iot_flash_platform.h"
-
-#define AZURE_IOT_ADU_OTA_AGENT_COMPONENT_NAME    "deviceUpdate"
+#include <azure/iot/az_iot_adu_ota.h>
 
 /*
  *
@@ -107,22 +106,8 @@ bool AzureIoTADUClient_IsADUComponent( AzureIoTADUClient_t * pxAduClient,
 {
     ( void ) pxAduClient;
 
-    return ulComponentNameLength == sizeof( AZURE_IOT_ADU_OTA_AGENT_COMPONENT_NAME ) - 1 &&
-           strncmp( pucComponentName, AZURE_IOT_ADU_OTA_AGENT_COMPONENT_NAME, sizeof( AZURE_IOT_ADU_OTA_AGENT_COMPONENT_NAME ) - 1 );
-}
-
-/**
- * @brief Process and copy out fields in the Device Twin for this update.
- *
- */
-static AzureIoTResult_t prvAzureIoT_ADUProcessProperties( AzureIoTADUClient_t * pxAduClient,
-                                                          AzureIoTJSONReader_t * pxReader )
-{
-    ( void ) pxAduClient;
-    ( void ) pxReader;
-    /* Go through Device Twin */
-
-    return eAzureIoTSuccess;
+    return az_iot_adu_ota_is_component_device_update(
+        az_span_create( (uint8_t*) pucComponentName, ulComponentNameLength ) );
 }
 
 /**
@@ -153,14 +138,65 @@ static AzureIoTResult_t prvAzureIoT_ADUProcessUpdateManifest( AzureIoTADUClient_
 }
 
 AzureIoTResult_t AzureIoTADUClient_ADUProcessComponent( AzureIoTADUClient_t * pxAduClient,
-                                                        AzureIoTJSONReader_t * pxReader )
+                                                        AzureIoTJSONReader_t * pxReader,
+                                                        uint32_t ulPropertyVersion,
+                                                        uint8_t * pucWritablePropertyResponseBuffer, 
+                                                        uint32_t ulWritablePropertyResponseBufferSize,
+                                                        uint32_t *pulWritablePropertyResponseBufferLength )
 {
     /* Iterate through the JSON and pull out the components that are useful. */
-    prvAzureIoT_ADUProcessProperties( pxAduClient, pxReader );
 
-    prvAzureIoT_ADUProcessUpdateManifest( pxAduClient, pxReader );
+    // prvAzureIoT_ADUProcessUpdateManifest( pxAduClient, pxReader );
 
-    pxAduClient->xState = eAzureIoTADUStateDeploymentInProgress;
+    if ( az_result_failed(
+        az_iot_adu_ota_parse_service_properties(
+            &pxAduClient->pxHubClient->_internal.xAzureIoTHubClientCore,
+            &pxReader->_internal.xCoreReader,
+            pxAduClient->xAduContextBuffer,
+            &pxAduClient->xUpdateRequest,
+            &pxAduClient->xAduContextBuffer ) ) )
+    {
+        LogError( ( "az_iot_adu_ota_parse_service_properties failed" ) );
+        // TODO: return individualized/specific errors.
+        return eAzureIoTErrorFailed; 
+    }
+    else
+    {
+        az_span xWritablePropertyResponse = az_span_create( pucWritablePropertyResponseBuffer, ulWritablePropertyResponseBufferSize );
+
+        az_result azres = az_iot_adu_ota_get_service_properties_response(
+            &pxAduClient->pxHubClient->_internal.xAzureIoTHubClientCore,
+            &pxAduClient->xUpdateRequest,
+            ulPropertyVersion,
+            200,
+            xWritablePropertyResponse,
+            &xWritablePropertyResponse );
+        
+        if ( az_result_failed( azres ) )
+        {
+            LogError( ( "az_iot_adu_ota_get_service_properties_response failed: 0x%08x (%d)", azres, ulWritablePropertyResponseBufferSize ) );
+            // TODO: return individualized/specific errors.
+            return eAzureIoTErrorFailed;
+        }
+        else
+        {
+            azres = az_iot_adu_ota_parse_update_manifest(
+                pxAduClient->xUpdateRequest.update_manifest,
+                &pxAduClient->xUpdateManifest );
+
+            if ( az_result_failed( azres ) )
+            {
+                LogError( ( "az_iot_adu_ota_parse_update_manifest failed: 0x%08x (%d)", azres, ulWritablePropertyResponseBufferSize ) );
+                // TODO: return individualized/specific errors.
+                return eAzureIoTErrorFailed;
+            }
+            else
+            {
+                *pulWritablePropertyResponseBufferLength = az_span_size( xWritablePropertyResponse ) ;
+                pxAduClient->xState = eAzureIoTADUStateDeploymentInProgress;
+            }
+        }
+    }
 
     return eAzureIoTSuccess;
 }
