@@ -114,17 +114,6 @@ static void prvLogHttpResponse( AzureIoTHTTPHandle_t xHTTPHandle )
 {
     printf( "[HTTP] ----- Headers -----\r\n" );
     printf( "%.*s\r\n", ( int ) xHTTPHandle->xResponse.headersLen, xHTTPHandle->xResponse.pHeaders );
-    printf( "[HTTP] ----- Payload -----\r\n" );
-
-    /* for( int i = 0; i < xHTTPHandle->xResponse.bodyLen; i++ ) */
-    /* { */
-    /*     printf( "%02X", xHTTPHandle->xResponse.pBody[ i ] ); */
-
-    /*     if( i != 0 && i % 31 == 0 ) */
-    /*     { */
-    /*         printf( "\r\n" ); */
-    /*     } */
-    /* } */
     printf( "\r\n" );
 }
 

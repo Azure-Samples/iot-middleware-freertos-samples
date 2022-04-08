@@ -418,7 +418,7 @@ static void prvAzureDemoTask( void * pvParameters )
         xTransport.xSend = TLS_Socket_Send;
         xTransport.xRecv = TLS_Socket_Recv;
 
-        /* / * Fill in Transport Interface send and receive function pointers. * / */
+        /* Fill in Transport Interface send and receive function pointers. */
         xHTTPTransport.pxNetworkContext = &xHTTPNetworkContext;
         xHTTPTransport.xSend = Azure_Socket_Send;
         xHTTPTransport.xRecv = Azure_Socket_Recv;
