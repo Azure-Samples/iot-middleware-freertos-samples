@@ -141,12 +141,6 @@ AZ_NODISCARD az_result az_iot_adu_ota_get_properties_payload(
     _az_PRECONDITION_VALID_SPAN(payload, 1, false);
     _az_PRECONDITION_NOT_NULL(out_payload);
 
-    if (last_install_result != NULL)
-    {
-        _az_PRECONDITION_NOT_NULL(last_install_result->step_results);
-        _az_PRECONDITION_RANGE(1, last_install_result->step_results_count, INT32_MAX);
-    }
-
     az_json_writer jw;
 
     /* Update reported property */
