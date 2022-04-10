@@ -119,6 +119,7 @@
  * @brief Wait timeout for subscribe to finish.
  */
 #define sampleazureiotSUBSCRIBE_TIMEOUT                       ( 10 * 1000U )
+
 /*-----------------------------------------------------------*/
 
 /**
@@ -152,12 +153,22 @@ static uint8_t ucScratchBuffer[ 512 ];
 static uint8_t ucCommandResponsePayloadBuffer[ 256 ];
 
 /* Reported Properties buffers */
-static uint8_t ucReportedPropertiesUpdate[ 1500 ];
+static uint8_t ucReportedPropertiesUpdate[ 380 ];
 static uint32_t ulReportedPropertiesUpdateLength;
 
-static uint8_t ucAduContextBuffer[ 1024 ];
+static uint8_t ucAduContextBuffer[ 10240 ];
 
 static uint8_t ulDemoVersion = 1;
+
+static const AzureIoTHubClientADUDeviceInformation_t xADUDeviceInformation = {
+    .ucManufacturer = democonfigADU_DEVICE_MANUFACTURER,
+    .ulManufacturerLength = sizeof(democonfigADU_DEVICE_MANUFACTURER),
+    .ucModel = democonfigADU_DEVICE_MODEL,
+    .ulModelLength = sizeof(democonfigADU_DEVICE_MODEL),
+    .ucLastInstalledUpdateId = democonfigADU_INSTALLED_UPDATE_ID,
+    .ulLastInstalledUpdateIdLength = sizeof(democonfigADU_INSTALLED_UPDATE_ID)
+};
+
 /*-----------------------------------------------------------*/
 
 #ifdef democonfigENABLE_DPS_SAMPLE
@@ -452,6 +463,9 @@ static void prvAzureDemoTask( void * pvParameters )
                                           &xAzureIoTHubClient,
                                           &xHTTPTransport,
                                           prvConnectHTTP,
+                                          &xADUDeviceInformation,
+                                          NULL, // TODO: fill in the workflow from a previous update
+                                          NULL, // TODO: fill in the install results from a previous update
                                           ucAduContextBuffer,
                                           sizeof( ucAduContextBuffer ) );
         configASSERT( xResult == eAzureIoTSuccess );
