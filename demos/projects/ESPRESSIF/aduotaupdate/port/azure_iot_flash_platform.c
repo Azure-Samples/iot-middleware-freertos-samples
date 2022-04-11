@@ -16,6 +16,11 @@ AzureIoTResult_t AzureIoTPlatform_Init( AzureADUImage_t * const pxAduImage )
   pxAduImage->ulImageFileSize = 0;
   pxAduImage->xUpdatePartition = esp_ota_get_next_update_partition( esp_ota_get_running_partition() );
 
+  if ( pxAduImage->xUpdatePartition == NULL )
+  {
+    printf( "esp_ota_get_next_update_partition failed" );
+    return eAzureIoTErrorFailed;
+  }
 
   printf("[Platform] Size: %d | Address: %d\r\n",
       pxAduImage->xUpdatePartition->size,

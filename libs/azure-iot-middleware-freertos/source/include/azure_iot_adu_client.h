@@ -263,6 +263,8 @@ typedef struct AzureIoTADUClient
     const AzureIoTHubClientADUInstallResult_t * pxLastInstallResult;
     az_iot_adu_ota_update_request xUpdateRequest;
     az_iot_adu_ota_update_manifest xUpdateManifest;
+    // TODO: remove this hack, and use xState instead.
+    bool xSendProperties;
 } AzureIoTADUClient_t;
 
 /**

@@ -93,7 +93,7 @@ uint32_t ulSampleHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
     uint32_t ulCommandResponsePayloadLength = lengthof( sampleazureiotCOMMAND_EMPTY_PAYLOAD );
     *pulResponseStatus = AZ_IOT_STATUS_NOT_FOUND;
     configASSERT( ulCommandResponsePayloadBufferSize >= ulCommandResponsePayloadLength );
-    (void)memcpy( pucCommandResponsePayloadBuffer, sampleazureiotCOMMAND_EMPTY_PAYLOAD, ulCommandResponsePayloadLength );
+    ( void ) memcpy( pucCommandResponsePayloadBuffer, sampleazureiotCOMMAND_EMPTY_PAYLOAD, ulCommandResponsePayloadLength );
 
     return ulCommandResponsePayloadLength;
 }

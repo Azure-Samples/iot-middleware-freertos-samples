@@ -94,7 +94,7 @@ AzureIoTResult_t AzureIoTADUClient_Init( AzureIoTADUClient_t * pxAduClient,
                                          uint8_t * pucAduContextBuffer,
                                          uint32_t ulAduContextBuffer )
 {
-    // TODO: arg check. Device information is required.
+    // TODO: arg checks. Btw, device information is required.
     //       Last install workflow and results are optional (for a device that was never updated).
 
     pxAduClient->pxHubClient = pxAzureIoTHubClient;
@@ -107,6 +107,7 @@ AzureIoTResult_t AzureIoTADUClient_Init( AzureIoTADUClient_t * pxAduClient,
     pxAduClient->ulAduContextBufferLength = ulAduContextBuffer;
     pxAduClient->xAduContextAvailableBuffer =
         az_span_create( pxAduClient->pucAduContextBuffer, pxAduClient->ulAduContextBufferLength );
+    pxAduClient->xSendProperties = true;
 
     return eAzureIoTSuccess;
 }
@@ -294,7 +295,6 @@ static AzureIoTResult_t prvAzureIoT_ADUSendPropertyUpdate( AzureIoTADUClient_t *
  */
 static void prvParseAduUrl( az_span xUrl, az_span * pxHost, az_span * pxPath)
 {
-    // http://adu-ewertons-2--adu-ewertons-2.b.nlu.dl.adu.microsoft.com/westus2/adu-ewertons-2--adu-ewertons-2/d23b3c0e2be4414082e1b61ee1c61705/image.bin
     xUrl = az_span_slice_to_end(xUrl, sizeof( "http://" ) - 1);
     int32_t lPathPosition = az_span_find( xUrl , AZ_SPAN_FROM_STR( "/" ) );
     * pxHost = az_span_slice( xUrl, 0, lPathPosition );
@@ -514,6 +514,11 @@ AzureIoTResult_t AzureIoTADUClient_ADUProcessLoop( AzureIoTADUClient_t * pxAduCl
     {
         case eAzureIoTADUStateIdle:
             /*Do Nothing */
+            if ( pxAduClient->xSendProperties )
+            {
+                prvAzureIoT_ADUSendPropertyUpdate( pxAduClient );
+                pxAduClient->xSendProperties = false;
+            }
             break;
 
         case eAzureIoTADUStateDeploymentInProgress:
