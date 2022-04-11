@@ -210,6 +210,7 @@ AzureIoTHTTPResult_t AzureIoTHTTP_RequestSizeInit( AzureIoTHTTPHandle_t xHTTPHan
     xHTTPHandle->xRequestInfo.pathLen = ulPathLength;
     xHTTPHandle->xRequestInfo.pMethod = "HEAD";
     xHTTPHandle->xRequestInfo.methodLen = strlen( "HEAD" );
+    xHTTPHandle->xRequestInfo.reqFlags |= HTTP_REQUEST_KEEP_ALIVE_FLAG;
 
     xHTTPHandle->pxHTTPTransport = pxHTTPTransport;
 
