@@ -295,6 +295,7 @@ AZ_NODISCARD az_result az_iot_adu_ota_parse_service_properties(
     _az_PRECONDITION_NOT_NULL(update_request);
 
     int32_t required_size;
+    int32_t out_length;
 
     RETURN_IF_JSON_TOKEN_TYPE_NOT(jr, AZ_JSON_TOKEN_PROPERTY_NAME);
     RETURN_IF_JSON_TOKEN_TEXT_NOT(jr, AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_SERVICE);
@@ -344,7 +345,11 @@ AZ_NODISCARD az_result az_iot_adu_ota_parse_service_properties(
 
                     _az_RETURN_IF_FAILED(az_json_token_get_string(
                         &jr->token, (char*)az_span_ptr(update_request->workflow.id),
-                        az_span_size(update_request->workflow.id), NULL));
+                        az_span_size(update_request->workflow.id), &out_length));
+
+                    // TODO: find a way to get rid of az_json_token_get_string (which adds a \0 at the end!!!!!!)
+                    //       Preferably have a function that does not copy anything.
+                    update_request->workflow.id = az_span_slice(update_request->workflow.id, 0, out_length);
                 }
                 else
                 {
@@ -366,6 +371,8 @@ AZ_NODISCARD az_result az_iot_adu_ota_parse_service_properties(
                 &jr->token, (char*)az_span_ptr(buffer),
                 az_span_size(buffer), &update_manifest_length));
 
+            // TODO: find a way to get rid of az_json_token_get_string (which adds a \0 at the end!!!!!!)
+            //       Preferably have a function that does not copy anything.
             update_request->update_manifest
                 = split_az_span(buffer, update_manifest_length, &buffer);
         }
@@ -382,7 +389,11 @@ AZ_NODISCARD az_result az_iot_adu_ota_parse_service_properties(
 
             _az_RETURN_IF_FAILED(az_json_token_get_string(
                 &jr->token, (char*)az_span_ptr(update_request->update_manifest_signature),
-                az_span_size(update_request->update_manifest_signature), NULL));
+                az_span_size(update_request->update_manifest_signature), &out_length));
+
+            // TODO: find a way to get rid of az_json_token_get_string (which adds a \0 at the end!!!!!!)
+            //       Preferably have a function that does not copy anything.
+            update_request->update_manifest_signature = az_span_slice(update_request->update_manifest_signature, 0, out_length);
         }
         else if (az_json_token_is_text_equal(&jr->token,
             AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_FILEURLS)))
@@ -403,7 +414,12 @@ AZ_NODISCARD az_result az_iot_adu_ota_parse_service_properties(
 
                 _az_RETURN_IF_FAILED(az_json_token_get_string(
                     &jr->token, (char*)az_span_ptr(update_request->file_urls[update_request->file_urls_count].id),
-                    az_span_size(update_request->file_urls[update_request->file_urls_count].id), NULL));
+                    az_span_size(update_request->file_urls[update_request->file_urls_count].id), &out_length));
+
+                // TODO: find a way to get rid of az_json_token_get_string (which adds a \0 at the end!!!!!!)
+                //       Preferably have a function that does not copy anything.
+                update_request->file_urls[update_request->file_urls_count].id =
+                    az_span_slice(update_request->file_urls[update_request->file_urls_count].id, 0, out_length);
 
                 _az_RETURN_IF_FAILED(az_json_reader_next_token(jr));
                 RETURN_IF_JSON_TOKEN_TYPE_NOT(jr, AZ_JSON_TOKEN_STRING);
@@ -416,7 +432,12 @@ AZ_NODISCARD az_result az_iot_adu_ota_parse_service_properties(
 
                 _az_RETURN_IF_FAILED(az_json_token_get_string(
                     &jr->token, (char*)az_span_ptr(update_request->file_urls[update_request->file_urls_count].url),
-                    az_span_size(update_request->file_urls[update_request->file_urls_count].url), NULL));
+                    az_span_size(update_request->file_urls[update_request->file_urls_count].url), &out_length));
+
+                // TODO: find a way to get rid of az_json_token_get_string (which adds a \0 at the end!!!!!!)
+                //       Preferably have a function that does not copy anything.
+                update_request->file_urls[update_request->file_urls_count].url =
+                    az_span_slice(update_request->file_urls[update_request->file_urls_count].url, 0, out_length);
 
                 update_request->file_urls_count++;
 
