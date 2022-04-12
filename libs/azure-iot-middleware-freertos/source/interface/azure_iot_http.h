@@ -19,7 +19,7 @@
 
 #define azureiothttpHEADER_BUFFER_SIZE            512
 #define azureiothttpCHUNK_DOWNLOAD_SIZE           4096
-#define azureiothttpCHUNK_DOWNLOAD_BUFFER_SIZE    ( azureiothttpCHUNK_DOWNLOAD_SIZE + 512 )
+#define azureiothttpCHUNK_DOWNLOAD_BUFFER_SIZE    ( azureiothttpCHUNK_DOWNLOAD_SIZE + 1024 )
 #define azureiothttpHttpRangeRequestEndOfFile     -1
 
 typedef AzureIoTHTTP_t * AzureIoTHTTPHandle_t;
