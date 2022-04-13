@@ -10,15 +10,23 @@
 
 AzureIoTResult_t AzureIoTPlatform_Init( AzureADUImage_t * const pxAduImage )
 {
+  const esp_partition_t * pxCurrentPartition = esp_ota_get_running_partition();
+
+  if ( pxCurrentPartition == NULL )
+  {
+    printf( ( "esp_ota_get_running_partition failed" ) );
+    return eAzureIoTErrorFailed;
+  }
+
   pxAduImage->pucBufferToWrite = NULL;
   pxAduImage->ulBytesToWriteLength = 0;
   pxAduImage->ulCurrentOffset = 0;
   pxAduImage->ulImageFileSize = 0;
-  pxAduImage->xUpdatePartition = esp_ota_get_next_update_partition( esp_ota_get_running_partition() );
+  pxAduImage->xUpdatePartition = esp_ota_get_next_update_partition( pxCurrentPartition );
 
   if ( pxAduImage->xUpdatePartition == NULL )
   {
-    printf( "esp_ota_get_next_update_partition failed" );
+    printf( ( "esp_ota_get_next_update_partition failed" ) );
     return eAzureIoTErrorFailed;
   }
 
