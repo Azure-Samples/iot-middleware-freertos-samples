@@ -259,7 +259,6 @@ typedef struct AzureIoTADUClient
     uint32_t ulAduContextBufferLength;
     az_span xAduContextAvailableBuffer;
     const AzureIoTHubClientADUDeviceInformation_t * pxDeviceInformation;
-    const AzureIoTHubClientADUWorkflow_t * pxLastInstallWorkflow;
     const AzureIoTHubClientADUInstallResult_t * pxLastInstallResult;
     az_iot_adu_ota_update_request xUpdateRequest;
     az_iot_adu_ota_update_manifest xUpdateManifest;
@@ -286,7 +285,6 @@ AzureIoTResult_t AzureIoTADUClient_Init( AzureIoTADUClient_t * pxAduClient,
                                          AzureIoTTransportInterface_t * pxAzureIoTTransport,
                                          AzureIoT_TransportConnectCallback_t pxAzureIoTHTTPConnectCallback,
                                          const AzureIoTHubClientADUDeviceInformation_t * pxDeviceInformation,
-                                         const AzureIoTHubClientADUWorkflow_t * pxLastInstallWorkflow,
                                          const AzureIoTHubClientADUInstallResult_t * pxLastInstallResult,
                                          uint8_t * pucAduContextBuffer,
                                          uint32_t ulAduContextBuffer );

@@ -464,7 +464,6 @@ static void prvAzureDemoTask( void * pvParameters )
                                           &xHTTPTransport,
                                           prvConnectHTTP,
                                           &xADUDeviceInformation,
-                                          NULL, // TODO: fill in the workflow from a previous update
                                           NULL, // TODO: fill in the install results from a previous update
                                           ucAduContextBuffer,
                                           sizeof( ucAduContextBuffer ) );

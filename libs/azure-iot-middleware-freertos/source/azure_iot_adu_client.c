@@ -89,7 +89,6 @@ AzureIoTResult_t AzureIoTADUClient_Init( AzureIoTADUClient_t * pxAduClient,
                                          AzureIoTTransportInterface_t * pxAzureIoTTransport,
                                          AzureIoT_TransportConnectCallback_t pxAzureIoTHTTPConnectCallback,
                                          const AzureIoTHubClientADUDeviceInformation_t * pxDeviceInformation,
-                                         const AzureIoTHubClientADUWorkflow_t * pxLastInstallWorkflow,
                                          const AzureIoTHubClientADUInstallResult_t * pxLastInstallResult,
                                          uint8_t * pucAduContextBuffer,
                                          uint32_t ulAduContextBuffer )
@@ -101,13 +100,15 @@ AzureIoTResult_t AzureIoTADUClient_Init( AzureIoTADUClient_t * pxAduClient,
     pxAduClient->pxHTTPTransport = pxAzureIoTTransport;
     pxAduClient->xHTTPConnectCallback = pxAzureIoTHTTPConnectCallback;
     pxAduClient->pxDeviceInformation = pxDeviceInformation;
-    pxAduClient->pxLastInstallWorkflow = pxLastInstallWorkflow;
     pxAduClient->pxLastInstallResult = pxLastInstallResult;
     pxAduClient->pucAduContextBuffer = pucAduContextBuffer;
     pxAduClient->ulAduContextBufferLength = ulAduContextBuffer;
     pxAduClient->xAduContextAvailableBuffer =
         az_span_create( pxAduClient->pucAduContextBuffer, pxAduClient->ulAduContextBufferLength );
     pxAduClient->xSendProperties = true;
+
+    memset( &pxAduClient->xUpdateRequest, 0, sizeof( pxAduClient->xUpdateRequest ) );
+    memset( &pxAduClient->xUpdateManifest, 0, sizeof( pxAduClient->xUpdateManifest ) );
 
     return eAzureIoTSuccess;
 }
@@ -188,7 +189,6 @@ AzureIoTResult_t AzureIoTADUClient_ADUProcessComponent( AzureIoTADUClient_t * px
 static AzureIoTResult_t prvAzureIoT_ADUSendPropertyUpdate( AzureIoTADUClient_t * pxAduClient )
 {
     az_iot_adu_ota_device_information xDeviceInformation;
-    az_iot_adu_ota_workflow xWorkflow;
     az_iot_adu_ota_install_result xLastInstallResult;
     az_span xPropertiesPayload = pxAduClient->xAduContextAvailableBuffer;
 
@@ -200,20 +200,6 @@ static AzureIoTResult_t prvAzureIoT_ADUSendPropertyUpdate( AzureIoTADUClient_t *
         az_span_create( ( uint8_t * ) pxAduClient->pxDeviceInformation->ucLastInstalledUpdateId, pxAduClient->pxDeviceInformation->ulLastInstalledUpdateIdLength );
     xDeviceInformation.adu_version = AZ_SPAN_FROM_STR( AZ_IOT_ADU_AGENT_VERSION );
     xDeviceInformation.do_version = AZ_SPAN_EMPTY;
-
-    if ( pxAduClient->pxLastInstallWorkflow != NULL )
-    {
-        xWorkflow.action = pxAduClient->pxLastInstallWorkflow->ulAction;
-        xWorkflow.id = az_span_create( ( uint8_t * ) pxAduClient->pxLastInstallWorkflow->ucID, pxAduClient->pxLastInstallWorkflow->ulIDLength );
-        if ( pxAduClient->pxLastInstallWorkflow->ulIDLength > 0 && pxAduClient->pxLastInstallWorkflow->ucRetryTimestamp != NULL )
-        {
-            xWorkflow.retry_timestamp = az_span_create( ( uint8_t * ) pxAduClient->pxLastInstallWorkflow->ucRetryTimestamp, pxAduClient->pxLastInstallWorkflow->ulRetryTimestampLength );
-        }
-        else
-        {
-            xWorkflow.retry_timestamp = AZ_SPAN_EMPTY;
-        }
-    }
 
     if ( pxAduClient->pxLastInstallResult != NULL )
     {
@@ -268,7 +254,7 @@ static AzureIoTResult_t prvAzureIoT_ADUSendPropertyUpdate( AzureIoTADUClient_t *
                 &pxAduClient->pxHubClient->_internal.xAzureIoTHubClientCore,
                 &xDeviceInformation,
                 ( int32_t ) pxAduClient->xState,
-                pxAduClient->pxLastInstallWorkflow != NULL ? &xWorkflow : NULL,
+                &pxAduClient->xUpdateRequest.workflow,
                 pxAduClient->pxLastInstallResult != NULL ? &xLastInstallResult : NULL,
                 xPropertiesPayload,
                 &xPropertiesPayload ) ) )
@@ -483,6 +469,9 @@ static AzureIoTResult_t prvHandleSteps( AzureIoTADUClient_t * pxAduClient )
 
             AZLogInfo( ( "[ADU] Step: eAzureIoTADUUpdateStepFirmwareApplySucceeded\r\n" ) );
 
+            pxAduClient->xState = eAzureIoTADUStateIdle;
+            pxAduClient->xSendProperties = true;
+
             AZLogInfo( ( "[ADU] Reset the device\r\n" ) );
             AzureIoTPlatform_ResetDevice( &pxAduClient->xImage );
 
@@ -491,6 +480,9 @@ static AzureIoTResult_t prvHandleSteps( AzureIoTADUClient_t * pxAduClient )
         case eAzureIoTADUUpdateStepFailed:
 
             AZLogInfo( ( "[ADU] Step: eAzureIoTADUUpdateStepFailed\r\n" ) );
+
+            pxAduClient->xState = eAzureIotADUStateFailed;
+            pxAduClient->xSendProperties = true;
 
             break;
 
@@ -510,15 +502,16 @@ AzureIoTResult_t AzureIoTADUClient_ADUProcessLoop( AzureIoTADUClient_t * pxAduCl
 
     ( void ) ulTimeoutMilliseconds;
 
+    if ( pxAduClient->xSendProperties )
+    {
+        prvAzureIoT_ADUSendPropertyUpdate( pxAduClient );
+        pxAduClient->xSendProperties = false;
+    }
+
     switch( pxAduClient->xState )
     {
         case eAzureIoTADUStateIdle:
             /*Do Nothing */
-            if ( pxAduClient->xSendProperties )
-            {
-                prvAzureIoT_ADUSendPropertyUpdate( pxAduClient );
-                pxAduClient->xSendProperties = false;
-            }
             break;
 
         case eAzureIoTADUStateDeploymentInProgress:
@@ -531,6 +524,10 @@ AzureIoTResult_t AzureIoTADUClient_ADUProcessLoop( AzureIoTADUClient_t * pxAduCl
             break;
 
         case eAzureIotADUStateFailed:
+            // According to ADU state transitions, the agent state shall
+            // change to Idle after reporting an error state. 
+            pxAduClient->xState = eAzureIoTADUStateIdle;
+            pxAduClient->xSendProperties = true;
             break;
 
         default:

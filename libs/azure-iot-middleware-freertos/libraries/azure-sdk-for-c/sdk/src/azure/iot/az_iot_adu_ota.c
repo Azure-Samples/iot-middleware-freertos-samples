@@ -91,9 +91,6 @@
         return AZ_ERROR_JSON_INVALID_STATE;                    \
     }
 
-#define trim_null_terminator(azspan) \
-  az_span_slice(azspan, 0, az_span_size(azspan) - NULL_TERM_CHAR_SIZE)
-
 #define safe_add_json_property_int32(json_writer, propName, propValue) \
     _az_RETURN_IF_FAILED(az_json_writer_append_property_name(&json_writer, \
         AZ_SPAN_FROM_STR(propName))); \
@@ -241,7 +238,7 @@ AZ_NODISCARD az_result az_iot_adu_ota_get_properties_payload(
     safe_add_json_property_int32(jw, AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_STATE, agent_state);
 
     /* Fill the workflow.  */
-    if (workflow != NULL)
+    if (workflow != NULL && (az_span_ptr(workflow->id) != NULL && az_span_size(workflow->id) > 0))
     {
         safe_add_json_property_object_begin(jw, 
             AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_WORKFLOW);
@@ -251,14 +248,14 @@ AZ_NODISCARD az_result az_iot_adu_ota_get_properties_payload(
             workflow->action);
         safe_add_json_property_az_span(
             jw, AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_ID,
-            trim_null_terminator(workflow->id));
+            workflow->id);
 
         /* Append retry timestamp in workflow if existed.  */
         if (!az_span_is_content_equal(workflow->retry_timestamp, AZ_SPAN_EMPTY))
         {
             safe_add_json_property_az_span(
                 jw, AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_RETRY_TIMESTAMP,
-                trim_null_terminator(workflow->retry_timestamp));
+                workflow->retry_timestamp);
         }
         _az_RETURN_IF_FAILED(az_json_writer_append_end_object(&jw));
     }
@@ -488,17 +485,17 @@ AZ_NODISCARD az_result az_iot_adu_ota_get_service_properties_response(
     _az_RETURN_IF_FAILED(az_json_writer_append_property_name(&jw, AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_ACTION)));
     _az_RETURN_IF_FAILED(az_json_writer_append_int32(&jw, update_request->workflow.action));
     _az_RETURN_IF_FAILED(az_json_writer_append_property_name(&jw, AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_ID)));
-    _az_RETURN_IF_FAILED(az_json_writer_append_string(&jw, trim_null_terminator(update_request->workflow.id)));
+    _az_RETURN_IF_FAILED(az_json_writer_append_string(&jw, update_request->workflow.id));
     if (!az_span_is_content_equal(update_request->workflow.retry_timestamp, AZ_SPAN_EMPTY))
     {
         _az_RETURN_IF_FAILED(az_json_writer_append_property_name(&jw, AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_RETRY_TIMESTAMP)));
-        _az_RETURN_IF_FAILED(az_json_writer_append_string(&jw, trim_null_terminator(update_request->workflow.retry_timestamp)));
+        _az_RETURN_IF_FAILED(az_json_writer_append_string(&jw, update_request->workflow.retry_timestamp));
     }
     _az_RETURN_IF_FAILED(az_json_writer_append_end_object(&jw));
 
     // updateManifest
     _az_RETURN_IF_FAILED(az_json_writer_append_property_name(&jw, AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_UPDATE_MANIFEST)));
-    _az_RETURN_IF_FAILED(az_json_writer_append_string(&jw, trim_null_terminator(update_request->update_manifest)));
+    _az_RETURN_IF_FAILED(az_json_writer_append_string(&jw, update_request->update_manifest));
 
     _az_RETURN_IF_FAILED(az_json_writer_append_end_object(&jw));
 
