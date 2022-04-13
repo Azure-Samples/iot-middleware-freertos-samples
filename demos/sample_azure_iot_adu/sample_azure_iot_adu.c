@@ -119,6 +119,7 @@
  * @brief Wait timeout for subscribe to finish.
  */
 #define sampleazureiotSUBSCRIBE_TIMEOUT                       ( 10 * 1000U )
+
 /*-----------------------------------------------------------*/
 
 /**
@@ -155,9 +156,17 @@ static uint8_t ucCommandResponsePayloadBuffer[ 256 ];
 static uint8_t ucReportedPropertiesUpdate[ 1500 ];
 static uint32_t ulReportedPropertiesUpdateLength;
 
-static uint8_t ucAduContextBuffer[ 1024 ];
+static uint8_t ucAduContextBuffer[ 10240 ];
 
-static uint8_t ulDemoVersion = 1;
+static const AzureIoTHubClientADUDeviceInformation_t xADUDeviceInformation = {
+    .ucManufacturer = democonfigADU_DEVICE_MANUFACTURER,
+    .ulManufacturerLength = sizeof(democonfigADU_DEVICE_MANUFACTURER) - 1,
+    .ucModel = democonfigADU_DEVICE_MODEL,
+    .ulModelLength = sizeof(democonfigADU_DEVICE_MODEL) - 1,
+    .ucLastInstalledUpdateId = democonfigADU_INSTALLED_UPDATE_ID,
+    .ulLastInstalledUpdateIdLength = sizeof(democonfigADU_INSTALLED_UPDATE_ID) - 1
+};
+
 /*-----------------------------------------------------------*/
 
 #ifdef democonfigENABLE_DPS_SAMPLE
@@ -346,9 +355,11 @@ static AzureIoTResult_t prvConnectHTTP( AzureIoTTransportInterface_t * pxHTTPTra
  */
 static void prvAzureDemoTask( void * pvParameters )
 {
-    printf( "----------Version----------\r\n" );
-    printf( "             %d             \r\n", ulDemoVersion );
-    printf( "---------------------------\r\n" );
+    LogInfo( ( "------------------------------------------------------------------------------" ) );
+    LogInfo( ( "ESPRESSIF ESP32 ADU OTA SAMPLE" ) );
+    LogInfo( ( "Version: " democonfigADU_INSTALLED_UPDATE_ID ) );
+    LogInfo( ( "------------------------------------------------------------------------------" ) );
+
     uint32_t ulScratchBufferLength = 0U;
     /* MQTT Connection */
     NetworkCredentials_t xNetworkCredentials = { 0 };
@@ -452,6 +463,8 @@ static void prvAzureDemoTask( void * pvParameters )
                                           &xAzureIoTHubClient,
                                           &xHTTPTransport,
                                           prvConnectHTTP,
+                                          &xADUDeviceInformation,
+                                          NULL, // TODO: fill in the install results from a previous update
                                           ucAduContextBuffer,
                                           sizeof( ucAduContextBuffer ) );
         configASSERT( xResult == eAzureIoTSuccess );

@@ -23,6 +23,9 @@
 
 #include <azure/core/_az_cfg_prefix.h>
 
+/* ADU Agent Version */
+#define AZ_IOT_ADU_AGENT_VERSION                             "DU;agent/0.8.0-rc1-public-preview"
+
 /* ADU PnP Component Name */
 #define AZ_IOT_ADU_PROPERTIES_COMPONENT_NAME                 "deviceUpdate"
 
@@ -68,7 +71,7 @@ typedef struct
     int32_t extended_result_code;
     az_span result_details;
     int32_t step_results_count;
-    az_iot_adu_ota_step_result* step_results;
+    az_iot_adu_ota_step_result step_results[MAX_INSTRUCTIONS_STEPS];
 }
 az_iot_adu_ota_install_result;
 

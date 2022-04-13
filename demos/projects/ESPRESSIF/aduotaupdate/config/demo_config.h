@@ -495,4 +495,8 @@ static unsigned char root_cert_array[] = {
  */
 #define configRAND32() (rand()/RAND_MAX)
 
+#define democonfigADU_DEVICE_MANUFACTURER "ESPRESSIF"
+#define democonfigADU_DEVICE_MODEL        "ESP32-Azure-IoT-Kit"
+#define democonfigADU_INSTALLED_UPDATE_ID "{\"provider\":\"ESPRESSIF\",\"Name\":\"ESP32-Azure-IoT-Kit\",\"Version\":\"1.0\"}"
+
 #endif /* DEMO_CONFIG_H */

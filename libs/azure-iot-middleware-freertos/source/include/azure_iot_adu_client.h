@@ -102,10 +102,78 @@
  *
  */
 
-#define azureiotaduWORKFLOW_ID_SIZE                 48
-#define azureiotaduWORKFLOW_RETRY_TIMESTAMP_SIZE    80
-#define azureiotaduSTEPS_MAX                        2
-#define azureiotaduAGENT_FILES_MAX                  2
+#define azureiotaduWORKFLOW_ID_SIZE                             48
+#define azureiotaduWORKFLOW_RETRY_TIMESTAMP_SIZE                80
+#define azureiotaduSTEPS_MAX                                    2
+#define azureiotaduAGENT_FILES_MAX                              2
+#define azureiotaduRESULT_DETAILS_SIZE                          128
+#define azureiotaduDEVICE_INFO_MANUFACTURER_SIZE                16
+#define azureiotaduDEVICE_INFO_MODEL_SIZE                       24
+#define azureiotaduDEVICE_INFO_LAST_INSTALLED_UPDATE_ID_SIZE    128
+#define azureiotaduSTEP_ID_SIZE                                 32
+
+/**
+ * @brief ADU Device Information.
+ *
+ *  https://docs.microsoft.com/en-us/azure/iot-hub-device-update/understand-device-update#device-update-agent
+ */
+typedef struct AzureIoTHubClientADUDeviceInformation
+{
+    const uint8_t ucManufacturer[azureiotaduDEVICE_INFO_MANUFACTURER_SIZE];
+    uint32_t ulManufacturerLength;
+
+    const uint8_t ucModel[azureiotaduDEVICE_INFO_MODEL_SIZE];
+    uint32_t ulModelLength;
+
+    const uint8_t ucLastInstalledUpdateId[azureiotaduDEVICE_INFO_LAST_INSTALLED_UPDATE_ID_SIZE];
+    uint32_t ulLastInstalledUpdateIdLength;
+} AzureIoTHubClientADUDeviceInformation_t;
+
+/**
+ * @brief ADU workflow struct.
+ * Format:
+ *    {
+ *      "action": 3,
+ *      "id": "someguid",
+ *      "retryTimestamp": "2020-04-22T12:12:12.0000000+00:00"
+ *  }
+ *
+ *  https://docs.microsoft.com/en-us/azure/iot-hub-device-update/understand-device-update#device-update-agent
+ */
+typedef struct AzureIoTHubClientADUWorkflow
+{
+    int32_t ulAction;
+
+    const uint8_t ucID[ azureiotaduWORKFLOW_ID_SIZE ];
+    uint32_t ulIDLength;
+
+    const uint8_t ucRetryTimestamp[ azureiotaduWORKFLOW_RETRY_TIMESTAMP_SIZE ];
+    uint32_t ulRetryTimestampLength;
+} AzureIoTHubClientADUWorkflow_t;
+
+typedef struct AzureIoTHubClientADUStepResult
+{
+    const uint8_t ucStepId[ azureiotaduSTEP_ID_SIZE ];
+    uint32_t ulStepIdLength;
+
+    uint32_t ulResultCode;
+    uint32_t ulExtendedResultCode;
+
+    const uint8_t ucResultDetails[ azureiotaduRESULT_DETAILS_SIZE ];
+    uint32_t ulResultDetailsLength;
+} AzureIoTHubClientADUStepResult_t;
+
+typedef struct AzureIoTHubClientADUInstallResult
+{
+    int32_t lResultCode;
+    int32_t lExtendedResultCode;
+
+    const uint8_t ucResultDetails[ azureiotaduRESULT_DETAILS_SIZE ];
+    uint32_t ulResultDetailsLength;
+
+    AzureIoTHubClientADUStepResult_t * pxStepResults;
+    uint32_t ulStepResultsCount;
+} AzureIoTHubClientADUInstallResult_t;
 
 /**
  * @brief Actions requested by the ADU Service
@@ -174,116 +242,6 @@ typedef enum AzureIoTADUUpdateStepState
 typedef AzureIoTResult_t (* AzureIoT_TransportConnectCallback_t)( AzureIoTTransportInterface_t * pxAzureIoTTransport,
                                                                   const char * pucURL );
 
-
-typedef struct AzureIoTUpdateID
-{
-    uint32_t xUnused;
-} AzureIoTUpdateID_t;
-
-/**
- * @brief ADU workflow struct.
- * Format:
- *    {
- *      "action": 3,
- *      "id": "someguid",
- *      "retryTimestamp": "2020-04-22T12:12:12.0000000+00:00"
- *  }
- *
- *  https://docs.microsoft.com/en-us/azure/iot-hub-device-update/understand-device-update#device-update-agent
- */
-typedef struct AzureIoTHubClientADUWorkflow
-{
-    uint32_t ulAction;
-
-    const uint8_t ucID[ azureiotaduWORKFLOW_ID_SIZE ];
-    uint32_t ulIDLength;
-
-    const uint8_t ucRetryTimestamp[ azureiotaduWORKFLOW_RETRY_TIMESTAMP_SIZE ];
-    uint32_t ulRetryTimestampLength;
-} AzureIoTHubClientADUWorkflow_t;
-
-typedef struct AzureIoTHubClientADUStepResult
-{
-    uint32_t ulResultCode;
-    uint32_t ulExtendedResultCode;
-} AzureIoTHubClientADUStepResult_t;
-
-/**
- * @brief ADU update manifest steps struct.
- */
-typedef struct AzureIoTHubClientADUStep_t
-{
-    /* Type.  */
-    const uint8_t * pucType;
-    uint32_t ulTypeLength;
-
-    /* Handler.  */
-    const uint8_t * pucHandler;
-    uint32_t ulHandlerLength;
-
-    /* File id. */
-    const uint8_t * pucFileID;
-    uint32_t ulFileIDLength;
-
-    /* Step state.  */
-    uint32_t ulState;
-
-    /* Result.  */
-    AzureIoTHubClientADUStepResult_t xResult;
-} AzureIoTHubClientADUStep_t_t;
-
-typedef struct AzureIoTHubClientADUFile
-{
-    /* File number.  */
-    const uint8_t * pucFileID;
-    uint32_t ulFileIDLength;
-
-    /* File name.  */
-    const uint8_t * pucFileName;
-    uint32_t ulFileNameLength;
-
-    /* File size in bytes.  */
-    uint32_t ulFileSizeInBytes;
-
-    /* File sha256.  */
-    const uint8_t * pucFileSHA256;
-    uint32_t ulFileSHA256Length;
-
-    /* File url.  */
-    const uint8_t * pucFileURL;
-    uint32_t ulFileURLLength;
-} AzureIoTHubClientADUFile_t;
-
-typedef struct AzureIoTADUClientADUManifest
-{
-    /* Manifest version.  */
-    const uint8_t * pucManifestVersion;
-    uint32_t pulManifestVersionLength;
-
-    /* Update Id.  */
-    AzureIoTUpdateID_t xUpdateID;
-
-    /* Compatibility: deviceManufacturer.  */
-    const uint8_t * pucDeviceManufacturer;
-    uint32_t pulDeviceManufacturerLength;
-
-    /* Compatibility: deviceModel.  */
-    const uint8_t * pucDeviceModel;
-    uint32_t pulDeviceModelLength;
-
-    /* Compatibility: group.  */
-    const uint8_t * pucGroup;
-    uint32_t pulGroupLength;
-
-    /* Instructions: steps.  */
-    AzureIoTHubClientADUStep_t_t pxSteps[ azureiotaduSTEPS_MAX ];
-    uint32_t ulStepsCount;
-
-    /* Files.  */
-    AzureIoTHubClientADUFile_t pxFiles[ azureiotaduAGENT_FILES_MAX ];
-    uint32_t ulFilesCount;
-} AzureIoTADUClientADUManifest_t;
-
 /**
  * @brief ADU Client to handle stages of the ADU process.
  *
@@ -293,16 +251,19 @@ typedef struct AzureIoTADUClient
     AzureIoTHubClient_t * pxHubClient;
     AzureIoTADUState_t xState;
     AzureIoTADUUpdateStepState_t xUpdateStepState;
-    AzureIoTADUClientADUManifest_t xManifest;
     AzureIoTHTTP_t xHTTP;
     AzureADUImage_t xImage;
     AzureIoT_TransportConnectCallback_t xHTTPConnectCallback;
     AzureIoTTransportInterface_t * pxHTTPTransport;
-    const uint8_t * pucAduContextBuffer;
+    uint8_t * pucAduContextBuffer;
     uint32_t ulAduContextBufferLength;
+    az_span xAduContextAvailableBuffer;
+    const AzureIoTHubClientADUDeviceInformation_t * pxDeviceInformation;
+    const AzureIoTHubClientADUInstallResult_t * pxLastInstallResult;
     az_iot_adu_ota_update_request xUpdateRequest;
-    az_span xAduContextBuffer;
     az_iot_adu_ota_update_manifest xUpdateManifest;
+    // TODO: remove this hack, and use xState instead.
+    bool xSendProperties;
 } AzureIoTADUClient_t;
 
 /**
@@ -323,7 +284,9 @@ AzureIoTResult_t AzureIoTADUClient_Init( AzureIoTADUClient_t * pxAduClient,
                                          AzureIoTHubClient_t * pxAzureIoTHubClient,
                                          AzureIoTTransportInterface_t * pxAzureIoTTransport,
                                          AzureIoT_TransportConnectCallback_t pxAzureIoTHTTPConnectCallback,
-                                         const uint8_t * pucAduContextBuffer,
+                                         const AzureIoTHubClientADUDeviceInformation_t * pxDeviceInformation,
+                                         const AzureIoTHubClientADUInstallResult_t * pxLastInstallResult,
+                                         uint8_t * pucAduContextBuffer,
                                          uint32_t ulAduContextBuffer );
 
 /**
