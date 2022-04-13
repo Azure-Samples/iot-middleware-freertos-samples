@@ -132,12 +132,8 @@ AzureIoTHTTPResult_t AzureIoTHTTP_Request( AzureIoTHTTPHandle_t xHTTPHandle,
     {
         printf( "[HTTP] Adding range headers | Range %d to %d\r\n", lRangeStart, lRangeEnd );
         /* Add range headers if not the whole image. */
-        /*TODO: this is hacky */
-        char headerbuffer[ 32 ] = { 0 };
-        int valueLength = snprintf( headerbuffer, sizeof( headerbuffer ), "bytes=%d-%d", lRangeStart, lRangeEnd );
 
-        xHttpLibraryStatus = HTTPClient_AddHeader( &xHTTPHandle->xRequestHeaders, "Range", sizeof( "Range" ) - 1,
-                                                   headerbuffer, ( size_t ) valueLength );
+        xHttpLibraryStatus = HTTPClient_AddRangeHeader( &xHTTPHandle->xRequestHeaders, lRangeStart, lRangeEnd );
 
         printf( "Total header buffer: %.*s\r\n",
                 ( int ) xHTTPHandle->xRequestHeaders.headersLen, xHTTPHandle->xRequestHeaders.pBuffer );
