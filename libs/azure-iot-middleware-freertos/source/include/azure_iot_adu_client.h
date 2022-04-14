@@ -119,13 +119,13 @@
  */
 typedef struct AzureIoTHubClientADUDeviceInformation
 {
-    const uint8_t ucManufacturer[azureiotaduDEVICE_INFO_MANUFACTURER_SIZE];
+    const uint8_t ucManufacturer[ azureiotaduDEVICE_INFO_MANUFACTURER_SIZE ];
     uint32_t ulManufacturerLength;
 
-    const uint8_t ucModel[azureiotaduDEVICE_INFO_MODEL_SIZE];
+    const uint8_t ucModel[ azureiotaduDEVICE_INFO_MODEL_SIZE ];
     uint32_t ulModelLength;
 
-    const uint8_t ucLastInstalledUpdateId[azureiotaduDEVICE_INFO_LAST_INSTALLED_UPDATE_ID_SIZE];
+    const uint8_t ucLastInstalledUpdateId[ azureiotaduDEVICE_INFO_LAST_INSTALLED_UPDATE_ID_SIZE ];
     uint32_t ulLastInstalledUpdateIdLength;
 } AzureIoTHubClientADUDeviceInformation_t;
 
@@ -262,7 +262,7 @@ typedef struct AzureIoTADUClient
     const AzureIoTHubClientADUInstallResult_t * pxLastInstallResult;
     az_iot_adu_ota_update_request xUpdateRequest;
     az_iot_adu_ota_update_manifest xUpdateManifest;
-    // TODO: remove this hack, and use xState instead.
+    /* TODO: remove this hack, and use xState instead. */
     bool xSendProperties;
 } AzureIoTADUClient_t;
 
