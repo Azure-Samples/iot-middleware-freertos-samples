@@ -158,13 +158,14 @@ static uint32_t ulReportedPropertiesUpdateLength;
 
 static uint8_t ucAduContextBuffer[ 10240 ];
 
-static const AzureIoTHubClientADUDeviceInformation_t xADUDeviceInformation = {
-    .ucManufacturer = democonfigADU_DEVICE_MANUFACTURER,
-    .ulManufacturerLength = sizeof(democonfigADU_DEVICE_MANUFACTURER) - 1,
-    .ucModel = democonfigADU_DEVICE_MODEL,
-    .ulModelLength = sizeof(democonfigADU_DEVICE_MODEL) - 1,
-    .ucLastInstalledUpdateId = democonfigADU_INSTALLED_UPDATE_ID,
-    .ulLastInstalledUpdateIdLength = sizeof(democonfigADU_INSTALLED_UPDATE_ID) - 1
+static const AzureIoTHubClientADUDeviceInformation_t xADUDeviceInformation =
+{
+    .ucManufacturer                = democonfigADU_DEVICE_MANUFACTURER,
+    .ulManufacturerLength          = sizeof( democonfigADU_DEVICE_MANUFACTURER ) - 1,
+    .ucModel                       = democonfigADU_DEVICE_MODEL,
+    .ulModelLength                 = sizeof( democonfigADU_DEVICE_MODEL ) - 1,
+    .ucLastInstalledUpdateId       = democonfigADU_INSTALLED_UPDATE_ID,
+    .ulLastInstalledUpdateIdLength = sizeof( democonfigADU_INSTALLED_UPDATE_ID ) - 1
 };
 
 /*-----------------------------------------------------------*/
@@ -464,7 +465,7 @@ static void prvAzureDemoTask( void * pvParameters )
                                           &xHTTPTransport,
                                           prvConnectHTTP,
                                           &xADUDeviceInformation,
-                                          NULL, // TODO: fill in the install results from a previous update
+                                          NULL, /* TODO: fill in the install results from a previous update */
                                           ucAduContextBuffer,
                                           sizeof( ucAduContextBuffer ) );
         configASSERT( xResult == eAzureIoTSuccess );
