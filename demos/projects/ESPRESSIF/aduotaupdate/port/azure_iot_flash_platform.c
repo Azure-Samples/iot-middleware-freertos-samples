@@ -54,6 +54,24 @@ AzureIoTResult_t AzureIoTPlatform_WriteBlock( AzureADUImage_t * const pxAduImage
   return eAzureIoTSuccess;
 }
 
+AzureIoTResult_t AzureIoTPlatform_VerifyImage( AzureADUImage_t * const pxAduImage,
+                                                uint8_t * pucSHA256Hash)
+{
+  int ret;
+
+  uint8_t imageSHA256[32];
+
+  ret = esp_partition_get_sha256(pxAduImage->xUpdatePartition, imageSHA256);
+
+  if (memcmp(pucSHA256Hash, imageSHA256, 32) == 0)
+  {
+    return eAzureIoTSuccess;
+  }
+  else
+  {
+    return eAzureIoTErrorFailed;
+  }
+}
 
 AzureIoTResult_t AzureIoTPlatform_EnableImage(AzureADUImage_t * const pxAduImage)
 {

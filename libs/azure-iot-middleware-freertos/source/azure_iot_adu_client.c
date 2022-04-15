@@ -461,6 +461,25 @@ static AzureIoTResult_t prvHandleSteps( AzureIoTADUClient_t * pxAduClient )
 
             AZLogInfo( ( "[ADU] Step: eAzureIoTADUUpdateStepFirmwareApplyStarted\r\n" ) );
 
+            AZLogInfo(("[ADU] Verify the image SHA256 against manifest signature\r\n"));
+
+            // File hash to compare against installed hash
+            pxAduClient->xUpdateManifest.files[0].hashes[0].hash;
+
+            AzureIoTPlatform_VerifyImage( &pxAduClient->xImage );
+
+
+
+            AzureIoTCryptoSHA256_t xCryptoContext;
+            xCryptoContext.xImageContext = pxAduClient->xImage;
+
+            xResult = AzureIoTCrypto_SHA256Calculate( const char * pucMetadataPtr,
+                                           uint32_t ulMetadataSize,
+                                           const char * pucInputPtr,
+                                           uint64_t ulInputSize,
+                                           const char * pucOutputPtr,
+                                           uint64_t ulOutputSize );
+
             AZLogInfo( ( "[ADU] Enable the update image\r\n" ) );
             AzureIoTPlatform_EnableImage( &pxAduClient->xImage );
 

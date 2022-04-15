@@ -15,6 +15,7 @@ file(GLOB_RECURSE COMPONENT_SOURCES
 
 list(APPEND COMPONENT_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}../../../port/azure_iot_flash_platform.c
+    ${CMAKE_CURRENT_LIST_DIR}../../../port/azure_iot_crypto.c
     ${AZURE_IOT_MIDDLEWARE_FREERTOS}/ports/coreMQTT/azure_iot_core_mqtt.c
     ${AZURE_IOT_MIDDLEWARE_FREERTOS}/ports/coreHTTP/azure_iot_core_http.c
 )
