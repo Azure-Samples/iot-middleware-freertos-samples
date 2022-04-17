@@ -12,7 +12,7 @@
 
 #include <stdint.h>
 
-#include "azure_iot_crypto_port.h"
+#include "azure_iot_result.h"
 
 AzureIoTResult_t AzureIoTCrypto_SHA256Calculate( const char * pucInputPtr,
                                            uint64_t ulInputSize,
