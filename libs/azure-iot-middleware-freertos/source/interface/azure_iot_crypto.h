@@ -12,20 +12,20 @@
 
 #include <stdint.h>
 
-uint32_t ulAzureIoTCrypto_SHA256Calculate( const char * pucMetadataPtr,
-                                           uint32_t ulMetadataSize,
-                                           const char * pucInputPtr,
-                                           uint64_t ulInputSize,
-                                           const char * pucOutputPtr,
-                                           uint64_t ulOutputSize );
+#include "azure_iot_result.h"
 
-uint32_t ulAzureIoTCrypto_RS256Verify( const char * pucInputPtr,
-                                       uint64_t ulInputSize,
-                                       const char * pucSignaturePtr,
-                                       uint64_t ulSignatureSize,
-                                       const char * pucN,
-                                       uint64_t ullNSize,
-                                       const char * pucE,
-                                       uint64_t ullESize,
-                                       const char * pucBufferPtr,
-                                       uint32_t ulBufferSize );
+AzureIoTResult_t AzureIoTCrypto_SHA256Calculate( const char * pucInputPtr,
+                                                 uint64_t ulInputSize,
+                                                 const char * pucOutputPtr,
+                                                 uint64_t ulOutputSize );
+
+AzureIoTResult_t AzureIoTCrypto_RS256Verify( const char * pucInputPtr,
+                                             uint64_t ulInputSize,
+                                             const char * pucSignaturePtr,
+                                             uint64_t ulSignatureSize,
+                                             const char * pucN,
+                                             uint64_t ullNSize,
+                                             const char * pucE,
+                                             uint64_t ullESize,
+                                             const char * pucBufferPtr,
+                                             uint32_t ulBufferSize );
