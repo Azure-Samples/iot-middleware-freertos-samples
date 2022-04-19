@@ -110,7 +110,7 @@ AzureIoTResult_t AzureIoTPlatform_VerifyImage( AzureADUImage_t * const pxAduImag
     uint32_t ulOutputSize;
     uint32_t ulReadSize;
 
-    AZLogInfo(("Base64 Encoded Hash from ADU: %.*s", azureiotflashSHA_256_SIZE, pucSHA256Hash ));
+    AZLogInfo( ( "Base64 Encoded Hash from ADU: %.*s", azureiotflashSHA_256_SIZE, pucSHA256Hash ) );
     prvBase64Decode( pucSHA256Hash, ulSHA256HashLength, ucDecodedManifestHash, azureiotflashSHA_256_SIZE, ( size_t * ) &ulOutputSize );
 
     mbedtls_md_context_t ctx;
@@ -139,7 +139,8 @@ AzureIoTResult_t AzureIoTPlatform_VerifyImage( AzureADUImage_t * const pxAduImag
             printf( "." );
         }
     }
-    printf("\r\n");
+
+    printf( "\r\n" );
 
     AZLogInfo( ( "Done\r\n" ) );
 
