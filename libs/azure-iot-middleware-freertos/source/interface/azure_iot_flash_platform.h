@@ -23,7 +23,7 @@ AzureIoTResult_t AzureIoTPlatform_WriteBlock( AzureADUImage_t * const pxAduImage
                                               uint32_t ulBlockSize );
 
 AzureIoTResult_t AzureIoTPlatform_VerifyImage( AzureADUImage_t * const pxAduImage,
-                                                uint8_t * pucSHA256Hash);
+                                               uint8_t * pucSHA256Hash );
 
 AzureIoTResult_t AzureIoTPlatform_EnableImage( AzureADUImage_t * const pxAduImage );
 

@@ -295,7 +295,7 @@ static AzureIoTResult_t prvHandleSteps( AzureIoTADUClient_t * pxAduClient )
     AzureIoTHTTPResult_t xHttpResult;
     char * pucHttpDataBufferPtr;
     uint32_t pulHttpDataLength;
-    uint8_t ucSHA256Buffer[32];
+    uint8_t ucSHA256Buffer[ 32 ];
 
     switch( pxAduClient->xUpdateStepState )
     {
@@ -462,21 +462,21 @@ static AzureIoTResult_t prvHandleSteps( AzureIoTADUClient_t * pxAduClient )
 
             AZLogInfo( ( "[ADU] Step: eAzureIoTADUUpdateStepFirmwareApplyStarted\r\n" ) );
 
-            AZLogInfo(("[ADU] Verify the image SHA256 against manifest signature\r\n"));
+            AZLogInfo( ( "[ADU] Verify the image SHA256 against manifest signature\r\n" ) );
 
-            // File hash to compare against installed hash
-            az_span xHashSpan = pxAduClient->xUpdateManifest.files[0].hashes[0].hash;
+            /* File hash to compare against installed hash */
+            az_span xHashSpan = pxAduClient->xUpdateManifest.files[ 0 ].hashes[ 0 ].hash;
 
-            // Call into platform specific image verification
+            /* Call into platform specific image verification */
             xResult = AzureIoTPlatform_VerifyImage( &pxAduClient->xImage, ucSHA256Buffer );
 
-            if (xResult == eAzureIoTSuccess)
+            if( xResult == eAzureIoTSuccess )
             {
                 AZLogInfo( ( "[ADU] Image validated against hash from ADU\r\n" ) );
             }
             else
             {
-              AZLogError(("[ADU] File hash from ADU did not match calculated hash\r\n"));
+                AZLogError( ( "[ADU] File hash from ADU did not match calculated hash\r\n" ) );
             }
 
             AZLogInfo( ( "[ADU] Enable the update image\r\n" ) );
