@@ -92,14 +92,6 @@ AzureIoTResult_t AzureIoTPlatform_WriteBlock( AzureADUImage_t * const pxAduImage
     return eAzureIoTSuccess;
 }
 
-/*
- * Note for this API:
- *    - The SHA256 that this return is the one which is appended at the end of the image by the ESPIDF
- *    - The hash is then verified over the partition memory address [0 : IMAGE-SIZE - 32] since the last 32 bytes
- *      are the SHA256 hash. This means that the sah256 which is create by the ADU service will be different, as it
- *      will be over the memory address [0 : IMAGE-SIZE] AKA including the appended SHA256 hash
- *    - Appended hash can be viewed by running `esptool.py --chip esp32 image_info .\azure_iot_freertos_esp32.bin`
- *  https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/storage/spi_flash.html#_CPPv424esp_partition_get_sha256PK15esp_partition_tP7uint8_t */
 AzureIoTResult_t AzureIoTPlatform_VerifyImage( AzureADUImage_t * const pxAduImage,
                                                uint8_t * pucSHA256Hash,
                                                uint32_t ulSHA256HashLength )
@@ -111,7 +103,12 @@ AzureIoTResult_t AzureIoTPlatform_VerifyImage( AzureADUImage_t * const pxAduImag
     uint32_t ulReadSize;
 
     AZLogInfo( ( "Base64 Encoded Hash from ADU: %.*s", ulSHA256HashLength, pucSHA256Hash ) );
-    prvBase64Decode( pucSHA256Hash, ulSHA256HashLength, ucDecodedManifestHash, azureiotflashSHA_256_SIZE, ( size_t * ) &ulOutputSize );
+    xResult = prvBase64Decode( pucSHA256Hash, ulSHA256HashLength, ucDecodedManifestHash, azureiotflashSHA_256_SIZE, ( size_t * ) &ulOutputSize );
+    if( xResult != eAzureIoTSuccess)
+    {
+      AZLogError( ( "Unable to decode base64 SHA256\r\n" ) );
+      return eAzureIoTErrorFailed;
+    }
 
     mbedtls_md_context_t ctx;
     mbedtls_md_type_t md_type = MBEDTLS_MD_SHA256;
