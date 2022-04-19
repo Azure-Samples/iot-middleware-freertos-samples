@@ -6,6 +6,10 @@
 #include "azure_iot_flash_platform.h"
 
 #include "azure_iot_flash_platform_port.h"
+// Logging
+#include "azure_iot.h"
+
+#include "azure/core/az_base64.h"
 
 #include "esp_ota_ops.h"
 #include "esp_system.h"
@@ -14,12 +18,14 @@
 #define azureiotflashSHA_256_SIZE 32
 
 static uint8_t ucPartitionReadBuffer[32];
+static uint8_t ucDecodedManifestHash[azureiotflashSHA_256_SIZE];
 static uint8_t ucCalculatedHash[azureiotflashSHA_256_SIZE];
 
-static AzureIoTResult_t prvBase64Decode(char* base64Encoded, uint8_t * pucOutputBuffer, size_t bufferLen, size_t * outputSize)
+static AzureIoTResult_t prvBase64Decode(uint8_t * base64Encoded, uint8_t * pucOutputBuffer, size_t bufferLen, size_t * outputSize)
 {
   az_result xCoreResult;
-  az_span encodedSpan = az_span_create_from_str(base64Encoded);
+
+  az_span encodedSpan = az_span_create(base64Encoded, azureiotflashSHA_256_SIZE);
 
   az_span outputSpan = az_span_create(pucOutputBuffer, bufferLen);
 
@@ -29,7 +35,7 @@ static AzureIoTResult_t prvBase64Decode(char* base64Encoded, uint8_t * pucOutput
       return eAzureIoTErrorFailed;
   }
 
-  LogInfo(("Unencoded the base64 encoding\r\n"));
+  AZLogInfo(("Unencoded the base64 encoding\r\n"));
 
   return eAzureIoTSuccess;
 }
@@ -97,7 +103,7 @@ AzureIoTResult_t AzureIoTPlatform_VerifyImage( AzureADUImage_t * const pxAduImag
   uint32_t ulOutputSize;
   uint32_t ulReadSize;
 
-  prvBase64Decode(pucFileHash, pucSHA256Hash, azureiotflashSHA_256_SIZE, (size_t *)&ulOutputSize);
+  prvBase64Decode(pucSHA256Hash, ucDecodedManifestHash, azureiotflashSHA_256_SIZE, (size_t *)&ulOutputSize);
 
   mbedtls_md_context_t ctx;
   mbedtls_md_type_t md_type = MBEDTLS_MD_SHA256;
@@ -106,12 +112,12 @@ AzureIoTResult_t AzureIoTPlatform_VerifyImage( AzureADUImage_t * const pxAduImag
   mbedtls_md_setup(&ctx, mbedtls_md_info_from_type(md_type), 0);
   mbedtls_md_starts(&ctx);
 
-  LogInfo(("Starting the mbedtls calculation\r\n"));
-  for ( size_t ulOffset = 0; ulOffset < ulFlashedFileSize; ulOffset += sizeof(ucPartitionReadBuffer) )
+  AZLogInfo(("Starting the mbedtls calculation\r\n"));
+  for ( size_t ulOffset = 0; ulOffset < pxAduImage->ulImageFileSize; ulOffset += sizeof(ucPartitionReadBuffer) )
   {
-      ulReadSize = ulFlashedFileSize - ulOffset < sizeof(ucPartitionReadBuffer) ? ulFlashedFileSize - ulOffset : sizeof(ucPartitionReadBuffer);
+      ulReadSize = pxAduImage->ulImageFileSize - ulOffset < sizeof(ucPartitionReadBuffer) ? pxAduImage->ulImageFileSize - ulOffset : sizeof(ucPartitionReadBuffer);
 
-      espErr = esp_partition_read_raw(pxAduClient->xImage.xUpdatePartition,
+      espErr = esp_partition_read_raw(pxAduImage->xUpdatePartition,
         ulOffset,
         ucPartitionReadBuffer,
         ulReadSize);
@@ -120,33 +126,33 @@ AzureIoTResult_t AzureIoTPlatform_VerifyImage( AzureADUImage_t * const pxAduImag
       mbedtls_md_update(&ctx, (const unsigned char *) ucPartitionReadBuffer, ulReadSize);
 
       printf(".");
-      if(i % 32 == 0 && i != 0)
+      if(ulOffset % 64 == 0 && ulOffset != 0)
       {
         printf("\r\n");
       }
   }
   
-  LogInfo(("Done\r\n"));
+  AZLogInfo(("Done\r\n"));
 
   mbedtls_md_finish(&ctx, ucCalculatedHash);
   mbedtls_md_free(&ctx);
 
-  if (memcmp(pucSHA256Hash, ucCalculatedHash, sizeof(pucSHA256Hash)) == 0)
+  if (memcmp(pucSHA256Hash, ucCalculatedHash, azureiotflashSHA_256_SIZE) == 0)
   {
-    LogInfo( ( "SHA's match\r\n" ) );
+    AZLogInfo( ( "SHA's match\r\n" ) );
     xResult = eAzureIoTSuccess;
   }
   else
   {
-    LogInfo(("SHA's do not match\r\n"));
-    LogInfo(("Wanted: "));
+    AZLogInfo(("SHA's do not match\r\n"));
+    AZLogInfo(("Wanted: "));
     for(int i = 0; i < 32; i++)
     {
       printf("%x", pucSHA256Hash[i]);
     }
 
-    LogInfo(("\r\n"));
-    LogInfo(("Calculated: "));
+    AZLogInfo(("\r\n"));
+    AZLogInfo(("Calculated: "));
 
     for(int i = 0; i < 32; i++)
     {
