@@ -22,13 +22,14 @@ static uint8_t ucDecodedManifestHash[ azureiotflashSHA_256_SIZE ];
 static uint8_t ucCalculatedHash[ azureiotflashSHA_256_SIZE ];
 
 static AzureIoTResult_t prvBase64Decode( uint8_t * base64Encoded,
+                                         size_t ulBase64EncodedLength,
                                          uint8_t * pucOutputBuffer,
                                          size_t bufferLen,
                                          size_t * outputSize )
 {
     az_result xCoreResult;
 
-    az_span encodedSpan = az_span_create( base64Encoded, azureiotflashSHA_256_SIZE );
+    az_span encodedSpan = az_span_create( base64Encoded, ulBase64EncodedLength );
 
     az_span outputSpan = az_span_create( pucOutputBuffer, bufferLen );
 
@@ -100,7 +101,8 @@ AzureIoTResult_t AzureIoTPlatform_WriteBlock( AzureADUImage_t * const pxAduImage
  *    - Appended hash can be viewed by running `esptool.py --chip esp32 image_info .\azure_iot_freertos_esp32.bin`
  *  https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/storage/spi_flash.html#_CPPv424esp_partition_get_sha256PK15esp_partition_tP7uint8_t */
 AzureIoTResult_t AzureIoTPlatform_VerifyImage( AzureADUImage_t * const pxAduImage,
-                                               uint8_t * pucSHA256Hash )
+                                               uint8_t * pucSHA256Hash,
+                                               uint32_t ulSHA256HashLength )
 {
     int xResult;
     esp_err_t espErr;
@@ -108,7 +110,8 @@ AzureIoTResult_t AzureIoTPlatform_VerifyImage( AzureADUImage_t * const pxAduImag
     uint32_t ulOutputSize;
     uint32_t ulReadSize;
 
-    prvBase64Decode( pucSHA256Hash, ucDecodedManifestHash, azureiotflashSHA_256_SIZE, ( size_t * ) &ulOutputSize );
+    AZLogInfo(("Base64 Encoded Hash from ADU: %.*s", azureiotflashSHA_256_SIZE, pucSHA256Hash ));
+    prvBase64Decode( pucSHA256Hash, ulSHA256HashLength, ucDecodedManifestHash, azureiotflashSHA_256_SIZE, ( size_t * ) &ulOutputSize );
 
     mbedtls_md_context_t ctx;
     mbedtls_md_type_t md_type = MBEDTLS_MD_SHA256;
@@ -117,7 +120,7 @@ AzureIoTResult_t AzureIoTPlatform_VerifyImage( AzureADUImage_t * const pxAduImag
     mbedtls_md_setup( &ctx, mbedtls_md_info_from_type( md_type ), 0 );
     mbedtls_md_starts( &ctx );
 
-    AZLogInfo( ( "Starting the mbedtls calculation\r\n" ) );
+    AZLogInfo( ( "Starting the mbedtls calculation: image size %d\r\n", pxAduImage->ulImageFileSize ) );
 
     for( size_t ulOffset = 0; ulOffset < pxAduImage->ulImageFileSize; ulOffset += sizeof( ucPartitionReadBuffer ) )
     {
@@ -131,20 +134,19 @@ AzureIoTResult_t AzureIoTPlatform_VerifyImage( AzureADUImage_t * const pxAduImag
 
         mbedtls_md_update( &ctx, ( const unsigned char * ) ucPartitionReadBuffer, ulReadSize );
 
-        printf( "." );
-
-        if( ( ulOffset % 64 == 0 ) && ( ulOffset != 0 ) )
+        if( ( ulOffset % 65536 == 0 ) && ( ulOffset != 0 ) )
         {
-            printf( "\r\n" );
+            printf( "." );
         }
     }
+    printf("\r\n");
 
     AZLogInfo( ( "Done\r\n" ) );
 
     mbedtls_md_finish( &ctx, ucCalculatedHash );
     mbedtls_md_free( &ctx );
 
-    if( memcmp( pucSHA256Hash, ucCalculatedHash, azureiotflashSHA_256_SIZE ) == 0 )
+    if( memcmp( ucDecodedManifestHash, ucCalculatedHash, azureiotflashSHA_256_SIZE ) == 0 )
     {
         AZLogInfo( ( "SHA's match\r\n" ) );
         xResult = eAzureIoTSuccess;
@@ -154,18 +156,20 @@ AzureIoTResult_t AzureIoTPlatform_VerifyImage( AzureADUImage_t * const pxAduImag
         AZLogInfo( ( "SHA's do not match\r\n" ) );
         AZLogInfo( ( "Wanted: " ) );
 
-        for( int i = 0; i < 32; i++ )
+        for( int i = 0; i < azureiotflashSHA_256_SIZE; ++i )
         {
-            printf( "%x", pucSHA256Hash[ i ] );
+            printf( "%x", ucDecodedManifestHash[ i ] );
         }
 
-        AZLogInfo( ( "\r\n" ) );
+        printf( ( "\r\n" ) );
         AZLogInfo( ( "Calculated: " ) );
 
-        for( int i = 0; i < 32; i++ )
+        for( int i = 0; i < azureiotflashSHA_256_SIZE; ++i )
         {
             printf( "%x", ucCalculatedHash[ i ] );
         }
+
+        printf( ( "\r\n" ) );
 
         xResult = eAzureIoTErrorFailed;
     }

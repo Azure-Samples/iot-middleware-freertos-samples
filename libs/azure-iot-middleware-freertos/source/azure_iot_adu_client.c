@@ -468,21 +468,23 @@ static AzureIoTResult_t prvHandleSteps( AzureIoTADUClient_t * pxAduClient )
             az_span xHashSpan = pxAduClient->xUpdateManifest.files[ 0 ].hashes[ 0 ].hash;
 
             /* Call into platform specific image verification */
-            xResult = AzureIoTPlatform_VerifyImage( &pxAduClient->xImage, ucSHA256Buffer );
+            xResult = AzureIoTPlatform_VerifyImage( &pxAduClient->xImage, az_span_ptr(xHashSpan), az_span_size(xHashSpan) );
 
             if( xResult == eAzureIoTSuccess )
             {
                 AZLogInfo( ( "[ADU] Image validated against hash from ADU\r\n" ) );
+
+                AZLogInfo( ( "[ADU] Enable the update image\r\n" ) );
+                AzureIoTPlatform_EnableImage( &pxAduClient->xImage );
+
+                pxAduClient->xUpdateStepState = eAzureIoTADUUpdateStepFirmwareApplySucceeded;
             }
             else
             {
                 AZLogError( ( "[ADU] File hash from ADU did not match calculated hash\r\n" ) );
+                pxAduClient->xUpdateStepState = eAzureIoTADUUpdateStepFailed;
             }
 
-            AZLogInfo( ( "[ADU] Enable the update image\r\n" ) );
-            AzureIoTPlatform_EnableImage( &pxAduClient->xImage );
-
-            pxAduClient->xUpdateStepState = eAzureIoTADUUpdateStepFirmwareApplySucceeded;
             break;
 
         case eAzureIoTADUUpdateStepFirmwareApplySucceeded:
