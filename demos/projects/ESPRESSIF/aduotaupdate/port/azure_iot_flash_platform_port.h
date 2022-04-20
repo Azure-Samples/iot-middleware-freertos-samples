@@ -3,9 +3,9 @@
 
 /**
  * @file azure_iot_flash_platform_port.h
- * 
+ *
  * @brief Port file for the esp32 flash abstraction.
- * 
+ *
  */
 
 #ifndef AZURE_IOT_FLASH_PLATFORM_PORT_H
@@ -25,4 +25,4 @@ typedef struct AzureADUImageContext
 
 typedef AzureADUImageContext_t AzureADUImage_t;
 
-#endif // AZURE_IOT_FLASH_PLATFORM_PORT_H
+#endif /* AZURE_IOT_FLASH_PLATFORM_PORT_H */

@@ -33,4 +33,4 @@ set(COMPONENT_INCLUDE_DIRS
 idf_component_register(
     SRCS ${COMPONENT_SOURCES}
     INCLUDE_DIRS ${COMPONENT_INCLUDE_DIRS}
-    REQUIRES freertos azure-sdk-for-c coreMQTT coreHTTP spi_flash app_update)
+    REQUIRES freertos azure-sdk-for-c coreMQTT coreHTTP spi_flash app_update mbedtls)
