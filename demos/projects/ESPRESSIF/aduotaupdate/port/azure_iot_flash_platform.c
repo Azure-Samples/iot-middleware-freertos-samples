@@ -104,10 +104,11 @@ AzureIoTResult_t AzureIoTPlatform_VerifyImage( AzureADUImage_t * const pxAduImag
 
     AZLogInfo( ( "Base64 Encoded Hash from ADU: %.*s", ulSHA256HashLength, pucSHA256Hash ) );
     xResult = prvBase64Decode( pucSHA256Hash, ulSHA256HashLength, ucDecodedManifestHash, azureiotflashSHA_256_SIZE, ( size_t * ) &ulOutputSize );
-    if( xResult != eAzureIoTSuccess)
+
+    if( xResult != eAzureIoTSuccess )
     {
-      AZLogError( ( "Unable to decode base64 SHA256\r\n" ) );
-      return eAzureIoTErrorFailed;
+        AZLogError( ( "Unable to decode base64 SHA256\r\n" ) );
+        return eAzureIoTErrorFailed;
     }
 
     mbedtls_md_context_t ctx;

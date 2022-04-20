@@ -468,7 +468,7 @@ static AzureIoTResult_t prvHandleSteps( AzureIoTADUClient_t * pxAduClient )
             az_span xHashSpan = pxAduClient->xUpdateManifest.files[ 0 ].hashes[ 0 ].hash;
 
             /* Call into platform specific image verification */
-            xResult = AzureIoTPlatform_VerifyImage( &pxAduClient->xImage, az_span_ptr(xHashSpan), az_span_size(xHashSpan) );
+            xResult = AzureIoTPlatform_VerifyImage( &pxAduClient->xImage, az_span_ptr( xHashSpan ), az_span_size( xHashSpan ) );
 
             if( xResult == eAzureIoTSuccess )
             {
