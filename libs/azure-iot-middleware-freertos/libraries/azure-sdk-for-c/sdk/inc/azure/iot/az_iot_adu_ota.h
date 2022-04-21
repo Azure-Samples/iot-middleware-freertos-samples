@@ -187,7 +187,7 @@ AZ_NODISCARD bool az_iot_adu_ota_is_component_device_update(
  *                                  as required by the ADU service.
  * @param[in] agent_state           An integer value indicating the current state of
  *                                  the ADU agent. Use the values defined by the
- *                                  AZ_IOT_ADU_OTA_AGENT_STATE* macros in this header.
+ *                                  #AZ_IOT_ADU_OTA_AGENT_STATE macros in this header.
  *                                  Please see the ADU online documentation for more
  *                                  details.
  * @param[in] workflow              A pointer to a #az_iot_adu_ota_workflow instance
