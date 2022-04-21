@@ -273,7 +273,7 @@ AZ_NODISCARD az_result az_iot_adu_ota_get_service_properties_response(
  *        a pre-defined structure.
  * 
  * @param[in] payload             ADU update manifest, as unescaped json content.
- * @param[out] update_manifest    The structured where the parsed values of the 
+ * @param[out] update_manifest    The structure where the parsed values of the 
  *                                manifest are stored. Values are not copied from
  *                                `payload`, the fields of the structure just
  *                                point to the positions in `payload` where the
