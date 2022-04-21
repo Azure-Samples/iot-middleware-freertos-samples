@@ -230,7 +230,7 @@ AZ_NODISCARD az_result az_iot_adu_ota_get_properties_payload(
  *                                 read from the `jr` json reader.
  *                                 In summary, this structure holds #az_span
  *                                 instances that point to the actual data
- *                                 parsed from `jr` and written to `buffer`.
+ *                                 parsed from `jr` and copied to `buffer`.
  * @param[out] buffer_remainder    A pointer to an #az_span where to store the
  *                                 remaining available space of `buffer`.
  * @return An #az_result value indicating the result of the operation.
