@@ -243,8 +243,7 @@ typedef AzureIoTResult_t (* AzureIoT_TransportConnectCallback_t)( AzureIoTTransp
                                                                   const char * pucURL );
 
 /**
- * @brief ADU Client to handle stages of the ADU process.
- *
+ * @brief Azure IoT ADU Client (ADU agent) to handle stages of the ADU process.
  */
 typedef struct AzureIoTADUClient
 {
@@ -272,17 +271,36 @@ typedef struct AzureIoTADUClient
  */
 
 /**
- * @brief Initialize Azure IoT ADU Client
- *
- * @param pxAduClient
- * @param pxAzureIoTHubClient
- * @param pucAduContextBuffer
- * @param ulAduContextBuffer
- * @return AzureIoTResult_t
+ * @brief Initializes the Azure IoT ADU Agent Client.
+ * 
+ * @param[in] pxAduClient            The pointer to the #AzureIoTADUClient_t
+ *                                   instance to initialize.
+ * @param[in] pxAzureIoTHubClient    A pointer to the #AzureIoTHubClient_t,
+ *                                   already initialized.
+ * @param[in] pxHTTPTransport        An instance of #AzureIoTTransportInterface_t
+ *                                   defining the I/O interface for the internal
+ *                                   HTTP client used to download image files.  
+ * @param[in] pxAzureIoTHTTPConnectCallback
+ *                                  A callback invoked by the ADU client API
+ *                                  requesting the socket connection to be
+ *                                  established for the internal HTTP client.
+ * @param[in] pxDeviceInformation   A pointer to a
+ *                                  #AzureIoTHubClientADUDeviceInformation_t
+ *                                  structure with all the details of the device,
+ *                                  as required by the ADU service.
+ * @param[in] pxLastInstallResult   A pointer to a
+ *                                  #AzureIoTHubClientADUInstallResult_t
+ *                                  containing the results of the current or last
+ *                                  update and its steps.
+ * @param[in] pucAduContextBuffer   A pointer to the memory buffer to be used
+ *                                  for parsing ADU service requests and
+ *                                  composing the ADU agent reports.  
+ * @param[in] ulAduContextBuffer    The size of `pucAduContextBuffer`.
+ * @return An #AzureIoTResult_t with the result of the operation.
  */
 AzureIoTResult_t AzureIoTADUClient_Init( AzureIoTADUClient_t * pxAduClient,
                                          AzureIoTHubClient_t * pxAzureIoTHubClient,
-                                         AzureIoTTransportInterface_t * pxAzureIoTTransport,
+                                         AzureIoTTransportInterface_t * pxHTTPTransport,
                                          AzureIoT_TransportConnectCallback_t pxAzureIoTHTTPConnectCallback,
                                          const AzureIoTHubClientADUDeviceInformation_t * pxDeviceInformation,
                                          const AzureIoTHubClientADUInstallResult_t * pxLastInstallResult,
@@ -291,24 +309,46 @@ AzureIoTResult_t AzureIoTADUClient_Init( AzureIoTADUClient_t * pxAduClient,
 
 /**
  * @brief Process ADU Messages and iterate through ADU state machine.
+ * @remark This function must be called frequently enough to properly
+ *         allow the ADU client and state machine to perform the
+ *         device updates when they are received. This is usually called
+ *         side-by-side with AzureIoTHubClient_ProcessLoop.
  *
  * @param[in] pxAduClient The #AzureIoTADUClient_t * to use for this call.
- * @param[in] ulTimeoutMilliseconds Minimum time (in milliseconds) for the loop to run. If `0` is passed, it will only run once.
+ * @param[in] ulTimeoutMilliseconds Minimum time (in milliseconds) for the
+ *                                  loop to run. If `0` is passed,
+ *                                  it will only run once.
  * @return An #AzureIoTResult_t with the result of the operation.
  */
 AzureIoTResult_t AzureIoTADUClient_ADUProcessLoop( AzureIoTADUClient_t * pxAduClient,
                                                    uint32_t ulTimeoutMilliseconds );
 
 /**
- * @brief Process the ADU subcomponent into the AzureIoTADUClient
- *
- * @param pxAduClient
- * @param pxReader
- * @param ulPropertyVersion
- * @param pucWritablePropertyResponseBuffer
- * @param ulWritablePropertyResponseBufferSize
- * @param pulWritablePropertyResponseBufferLength
- * @return AzureIoTResult_t
+ * @brief Updates the ADU Agent Client with ADU service device update properties.
+ * @remark It must be called whenever writable properties are received containing
+ *         ADU service properties (verified with AzureIoTADUClient_IsADUComponent).
+ *         It effectivelly parses the properties (aka, the device update request)
+ *         from ADU and sets the state machine to perform the update process if the
+ *         the update request is applicable (e.g., if the version is not already
+ *         installed).
+ *         This function also provides the payload to acknowledge the ADU service
+ *         Azure Plug-and-Play writable properties.   
+ * 
+ * @param[in] pxAduClient The #AzureIoTADUClient_t * to use for this call.
+ * @param[in] pxReader  A #AzureIoTJSONReader_t initialized with the ADU
+ *                      service writable properties json, set to the
+ *                      beginning of the json object that is the value
+ *                      of the ADU component.
+ * @param[in] ulPropertyVersion Version of the writable properties.
+ * @param[in] pucWritablePropertyResponseBuffer
+ *              An pointer to the memory buffer where to
+ *              write the resulting Azure Plug-and-Play properties acknoledgement
+ *              payload.
+ * @param[in] ulWritablePropertyResponseBufferSize
+ *              Size of `pucWritablePropertyResponseBuffer`
+ * @param[out] pulWritablePropertyResponseBufferLength
+ *              Length of content writen into `pucWritablePropertyResponseBuffer`.
+ * @return An #AzureIoTResult_t with the result of the operation.
  */
 AzureIoTResult_t AzureIoTADUClient_ADUProcessComponent( AzureIoTADUClient_t * pxAduClient,
                                                         AzureIoTJSONReader_t * pxReader,
@@ -321,23 +361,28 @@ AzureIoTResult_t AzureIoTADUClient_ADUProcessComponent( AzureIoTADUClient_t * px
  * @brief Returns whether the component is the ADU component
  *
  * @note If it is, user should follow by parsing the component with the
- * AzureIoTHubClient_ADUProcessComponent() call. The properties will be
- * processed into the AzureIoTADUClient.
+ *       AzureIoTHubClient_ADUProcessComponent() call. The properties will be
+ *       processed into the AzureIoTADUClient.
  *
- * @param pucComponentName
- * @param ulComponentNameLength
- * @return true
- * @return false
+ * @param[in] pxAduClient The pointer to the instance of #AzureIoTADUClient_t
+ *                        previously initialized.
+ * @param[in] pucComponentName Name of writable properties component to be
+ *                             checked.
+ * @param[in] ulComponentNameLength    Length of `pucComponentName`.
+ * @return A boolean value indicating if the writable properties component
+ *         is from ADU service.
  */
 bool AzureIoTADUClient_IsADUComponent( AzureIoTADUClient_t * pxAduClient,
                                        const char * pucComponentName,
                                        uint32_t ulComponentNameLength );
 
 /**
- * @brief Get the state of the ADU Client
+ * @brief Get the current state of the ADU Client.
  *
- * @param pxAduClient
- * @return AzureIoTADUUpdateStepState_t
+ * @param[in] pxAduClient The pointer to the instance of #AzureIoTADUClient_t
+ *                        previously initialized.
+ * @return A value of #AzureIoTADUUpdateStepState_t indicating the current state
+ *         of the ADU client.
  */
 AzureIoTADUUpdateStepState_t AzureIoTADUClient_GetState( AzureIoTADUClient_t * pxAduClient );
 

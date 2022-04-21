@@ -86,7 +86,7 @@
 
 AzureIoTResult_t AzureIoTADUClient_Init( AzureIoTADUClient_t * pxAduClient,
                                          AzureIoTHubClient_t * pxAzureIoTHubClient,
-                                         AzureIoTTransportInterface_t * pxAzureIoTTransport,
+                                         AzureIoTTransportInterface_t * pxHTTPTransport,
                                          AzureIoT_TransportConnectCallback_t pxAzureIoTHTTPConnectCallback,
                                          const AzureIoTHubClientADUDeviceInformation_t * pxDeviceInformation,
                                          const AzureIoTHubClientADUInstallResult_t * pxLastInstallResult,
@@ -97,7 +97,7 @@ AzureIoTResult_t AzureIoTADUClient_Init( AzureIoTADUClient_t * pxAduClient,
     /*       Last install workflow and results are optional (for a device that was never updated). */
 
     pxAduClient->pxHubClient = pxAzureIoTHubClient;
-    pxAduClient->pxHTTPTransport = pxAzureIoTTransport;
+    pxAduClient->pxHTTPTransport = pxHTTPTransport;
     pxAduClient->xHTTPConnectCallback = pxAzureIoTHTTPConnectCallback;
     pxAduClient->pxDeviceInformation = pxDeviceInformation;
     pxAduClient->pxLastInstallResult = pxLastInstallResult;
