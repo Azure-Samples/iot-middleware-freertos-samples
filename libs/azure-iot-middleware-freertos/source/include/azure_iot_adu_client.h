@@ -342,7 +342,7 @@ AzureIoTResult_t AzureIoTADUClient_ADUProcessLoop( AzureIoTADUClient_t * pxAduCl
  * @param[in] ulPropertyVersion Version of the writable properties.
  * @param[in] pucWritablePropertyResponseBuffer
  *              An pointer to the memory buffer where to
- *              write the resulting Azure Plug-and-Play properties acknoledgement
+ *              write the resulting Azure Plug-and-Play properties acknowledgement
  *              payload.
  * @param[in] ulWritablePropertyResponseBufferSize
  *              Size of `pucWritablePropertyResponseBuffer`
