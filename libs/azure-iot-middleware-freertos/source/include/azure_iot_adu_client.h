@@ -327,7 +327,7 @@ AzureIoTResult_t AzureIoTADUClient_ADUProcessLoop( AzureIoTADUClient_t * pxAduCl
  * @brief Updates the ADU Agent Client with ADU service device update properties.
  * @remark It must be called whenever writable properties are received containing
  *         ADU service properties (verified with AzureIoTADUClient_IsADUComponent).
- *         It effectivelly parses the properties (aka, the device update request)
+ *         It effectively parses the properties (aka, the device update request)
  *         from ADU and sets the state machine to perform the update process if the
  *         the update request is applicable (e.g., if the version is not already
  *         installed).
