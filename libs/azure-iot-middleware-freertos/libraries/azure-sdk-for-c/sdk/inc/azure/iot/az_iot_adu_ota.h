@@ -243,7 +243,8 @@ AZ_NODISCARD az_result az_iot_adu_ota_parse_service_properties(
     az_span* buffer_remainder);
 
 /**
- * @brief 
+ * @brief    Generates the payload necessary to respond to the service
+             after receiving incoming properties.
  * 
  * @param[in] iot_hub_client    A pointer to the #az_iot_hub_client instance.
  * @param[in] update_request    A #az_iot_adu_ota_update_request instance
