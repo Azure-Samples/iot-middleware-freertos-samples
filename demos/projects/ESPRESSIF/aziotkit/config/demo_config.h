@@ -107,19 +107,25 @@
  * @brief Device symmetric key
  *
  */
+#ifdef CONFIG_AZURE_IOT_DEVICE_SYMMETRIC_KEY
 #define democonfigDEVICE_SYMMETRIC_KEY CONFIG_AZURE_IOT_DEVICE_SYMMETRIC_KEY
+#endif
 
 /**
  * @brief Client's X509 Certificate.
  *
  */
-// #define democonfigCLIENT_CERTIFICATE_PEM    "<YOUR DEVICE CERT HERE>"
+#ifdef CONFIG_AZURE_IOT_DEVICE_CLIENT_CERTIFICATE
+#define democonfigCLIENT_CERTIFICATE_PEM CONFIG_AZURE_IOT_DEVICE_CLIENT_CERTIFICATE
+#endif
 
 /**
  * @brief Client's private key.
  *
  */
-// #define democonfigCLIENT_PRIVATE_KEY_PEM    "<YOUR DEVICE PRIVATE KEY HERE>"
+#ifdef CONFIG_AZURE_IOT_DEVICE_CLIENT_CERTIFICATE_PRIVATE_KEY
+#define democonfigCLIENT_PRIVATE_KEY_PEM    CONFIG_AZURE_IOT_DEVICE_CLIENT_CERTIFICATE_PRIVATE_KEY
+#endif
 
 /**
  * @brief Load the required certificates:

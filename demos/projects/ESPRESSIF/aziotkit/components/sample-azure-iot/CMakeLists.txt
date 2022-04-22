@@ -5,6 +5,14 @@ set(ROOT_PATH
     ${CMAKE_CURRENT_LIST_DIR}/../../../../../..
 )
 
+# Correctly format the cert and key if relevant
+if(EXISTS "${CMAKE_BINARY_DIR}/config/sdkconfig.h")
+    file(READ "${CMAKE_BINARY_DIR}/config/sdkconfig.h" config_header)
+    string(REPLACE "\\n" "n" client_certificate ${config_header})
+    message("CLIENT_CERT: ${client_certificate}")
+    file(WRITE "${CMAKE_BINARY_DIR}/config/sdkconfig.h" "${client_certificate}")
+endif()
+
 idf_component_get_property(MBEDTLS_DIR mbedtls COMPONENT_DIR)
 
 set(COMPONENT_SOURCES
