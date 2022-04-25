@@ -5,6 +5,19 @@ set(ROOT_PATH
     ${CMAKE_CURRENT_LIST_DIR}/../../../../../..
 )
 
+# kconfig does not support multiline strings.
+# For certificates, we use as a workaround escaping the newlines
+# in certificates and keys so they can be entered as a single
+# string in kconfig.
+# The routine below unescapes the newlines so the values
+# can be correctly interpreted by the code.
+if(EXISTS "${CMAKE_BINARY_DIR}/config/sdkconfig.h")
+    file(READ "${CMAKE_BINARY_DIR}/config/sdkconfig.h" config_header)
+    string(REPLACE "\\n" "n" client_certificate ${config_header})
+    message("CLIENT_CERT: ${client_certificate}")
+    file(WRITE "${CMAKE_BINARY_DIR}/config/sdkconfig.h" "${client_certificate}")
+endif()
+
 idf_component_get_property(MBEDTLS_DIR mbedtls COMPONENT_DIR)
 
 set(COMPONENT_SOURCES
