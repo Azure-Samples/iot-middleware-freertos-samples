@@ -95,6 +95,9 @@ Parameter | Value
 Note that the certificate and private key must be a single line string with `\n` characters at the appropriate line breaks. For example:
 
 ```txt
+# Single Line (CORRECT)
+-----BEGIN CERTIFICATE-----\nMIIBJDCB...\nyC+koNRC0MU=\n-----END CERTIFICATE-----
+
 # PEM Formatted (WRONG)
 -----BEGIN CERTIFICATE-----
 MIIBJDCBywIUfeHrebBVa2eZAbouBgACp9R3BncwCgYIKoZIzj0EAwIwETEPMA0G
@@ -102,9 +105,6 @@ MIIBJDCBywIUfeHrebBVa2eZAbouBgACp9R3BncwCgYIKoZIzj0EAwIwETEPMA0G
 vTfQahwsxN3xink9z1gtirrjQlqDAiEAyU+6TUJcG6d9JF+uJqsLFpsbbF3IzGAw
 yC+koNRC0MU=
 -----END CERTIFICATE-----
-
-# Single Line (CORRECT)
------BEGIN CERTIFICATE-----\nMIIBJDCB...\nyC+koNRC0MU=\n-----END CERTIFICATE-----
 ```
 
 > Some parameters contain default values that do not need to be updated.
