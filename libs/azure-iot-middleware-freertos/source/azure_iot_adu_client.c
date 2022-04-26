@@ -123,6 +123,31 @@ bool AzureIoTADUClient_IsADUComponent( AzureIoTADUClient_t * pxAduClient,
         az_span_create( ( uint8_t * ) pucComponentName, ( int32_t ) ulComponentNameLength ) );
 }
 
+static bool prvAreUpdateIdsEqual(
+    const AzureIoTHubClientADUUpdateId_t * pxCurrentUpdateId,
+    const az_iot_adu_ota_update_id * pxNewUpdateId )
+{
+    if ( pxCurrentUpdateId->ulProviderLength == az_span_size( pxNewUpdateId->provider ) &&
+         strncmp( ( const char * ) pxCurrentUpdateId->ucProvider,
+            ( const char * ) az_span_ptr( pxNewUpdateId->provider ),
+            pxCurrentUpdateId->ulProviderLength ) == 0 &&
+         pxCurrentUpdateId->ulNameLength == az_span_size( pxNewUpdateId->name ) &&
+         strncmp( ( const char * ) pxCurrentUpdateId->ucName,
+            ( const char * ) az_span_ptr( pxNewUpdateId->name ),
+            pxCurrentUpdateId->ulNameLength ) == 0 &&
+         pxCurrentUpdateId->ulVersionLength == az_span_size( pxNewUpdateId->version ) &&
+         strncmp( ( const char * ) pxCurrentUpdateId->ucVersion,
+            ( const char * ) az_span_ptr( pxNewUpdateId->version ),
+            pxCurrentUpdateId->ulVersionLength ) == 0 )
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
 AzureIoTResult_t AzureIoTADUClient_ADUProcessComponent( AzureIoTADUClient_t * pxAduClient,
                                                         AzureIoTJSONReader_t * pxReader,
                                                         uint32_t ulPropertyVersion,
@@ -178,7 +203,18 @@ AzureIoTResult_t AzureIoTADUClient_ADUProcessComponent( AzureIoTADUClient_t * px
             else
             {
                 *pulWritablePropertyResponseBufferLength = ( uint32_t ) az_span_size( xWritablePropertyResponse );
-                pxAduClient->xState = eAzureIoTADUStateDeploymentInProgress;
+
+                if ( prvAreUpdateIdsEqual(
+                        &pxAduClient->pxDeviceInformation->xCurrentUpdateId,
+                        &pxAduClient->xUpdateManifest.update_id ) )
+                {
+
+                    AZLogInfo( ( "[OTA] Current image is already up to date. Ignoring update request." ) );
+                }
+                else
+                {
+                    pxAduClient->xState = eAzureIoTADUStateDeploymentInProgress;
+                }
             }
         }
     }
@@ -196,8 +232,12 @@ static AzureIoTResult_t prvAzureIoT_ADUSendPropertyUpdate( AzureIoTADUClient_t *
         az_span_create( ( uint8_t * ) pxAduClient->pxDeviceInformation->ucManufacturer, pxAduClient->pxDeviceInformation->ulManufacturerLength );
     xDeviceInformation.model =
         az_span_create( ( uint8_t * ) pxAduClient->pxDeviceInformation->ucModel, pxAduClient->pxDeviceInformation->ulModelLength );
-    xDeviceInformation.last_installed_update_id =
-        az_span_create( ( uint8_t * ) pxAduClient->pxDeviceInformation->ucLastInstalledUpdateId, pxAduClient->pxDeviceInformation->ulLastInstalledUpdateIdLength );
+    xDeviceInformation.update_id.provider =
+        az_span_create( ( uint8_t * ) pxAduClient->pxDeviceInformation->xCurrentUpdateId.ucProvider, pxAduClient->pxDeviceInformation->xCurrentUpdateId.ulProviderLength );
+    xDeviceInformation.update_id.name =
+        az_span_create( ( uint8_t * ) pxAduClient->pxDeviceInformation->xCurrentUpdateId.ucName, pxAduClient->pxDeviceInformation->xCurrentUpdateId.ulNameLength );
+    xDeviceInformation.update_id.version =
+        az_span_create( ( uint8_t * ) pxAduClient->pxDeviceInformation->xCurrentUpdateId.ucVersion, pxAduClient->pxDeviceInformation->xCurrentUpdateId.ulVersionLength );
     xDeviceInformation.adu_version = AZ_SPAN_FROM_STR( AZ_IOT_ADU_AGENT_VERSION );
     xDeviceInformation.do_version = AZ_SPAN_EMPTY;
 

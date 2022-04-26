@@ -109,8 +109,27 @@
 #define azureiotaduRESULT_DETAILS_SIZE                          128
 #define azureiotaduDEVICE_INFO_MANUFACTURER_SIZE                16
 #define azureiotaduDEVICE_INFO_MODEL_SIZE                       24
-#define azureiotaduDEVICE_INFO_LAST_INSTALLED_UPDATE_ID_SIZE    128
+#define azureiotaduUPDATE_PROVIDER_SIZE                         16
+#define azureiotaduUPDATE_NAME_SIZE                             24
+#define azureiotaduUPDATE_VERSION_SIZE                          10
 #define azureiotaduSTEP_ID_SIZE                                 32
+
+/**
+ * @brief ADU Update ID.
+ *
+ *  https://docs.microsoft.com/en-us/azure/iot-hub-device-update/understand-device-update#device-update-agent
+ */
+typedef struct AzureIoTHubClientADUUpdateId
+{
+    const uint8_t ucProvider[ azureiotaduUPDATE_PROVIDER_SIZE ];
+    uint32_t ulProviderLength;
+
+    const uint8_t ucName[ azureiotaduUPDATE_NAME_SIZE ];
+    uint32_t ulNameLength;
+
+    const uint8_t ucVersion[ azureiotaduUPDATE_VERSION_SIZE ];
+    uint32_t ulVersionLength;
+} AzureIoTHubClientADUUpdateId_t;
 
 /**
  * @brief ADU Device Information.
@@ -125,8 +144,7 @@ typedef struct AzureIoTHubClientADUDeviceInformation
     const uint8_t ucModel[ azureiotaduDEVICE_INFO_MODEL_SIZE ];
     uint32_t ulModelLength;
 
-    const uint8_t ucLastInstalledUpdateId[ azureiotaduDEVICE_INFO_LAST_INSTALLED_UPDATE_ID_SIZE ];
-    uint32_t ulLastInstalledUpdateIdLength;
+    AzureIoTHubClientADUUpdateId_t xCurrentUpdateId;
 } AzureIoTHubClientADUDeviceInformation_t;
 
 /**
