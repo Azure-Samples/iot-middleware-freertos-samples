@@ -19,7 +19,7 @@ jobs:
       uses: snickerbockers/submodules-init@v4
     - name: Configure
       run: .github/scripts/install_software.sh
-    - name: Check-in Tests
-      run: sudo bash -c ".github/scripts/ci_tests.sh -st -nxp -pc"
+    # - name: Check-in Tests
+    #   run: sudo bash -c ".github/scripts/ci_tests.sh -st -nxp -pc"
     - name: Build Esp32 Samples
       run: docker run -v "${PWD}:/iot-middleware-freertos-samples" -w /iot-middleware-freertos-samples espressif/idf:v4.3 .github/scripts/ci_tests.sh -esp
