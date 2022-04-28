@@ -78,24 +78,6 @@ static xSemaphoreHandle xSemphGetIpAddrs;
 static esp_ip4_addr_t xIpAddress;
 
 /*-----------------------------------------------------------*/
-// ADU OTA
-#define OTA_AGENT_VERSION                   "DU;agent/0.8.0-rc1-public-preview"
-#define DEVICE_MANUFACTURER                 "ESPRESSIF"
-#define DEVICE_MODEL                        "ESP32-Azure-IoT-Kit"
-#define DEVICE_INSTALLED_UPDATE_ID_BEGIN    "{\"provider\":\"ESPRESSIF\",\"Name\":\"ESP32-Azure-IoT-Kit\",\"Version\":\""
-#define DEVICE_INSTALLED_UPDATE_ID_END      "\"}"
-
-// TODO: [NOTE] In a production application, this version would be a const in the image currently installed.
-//              Here we are simulating that since we are not really installing an image yet. 
-static uint8_t ulOtaInstalledVersionBuffer[100];
-// TODO: check if there is a bug in az_span_dtoa... double 1.0 is written as "1".
-//       Setting the version as 1.01 to workaround that issue. 
-double xOtaLastInstalledVersion = 1.01;
-az_iot_adu_ota_device_information xOtaDeviceInformation;
-az_iot_adu_ota_update_request xOtaUpdateRequest;
-az_iot_adu_ota_workflow * pxOtaLastWorkflow;
-
-/*-----------------------------------------------------------*/
 
 extern void vStartDemoTask( void );
 /*-----------------------------------------------------------*/
@@ -344,36 +326,6 @@ uint64_t ullGetUnixTime( void )
 }
 /*-----------------------------------------------------------*/
 
-az_span xGetOtaLastInstalledVersion( )
-{
-    az_span xAduVersion = AZ_SPAN_FROM_BUFFER( ulOtaInstalledVersionBuffer );
-    xAduVersion = az_span_copy( xAduVersion, AZ_SPAN_FROM_STR( DEVICE_INSTALLED_UPDATE_ID_BEGIN ) );
-    
-    if ( az_result_failed(
-        az_span_dtoa_strict( xAduVersion, xOtaLastInstalledVersion, 1, &xAduVersion ) ) )
-    {
-        return AZ_SPAN_EMPTY;
-    }
-
-    xAduVersion = az_span_copy( xAduVersion, AZ_SPAN_FROM_STR( DEVICE_INSTALLED_UPDATE_ID_END ) );
-    xAduVersion = az_span_create( ulOtaInstalledVersionBuffer, sizeof( ulOtaInstalledVersionBuffer ) - az_span_size( xAduVersion ) );
-
-    return xAduVersion;
-}
-
-// ADU OTA
-static void prvInitializeOtaAgent( void )
-{
-    xOtaDeviceInformation.manufacturer = AZ_SPAN_FROM_STR( DEVICE_MANUFACTURER );
-    xOtaDeviceInformation.model = AZ_SPAN_FROM_STR( DEVICE_MODEL );
-    xOtaDeviceInformation.last_installed_update_id = xGetOtaLastInstalledVersion( );
-    xOtaDeviceInformation.adu_version = AZ_SPAN_FROM_STR( OTA_AGENT_VERSION );
-    xOtaDeviceInformation.do_version = AZ_SPAN_EMPTY;
-
-    pxOtaLastWorkflow = NULL;
-}
-/*-----------------------------------------------------------*/
-
 void app_main(void)
 {
     ESP_ERROR_CHECK( nvs_flash_init( ) );
@@ -382,9 +334,6 @@ void app_main(void)
 
     //Allow other core to finish initialization
     vTaskDelay( pdMS_TO_TICKS( 100 ) );
-
-    // ADU OTA
-    prvInitializeOtaAgent( );
 
     ( void ) prvConnectNetwork( );
 

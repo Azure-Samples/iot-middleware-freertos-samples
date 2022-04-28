@@ -6,7 +6,7 @@
 
 #include <azure/core/internal/az_precondition_internal.h>
 #include <azure/core/internal/az_result_internal.h>
-
+#include <stdio.h>
 
 // TODO: rename and re-organize
 
@@ -31,7 +31,7 @@
 
 #define AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_COMPAT_PROPERTY_NAMES      "compatPropertyNames"
 
-#define AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_INSTALLED_CONTENT_ID       "installedUpdateId"
+#define AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_INSTALLED_UPDATE_ID       "installedUpdateId"
 #define AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_PROVIDER                   "provider"
 #define AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_NAME                       "name"
 #define AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_VERSION                    "version"
@@ -77,6 +77,7 @@
 #define AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_CREATED_DATE_TIME          "createdDateTime"
 
 #define NULL_TERM_CHAR_SIZE                                             1
+#define UPDATE_ID_ESCAPING_CHARS_LENGTH                                 24
 
 #define RETURN_IF_JSON_TOKEN_TYPE_NOT(jr_ptr, json_token_type) \
     if (jr_ptr->token.kind != json_token_type)                 \
@@ -120,6 +121,23 @@ AZ_NODISCARD bool az_iot_adu_ota_is_component_device_update(
         AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_COMPONENT_NAME), component_name);
 }
 
+static az_span generate_update_id_string(
+    az_iot_adu_ota_update_id update_id,
+    az_span update_id_string)
+{
+    // TODO: remove this hack.
+    az_span remainder = update_id_string;
+    remainder = az_span_copy(remainder, AZ_SPAN_FROM_STR("{\"provider\":\""));
+    remainder = az_span_copy(remainder, update_id.provider);
+    remainder = az_span_copy(remainder, AZ_SPAN_FROM_STR("\",\"name\":\""));
+    remainder = az_span_copy(remainder, update_id.name);
+    remainder = az_span_copy(remainder, AZ_SPAN_FROM_STR("\",\"version\":\""));
+    remainder = az_span_copy(remainder, update_id.version);
+    remainder = az_span_copy(remainder, AZ_SPAN_FROM_STR("\"}"));
+
+    return az_span_slice(update_id_string, 0, az_span_size(update_id_string) - az_span_size(remainder));
+}
+
 AZ_NODISCARD az_result az_iot_adu_ota_get_properties_payload(
     az_iot_hub_client const* iot_hub_client,
     az_iot_adu_ota_device_information* device_information,
@@ -133,7 +151,9 @@ AZ_NODISCARD az_result az_iot_adu_ota_get_properties_payload(
     _az_PRECONDITION_NOT_NULL(device_information);
     _az_PRECONDITION_VALID_SPAN(device_information->manufacturer, 1, false);
     _az_PRECONDITION_VALID_SPAN(device_information->model, 1, false);
-    _az_PRECONDITION_VALID_SPAN(device_information->last_installed_update_id, 1, false);
+    _az_PRECONDITION_VALID_SPAN(device_information->update_id.provider, 1, false);
+    _az_PRECONDITION_VALID_SPAN(device_information->update_id.name, 1, false);
+    _az_PRECONDITION_VALID_SPAN(device_information->update_id.version, 1, false);
     _az_PRECONDITION_VALID_SPAN(device_information->adu_version, 1, false);
     _az_PRECONDITION_VALID_SPAN(payload, 1, false);
     _az_PRECONDITION_NOT_NULL(out_payload);
@@ -263,9 +283,21 @@ AZ_NODISCARD az_result az_iot_adu_ota_get_properties_payload(
     /* Fill installed update id.  */
     // TODO: move last_installed_update_id out of this device_information structure.
     // TODO: rename device_information var and struct to device_properties to match json prop name.
-    safe_add_json_property_az_span(
-        jw, AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_INSTALLED_CONTENT_ID,
-        device_information->last_installed_update_id);
+
+    az_span update_id_string = az_span_slice_to_end(
+        payload, 
+        az_span_size(az_json_writer_get_bytes_used_in_destination(&jw)) +
+        UPDATE_ID_ESCAPING_CHARS_LENGTH);
+
+    if (az_span_is_content_equal(update_id_string, AZ_SPAN_EMPTY))
+    {
+        return AZ_ERROR_NOT_ENOUGH_SPACE;
+    }
+
+    _az_RETURN_IF_FAILED(az_json_writer_append_property_name(&jw,
+        AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_INSTALLED_UPDATE_ID)));
+    _az_RETURN_IF_FAILED(az_json_writer_append_json_text(&jw,
+        generate_update_id_string(device_information->update_id, update_id_string)));
 
     _az_RETURN_IF_FAILED(az_json_writer_append_end_object(&jw));
 

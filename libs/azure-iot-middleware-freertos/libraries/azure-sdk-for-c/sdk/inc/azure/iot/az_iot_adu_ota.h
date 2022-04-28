@@ -44,6 +44,13 @@
 #define MAX_INSTRUCTIONS_STEPS 10
 #define MAX_FILE_HASH_COUNT 2
 
+typedef struct
+{
+    az_span provider;
+    az_span name;
+    az_span version;
+} az_iot_adu_ota_update_id;
+
 /*
  * For reference: https://docs.microsoft.com/en-us/azure/iot-hub-device-update/device-update-plug-and-play
  */
@@ -51,9 +58,9 @@ typedef struct
 {
     az_span manufacturer;
     az_span model;
-    az_span last_installed_update_id;
     az_span adu_version;
     az_span do_version;
+    az_iot_adu_ota_update_id update_id;
 } az_iot_adu_ota_device_information;
 
 typedef struct
@@ -104,13 +111,6 @@ typedef struct
 
 typedef struct
 {
-	az_span provider;
-	az_span name;
-	az_span version;
-} az_iot_adu_ota_update_manifest_update_id;
-
-typedef struct
-{
 	az_span device_manufacturer;
 	az_span device_model;
 } az_iot_adu_ota_update_manifest_compatibility;
@@ -156,11 +156,11 @@ typedef struct
 typedef struct
 {
     az_span manifest_version;
-	az_iot_adu_ota_update_manifest_update_id update_id;
-	// TODO: compat is not always through manufacturer and model.
-	//       This needs to be a generic property bag instead.
-	az_iot_adu_ota_update_manifest_compatibility compatibility;
-	az_iot_adu_ota_update_manifest_instructions instructions;
+ 	  az_iot_adu_ota_update_id update_id;
+	  // TODO: confirm compat is always through manufacturer and model.
+	  //       It might not be, so this needs to be a generic property bag instead.
+	  az_iot_adu_ota_update_manifest_compatibility compatibility;
+	  az_iot_adu_ota_update_manifest_instructions instructions;
     az_iot_adu_ota_update_manifest_file files[AZ_IOT_ADU_OTA_FILE_URL_MAX_COUNT];
     uint32_t files_count;
 	az_span create_date_time;
