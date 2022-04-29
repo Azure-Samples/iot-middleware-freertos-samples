@@ -487,14 +487,12 @@ AZ_NODISCARD az_result az_iot_adu_ota_parse_service_properties(
 
 AZ_NODISCARD az_result az_iot_adu_ota_get_service_properties_response(
     az_iot_hub_client const* iot_hub_client,
-    az_iot_adu_ota_update_request* update_request,
     int32_t version,
     int32_t status,
     az_span payload,
     az_span* out_payload)
 {
     _az_PRECONDITION_NOT_NULL(iot_hub_client);
-    _az_PRECONDITION_NOT_NULL(update_request);
     _az_PRECONDITION_VALID_SPAN(payload, 1, false);
     _az_PRECONDITION_NOT_NULL(out_payload);
 
@@ -509,26 +507,9 @@ AZ_NODISCARD az_result az_iot_adu_ota_get_service_properties_response(
           iot_hub_client, &jw,
           AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_SERVICE), status, version, AZ_SPAN_EMPTY));
 
+    // It is not necessary to send the properties back in the acknowledgement.
+    // We opt not to send them to reduce the size of the payload.
     _az_RETURN_IF_FAILED(az_json_writer_append_begin_object(&jw));
-
-    // Workflow
-    _az_RETURN_IF_FAILED(az_json_writer_append_property_name(&jw, AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_WORKFLOW)));
-    _az_RETURN_IF_FAILED(az_json_writer_append_begin_object(&jw));
-    _az_RETURN_IF_FAILED(az_json_writer_append_property_name(&jw, AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_ACTION)));
-    _az_RETURN_IF_FAILED(az_json_writer_append_int32(&jw, update_request->workflow.action));
-    _az_RETURN_IF_FAILED(az_json_writer_append_property_name(&jw, AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_ID)));
-    _az_RETURN_IF_FAILED(az_json_writer_append_string(&jw, update_request->workflow.id));
-    if (!az_span_is_content_equal(update_request->workflow.retry_timestamp, AZ_SPAN_EMPTY))
-    {
-        _az_RETURN_IF_FAILED(az_json_writer_append_property_name(&jw, AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_RETRY_TIMESTAMP)));
-        _az_RETURN_IF_FAILED(az_json_writer_append_string(&jw, update_request->workflow.retry_timestamp));
-    }
-    _az_RETURN_IF_FAILED(az_json_writer_append_end_object(&jw));
-
-    // updateManifest
-    _az_RETURN_IF_FAILED(az_json_writer_append_property_name(&jw, AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_UPDATE_MANIFEST)));
-    _az_RETURN_IF_FAILED(az_json_writer_append_string(&jw, update_request->update_manifest));
-
     _az_RETURN_IF_FAILED(az_json_writer_append_end_object(&jw));
 
     _az_RETURN_IF_FAILED(az_iot_hub_client_properties_writer_end_response_status(
