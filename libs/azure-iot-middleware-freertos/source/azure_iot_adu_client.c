@@ -176,7 +176,6 @@ AzureIoTResult_t AzureIoTADUClient_ADUProcessComponent( AzureIoTADUClient_t * px
 
         az_result azres = az_iot_adu_ota_get_service_properties_response(
             &pxAduClient->pxHubClient->_internal.xAzureIoTHubClientCore,
-            &pxAduClient->xUpdateRequest,
             ( int32_t ) ulPropertyVersion,
             200,
             xWritablePropertyResponse,
