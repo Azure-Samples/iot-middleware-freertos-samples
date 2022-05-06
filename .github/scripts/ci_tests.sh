@@ -37,7 +37,7 @@ function sample_build() {
 
     if [ $vendor == "ESPRESSIF" ]
     then
-      idf.py build -C -DCMAKE_BUILD_TYPE=$buildver ./demos/projects/ESPRESSIF/$board
+      idf.py build -DCMAKE_BUILD_TYPE=$buildver -C ./demos/projects/ESPRESSIF/$board
       echo -e "::group::Print Size for $board $buildver"
       ninja -C ./demos/projects/ESPRESSIF/$board size-components
     else
