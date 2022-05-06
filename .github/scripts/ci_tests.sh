@@ -35,18 +35,11 @@ function sample_build() {
     local outdir=$3
     local buildver=$4
 
-    if [ -z "$buildver" ]
-    then
-      buildver="Debug"
-    fi
-
     if [ $vendor == "ESPRESSIF" ]
     then
-      idf.py build -C ./demos/projects/ESPRESSIF/$board
-      pushd ./demos/projects/ESPRESSIF/$board/build
+      idf.py build -C -DCMAKE_BUILD_TYPE=$buildver ./demos/projects/ESPRESSIF/$board
       echo -e "::group::Print Size for $board $buildver"
-      ninja size-components
-      popd
+      ninja -C ./demos/projects/ESPRESSIF/$board size-components
     else
       cmake -G Ninja -DBOARD=$board -DVENDOR=$vendor -B$outdir -DFREERTOS_PATH=$TEST_FREERTOS_SRC -DCMAKE_BUILD_TYPE=$buildver .
       cmake --build $outdir > build.txt
