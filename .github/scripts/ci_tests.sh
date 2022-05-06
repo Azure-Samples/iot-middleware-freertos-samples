@@ -42,7 +42,7 @@ function sample_build() {
       ninja -C ./demos/projects/ESPRESSIF/$board/build size-components
     else
       cmake -G Ninja -DBOARD=$board -DVENDOR=$vendor -B$outdir -DFREERTOS_PATH=$TEST_FREERTOS_SRC -DCMAKE_BUILD_TYPE=$buildver .
-      cmake --build $outdir > build.txt
+      cmake --build $outdir | tee build.txt
     fi
 }
 
