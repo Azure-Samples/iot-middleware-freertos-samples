@@ -42,7 +42,8 @@ set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} " \
     -fdata-sections \
     -ffreestanding \
     -fno-builtin -mthumb -mapcs \
-    -Xlinker --gc-sections \ 
+    -Xlinker --gc-sections \
+    -Xlinker -print-memory-usage \
     -Xlinker -static \ 
     -Xlinker -z -Xlinker muldefs \
     -Xlinker --whole-archive \
