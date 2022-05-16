@@ -90,6 +90,11 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pNetworkContext,
     {
         esp_transport_ssl_set_cert_data_der( pNetworkContext->xTransport, ( const char * ) pNetworkCredentials->pucRootCa, pNetworkCredentials->xRootCaSize );
     }
+#if CONFIG_ESP_TLS_USE_SECURE_ELEMENT
+
+    esp_transport_ssl_use_secure_element( pNetworkContext->xTransport );
+
+#else
 
     if ( pNetworkCredentials->pucClientCert )
     {
@@ -100,6 +105,8 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pNetworkContext,
     {
         esp_transport_ssl_set_client_key_data_der( pNetworkContext->xTransport, (const char *) pNetworkCredentials->pucPrivateKey, pNetworkCredentials->xPrivateKeySize );
     }
+
+#endif
 
     if ( esp_transport_connect( pNetworkContext->xTransport, pHostName, usPort, ulReceiveTimeoutMs ) < 0 )
     {
