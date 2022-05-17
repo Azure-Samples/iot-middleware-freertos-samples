@@ -94,6 +94,15 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pNetworkContext,
 
     esp_transport_ssl_use_secure_element( pNetworkContext->xTransport );
 
+    #ifndef CONFIG_ATECC608A_TNG
+        /* This is either a TrustFLEX or a TrustCUSTOM chip - generate (using atcacert_* API) or plug in 
+            your certificate here (if the CSR was generated using ATECC608 and cert is available as a .der)
+        */
+    #else
+        /* No action needed - cryptoauthlib will generate and attach the cert to the network context */
+
+    #endif
+
 #else
 
     if ( pNetworkCredentials->pucClientCert )
