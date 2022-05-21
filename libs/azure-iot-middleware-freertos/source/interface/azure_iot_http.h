@@ -67,6 +67,6 @@ AzureIoTHTTPResult_t AzureIoTHTTP_RequestSizeInit( AzureIoTHTTPHandle_t xHTTPHan
 
 int32_t AzureIoTHTTP_RequestSize( AzureIoTHTTPHandle_t xHTTPHandle );
 
-AzureIoTHTTPResult_t ulAzureIoTHTTP_Deinit( AzureIoTHTTPHandle_t xHTTPHandle );
+AzureIoTHTTPResult_t AzureIoTHTTP_Deinit( AzureIoTHTTPHandle_t xHTTPHandle );
 
 #endif /* AZURE_IOT_HTTP_H */

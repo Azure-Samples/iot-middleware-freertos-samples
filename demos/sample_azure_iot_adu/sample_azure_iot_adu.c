@@ -144,21 +144,10 @@ struct NetworkContext
 };
 
 AzureIoTHubClient_t xAzureIoTHubClient;
-AzureIoTADUClient_t xAzureIoTADUClient;
+AzureIoTADUUpdateRequest_t xAzureIoTAduOtaUpdateRequest;
+bool xProcessUpdateRequest = false;
 
-/* Telemetry buffers */
-static uint8_t ucScratchBuffer[ 512 ];
-
-/* Command buffers */
-static uint8_t ucCommandResponsePayloadBuffer[ 256 ];
-
-/* Reported Properties buffers */
-static uint8_t ucReportedPropertiesUpdate[ 1500 ];
-static uint32_t ulReportedPropertiesUpdateLength;
-
-static uint8_t ucAduContextBuffer[ 10240 ];
-
-static const AzureIoTHubClientADUDeviceInformation_t xADUDeviceInformation =
+AzureIoTHubClientADUDeviceInformation_t xADUDeviceInformation =
 {
     .ucManufacturer       = democonfigADU_DEVICE_MANUFACTURER,
     .ulManufacturerLength = sizeof( democonfigADU_DEVICE_MANUFACTURER ) - 1,
@@ -174,6 +163,20 @@ static const AzureIoTHubClientADUDeviceInformation_t xADUDeviceInformation =
         .ulVersionLength  = sizeof( democonfigADU_UPDATE_VERSION ) - 1
     }
 };
+
+static AzureADUImage_t xImage;
+
+/* Telemetry buffers */
+static uint8_t ucScratchBuffer[ 512 ];
+
+/* Command buffers */
+static uint8_t ucCommandResponsePayloadBuffer[ 256 ];
+
+/* Reported Properties buffers */
+static uint8_t ucReportedPropertiesUpdate[ 1500 ];
+static uint32_t ulReportedPropertiesUpdateLength;
+
+uint8_t ucAduContextBuffer[ ADU_CONTEXT_BUFFER_SIZE ];
 
 /*-----------------------------------------------------------*/
 
@@ -341,18 +344,198 @@ static uint32_t prvSetupNetworkCredentials( NetworkCredentials_t * pxNetworkCred
 static AzureIoTResult_t prvConnectHTTP( AzureIoTTransportInterface_t * pxHTTPTransport,
                                         const char * pucURL )
 {
-    uint32_t ulStatus;
+    SocketTransportStatus_t xStatus;
     TickType_t xRecvTimeout = sampleazureiotTRANSPORT_SEND_RECV_TIMEOUT_MS;
     TickType_t xSendTimeout = sampleazureiotTRANSPORT_SEND_RECV_TIMEOUT_MS;
 
-
     LogInfo( ( "Connecting socket to %s\r\n", pucURL ) );
-    ulStatus = Azure_Socket_Connect( pxHTTPTransport->pxNetworkContext, pucURL, 80, xRecvTimeout, xSendTimeout );
+    xStatus = Azure_Socket_Connect( pxHTTPTransport->pxNetworkContext, pucURL, 80, xRecvTimeout, xSendTimeout );
 
-    configASSERT( ulStatus == 0 );
+    configASSERT( xStatus == eSocketTransportSuccess );
 
     return eAzureIoTSuccess;
 }
+
+/**
+ * @brief This is a hack. TODO: Replace with a proper url-parsing api.
+ */
+static void prvParseAduUrl( az_span xUrl,
+                            az_span * pxHost,
+                            az_span * pxPath )
+{
+    xUrl = az_span_slice_to_end( xUrl, sizeof( "http://" ) - 1 );
+    int32_t lPathPosition = az_span_find( xUrl, AZ_SPAN_FROM_STR( "/" ) );
+    *pxHost = az_span_slice( xUrl, 0, lPathPosition );
+    *pxPath = az_span_slice_to_end( xUrl, lPathPosition );
+}
+
+static AzureIoTResult_t prvDownloadUpdateImageIntoFlash()
+{
+    AzureIoTResult_t xResult;
+    AzureIoTHTTPResult_t xHttpResult;
+    AzureIoTHTTP_t xHTTP;
+    char * pucHttpDataBufferPtr;
+    uint32_t pulHttpDataLength;
+
+    /*HTTP Connection */
+    AzureIoTTransportInterface_t xHTTPTransport;
+    NetworkContext_t xHTTPNetworkContext = { 0 };
+    TlsTransportParams_t xHTTPTlsTransportParams = { 0 };
+
+    /* Fill in Transport Interface send and receive function pointers. */
+    xHTTPTransport.pxNetworkContext = &xHTTPNetworkContext;
+    xHTTPTransport.xSend = Azure_Socket_Send;
+    xHTTPTransport.xRecv = Azure_Socket_Recv;
+
+    xHTTPNetworkContext.pParams = &xHTTPTlsTransportParams;
+
+    AzureIoTPlatform_Init( &xImage );
+
+    AZLogInfo( ( "[ADU] Step: eAzureIoTADUUpdateStepFirmwareDownloadStarted\r\n" ) );
+
+    AZLogInfo( ( "[ADU] Send property update.\r\n" ) );
+
+    xResult = AzureIoTADUClient_ADUSendState( &xAzureIoTHubClient,
+                                              &xADUDeviceInformation,
+                                              &xAzureIoTAduOtaUpdateRequest,
+                                              eAzureIoTADUStateIdle,
+                                              ucScratchBuffer,
+                                              sizeof( ucScratchBuffer ),
+                                              NULL );
+
+    AZLogInfo( ( "[ADU] Invoke HTTP Connect Callback.\r\n" ) );
+
+    /* TODO: remove this and use proper URL parsing API. */
+    /* TODO: cycle through all files of the update instead of hardcoding just the first one. */
+    az_span xUrlHost;
+    az_span xUrlPath;
+    prvParseAduUrl(
+        az_span_create(
+            xAzureIoTAduOtaUpdateRequest.pxFileUrls[ 0 ].pucUrl,
+            xAzureIoTAduOtaUpdateRequest.pxFileUrls[ 0 ].ulUrlLength ),
+        &xUrlHost, &xUrlPath );
+
+    /* TODO: remove this hack. */
+    char pcNullTerminatedHost[ 128 ];
+    ( void ) memcpy( pcNullTerminatedHost, az_span_ptr( xUrlHost ), az_span_size( xUrlHost ) );
+    pcNullTerminatedHost[ az_span_size( xUrlHost ) ] = '\0';
+
+    xResult = prvConnectHTTP( &xHTTPTransport, ( const char * ) pcNullTerminatedHost );
+
+    /* Range Check */
+    xHttpResult = AzureIoTHTTP_RequestSizeInit( &xHTTP, &xHTTPTransport,
+                                    ( const char * ) az_span_ptr( xUrlHost ),
+                                    az_span_size( xUrlHost ),
+                                    ( const char * ) az_span_ptr( xUrlPath ),
+                                    az_span_size( xUrlPath ) );
+
+    if ( xHttpResult != eAzureIoTHTTPSuccess)
+    {
+        return eAzureIoTErrorFailed;
+    }
+
+    if( ( xImage.ulImageFileSize = AzureIoTHTTP_RequestSize( &xHTTP ) ) != -1 )
+    {
+        AZLogInfo( ( "[ADU] HTTP Range Request was successful: size %d bytes\r\n", xImage.ulImageFileSize ) );
+    }
+    else
+    {
+        AZLogError( ( "[ADU] Error getting the headers.\r\n " ) );
+        return eAzureIoTErrorFailed;
+    }
+
+    AZLogInfo( ( "[ADU] Send HTTP request.\r\n" ) );
+
+    while( xImage.ulCurrentOffset < xImage.ulImageFileSize )
+    {
+        AZLogInfo( ( "[ADU] Initialize HTTP client.\r\n" ) );
+        AzureIoTHTTP_Init( &xHTTP, &xHTTPTransport,
+                            ( const char * ) az_span_ptr( xUrlHost ),
+                            az_span_size( xUrlHost ),
+                            ( const char * ) az_span_ptr( xUrlPath ),
+                            az_span_size( xUrlPath ) );
+
+        AZLogInfo( ( "[ADU] HTTP Requesting | %d:%d\r\n",
+                        xImage.ulCurrentOffset,
+                        xImage.ulCurrentOffset + azureiothttpCHUNK_DOWNLOAD_SIZE - 1 ) );
+
+        if( ( xHttpResult = AzureIoTHTTP_Request( &xHTTP, xImage.ulCurrentOffset,
+                                                    xImage.ulCurrentOffset + azureiothttpCHUNK_DOWNLOAD_SIZE - 1,
+                                                    &pucHttpDataBufferPtr,
+                                                    &pulHttpDataLength ) ) == eAzureIoTHTTPSuccess )
+        {
+            AZLogInfo( ( "[ADU] HTTP Request was successful | %d:%d\r\n",
+                            xImage.ulCurrentOffset,
+                            xImage.ulCurrentOffset + azureiothttpCHUNK_DOWNLOAD_SIZE - 1 ) );
+
+            /* Write bytes to the flash */
+            AZLogInfo( ( "[ADU] Write bytes to flash\r\n" ) );
+            xResult = AzureIoTPlatform_WriteBlock( &xImage,
+                                                    ( uint32_t ) xImage.ulCurrentOffset,
+                                                    ( uint8_t * ) pucHttpDataBufferPtr,
+                                                    pulHttpDataLength );
+
+            /* Advance the offset */
+            xImage.ulCurrentOffset += ( int32_t ) pulHttpDataLength;
+        }
+        else if( xHttpResult == eAzureIoTHTTPNoResponse )
+        {
+            AZLogInfo( ( "[ADU] Reconnecting...\r\n" ) );
+            AZLogInfo( ( "[ADU] Invoke HTTP Connect Callback.\r\n" ) );
+            xResult = prvConnectHTTP( &xHTTPTransport, ( const char * ) pcNullTerminatedHost );
+
+            if( xResult != eAzureIoTSuccess )
+            {
+                AZLogError( ( "[ADU] Failed to reconnect to HTTP server!\r\n" ) );
+                return eAzureIoTErrorFailed;
+            }
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    AzureIoTHTTP_Deinit( &xHTTP );
+
+    return eAzureIoTSuccess;
+}
+
+static AzureIoTResult_t prvEnableImageAndResetDevice()
+{
+    /* Call into platform specific image verification */
+    AZLogInfo( ( "[ADU] Image validated against hash from ADU\r\n" ) );
+
+    if( AzureIoTPlatform_VerifyImage(
+        &xImage, 
+        xAzureIoTAduOtaUpdateRequest.xUpdateManifest.pxFiles[ 0 ].pxHashes[ 0 ].pucHash,
+        xAzureIoTAduOtaUpdateRequest.xUpdateManifest.pxFiles[ 0 ].pxHashes[ 0 ].ulHashLength 
+        ) != eAzureIoTSuccess )
+    {
+        AZLogError( ( "[ADU] File hash from ADU did not match calculated hash\r\n" ) );
+        return eAzureIoTErrorFailed;
+    }
+
+    AZLogInfo( ( "[ADU] Enable the update image\r\n" ) );
+
+    if( AzureIoTPlatform_EnableImage( &xImage ) != eAzureIoTSuccess )
+    {
+        AZLogError( ( "[ADU] File hash from ADU did not match calculated hash\r\n" ) );
+        return eAzureIoTErrorFailed;
+    }
+
+    AZLogInfo( ( "[ADU] Reset the device\r\n" ) );
+
+    if( AzureIoTPlatform_ResetDevice( &xImage ) != eAzureIoTSuccess )
+    {
+        AZLogError( ( "[ADU] Failed resetting the device.\r\n" ) );
+        return eAzureIoTErrorFailed;
+    }
+
+    return eAzureIoTSuccess;
+}
+
+
 
 /*-----------------------------------------------------------*/
 
@@ -374,11 +557,6 @@ static void prvAzureDemoTask( void * pvParameters )
     AzureIoTTransportInterface_t xTransport;
     NetworkContext_t xNetworkContext = { 0 };
     TlsTransportParams_t xTlsTransportParams = { 0 };
-
-    /*HTTP Connection */
-    AzureIoTTransportInterface_t xHTTPTransport;
-    NetworkContext_t xHTTPNetworkContext = { 0 };
-    TlsTransportParams_t xHTTPTlsTransportParams = { 0 };
 
     AzureIoTResult_t xResult;
     uint32_t ulStatus;
@@ -417,7 +595,6 @@ static void prvAzureDemoTask( void * pvParameters )
     #endif /* democonfigENABLE_DPS_SAMPLE */
 
     xNetworkContext.pParams = &xTlsTransportParams;
-    xHTTPNetworkContext.pParams = &xHTTPTlsTransportParams;
 
     for( ; ; )
     {
@@ -436,11 +613,6 @@ static void prvAzureDemoTask( void * pvParameters )
         xTransport.pxNetworkContext = &xNetworkContext;
         xTransport.xSend = TLS_Socket_Send;
         xTransport.xRecv = TLS_Socket_Recv;
-
-        /* Fill in Transport Interface send and receive function pointers. */
-        xHTTPTransport.pxNetworkContext = &xHTTPNetworkContext;
-        xHTTPTransport.xSend = Azure_Socket_Send;
-        xHTTPTransport.xRecv = Azure_Socket_Recv;
 
         /* Init IoT Hub option */
         xResult = AzureIoTHubClient_OptionsInit( &xHubOptions );
@@ -467,16 +639,6 @@ static void prvAzureDemoTask( void * pvParameters )
                                           &xTransport );
         configASSERT( xResult == eAzureIoTSuccess );
 
-        xResult = AzureIoTADUClient_Init( &xAzureIoTADUClient,
-                                          &xAzureIoTHubClient,
-                                          &xHTTPTransport,
-                                          prvConnectHTTP,
-                                          &xADUDeviceInformation,
-                                          NULL, /* TODO: fill in the install results from a previous update */
-                                          ucAduContextBuffer,
-                                          sizeof( ucAduContextBuffer ) );
-        configASSERT( xResult == eAzureIoTSuccess );
-
         #ifdef democonfigDEVICE_SYMMETRIC_KEY
             xResult = AzureIoTHubClient_SetSymmetricKey( &xAzureIoTHubClient,
                                                          ( const uint8_t * ) democonfigDEVICE_SYMMETRIC_KEY,
@@ -500,6 +662,15 @@ static void prvAzureDemoTask( void * pvParameters )
 
         xResult = AzureIoTHubClient_SubscribeProperties( &xAzureIoTHubClient, prvHandleProperties,
                                                          &xAzureIoTHubClient, sampleazureiotSUBSCRIBE_TIMEOUT );
+        configASSERT( xResult == eAzureIoTSuccess );
+
+        xResult = AzureIoTADUClient_ADUSendState( &xAzureIoTHubClient,
+                                                  &xADUDeviceInformation,
+                                                  NULL,
+                                                  eAzureIoTADUStateIdle,
+                                                  ucScratchBuffer,
+                                                  sizeof( ucScratchBuffer ),
+                                                  NULL );
         configASSERT( xResult == eAzureIoTSuccess );
 
         /* Get property document after initial connection */
@@ -533,16 +704,13 @@ static void prvAzureDemoTask( void * pvParameters )
                                                      sampleazureiotPROCESS_LOOP_TIMEOUT_MS );
             configASSERT( xResult == eAzureIoTSuccess );
 
-            LogInfo( ( "Attempting to process ADU messages.\r\n" ) );
-            xResult = AzureIoTADUClient_ADUProcessLoop( &xAzureIoTADUClient,
-                                                        sampleazureiotPROCESS_LOOP_TIMEOUT_MS );
-            configASSERT( xResult == eAzureIoTSuccess );
-
-            if( AzureIoTADUClient_GetState( &xAzureIoTADUClient ) == eAzureIoTADUUpdateStepFirmwareInstallSucceeded )
+            if ( xProcessUpdateRequest )
             {
-                LogInfo( ( "Firmware Installed. Disconnecting and closing socket\r\n" ) );
-                /* If update has been downloaded and written, close the socket. */
-                ( void ) Azure_Socket_Close( xHTTPTransport.pxNetworkContext );
+                xResult = prvDownloadUpdateImageIntoFlash( );
+                configASSERT( xResult == eAzureIoTSuccess );
+
+                xResult = prvEnableImageAndResetDevice( );
+                configASSERT( xResult == eAzureIoTSuccess );
             }
 
             /* Leave Connection Idle for some time. */
