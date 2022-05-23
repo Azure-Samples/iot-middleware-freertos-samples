@@ -8,8 +8,6 @@
 #include <azure/core/internal/az_result_internal.h>
 #include <stdio.h>
 
-// TODO: rename and re-organize
-
 /* Define the ADU agent component name.  */
 #define AZ_IOT_ADU_OTA_AGENT_COMPONENT_NAME                           "deviceUpdate"
 
@@ -396,6 +394,18 @@ AZ_NODISCARD az_result az_iot_adu_ota_parse_service_properties(
 
             // TODO: find a way to get rid of az_json_token_get_string (which adds a \0 at the end!!!!!!)
             //       Preferably have a function that does not copy anything.
+            // TODO: optmize the memory usage for update_manifest:
+            //       Here we are copying the entire update manifest [originally escaped] json into
+            //       update_request->update_manifest. Later az_iot_adu_ota_parse_update_manifest
+            //       parses that json into a az_iot_adu_ota_update_manifest structure, by simply mapping
+            //       the values of update_request->update_manifest.
+            //       Option 1: there seems to be no workaround for update_request->update_manifest for copying with
+            //                 az_json_token_get_string, since the original update manifest comes as an
+            //                 escaped json. What can be done is to make it temporary, and parse the update manifest
+            //                 within az_iot_adu_ota_parse_service_request, saving only the update manifest values
+            //                 in the (then) provided buffer.
+            //       Option 2: Have a function in azure SDK core that can parse an escaped json, allowing us to
+            //                 avoid copying the update manifest at all.
             update_request->update_manifest
                 = split_az_span(buffer, update_manifest_length, &buffer);
         }
