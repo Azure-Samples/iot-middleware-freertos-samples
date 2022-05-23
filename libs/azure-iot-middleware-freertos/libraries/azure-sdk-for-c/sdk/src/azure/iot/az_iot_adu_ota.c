@@ -105,15 +105,15 @@ static az_span generate_update_id_string(
     az_iot_adu_ota_update_id update_id,
     az_span update_id_string)
 {
-    // TODO: remove this hack.
+    // TODO: Investigate a way to leverage azure SDK core for this.
     az_span remainder = update_id_string;
-    remainder = az_span_copy(remainder, AZ_SPAN_FROM_STR("{\"provider\":\""));
+    remainder = az_span_copy(remainder, AZ_SPAN_FROM_STR("\"{\\\"provider\\\":\\\""));
     remainder = az_span_copy(remainder, update_id.provider);
-    remainder = az_span_copy(remainder, AZ_SPAN_FROM_STR("\",\"name\":\""));
+    remainder = az_span_copy(remainder, AZ_SPAN_FROM_STR("\\\",\\\"name\\\":\\\""));
     remainder = az_span_copy(remainder, update_id.name);
-    remainder = az_span_copy(remainder, AZ_SPAN_FROM_STR("\",\"version\":\""));
+    remainder = az_span_copy(remainder, AZ_SPAN_FROM_STR("\\\",\\\"version\\\":\\\""));
     remainder = az_span_copy(remainder, update_id.version);
-    remainder = az_span_copy(remainder, AZ_SPAN_FROM_STR("\"}"));
+    remainder = az_span_copy(remainder, AZ_SPAN_FROM_STR("\\\"}\""));
 
     return az_span_slice(update_id_string, 0, az_span_size(update_id_string) - az_span_size(remainder));
 }
