@@ -506,9 +506,15 @@ static void prvAzureDemoTask( void * pvParameters )
         if(s != ATCA_SUCCESS) {
             return -3;
         }
-        sprintf(registration_id_string,"sn%02X%02X%02X%02X%02X%02X%02X%02X%02X",sernum[0],sernum[1],\
-        sernum[2],sernum[3],sernum[4],sernum[5],sernum[6],sernum[7],sernum[8]);
-        registration_id_string[20] = '\0';
+        #ifndef CONFIG_ATECC608A_TCUSTOM
+            sprintf(registration_id_string,"sn%02X%02X%02X%02X%02X%02X%02X%02X%02X",sernum[0],sernum[1],\
+            sernum[2],sernum[3],sernum[4],sernum[5],sernum[6],sernum[7],sernum[8]);
+            registration_id_string[20] = '\0';
+        #else
+            sprintf(registration_id_string,"%02X%02X%02X%02X%02X%02X%02X%02X%02X",sernum[0],sernum[1],\
+            sernum[2],sernum[3],sernum[4],sernum[5],sernum[6],sernum[7],sernum[8]);
+            registration_id_string[18] = '\0';
+        #endif
 
         return 0;
 
