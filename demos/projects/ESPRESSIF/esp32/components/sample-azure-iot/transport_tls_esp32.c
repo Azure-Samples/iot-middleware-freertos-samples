@@ -90,6 +90,28 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pNetworkContext,
     {
         esp_transport_ssl_set_cert_data_der( pNetworkContext->xTransport, ( const char * ) pNetworkCredentials->pucRootCa, pNetworkCredentials->xRootCaSize );
     }
+#if CONFIG_ESP_TLS_USE_SECURE_ELEMENT
+
+    esp_transport_ssl_use_secure_element( pNetworkContext->xTransport );
+
+    #ifdef CONFIG_ATECC608A_TCUSTOM
+        /*  This is TrustCUSTOM chip - the private key will be used from the ATECC608 device slot 0.
+            We will plug in your custom device certificate here (should be in DER format).
+        */
+        if ( pNetworkCredentials->pucClientCert )
+        {
+            esp_transport_ssl_set_client_cert_data_der( pNetworkContext->xTransport, ( const char *) pNetworkCredentials->pucClientCert, pNetworkCredentials->xClientCertSize );
+        }
+
+       
+    #else
+        /*  This is either the Trust&GO or the TrustFLEX chip - the private key will be used from ATECC608 device slot 0.
+            We don't need to add certs to the network context as the esp-tls does that for us using cryptoauthlib API.
+        */
+
+    #endif
+
+#else
 
     if ( pNetworkCredentials->pucClientCert )
     {
@@ -100,6 +122,8 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pNetworkContext,
     {
         esp_transport_ssl_set_client_key_data_der( pNetworkContext->xTransport, (const char *) pNetworkCredentials->pucPrivateKey, pNetworkCredentials->xPrivateKeySize );
     }
+
+#endif
 
     if ( esp_transport_connect( pNetworkContext->xTransport, pHostName, usPort, ulReceiveTimeoutMs ) < 0 )
     {
