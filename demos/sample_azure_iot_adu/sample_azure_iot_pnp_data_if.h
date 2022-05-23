@@ -27,7 +27,7 @@ extern AzureIoTADUUpdateRequest_t xAzureIoTAduOtaUpdateRequest;
 extern bool xProcessUpdateRequest;
 extern AzureIoTHubClientADUDeviceInformation_t xADUDeviceInformation;
 
-#define ADU_CONTEXT_BUFFER_SIZE 10240
+#define ADU_CONTEXT_BUFFER_SIZE    10240
 extern uint8_t ucAduContextBuffer[ ADU_CONTEXT_BUFFER_SIZE ];
 
 /**

@@ -424,12 +424,12 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash()
 
     /* Range Check */
     xHttpResult = AzureIoTHTTP_RequestSizeInit( &xHTTP, &xHTTPTransport,
-                                    ( const char * ) az_span_ptr( xUrlHost ),
-                                    az_span_size( xUrlHost ),
-                                    ( const char * ) az_span_ptr( xUrlPath ),
-                                    az_span_size( xUrlPath ) );
+                                                ( const char * ) az_span_ptr( xUrlHost ),
+                                                az_span_size( xUrlHost ),
+                                                ( const char * ) az_span_ptr( xUrlPath ),
+                                                az_span_size( xUrlPath ) );
 
-    if ( xHttpResult != eAzureIoTHTTPSuccess)
+    if( xHttpResult != eAzureIoTHTTPSuccess )
     {
         return eAzureIoTErrorFailed;
     }
@@ -450,30 +450,30 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash()
     {
         AZLogInfo( ( "[ADU] Initialize HTTP client.\r\n" ) );
         AzureIoTHTTP_Init( &xHTTP, &xHTTPTransport,
-                            ( const char * ) az_span_ptr( xUrlHost ),
-                            az_span_size( xUrlHost ),
-                            ( const char * ) az_span_ptr( xUrlPath ),
-                            az_span_size( xUrlPath ) );
+                           ( const char * ) az_span_ptr( xUrlHost ),
+                           az_span_size( xUrlHost ),
+                           ( const char * ) az_span_ptr( xUrlPath ),
+                           az_span_size( xUrlPath ) );
 
         AZLogInfo( ( "[ADU] HTTP Requesting | %d:%d\r\n",
-                        xImage.ulCurrentOffset,
-                        xImage.ulCurrentOffset + azureiothttpCHUNK_DOWNLOAD_SIZE - 1 ) );
+                     xImage.ulCurrentOffset,
+                     xImage.ulCurrentOffset + azureiothttpCHUNK_DOWNLOAD_SIZE - 1 ) );
 
         if( ( xHttpResult = AzureIoTHTTP_Request( &xHTTP, xImage.ulCurrentOffset,
-                                                    xImage.ulCurrentOffset + azureiothttpCHUNK_DOWNLOAD_SIZE - 1,
-                                                    &pucHttpDataBufferPtr,
-                                                    &pulHttpDataLength ) ) == eAzureIoTHTTPSuccess )
+                                                  xImage.ulCurrentOffset + azureiothttpCHUNK_DOWNLOAD_SIZE - 1,
+                                                  &pucHttpDataBufferPtr,
+                                                  &pulHttpDataLength ) ) == eAzureIoTHTTPSuccess )
         {
             AZLogInfo( ( "[ADU] HTTP Request was successful | %d:%d\r\n",
-                            xImage.ulCurrentOffset,
-                            xImage.ulCurrentOffset + azureiothttpCHUNK_DOWNLOAD_SIZE - 1 ) );
+                         xImage.ulCurrentOffset,
+                         xImage.ulCurrentOffset + azureiothttpCHUNK_DOWNLOAD_SIZE - 1 ) );
 
             /* Write bytes to the flash */
             AZLogInfo( ( "[ADU] Write bytes to flash\r\n" ) );
             xResult = AzureIoTPlatform_WriteBlock( &xImage,
-                                                    ( uint32_t ) xImage.ulCurrentOffset,
-                                                    ( uint8_t * ) pucHttpDataBufferPtr,
-                                                    pulHttpDataLength );
+                                                   ( uint32_t ) xImage.ulCurrentOffset,
+                                                   ( uint8_t * ) pucHttpDataBufferPtr,
+                                                   pulHttpDataLength );
 
             /* Advance the offset */
             xImage.ulCurrentOffset += ( int32_t ) pulHttpDataLength;
@@ -507,10 +507,10 @@ static AzureIoTResult_t prvEnableImageAndResetDevice()
     AZLogInfo( ( "[ADU] Image validated against hash from ADU\r\n" ) );
 
     if( AzureIoTPlatform_VerifyImage(
-        &xImage, 
-        xAzureIoTAduOtaUpdateRequest.xUpdateManifest.pxFiles[ 0 ].pxHashes[ 0 ].pucHash,
-        xAzureIoTAduOtaUpdateRequest.xUpdateManifest.pxFiles[ 0 ].pxHashes[ 0 ].ulHashLength 
-        ) != eAzureIoTSuccess )
+            &xImage,
+            xAzureIoTAduOtaUpdateRequest.xUpdateManifest.pxFiles[ 0 ].pxHashes[ 0 ].pucHash,
+            xAzureIoTAduOtaUpdateRequest.xUpdateManifest.pxFiles[ 0 ].pxHashes[ 0 ].ulHashLength
+            ) != eAzureIoTSuccess )
     {
         AZLogError( ( "[ADU] File hash from ADU did not match calculated hash\r\n" ) );
         return eAzureIoTErrorFailed;
@@ -704,12 +704,12 @@ static void prvAzureDemoTask( void * pvParameters )
                                                      sampleazureiotPROCESS_LOOP_TIMEOUT_MS );
             configASSERT( xResult == eAzureIoTSuccess );
 
-            if ( xProcessUpdateRequest )
+            if( xProcessUpdateRequest )
             {
-                xResult = prvDownloadUpdateImageIntoFlash( );
+                xResult = prvDownloadUpdateImageIntoFlash();
                 configASSERT( xResult == eAzureIoTSuccess );
 
-                xResult = prvEnableImageAndResetDevice( );
+                xResult = prvEnableImageAndResetDevice();
                 configASSERT( xResult == eAzureIoTSuccess );
             }
 
