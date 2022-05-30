@@ -105,13 +105,11 @@
 // TODO: repurpose these, setting them to the values from azure-sdk-for-c
 #define azureiotaduSTEPS_MAX                                    2
 #define azureiotaduAGENT_FILES_MAX                              2
-#define azureiotaduRESULT_DETAILS_SIZE                          128
 #define azureiotaduDEVICE_INFO_MANUFACTURER_SIZE                16
 #define azureiotaduDEVICE_INFO_MODEL_SIZE                       24
 #define azureiotaduUPDATE_PROVIDER_SIZE                         16
 #define azureiotaduUPDATE_NAME_SIZE                             24
 #define azureiotaduUPDATE_VERSION_SIZE                          10
-#define azureiotaduSTEP_ID_SIZE                                 32
 
 /**
  * @brief ADU Update ID.
@@ -193,13 +191,10 @@ typedef struct AzureIoTHubClientADUWorkflow
 
 typedef struct AzureIoTHubClientADUStepResult
 {
-    const uint8_t ucStepId[ azureiotaduSTEP_ID_SIZE ];
-    uint32_t ulStepIdLength;
-
     uint32_t ulResultCode;
     uint32_t ulExtendedResultCode;
 
-    const uint8_t ucResultDetails[ azureiotaduRESULT_DETAILS_SIZE ];
+    const uint8_t * pucResultDetails;
     uint32_t ulResultDetailsLength;
 } AzureIoTHubClientADUStepResult_t;
 
@@ -208,10 +203,10 @@ typedef struct AzureIoTHubClientADUInstallResult
     int32_t lResultCode;
     int32_t lExtendedResultCode;
 
-    const uint8_t ucResultDetails[ azureiotaduRESULT_DETAILS_SIZE ];
+    const uint8_t * pucResultDetails;
     uint32_t ulResultDetailsLength;
 
-    AzureIoTHubClientADUStepResult_t * pxStepResults;
+    AzureIoTHubClientADUStepResult_t pxStepResults[MAX_INSTRUCTIONS_STEPS];
     uint32_t ulStepResultsCount;
 } AzureIoTHubClientADUInstallResult_t;
 
@@ -229,13 +224,13 @@ typedef struct AzureIoTHubClientADUInstallResult
  * https://docs.microsoft.com/en-us/azure/iot-hub-device-update/device-update-plug-and-play#action
  *
  */
-typedef enum AzureIoTADUState
+typedef enum AzureIoTADUAgentState
 {
-    eAzureIoTADUStateIdle = 0,
-    eAzureIoTADUStateDeploymentInProgress = 6,
-    eAzureIotADUStateFailed = 255,
-    eAzureIoTADUStateError,
-} AzureIoTADUState_t;
+    eAzureIoTADUAgentStateIdle = 0,
+    eAzureIoTADUAgentStateDeploymentInProgress = 6,
+    eAzureIoTADUAgentStateFailed = 255,
+    eAzureIoTADUAgentStateError,
+} AzureIoTADUAgentState_t;
 
 // TODO: clean everything that can be removed from this point above.
 
@@ -392,10 +387,11 @@ AzureIoTResult_t AzureIoTADUClient_SendResponse( AzureIoTHubClient_t * pxAzureIo
                                                 uint32_t ulWritablePropertyResponseBufferSize,
                                                 uint32_t * pulRequestId );
 
-AzureIoTResult_t AzureIoTADUClient_ADUSendState( AzureIoTHubClient_t * pxAzureIoTHubClient,
+AzureIoTResult_t AzureIoTADUClient_SendAgentState( AzureIoTHubClient_t * pxAzureIoTHubClient,
                                                  AzureIoTHubClientADUDeviceInformation_t * pxDeviceInformation,
                                                  AzureIoTADUUpdateRequest_t * pxAduUpdateRequest,
-                                                 AzureIoTADUState_t xAgentState,
+                                                 AzureIoTADUAgentState_t xAgentState,
+                                                 AzureIoTHubClientADUInstallResult_t * pxUpdateResults,
                                                  uint8_t * pucBuffer,
                                                  uint32_t ulBufferSize,
                                                  uint32_t * pulRequestId );

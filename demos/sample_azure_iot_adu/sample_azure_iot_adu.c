@@ -395,10 +395,11 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash()
 
     AZLogInfo( ( "[ADU] Send property update.\r\n" ) );
 
-    xResult = AzureIoTADUClient_ADUSendState( &xAzureIoTHubClient,
+    xResult = AzureIoTADUClient_SendAgentState( &xAzureIoTHubClient,
                                               &xADUDeviceInformation,
                                               &xAzureIoTAduOtaUpdateRequest,
-                                              eAzureIoTADUStateDeploymentInProgress,
+                                              eAzureIoTADUAgentStateDeploymentInProgress,
+                                              NULL,
                                               ucScratchBuffer,
                                               sizeof( ucScratchBuffer ),
                                               NULL );
@@ -503,6 +504,9 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash()
 
 static AzureIoTResult_t prvEnableImageAndResetDevice()
 {
+    AzureIoTResult_t xResult;
+    AzureIoTHubClientADUInstallResult_t xUpdateResults;
+
     /* Call into platform specific image verification */
     AZLogInfo( ( "[ADU] Image validated against hash from ADU\r\n" ) );
 
@@ -523,6 +527,45 @@ static AzureIoTResult_t prvEnableImageAndResetDevice()
         AZLogError( ( "[ADU] File hash from ADU did not match calculated hash\r\n" ) );
         return eAzureIoTErrorFailed;
     }
+
+    /*
+     * In a production implementation the application would fill the final lResultCode
+     * (and optionally lExtendedResultCode) at the end of the update, and the results
+     * of each step as they are processed by the application.
+     * This result is then reported to the Azure Device Update service, allowing it
+     * to assess if the update succeeded.
+     * Optional details of the steps and overall installation results can be provided
+     * through pucResultDetails.
+     */
+    xUpdateResults.lResultCode = 0;
+    xUpdateResults.lExtendedResultCode = 0;
+    xUpdateResults.pucResultDetails = NULL;
+    xUpdateResults.ulResultDetailsLength = 0;
+    xUpdateResults.ulStepResultsCount =
+        xAzureIoTAduOtaUpdateRequest.xUpdateManifest.xInstructions.ulStepsCount;
+    
+    /*
+     * The order of the step results must match order of the steps
+     * in the the update manifest instructions.
+     */
+    for ( int32_t ulStepIndex = 0; ulStepIndex < xUpdateResults.ulStepResultsCount; ulStepIndex++ )
+    {
+        xUpdateResults.pxStepResults[ ulStepIndex ].ulResultCode = 0;
+        xUpdateResults.pxStepResults[ ulStepIndex ].ulExtendedResultCode = 0;
+        xUpdateResults.pxStepResults[ ulStepIndex ].pucResultDetails = NULL;
+        xUpdateResults.pxStepResults[ ulStepIndex ].ulResultDetailsLength = 0;
+    }
+
+    AZLogInfo( ( "[ADU] Send property update.\r\n" ) );
+
+    xResult = AzureIoTADUClient_SendAgentState( &xAzureIoTHubClient,
+                                              &xADUDeviceInformation,
+                                              &xAzureIoTAduOtaUpdateRequest,
+                                              eAzureIoTADUAgentStateDeploymentInProgress,
+                                              &xUpdateResults,
+                                              ucScratchBuffer,
+                                              sizeof( ucScratchBuffer ),
+                                              NULL );
 
     AZLogInfo( ( "[ADU] Reset the device\r\n" ) );
 
@@ -664,10 +707,11 @@ static void prvAzureDemoTask( void * pvParameters )
                                                          &xAzureIoTHubClient, sampleazureiotSUBSCRIBE_TIMEOUT );
         configASSERT( xResult == eAzureIoTSuccess );
 
-        xResult = AzureIoTADUClient_ADUSendState( &xAzureIoTHubClient,
+        xResult = AzureIoTADUClient_SendAgentState( &xAzureIoTHubClient,
                                                   &xADUDeviceInformation,
                                                   NULL,
-                                                  eAzureIoTADUStateIdle,
+                                                  eAzureIoTADUAgentStateIdle,
+                                                  NULL,
                                                   ucScratchBuffer,
                                                   sizeof( ucScratchBuffer ),
                                                   NULL );

@@ -310,36 +310,77 @@ static void prvFillBaseAduWorkflow(
 }
 
 static void prvFillBaseAduInstallResults(
-    AzureIoTADUUpdateRequest_t * pxAduUpdateRequest,
-    az_iot_adu_ota_install_result * pxInstallResult )
+    AzureIoTHubClientADUInstallResult_t * pxUpdateResults,
+    az_iot_adu_ota_install_result * pxBaseInstallResults )
 {
-    ( void ) pxAduUpdateRequest;
-    memset( pxInstallResult, 0, sizeof( *pxInstallResult ) );
+    memset( pxBaseInstallResults, 0, sizeof( *pxBaseInstallResults ) );
+
+    if ( pxUpdateResults != NULL )
+    {
+        pxBaseInstallResults->result_code = pxUpdateResults->lResultCode;
+        pxBaseInstallResults->extended_result_code = pxUpdateResults->lExtendedResultCode;
+
+        if( ( pxUpdateResults->pucResultDetails != NULL ) &&
+            ( pxUpdateResults->ulResultDetailsLength > 0 ) )
+        {
+            pxBaseInstallResults->result_details = az_span_create(
+                ( uint8_t * ) pxUpdateResults->pucResultDetails,
+                pxUpdateResults->ulResultDetailsLength );
+        }
+        else
+        {
+            pxBaseInstallResults->result_details = AZ_SPAN_EMPTY;
+        }
+
+        pxBaseInstallResults->step_results_count = pxUpdateResults->ulStepResultsCount;
+
+        for( int lIndex = 0; lIndex < pxUpdateResults->ulStepResultsCount; lIndex++ )
+        {
+            pxBaseInstallResults->step_results[ lIndex ].result_code =
+                pxUpdateResults->pxStepResults[ lIndex ].ulResultCode;
+            pxBaseInstallResults->step_results[ lIndex ].extended_result_code =
+                pxUpdateResults->pxStepResults[ lIndex ].ulExtendedResultCode;
+
+            if( ( pxUpdateResults->pxStepResults[ lIndex ].pucResultDetails != NULL ) &&
+                ( pxUpdateResults->pxStepResults[ lIndex ].ulResultDetailsLength > 0 ) )
+            {
+                pxBaseInstallResults->step_results[ lIndex ].result_details = az_span_create(
+                    ( uint8_t * ) pxUpdateResults->pxStepResults[ lIndex ].pucResultDetails,
+                    pxUpdateResults->pxStepResults[ lIndex ].ulResultDetailsLength
+                    );
+            }
+            else
+            {
+                pxBaseInstallResults->step_results[ lIndex ].result_details = AZ_SPAN_EMPTY;
+            }
+        }
+    }
 }
 
-AzureIoTResult_t AzureIoTADUClient_ADUSendState( AzureIoTHubClient_t * pxAzureIoTHubClient,
+AzureIoTResult_t AzureIoTADUClient_SendAgentState( AzureIoTHubClient_t * pxAzureIoTHubClient,
                                                  AzureIoTHubClientADUDeviceInformation_t * pxDeviceInformation,
                                                  AzureIoTADUUpdateRequest_t * pxAduUpdateRequest,
-                                                 AzureIoTADUState_t xAgentState,
+                                                 AzureIoTADUAgentState_t xAgentState,
+                                                 AzureIoTHubClientADUInstallResult_t * pxUpdateResults,
                                                  uint8_t * pucBuffer,
                                                  uint32_t ulBufferSize,
                                                  uint32_t * pulRequestId )
 {
-    az_iot_adu_ota_device_information xBaseDeviceInformation; // TODO: fill up.
-    az_iot_adu_ota_workflow xBaseWorkflow; // TODO: fill up.
+    az_iot_adu_ota_device_information xBaseDeviceInformation;
+    az_iot_adu_ota_workflow xBaseWorkflow;
     az_iot_adu_ota_install_result xInstallResult; // TODO: fill up.
     az_span xPropertiesPayload = az_span_create( pucBuffer, ulBufferSize );
 
     prvFillBaseDeviceInformation( pxDeviceInformation, &xBaseDeviceInformation );
     prvFillBaseAduWorkflow( pxAduUpdateRequest, &xBaseWorkflow );
-    prvFillBaseAduInstallResults( pxAduUpdateRequest, &xInstallResult );
+    prvFillBaseAduInstallResults( pxUpdateResults, &xInstallResult );
 
     az_result xAzResult = az_iot_adu_ota_get_properties_payload(
         &pxAzureIoTHubClient->_internal.xAzureIoTHubClientCore,
         &xBaseDeviceInformation,
         ( int32_t ) xAgentState,
         pxAduUpdateRequest != NULL ? &xBaseWorkflow : NULL,
-        pxAduUpdateRequest != NULL ? &xInstallResult : NULL,
+        pxUpdateResults != NULL ? &xInstallResult : NULL,
         xPropertiesPayload,
         &xPropertiesPayload
     );

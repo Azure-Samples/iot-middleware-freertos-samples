@@ -116,6 +116,30 @@ static az_span generate_update_id_string(
     return az_span_slice(update_id_string, 0, az_span_size(update_id_string) - az_span_size(remainder));
 }
 
+#define RESULT_STEP_ID_PREFIX "step_"
+#define MAX_UINT32_NUMBER_OF_DIGITS 10
+#define RESULT_STEP_ID_MAX_SIZE (sizeof(RESULT_STEP_ID_PREFIX) + MAX_UINT32_NUMBER_OF_DIGITS)
+
+static az_span get_json_writer_remaining_buffer(az_span original_buffer, az_json_writer* jw)
+{
+    return az_span_slice_to_end(
+        original_buffer, az_span_size(az_json_writer_get_bytes_used_in_destination(jw)));
+}
+
+static az_result generate_step_id(az_span buffer, uint32_t step_index, az_span* step_id)
+{
+    az_result result;
+    *step_id = buffer;
+    buffer = az_span_copy(buffer, AZ_SPAN_FROM_STR(RESULT_STEP_ID_PREFIX));
+    
+    result = az_span_u32toa(buffer, step_index, &buffer);
+    _az_RETURN_IF_FAILED(result);
+
+    *step_id = az_span_slice(*step_id, 0, az_span_size(*step_id) - az_span_size(buffer));
+
+    return AZ_OK;
+}
+
 AZ_NODISCARD az_result az_iot_adu_ota_get_properties_payload(
     az_iot_hub_client const* iot_hub_client,
     az_iot_adu_ota_device_information* device_information,
@@ -216,8 +240,15 @@ AZ_NODISCARD az_result az_iot_adu_ota_get_properties_payload(
 
         for (int32_t i = 0; i < last_install_result->step_results_count; i++)
         {
-            _az_RETURN_IF_FAILED(az_json_writer_append_property_name(&jw,
-                last_install_result->step_results[i].step_id));
+            az_span remaining_buffer = get_json_writer_remaining_buffer(payload, &jw);
+            // Taking from the end of the remaining buffer to avoid az_json_writer overlapping
+            // with the data we will generate in that buffer.
+            az_span step_id = az_span_slice_to_end(remaining_buffer,
+                az_span_size(remaining_buffer) - RESULT_STEP_ID_MAX_SIZE);
+
+            _az_RETURN_IF_FAILED(generate_step_id(step_id, i, &step_id));
+
+            _az_RETURN_IF_FAILED(az_json_writer_append_property_name(&jw, step_id));
             _az_RETURN_IF_FAILED(az_json_writer_append_begin_object(&jw));
 
             _az_RETURN_IF_FAILED(az_json_writer_append_property_name(&jw,
