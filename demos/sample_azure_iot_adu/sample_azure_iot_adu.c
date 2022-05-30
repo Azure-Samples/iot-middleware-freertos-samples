@@ -398,7 +398,7 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash()
     xResult = AzureIoTADUClient_ADUSendState( &xAzureIoTHubClient,
                                               &xADUDeviceInformation,
                                               &xAzureIoTAduOtaUpdateRequest,
-                                              eAzureIoTADUStateIdle,
+                                              eAzureIoTADUStateDeploymentInProgress,
                                               ucScratchBuffer,
                                               sizeof( ucScratchBuffer ),
                                               NULL );

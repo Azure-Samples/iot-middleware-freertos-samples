@@ -91,31 +91,6 @@ bool AzureIoTADUClient_IsADUComponent( const char * pucComponentName,
         az_span_create( ( uint8_t * ) pucComponentName, ( int32_t ) ulComponentNameLength ) );
 }
 
-static bool prvAreUpdateIdsEqual(
-    const AzureIoTHubClientADUUpdateId_t * pxCurrentUpdateId,
-    const az_iot_adu_ota_update_id * pxNewUpdateId )
-{
-    if ( pxCurrentUpdateId->ulProviderLength == az_span_size( pxNewUpdateId->provider ) &&
-         strncmp( ( const char * ) pxCurrentUpdateId->ucProvider,
-            ( const char * ) az_span_ptr( pxNewUpdateId->provider ),
-            pxCurrentUpdateId->ulProviderLength ) == 0 &&
-         pxCurrentUpdateId->ulNameLength == az_span_size( pxNewUpdateId->name ) &&
-         strncmp( ( const char * ) pxCurrentUpdateId->ucName,
-            ( const char * ) az_span_ptr( pxNewUpdateId->name ),
-            pxCurrentUpdateId->ulNameLength ) == 0 &&
-         pxCurrentUpdateId->ulVersionLength == az_span_size( pxNewUpdateId->version ) &&
-         strncmp( ( const char * ) pxCurrentUpdateId->ucVersion,
-            ( const char * ) az_span_ptr( pxNewUpdateId->version ),
-            pxCurrentUpdateId->ulVersionLength ) == 0 )
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-}
-
 static void prvCastUpdateRequest(
     az_iot_adu_ota_update_request * pxBaseUpdateRequest,
     az_iot_adu_ota_update_manifest * pxBaseUpdateManifest,
@@ -253,12 +228,12 @@ AzureIoTResult_t AzureIoTADUClient_ParseRequest( AzureIoTHubClient_t * pxAzureIo
     return eAzureIoTSuccess;
 }
 
-AzureIoTResult_t AzureIoTADUClient_GetResponse( AzureIoTHubClient_t * pxAzureIoTHubClient,
+AzureIoTResult_t AzureIoTADUClient_SendResponse( AzureIoTHubClient_t * pxAzureIoTHubClient,
                                                 AzureIoTADURequestDecision_t xRequestDecision,
                                                 uint32_t ulPropertyVersion,
                                                 uint8_t * pucWritablePropertyResponseBuffer,
                                                 uint32_t ulWritablePropertyResponseBufferSize,
-                                                uint32_t * pulWritablePropertyResponseBufferLength)
+                                                uint32_t * pulRequestId )
 {
     az_span xWritablePropertyResponse = az_span_create(
         pucWritablePropertyResponseBuffer,
@@ -279,6 +254,18 @@ AzureIoTResult_t AzureIoTADUClient_GetResponse( AzureIoTHubClient_t * pxAzureIoT
         /* TODO: return individualized/specific errors. */
         return eAzureIoTErrorFailed;
     }
+
+    xAzResult = AzureIoTHubClient_SendPropertiesReported(
+        pxAzureIoTHubClient,
+        az_span_ptr( xWritablePropertyResponse ),
+        az_span_size( xWritablePropertyResponse ),
+        pulRequestId );
+
+    if ( xAzResult != eAzureIoTSuccess )
+    {
+        AZLogError( ( "[ADU] Failed sending ADU writable properties response: 0x%08x", xAzResult ) );
+        return eAzureIoTErrorPublishFailed;
+    }    
 
     return eAzureIoTSuccess;
 }

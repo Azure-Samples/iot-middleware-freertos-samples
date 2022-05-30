@@ -383,16 +383,14 @@ AzureIoTResult_t AzureIoTADUClient_ParseRequest( AzureIoTHubClient_t * pxAzureIo
  *              payload.
  * @param[in] ulWritablePropertyResponseBufferSize
  *              Size of `pucWritablePropertyResponseBuffer`
- * @param[out] pulWritablePropertyResponseBufferLength
- *              Length of content writen into `pucWritablePropertyResponseBuffer`.
  * @return An #AzureIoTResult_t with the result of the operation.
  */
-AzureIoTResult_t AzureIoTADUClient_GetResponse( AzureIoTHubClient_t * pxAzureIoTHubClient,
+AzureIoTResult_t AzureIoTADUClient_SendResponse( AzureIoTHubClient_t * pxAzureIoTHubClient,
                                                 AzureIoTADURequestDecision_t xRequestDecision,
                                                 uint32_t ulPropertyVersion,
                                                 uint8_t * pucWritablePropertyResponseBuffer,
                                                 uint32_t ulWritablePropertyResponseBufferSize,
-                                                uint32_t * pulWritablePropertyResponseBufferLength);
+                                                uint32_t * pulRequestId );
 
 AzureIoTResult_t AzureIoTADUClient_ADUSendState( AzureIoTHubClient_t * pxAzureIoTHubClient,
                                                  AzureIoTHubClientADUDeviceInformation_t * pxDeviceInformation,
