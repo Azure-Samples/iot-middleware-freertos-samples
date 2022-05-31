@@ -341,7 +341,7 @@ static uint32_t prvSetupNetworkCredentials( NetworkCredentials_t * pxNetworkCred
 }
 /*-----------------------------------------------------------*/
 
-static AzureIoTResult_t prvConnectHTTP( AzureIoTTransportInterface_t * pxHTTPTransport,
+static void prvConnectHTTP( AzureIoTTransportInterface_t * pxHTTPTransport,
                                         const char * pucURL )
 {
     SocketTransportStatus_t xStatus;
@@ -352,8 +352,6 @@ static AzureIoTResult_t prvConnectHTTP( AzureIoTTransportInterface_t * pxHTTPTra
     xStatus = Azure_Socket_Connect( pxHTTPTransport->pxNetworkContext, pucURL, 80, xRecvTimeout, xSendTimeout );
 
     configASSERT( xStatus == eSocketTransportSuccess );
-
-    return eAzureIoTSuccess;
 }
 
 /**
@@ -421,7 +419,7 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash()
     ( void ) memcpy( pcNullTerminatedHost, az_span_ptr( xUrlHost ), az_span_size( xUrlHost ) );
     pcNullTerminatedHost[ az_span_size( xUrlHost ) ] = '\0';
 
-    xResult = prvConnectHTTP( &xHTTPTransport, ( const char * ) pcNullTerminatedHost );
+    prvConnectHTTP( &xHTTPTransport, ( const char * ) pcNullTerminatedHost );
 
     /* Range Check */
     xHttpResult = AzureIoTHTTP_RequestSizeInit( &xHTTP, &xHTTPTransport,

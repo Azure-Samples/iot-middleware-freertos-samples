@@ -156,7 +156,7 @@ static bool prvIsUpdateAlreadyInstalled(
  * @brief Sample function to decide if an update request should be accepted or rejected.
  * 
  * @remark The user application can implement any logic to decide if an update request
- *         Should be accepted or not. Factors would be if the device is currently busy,
+ *         should be accepted or not. Factors would be if the device is currently busy,
  *         if it is within business hours, or any other factor the user would like to
  *         take into account. Rejected update requests get redelivered upon reconnection
  *         with the Azure IoT Hub.
