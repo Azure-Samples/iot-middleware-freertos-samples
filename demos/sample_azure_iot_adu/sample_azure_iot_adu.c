@@ -342,7 +342,7 @@ static uint32_t prvSetupNetworkCredentials( NetworkCredentials_t * pxNetworkCred
 /*-----------------------------------------------------------*/
 
 static void prvConnectHTTP( AzureIoTTransportInterface_t * pxHTTPTransport,
-                                        const char * pucURL )
+                            const char * pucURL )
 {
     SocketTransportStatus_t xStatus;
     TickType_t xRecvTimeout = sampleazureiotTRANSPORT_SEND_RECV_TIMEOUT_MS;
@@ -394,13 +394,13 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash()
     AZLogInfo( ( "[ADU] Send property update.\r\n" ) );
 
     xResult = AzureIoTADUClient_SendAgentState( &xAzureIoTHubClient,
-                                              &xADUDeviceInformation,
-                                              &xAzureIoTAduOtaUpdateRequest,
-                                              eAzureIoTADUAgentStateDeploymentInProgress,
-                                              NULL,
-                                              ucScratchBuffer,
-                                              sizeof( ucScratchBuffer ),
-                                              NULL );
+                                                &xADUDeviceInformation,
+                                                &xAzureIoTAduOtaUpdateRequest,
+                                                eAzureIoTADUAgentStateDeploymentInProgress,
+                                                NULL,
+                                                ucScratchBuffer,
+                                                sizeof( ucScratchBuffer ),
+                                                NULL );
 
     AZLogInfo( ( "[ADU] Invoke HTTP Connect Callback.\r\n" ) );
 
@@ -541,12 +541,12 @@ static AzureIoTResult_t prvEnableImageAndResetDevice()
     xUpdateResults.ulResultDetailsLength = 0;
     xUpdateResults.ulStepResultsCount =
         xAzureIoTAduOtaUpdateRequest.xUpdateManifest.xInstructions.ulStepsCount;
-    
+
     /*
      * The order of the step results must match order of the steps
      * in the the update manifest instructions.
      */
-    for ( int32_t ulStepIndex = 0; ulStepIndex < xUpdateResults.ulStepResultsCount; ulStepIndex++ )
+    for( int32_t ulStepIndex = 0; ulStepIndex < xUpdateResults.ulStepResultsCount; ulStepIndex++ )
     {
         xUpdateResults.pxStepResults[ ulStepIndex ].ulResultCode = 0;
         xUpdateResults.pxStepResults[ ulStepIndex ].ulExtendedResultCode = 0;
@@ -557,13 +557,13 @@ static AzureIoTResult_t prvEnableImageAndResetDevice()
     AZLogInfo( ( "[ADU] Send property update.\r\n" ) );
 
     xResult = AzureIoTADUClient_SendAgentState( &xAzureIoTHubClient,
-                                              &xADUDeviceInformation,
-                                              &xAzureIoTAduOtaUpdateRequest,
-                                              eAzureIoTADUAgentStateDeploymentInProgress,
-                                              &xUpdateResults,
-                                              ucScratchBuffer,
-                                              sizeof( ucScratchBuffer ),
-                                              NULL );
+                                                &xADUDeviceInformation,
+                                                &xAzureIoTAduOtaUpdateRequest,
+                                                eAzureIoTADUAgentStateDeploymentInProgress,
+                                                &xUpdateResults,
+                                                ucScratchBuffer,
+                                                sizeof( ucScratchBuffer ),
+                                                NULL );
 
     AZLogInfo( ( "[ADU] Reset the device\r\n" ) );
 
@@ -706,13 +706,13 @@ static void prvAzureDemoTask( void * pvParameters )
         configASSERT( xResult == eAzureIoTSuccess );
 
         xResult = AzureIoTADUClient_SendAgentState( &xAzureIoTHubClient,
-                                                  &xADUDeviceInformation,
-                                                  NULL,
-                                                  eAzureIoTADUAgentStateIdle,
-                                                  NULL,
-                                                  ucScratchBuffer,
-                                                  sizeof( ucScratchBuffer ),
-                                                  NULL );
+                                                    &xADUDeviceInformation,
+                                                    NULL,
+                                                    eAzureIoTADUAgentStateIdle,
+                                                    NULL,
+                                                    ucScratchBuffer,
+                                                    sizeof( ucScratchBuffer ),
+                                                    NULL );
         configASSERT( xResult == eAzureIoTSuccess );
 
         /* Get property document after initial connection */
