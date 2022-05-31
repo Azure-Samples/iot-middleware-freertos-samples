@@ -481,7 +481,7 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash()
         {
             AZLogInfo( ( "[ADU] Reconnecting...\r\n" ) );
             AZLogInfo( ( "[ADU] Invoke HTTP Connect Callback.\r\n" ) );
-            xResult = prvConnectHTTP( &xHTTPTransport, ( const char * ) pcNullTerminatedHost );
+            prvConnectHTTP( &xHTTPTransport, ( const char * ) pcNullTerminatedHost );
 
             if( xResult != eAzureIoTSuccess )
             {
