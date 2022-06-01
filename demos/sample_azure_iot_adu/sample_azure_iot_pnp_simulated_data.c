@@ -236,24 +236,23 @@ static uint32_t prvGetNewMaxTemp( double xUpdatedTemperature,
 /*-----------------------------------------------------------*/
 
 
-static bool prvIsUpdateAlreadyInstalled(
-    const AzureIoTADUUpdateRequest_t * pxAduOtaUpdateRequest )
+static bool prvIsUpdateAlreadyInstalled( const AzureIoTADUUpdateRequest_t * pxAduOtaUpdateRequest )
 {
-    if ( pxAduOtaUpdateRequest->xUpdateManifest.xUpdateId.ulNameLength == 
-         xADUDeviceInformation.xCurrentUpdateId.ulNameLength &&
-         strncmp( ( const char * ) pxAduOtaUpdateRequest->xUpdateManifest.xUpdateId.pucName,
-                  ( const char * ) xADUDeviceInformation.xCurrentUpdateId.ucName,
-                  ( size_t ) xADUDeviceInformation.xCurrentUpdateId.ulNameLength ) == 0 &&
-         pxAduOtaUpdateRequest->xUpdateManifest.xUpdateId.ulProviderLength == 
-         xADUDeviceInformation.xCurrentUpdateId.ulProviderLength &&
-         strncmp( ( const char * ) pxAduOtaUpdateRequest->xUpdateManifest.xUpdateId.pucProvider,
-                  ( const char * ) xADUDeviceInformation.xCurrentUpdateId.ucProvider,
-                  ( size_t ) xADUDeviceInformation.xCurrentUpdateId.ulProviderLength ) == 0 &&
-         pxAduOtaUpdateRequest->xUpdateManifest.xUpdateId.ulVersionLength == 
-         xADUDeviceInformation.xCurrentUpdateId.ulVersionLength &&
-         strncmp( ( const char * ) pxAduOtaUpdateRequest->xUpdateManifest.xUpdateId.pucVersion,
-                  ( const char * ) xADUDeviceInformation.xCurrentUpdateId.ucVersion,
-                  ( size_t ) xADUDeviceInformation.xCurrentUpdateId.ulVersionLength ) == 0 )
+    if( ( pxAduOtaUpdateRequest->xUpdateManifest.xUpdateId.ulNameLength ==
+          xADUDeviceInformation.xCurrentUpdateId.ulNameLength ) &&
+        ( strncmp( ( const char * ) pxAduOtaUpdateRequest->xUpdateManifest.xUpdateId.pucName,
+                   ( const char * ) xADUDeviceInformation.xCurrentUpdateId.ucName,
+                   ( size_t ) xADUDeviceInformation.xCurrentUpdateId.ulNameLength ) == 0 ) &&
+        ( pxAduOtaUpdateRequest->xUpdateManifest.xUpdateId.ulProviderLength ==
+          xADUDeviceInformation.xCurrentUpdateId.ulProviderLength ) &&
+        ( strncmp( ( const char * ) pxAduOtaUpdateRequest->xUpdateManifest.xUpdateId.pucProvider,
+                   ( const char * ) xADUDeviceInformation.xCurrentUpdateId.ucProvider,
+                   ( size_t ) xADUDeviceInformation.xCurrentUpdateId.ulProviderLength ) == 0 ) &&
+        ( pxAduOtaUpdateRequest->xUpdateManifest.xUpdateId.ulVersionLength ==
+          xADUDeviceInformation.xCurrentUpdateId.ulVersionLength ) &&
+        ( strncmp( ( const char * ) pxAduOtaUpdateRequest->xUpdateManifest.xUpdateId.pucVersion,
+                   ( const char * ) xADUDeviceInformation.xCurrentUpdateId.ucVersion,
+                   ( size_t ) xADUDeviceInformation.xCurrentUpdateId.ulVersionLength ) == 0 ) )
     {
         return true;
     }
@@ -266,20 +265,19 @@ static bool prvIsUpdateAlreadyInstalled(
 
 /**
  * @brief Sample function to decide if an update request should be accepted or rejected.
- * 
+ *
  * @remark The user application can implement any logic to decide if an update request
  *         should be accepted or not. Factors would be if the device is currently busy,
  *         if it is within business hours, or any other factor the user would like to
  *         take into account. Rejected update requests get redelivered upon reconnection
  *         with the Azure IoT Hub.
- * 
- * @param[in] pxAduOtaUpdateRequest    The parsed update request. 
+ *
+ * @param[in] pxAduOtaUpdateRequest    The parsed update request.
  * @return An #AzureIoTADURequestDecision_t with the decision to accept or reject the update.
- */ 
-static AzureIoTADURequestDecision_t prvUserDecideShouldStartUpdate(
-    AzureIoTADUUpdateRequest_t * pxAduOtaUpdateRequest )
+ */
+static AzureIoTADURequestDecision_t prvUserDecideShouldStartUpdate( AzureIoTADUUpdateRequest_t * pxAduOtaUpdateRequest )
 {
-    if ( prvIsUpdateAlreadyInstalled( pxAduOtaUpdateRequest ) )
+    if( prvIsUpdateAlreadyInstalled( pxAduOtaUpdateRequest ) )
     {
         LogInfo( ( "[ADU] Rejecting update request (current version is up-to-date)" ) );
         return eAzureIoTADURequestDecisionReject;
@@ -375,51 +373,51 @@ static AzureIoTResult_t prvProcessProperties( AzureIoTHubClientPropertiesRespons
         {
             if( ulComponentNameLength > 0 )
             {
-                // TODO: fix sign of pucComponentName in AzureIoTADUClient_IsADUComponent (should be uint8_t*)
-        if ( AzureIoTADUClient_IsADUComponent( ( const char * ) pucComponentName, ulComponentNameLength ) )
-        {
-            AzureIoTADURequestDecision_t xRequestDecision;
+                /* TODO: fix sign of pucComponentName in AzureIoTADUClient_IsADUComponent (should be uint8_t*) */
+                if( AzureIoTADUClient_IsADUComponent( ( const char * ) pucComponentName, ulComponentNameLength ) )
+                {
+                    AzureIoTADURequestDecision_t xRequestDecision;
 
-            xResult = AzureIoTADUClient_ParseRequest(
-                                &xAzureIoTHubClient,
-                                &xReader,
-                                &xAzureIoTAduOtaUpdateRequest,
-                                ucAduContextBuffer,
-                                ADU_CONTEXT_BUFFER_SIZE );
+                    xResult = AzureIoTADUClient_ParseRequest(
+                        &xAzureIoTHubClient,
+                        &xReader,
+                        &xAzureIoTAduOtaUpdateRequest,
+                        ucAduContextBuffer,
+                        ADU_CONTEXT_BUFFER_SIZE );
 
-            if ( xResult != eAzureIoTSuccess )
-            {
-                LogError( ( "AzureIoTADUClient_ParseRequest failed: result 0x%08x", xResult ) );
-                *pulWritablePropertyResponseBufferLength = 0;
-                return xResult;
-            }
+                    if( xResult != eAzureIoTSuccess )
+                    {
+                        LogError( ( "AzureIoTADUClient_ParseRequest failed: result 0x%08x", xResult ) );
+                        *pulWritablePropertyResponseBufferLength = 0;
+                        return xResult;
+                    }
 
-            xRequestDecision = prvUserDecideShouldStartUpdate( &xAzureIoTAduOtaUpdateRequest );
+                    xRequestDecision = prvUserDecideShouldStartUpdate( &xAzureIoTAduOtaUpdateRequest );
 
-            xResult = AzureIoTADUClient_SendResponse(
-                                &xAzureIoTHubClient,
-                                xRequestDecision,
-                                ulPropertyVersion,
-                                pucWritablePropertyResponseBuffer,
-                                ulWritablePropertyResponseBufferSize,
-                                NULL );
+                    xResult = AzureIoTADUClient_SendResponse(
+                        &xAzureIoTHubClient,
+                        xRequestDecision,
+                        ulPropertyVersion,
+                        pucWritablePropertyResponseBuffer,
+                        ulWritablePropertyResponseBufferSize,
+                        NULL );
 
-            if ( xResult != eAzureIoTSuccess )
-            {
-                LogError( ( "AzureIoTADUClient_GetResponse failed: result 0x%08x", xResult ) );
-                return xResult;
-            }
+                    if( xResult != eAzureIoTSuccess )
+                    {
+                        LogError( ( "AzureIoTADUClient_GetResponse failed: result 0x%08x", xResult ) );
+                        return xResult;
+                    }
 
-            if ( xRequestDecision == eAzureIoTADURequestDecisionAccept )
-            {
-                xProcessUpdateRequest = true;
-            }
-        }
-        else
-        {
-            LogInfo( ( "Component not ADU OTA: %.*s", ulComponentNameLength, pucComponentName ) );
-            prvSkipPropertyAndValue( &xReader );
-        }
+                    if( xRequestDecision == eAzureIoTADURequestDecisionAccept )
+                    {
+                        xProcessUpdateRequest = true;
+                    }
+                }
+                else
+                {
+                    LogInfo( ( "Component not ADU OTA: %.*s", ulComponentNameLength, pucComponentName ) );
+                    prvSkipPropertyAndValue( &xReader );
+                }
             }
             else
             {
