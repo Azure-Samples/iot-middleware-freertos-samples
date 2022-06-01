@@ -8,8 +8,6 @@
 #include <azure/core/internal/az_result_internal.h>
 #include <stdio.h>
 
-// TODO: rename and re-organize
-
 /* Define the ADU agent component name.  */
 #define AZ_IOT_ADU_OTA_AGENT_COMPONENT_NAME                           "deviceUpdate"
 
@@ -92,26 +90,6 @@
         return AZ_ERROR_JSON_INVALID_STATE;                    \
     }
 
-#define safe_add_json_property_int32(json_writer, propName, propValue) \
-    _az_RETURN_IF_FAILED(az_json_writer_append_property_name(&json_writer, \
-        AZ_SPAN_FROM_STR(propName))); \
-    _az_RETURN_IF_FAILED(az_json_writer_append_int32(&json_writer, propValue));
-
-#define safe_add_json_property_string(json_writer, propName, propValue) \
-    _az_RETURN_IF_FAILED(az_json_writer_append_property_name(&json_writer, \
-        AZ_SPAN_FROM_STR(propName))); \
-    _az_RETURN_IF_FAILED(az_json_writer_append_string( \
-        &json_writer, AZ_SPAN_FROM_STR(propValue)));
-
-#define safe_add_json_property_az_span(json_writer, propName, propValue) \
-    _az_RETURN_IF_FAILED(az_json_writer_append_property_name(&json_writer, \
-        AZ_SPAN_FROM_STR(propName))); \
-    _az_RETURN_IF_FAILED(az_json_writer_append_string(&json_writer, propValue));
-
-#define safe_add_json_property_object_begin(json_writer, propName) \
-    _az_RETURN_IF_FAILED(az_json_writer_append_property_name(&json_writer, AZ_SPAN_FROM_STR(propName))); \
-    _az_RETURN_IF_FAILED(az_json_writer_append_begin_object(&json_writer));
-
 static az_span split_az_span(az_span span, int32_t size, az_span* remainder);
 
 AZ_NODISCARD bool az_iot_adu_ota_is_component_device_update(
@@ -125,17 +103,41 @@ static az_span generate_update_id_string(
     az_iot_adu_ota_update_id update_id,
     az_span update_id_string)
 {
-    // TODO: remove this hack.
+    // TODO: Investigate a way to leverage azure SDK core for this.
     az_span remainder = update_id_string;
-    remainder = az_span_copy(remainder, AZ_SPAN_FROM_STR("{\"provider\":\""));
+    remainder = az_span_copy(remainder, AZ_SPAN_FROM_STR("\"{\\\"provider\\\":\\\""));
     remainder = az_span_copy(remainder, update_id.provider);
-    remainder = az_span_copy(remainder, AZ_SPAN_FROM_STR("\",\"name\":\""));
+    remainder = az_span_copy(remainder, AZ_SPAN_FROM_STR("\\\",\\\"name\\\":\\\""));
     remainder = az_span_copy(remainder, update_id.name);
-    remainder = az_span_copy(remainder, AZ_SPAN_FROM_STR("\",\"version\":\""));
+    remainder = az_span_copy(remainder, AZ_SPAN_FROM_STR("\\\",\\\"version\\\":\\\""));
     remainder = az_span_copy(remainder, update_id.version);
-    remainder = az_span_copy(remainder, AZ_SPAN_FROM_STR("\"}"));
+    remainder = az_span_copy(remainder, AZ_SPAN_FROM_STR("\\\"}\""));
 
     return az_span_slice(update_id_string, 0, az_span_size(update_id_string) - az_span_size(remainder));
+}
+
+#define RESULT_STEP_ID_PREFIX "step_"
+#define MAX_UINT32_NUMBER_OF_DIGITS 10
+#define RESULT_STEP_ID_MAX_SIZE (sizeof(RESULT_STEP_ID_PREFIX) + MAX_UINT32_NUMBER_OF_DIGITS)
+
+static az_span get_json_writer_remaining_buffer(az_span original_buffer, az_json_writer* jw)
+{
+    return az_span_slice_to_end(
+        original_buffer, az_span_size(az_json_writer_get_bytes_used_in_destination(jw)));
+}
+
+static az_result generate_step_id(az_span buffer, uint32_t step_index, az_span* step_id)
+{
+    az_result result;
+    *step_id = buffer;
+    buffer = az_span_copy(buffer, AZ_SPAN_FROM_STR(RESULT_STEP_ID_PREFIX));
+    
+    result = az_span_u32toa(buffer, step_index, &buffer);
+    _az_RETURN_IF_FAILED(result);
+
+    *step_id = az_span_slice(*step_id, 0, az_span_size(*step_id) - az_span_size(buffer));
+
+    return AZ_OK;
 }
 
 AZ_NODISCARD az_result az_iot_adu_ota_get_properties_payload(
@@ -169,83 +171,100 @@ AZ_NODISCARD az_result az_iot_adu_ota_get_properties_payload(
           iot_hub_client, &jw, AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_COMPONENT_NAME)));
 
     /* Fill the agent property name.  */
-    safe_add_json_property_object_begin(jw, AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_AGENT);
+    _az_RETURN_IF_FAILED(az_json_writer_append_property_name(
+        &jw, AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_AGENT)));
+    _az_RETURN_IF_FAILED(az_json_writer_append_begin_object(&jw));
 
     /* Fill the deviceProperties.  */
-    safe_add_json_property_object_begin(jw, 
-        AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_DEVICEPROPERTIES);
+    _az_RETURN_IF_FAILED(az_json_writer_append_property_name(
+        &jw, AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_DEVICEPROPERTIES)));
+    _az_RETURN_IF_FAILED(az_json_writer_append_begin_object(&jw));
 
-    safe_add_json_property_az_span(jw,
-        AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_MANUFACTURER,
-        device_information->manufacturer);
-    safe_add_json_property_az_span(jw,
-        AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_MODEL,
-        device_information->model);
+    _az_RETURN_IF_FAILED(az_json_writer_append_property_name(&jw,
+        AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_MANUFACTURER)));
+    _az_RETURN_IF_FAILED(az_json_writer_append_string(&jw, device_information->manufacturer));
+
+    _az_RETURN_IF_FAILED(az_json_writer_append_property_name(&jw,
+        AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_MODEL)));
+    _az_RETURN_IF_FAILED(az_json_writer_append_string(&jw, device_information->model));
 
     // TODO: verify if this needs to be exposed as an option.
-    safe_add_json_property_string(jw,
-        AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_INTERFACE_ID,
-        AZ_IOT_ADU_OTA_AGENT_INTERFACE_ID);
-    safe_add_json_property_az_span(jw,
-        AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_ADU_VERSION,
-        device_information->adu_version);
+    _az_RETURN_IF_FAILED(az_json_writer_append_property_name(&jw,
+        AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_INTERFACE_ID)));
+    _az_RETURN_IF_FAILED(az_json_writer_append_string(
+        & jw, AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_INTERFACE_ID)));
+
+    _az_RETURN_IF_FAILED(az_json_writer_append_property_name(&jw,
+        AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_ADU_VERSION)));
+    _az_RETURN_IF_FAILED(az_json_writer_append_string(&jw, device_information->adu_version));
 
     if (!az_span_is_content_equal(device_information->do_version, AZ_SPAN_EMPTY))
     {
         // TODO: verify if 'doVer' is required.
         //       Ref: https://docs.microsoft.com/en-us/azure/iot-hub-device-update/device-update-plug-and-play
-        safe_add_json_property_az_span(jw,
-            AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_DO_VERSION,
-            device_information->do_version);
+        _az_RETURN_IF_FAILED(az_json_writer_append_property_name(&jw,
+            AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_DO_VERSION)));
+        _az_RETURN_IF_FAILED(az_json_writer_append_string(&jw, device_information->do_version));
     }
 
     _az_RETURN_IF_FAILED(az_json_writer_append_end_object(&jw));
 
     /* Fill the compatible property names. */
-    safe_add_json_property_string(jw,
-        AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_COMPAT_PROPERTY_NAMES,
-        AZ_IOT_ADU_OTA_AGENT_COMPATIBILITY);
+    _az_RETURN_IF_FAILED(az_json_writer_append_property_name(&jw,
+        AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_COMPAT_PROPERTY_NAMES)));
+    _az_RETURN_IF_FAILED(az_json_writer_append_string(
+        &jw, AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_COMPATIBILITY)));
 
     /* Add last installed update information */
     if (last_install_result != NULL)
     {
-        safe_add_json_property_object_begin(jw, 
-            AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_LAST_INSTALL_RESULT);
+        _az_RETURN_IF_FAILED(az_json_writer_append_property_name(
+            &jw, AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_LAST_INSTALL_RESULT)));
+        _az_RETURN_IF_FAILED(az_json_writer_append_begin_object(&jw));
 
-        safe_add_json_property_int32(
-            jw, AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_RESULT_CODE,
-            last_install_result->result_code);
-        safe_add_json_property_int32(
-            jw, AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_EXTENDED_RESULT_CODE,
-            last_install_result->extended_result_code);
+        _az_RETURN_IF_FAILED(az_json_writer_append_property_name(&jw,
+            AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_RESULT_CODE)));
+        _az_RETURN_IF_FAILED(az_json_writer_append_int32(&jw, last_install_result->result_code));
+
+        _az_RETURN_IF_FAILED(az_json_writer_append_property_name(&jw,
+            AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_EXTENDED_RESULT_CODE)));
+        _az_RETURN_IF_FAILED(az_json_writer_append_int32(&jw, last_install_result->extended_result_code));
 
         if (!az_span_is_content_equal(last_install_result->result_details, AZ_SPAN_EMPTY))
         {
             // TODO: Add quotes if result_details is not enclosed by quotes.
-            safe_add_json_property_az_span(
-                jw, AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_RESULT_DETAILS,
-                last_install_result->result_details);
+            _az_RETURN_IF_FAILED(az_json_writer_append_property_name(&jw,
+                AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_RESULT_DETAILS)));
+            _az_RETURN_IF_FAILED(az_json_writer_append_string(&jw, last_install_result->result_details));
         }
 
         for (int32_t i = 0; i < last_install_result->step_results_count; i++)
         {
-            _az_RETURN_IF_FAILED(az_json_writer_append_property_name(&jw,
-                last_install_result->step_results[i].step_id));
+            az_span remaining_buffer = get_json_writer_remaining_buffer(payload, &jw);
+            // Taking from the end of the remaining buffer to avoid az_json_writer overlapping
+            // with the data we will generate in that buffer.
+            az_span step_id = az_span_slice_to_end(remaining_buffer,
+                az_span_size(remaining_buffer) - RESULT_STEP_ID_MAX_SIZE);
+
+            _az_RETURN_IF_FAILED(generate_step_id(step_id, i, &step_id));
+
+            _az_RETURN_IF_FAILED(az_json_writer_append_property_name(&jw, step_id));
             _az_RETURN_IF_FAILED(az_json_writer_append_begin_object(&jw));
 
-            safe_add_json_property_int32(
-                jw, AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_RESULT_CODE,
-                last_install_result->result_code);
-            safe_add_json_property_int32(
-                jw, AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_EXTENDED_RESULT_CODE,
-                last_install_result->extended_result_code);
+            _az_RETURN_IF_FAILED(az_json_writer_append_property_name(&jw,
+                AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_RESULT_CODE)));
+            _az_RETURN_IF_FAILED(az_json_writer_append_int32(&jw, last_install_result->step_results[i].result_code));
 
-            if (!az_span_is_content_equal(last_install_result->result_details, AZ_SPAN_EMPTY))
+            _az_RETURN_IF_FAILED(az_json_writer_append_property_name(&jw,
+                AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_EXTENDED_RESULT_CODE)));
+            _az_RETURN_IF_FAILED(az_json_writer_append_int32(&jw, last_install_result->step_results[i].extended_result_code));
+
+            if (!az_span_is_content_equal(last_install_result->step_results[i].result_details, AZ_SPAN_EMPTY))
             {
                 // TODO: Add quotes if result_details is not enclosed by quotes.
-                safe_add_json_property_az_span(
-                    jw, AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_RESULT_DETAILS,
-                    last_install_result->result_details);
+                _az_RETURN_IF_FAILED(az_json_writer_append_property_name(&jw,
+                    AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_RESULT_DETAILS)));
+                _az_RETURN_IF_FAILED(az_json_writer_append_string(&jw, last_install_result->step_results[i].result_details));
             }
 
             _az_RETURN_IF_FAILED(az_json_writer_append_end_object(&jw));
@@ -255,27 +274,31 @@ AZ_NODISCARD az_result az_iot_adu_ota_get_properties_payload(
     }
 
     /* Fill the agent state.   */
-    safe_add_json_property_int32(jw, AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_STATE, agent_state);
+    _az_RETURN_IF_FAILED(az_json_writer_append_property_name(&jw,
+        AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_STATE)));
+    _az_RETURN_IF_FAILED(az_json_writer_append_int32(&jw, agent_state));
 
     /* Fill the workflow.  */
     if (workflow != NULL && (az_span_ptr(workflow->id) != NULL && az_span_size(workflow->id) > 0))
     {
-        safe_add_json_property_object_begin(jw, 
-            AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_WORKFLOW);
+        _az_RETURN_IF_FAILED(az_json_writer_append_property_name(
+            &jw, AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_WORKFLOW)));
+        _az_RETURN_IF_FAILED(az_json_writer_append_begin_object(&jw));
 
-        safe_add_json_property_int32(
-            jw, AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_ACTION,
-            workflow->action);
-        safe_add_json_property_az_span(
-            jw, AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_ID,
-            workflow->id);
+        _az_RETURN_IF_FAILED(az_json_writer_append_property_name(&jw,
+            AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_ACTION)));
+        _az_RETURN_IF_FAILED(az_json_writer_append_int32(&jw, workflow->action));
+
+        _az_RETURN_IF_FAILED(az_json_writer_append_property_name(&jw,
+            AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_ID)));
+        _az_RETURN_IF_FAILED(az_json_writer_append_string(&jw, workflow->id));
 
         /* Append retry timestamp in workflow if existed.  */
         if (!az_span_is_content_equal(workflow->retry_timestamp, AZ_SPAN_EMPTY))
         {
-            safe_add_json_property_az_span(
-                jw, AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_RETRY_TIMESTAMP,
-                workflow->retry_timestamp);
+            _az_RETURN_IF_FAILED(az_json_writer_append_property_name(&jw,
+                AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_RETRY_TIMESTAMP)));
+            _az_RETURN_IF_FAILED(az_json_writer_append_string(&jw, workflow->retry_timestamp));
         }
         _az_RETURN_IF_FAILED(az_json_writer_append_end_object(&jw));
     }
@@ -402,6 +425,18 @@ AZ_NODISCARD az_result az_iot_adu_ota_parse_service_properties(
 
             // TODO: find a way to get rid of az_json_token_get_string (which adds a \0 at the end!!!!!!)
             //       Preferably have a function that does not copy anything.
+            // TODO: optmize the memory usage for update_manifest:
+            //       Here we are copying the entire update manifest [originally escaped] json into
+            //       update_request->update_manifest. Later az_iot_adu_ota_parse_update_manifest
+            //       parses that json into a az_iot_adu_ota_update_manifest structure, by simply mapping
+            //       the values of update_request->update_manifest.
+            //       Option 1: there seems to be no workaround for update_request->update_manifest for copying with
+            //                 az_json_token_get_string, since the original update manifest comes as an
+            //                 escaped json. What can be done is to make it temporary, and parse the update manifest
+            //                 within az_iot_adu_ota_parse_service_request, saving only the update manifest values
+            //                 in the (then) provided buffer.
+            //       Option 2: Have a function in azure SDK core that can parse an escaped json, allowing us to
+            //                 avoid copying the update manifest at all.
             update_request->update_manifest
                 = split_az_span(buffer, update_manifest_length, &buffer);
         }

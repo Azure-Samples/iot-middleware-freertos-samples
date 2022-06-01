@@ -65,7 +65,6 @@ typedef struct
 
 typedef struct
 {
-    az_span step_id;
     int32_t result_code;
     int32_t extended_result_code;
     az_span result_details;

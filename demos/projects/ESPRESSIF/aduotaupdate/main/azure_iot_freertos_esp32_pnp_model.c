@@ -124,6 +124,62 @@ static void prvSkipPropertyAndValue( AzureIoTJSONReader_t * pxReader )
 }
 /*-----------------------------------------------------------*/
 
+static bool prvIsUpdateAlreadyInstalled(
+    const AzureIoTADUUpdateRequest_t * pxAduOtaUpdateRequest )
+{
+    if ( pxAduOtaUpdateRequest->xUpdateManifest.xUpdateId.ulNameLength == 
+         xADUDeviceInformation.xCurrentUpdateId.ulNameLength &&
+         strncmp( ( const char * ) pxAduOtaUpdateRequest->xUpdateManifest.xUpdateId.pucName,
+                  ( const char * ) xADUDeviceInformation.xCurrentUpdateId.ucName,
+                  ( size_t ) xADUDeviceInformation.xCurrentUpdateId.ulNameLength ) == 0 &&
+         pxAduOtaUpdateRequest->xUpdateManifest.xUpdateId.ulProviderLength == 
+         xADUDeviceInformation.xCurrentUpdateId.ulProviderLength &&
+         strncmp( ( const char * ) pxAduOtaUpdateRequest->xUpdateManifest.xUpdateId.pucProvider,
+                  ( const char * ) xADUDeviceInformation.xCurrentUpdateId.ucProvider,
+                  ( size_t ) xADUDeviceInformation.xCurrentUpdateId.ulProviderLength ) == 0 &&
+         pxAduOtaUpdateRequest->xUpdateManifest.xUpdateId.ulVersionLength == 
+         xADUDeviceInformation.xCurrentUpdateId.ulVersionLength &&
+         strncmp( ( const char * ) pxAduOtaUpdateRequest->xUpdateManifest.xUpdateId.pucVersion,
+                  ( const char * ) xADUDeviceInformation.xCurrentUpdateId.ucVersion,
+                  ( size_t ) xADUDeviceInformation.xCurrentUpdateId.ulVersionLength ) == 0 )
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Sample function to decide if an update request should be accepted or rejected.
+ * 
+ * @remark The user application can implement any logic to decide if an update request
+ *         should be accepted or not. Factors would be if the device is currently busy,
+ *         if it is within business hours, or any other factor the user would like to
+ *         take into account. Rejected update requests get redelivered upon reconnection
+ *         with the Azure IoT Hub.
+ * 
+ * @param[in] pxAduOtaUpdateRequest    The parsed update request. 
+ * @return An #AzureIoTADURequestDecision_t with the decision to accept or reject the update.
+ */ 
+static AzureIoTADURequestDecision_t prvUserDecideShouldStartUpdate(
+    AzureIoTADUUpdateRequest_t * pxAduOtaUpdateRequest )
+{
+    if ( prvIsUpdateAlreadyInstalled( pxAduOtaUpdateRequest ) )
+    {
+        LogInfo( ( "[ADU] Rejecting update request (current version is up-to-date)" ) );
+        return eAzureIoTADURequestDecisionReject;
+    }
+    else
+    {
+        LogInfo( ( "[ADU] Accepting update request" ) );
+        return eAzureIoTADURequestDecisionAccept;
+    }
+}
+/*-----------------------------------------------------------*/
+
 /**
  * @brief Handler for writable properties updates.
  */
@@ -138,15 +194,14 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
     uint32_t ulComponentNameLength = 0;
     uint32_t ulPropertyVersion;
 
-    // TODO: remove printfs
-    printf( "Writable properties received: %.*s\r\n",
-        pxMessage->ulPayloadLength, ( char * ) pxMessage->pvMessagePayload );
+    LogInfo( ( "Writable properties received: %.*s\r\n",
+        pxMessage->ulPayloadLength, ( char * ) pxMessage->pvMessagePayload ) );
 
     xAzIoTResult = AzureIoTJSONReader_Init( &xJsonReader, pxMessage->pvMessagePayload, pxMessage->ulPayloadLength );
     if ( xAzIoTResult != eAzureIoTSuccess )
     {
         LogError( ( "AzureIoTJSONReader_Init failed: result 0x%08x", xAzIoTResult ) );
-        * pulWritablePropertyResponseBufferLength = 0;
+        *pulWritablePropertyResponseBufferLength = 0;
         return;
     }
 
@@ -154,7 +209,7 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
     if ( xAzIoTResult != eAzureIoTSuccess )
     {
         LogError( ( "AzureIoTHubClientProperties_GetPropertiesVersion failed: result 0x%08x", xAzIoTResult ) );
-        * pulWritablePropertyResponseBufferLength = 0;
+        *pulWritablePropertyResponseBufferLength = 0;
         return;
     }
 
@@ -162,11 +217,18 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
     if ( xAzIoTResult != eAzureIoTSuccess )
     {
         LogError( ( "AzureIoTJSONReader_Init failed: result 0x%08x", xAzIoTResult ) );
-        * pulWritablePropertyResponseBufferLength = 0;
+        *pulWritablePropertyResponseBufferLength = 0;
         return;
     }
 
-    * pulWritablePropertyResponseBufferLength = 0;
+    /**
+     * If the PnP component is for Azure Device Update, function
+     * AzureIoTADUClient_SendResponse shall be used to publish back the 
+     * response for the ADU writable properties.
+     * Thus, to prevent this callback to publish a response in duplicate,
+     * pulWritablePropertyResponseBufferLength must be set to zero.
+     */
+    *pulWritablePropertyResponseBufferLength = 0;
 
     while( ( xAzIoTResult = AzureIoTHubClientProperties_GetNextComponentProperty( &xAzureIoTHubClient, &xJsonReader,
                                                                                   pxMessage->xMessageType, eAzureIoTHubClientPropertyWritable,
@@ -175,19 +237,43 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
         LogInfo( ( "Properties component name: %.*s", ulComponentNameLength, pucComponentName ) );
 
         // TODO: fix sign of pucComponentName in AzureIoTADUClient_IsADUComponent (should be uint8_t*)
-        if ( AzureIoTADUClient_IsADUComponent( &xAzureIoTADUClient, ( const char * ) pucComponentName, ulComponentNameLength ) )
+        if ( AzureIoTADUClient_IsADUComponent( ( const char * ) pucComponentName, ulComponentNameLength ) )
         {
-            xAzIoTResult = AzureIoTADUClient_ADUProcessComponent(
-                                &xAzureIoTADUClient,
+            AzureIoTADURequestDecision_t xRequestDecision;
+
+            xAzIoTResult = AzureIoTADUClient_ParseRequest(
+                                &xAzureIoTHubClient,
                                 &xJsonReader,
-                                ulPropertyVersion,
-                                pucWritablePropertyResponseBuffer,
-                                ulWritablePropertyResponseBufferSize,
-                                pulWritablePropertyResponseBufferLength );
+                                &xAzureIoTAduOtaUpdateRequest,
+                                ucAduContextBuffer,
+                                ADU_CONTEXT_BUFFER_SIZE );
 
             if ( xAzIoTResult != eAzureIoTSuccess )
             {
-                LogError( ( "Failed updating ADU context." ) );
+                LogError( ( "AzureIoTADUClient_ParseRequest failed: result 0x%08x", xAzIoTResult ) );
+                *pulWritablePropertyResponseBufferLength = 0;
+                return;
+            }
+
+            xRequestDecision = prvUserDecideShouldStartUpdate( &xAzureIoTAduOtaUpdateRequest );
+
+            xAzIoTResult = AzureIoTADUClient_SendResponse(
+                                &xAzureIoTHubClient,
+                                xRequestDecision,
+                                ulPropertyVersion,
+                                pucWritablePropertyResponseBuffer,
+                                ulWritablePropertyResponseBufferSize,
+                                NULL );
+
+            if ( xAzIoTResult != eAzureIoTSuccess )
+            {
+                LogError( ( "AzureIoTADUClient_GetResponse failed: result 0x%08x", xAzIoTResult ) );
+                return;
+            }
+
+            if ( xRequestDecision == eAzureIoTADURequestDecisionAccept )
+            {
+                xProcessUpdateRequest = true;
             }
         }
         else
