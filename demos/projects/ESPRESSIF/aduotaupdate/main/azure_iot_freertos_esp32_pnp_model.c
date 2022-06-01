@@ -201,7 +201,7 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
     if ( xAzIoTResult != eAzureIoTSuccess )
     {
         LogError( ( "AzureIoTJSONReader_Init failed: result 0x%08x", xAzIoTResult ) );
-        * pulWritablePropertyResponseBufferLength = 0;
+        *pulWritablePropertyResponseBufferLength = 0;
         return;
     }
 
@@ -209,7 +209,7 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
     if ( xAzIoTResult != eAzureIoTSuccess )
     {
         LogError( ( "AzureIoTHubClientProperties_GetPropertiesVersion failed: result 0x%08x", xAzIoTResult ) );
-        * pulWritablePropertyResponseBufferLength = 0;
+        *pulWritablePropertyResponseBufferLength = 0;
         return;
     }
 
@@ -217,7 +217,7 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
     if ( xAzIoTResult != eAzureIoTSuccess )
     {
         LogError( ( "AzureIoTJSONReader_Init failed: result 0x%08x", xAzIoTResult ) );
-        * pulWritablePropertyResponseBufferLength = 0;
+        *pulWritablePropertyResponseBufferLength = 0;
         return;
     }
 
@@ -228,7 +228,7 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
      * Thus, to prevent this callback to publish a response in duplicate,
      * pulWritablePropertyResponseBufferLength must be set to zero.
      */
-    * pulWritablePropertyResponseBufferLength = 0;
+    *pulWritablePropertyResponseBufferLength = 0;
 
     while( ( xAzIoTResult = AzureIoTHubClientProperties_GetNextComponentProperty( &xAzureIoTHubClient, &xJsonReader,
                                                                                   pxMessage->xMessageType, eAzureIoTHubClientPropertyWritable,
@@ -251,7 +251,7 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
             if ( xAzIoTResult != eAzureIoTSuccess )
             {
                 LogError( ( "AzureIoTADUClient_ParseRequest failed: result 0x%08x", xAzIoTResult ) );
-                * pulWritablePropertyResponseBufferLength = 0;
+                *pulWritablePropertyResponseBufferLength = 0;
                 return;
             }
 

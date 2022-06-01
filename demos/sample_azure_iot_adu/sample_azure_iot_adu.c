@@ -373,7 +373,7 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash()
     AzureIoTHTTPResult_t xHttpResult;
     AzureIoTHTTP_t xHTTP;
     char * pucHttpDataBufferPtr;
-    uint32_t pulHttpDataLength;
+    uint32_t ulHttpDataBufferLength;
 
     /*HTTP Connection */
     AzureIoTTransportInterface_t xHTTPTransport;
@@ -461,7 +461,7 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash()
         if( ( xHttpResult = AzureIoTHTTP_Request( &xHTTP, xImage.ulCurrentOffset,
                                                   xImage.ulCurrentOffset + azureiothttpCHUNK_DOWNLOAD_SIZE - 1,
                                                   &pucHttpDataBufferPtr,
-                                                  &pulHttpDataLength ) ) == eAzureIoTHTTPSuccess )
+                                                  &ulHttpDataBufferLength ) ) == eAzureIoTHTTPSuccess )
         {
             AZLogInfo( ( "[ADU] HTTP Request was successful | %d:%d\r\n",
                          xImage.ulCurrentOffset,
@@ -472,10 +472,10 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash()
             xResult = AzureIoTPlatform_WriteBlock( &xImage,
                                                    ( uint32_t ) xImage.ulCurrentOffset,
                                                    ( uint8_t * ) pucHttpDataBufferPtr,
-                                                   pulHttpDataLength );
+                                                   ulHttpDataBufferLength );
 
             /* Advance the offset */
-            xImage.ulCurrentOffset += ( int32_t ) pulHttpDataLength;
+            xImage.ulCurrentOffset += ( int32_t ) ulHttpDataBufferLength;
         }
         else if( xHttpResult == eAzureIoTHTTPNoResponse )
         {
@@ -564,6 +564,12 @@ static AzureIoTResult_t prvEnableImageAndResetDevice()
                                                 ucScratchBuffer,
                                                 sizeof( ucScratchBuffer ),
                                                 NULL );
+
+    if( xResult != eAzureIoTSuccess )
+    {
+        AZLogError( ( "[ADU] Failed sending agent state.\r\n" ) );
+        return xResult;
+    }
 
     AZLogInfo( ( "[ADU] Reset the device\r\n" ) );
 
