@@ -186,6 +186,8 @@ static AzureIoTHubClientComponent_t pnp_components[ democonfigPNP_COMPONENTS_LIS
 #define democonfigPNP_COMPONENTS_LIST    pnp_components
 
 /* TODO: REMOVE THIS BLOCKER ONCE OTA IS IMPLEMENTED */
+/* This does not affect devices that actually implement the OTA process */
+/* as they will reboot before getting to the place where this is used. */
 bool xDidDeviceUpdate = false;
 
 /*-----------------------------------------------------------*/
