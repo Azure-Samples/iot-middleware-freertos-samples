@@ -131,7 +131,7 @@ AzureIoTHTTPResult_t AzureIoTHTTP_Request( AzureIoTHTTPHandle_t xHTTPHandle,
 
     if( !( ( lRangeStart == 0 ) && ( lRangeEnd == azureiothttpHttpRangeRequestEndOfFile ) ) )
     {
-        printf( "[HTTP] Adding range headers | Range %ld to %ld\r\n", lRangeStart, lRangeEnd );
+        printf( "[HTTP] Adding range headers | Range %i to %i\r\n", ( int ) lRangeStart, ( int ) lRangeEnd );
         /* Add range headers if not the whole image. */
 
         xHttpLibraryStatus = HTTPClient_AddRangeHeader( &xHTTPHandle->xRequestHeaders, lRangeStart, lRangeEnd );
@@ -164,7 +164,7 @@ AzureIoTHTTPResult_t AzureIoTHTTP_Request( AzureIoTHTTPHandle_t xHTTPHandle,
         else if( xHTTPHandle->xResponse.statusCode == 206 )
         {
             /* Handle a response Status-Code of 200 OK. */
-            printf( "[HTTP] Partial Content 206 | Range %ld to %ld\r\n", lRangeStart, lRangeEnd );
+            printf( "[HTTP] Partial Content 206 | Range %i to %i\r\n", ( int ) lRangeStart, ( int ) lRangeEnd );
             prvLogHttpResponse( xHTTPHandle );
 
             *ppucDataBuffer = ( char * ) xHTTPHandle->xResponse.pBody;
