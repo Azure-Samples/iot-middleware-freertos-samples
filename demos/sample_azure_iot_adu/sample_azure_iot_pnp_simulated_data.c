@@ -305,10 +305,11 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
     uint32_t ulPropertyVersion;
 
     LogInfo( ( "Writable properties received: %.*s\r\n",
-        pxMessage->ulPayloadLength, ( char * ) pxMessage->pvMessagePayload ) );
+               pxMessage->ulPayloadLength, ( char * ) pxMessage->pvMessagePayload ) );
 
     xAzIoTResult = AzureIoTJSONReader_Init( &xJsonReader, pxMessage->pvMessagePayload, pxMessage->ulPayloadLength );
-    if ( xAzIoTResult != eAzureIoTSuccess )
+
+    if( xAzIoTResult != eAzureIoTSuccess )
     {
         LogError( ( "AzureIoTJSONReader_Init failed: result 0x%08x", xAzIoTResult ) );
         *pulWritablePropertyResponseBufferLength = 0;
@@ -316,7 +317,8 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
     }
 
     xAzIoTResult = AzureIoTHubClientProperties_GetPropertiesVersion( &xAzureIoTHubClient, &xJsonReader, pxMessage->xMessageType, &ulPropertyVersion );
-    if ( xAzIoTResult != eAzureIoTSuccess )
+
+    if( xAzIoTResult != eAzureIoTSuccess )
     {
         LogError( ( "AzureIoTHubClientProperties_GetPropertiesVersion failed: result 0x%08x", xAzIoTResult ) );
         *pulWritablePropertyResponseBufferLength = 0;
@@ -324,7 +326,8 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
     }
 
     xAzIoTResult = AzureIoTJSONReader_Init( &xJsonReader, pxMessage->pvMessagePayload, pxMessage->ulPayloadLength );
-    if ( xAzIoTResult != eAzureIoTSuccess )
+
+    if( xAzIoTResult != eAzureIoTSuccess )
     {
         LogError( ( "AzureIoTJSONReader_Init failed: result 0x%08x", xAzIoTResult ) );
         *pulWritablePropertyResponseBufferLength = 0;
@@ -333,7 +336,7 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
 
     /**
      * If the PnP component is for Azure Device Update, function
-     * AzureIoTADUClient_SendResponse shall be used to publish back the 
+     * AzureIoTADUClient_SendResponse shall be used to publish back the
      * response for the ADU writable properties.
      * Thus, to prevent this callback to publish a response in duplicate,
      * pulWritablePropertyResponseBufferLength must be set to zero.
@@ -346,19 +349,19 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
     {
         LogInfo( ( "Properties component name: %.*s", ulComponentNameLength, pucComponentName ) );
 
-        // TODO: fix sign of pucComponentName in AzureIoTADUClient_IsADUComponent (should be uint8_t*)
-        if ( AzureIoTADUClient_IsADUComponent( ( const char * ) pucComponentName, ulComponentNameLength ) )
+        /* TODO: fix sign of pucComponentName in AzureIoTADUClient_IsADUComponent (should be uint8_t*) */
+        if( AzureIoTADUClient_IsADUComponent( ( const char * ) pucComponentName, ulComponentNameLength ) )
         {
             AzureIoTADURequestDecision_t xRequestDecision;
 
             xAzIoTResult = AzureIoTADUClient_ParseRequest(
-                                &xAzureIoTHubClient,
-                                &xJsonReader,
-                                &xAzureIoTAduOtaUpdateRequest,
-                                ucAduContextBuffer,
-                                ADU_CONTEXT_BUFFER_SIZE );
+                &xAzureIoTHubClient,
+                &xJsonReader,
+                &xAzureIoTAduOtaUpdateRequest,
+                ucAduContextBuffer,
+                ADU_CONTEXT_BUFFER_SIZE );
 
-            if ( xAzIoTResult != eAzureIoTSuccess )
+            if( xAzIoTResult != eAzureIoTSuccess )
             {
                 LogError( ( "AzureIoTADUClient_ParseRequest failed: result 0x%08x", xAzIoTResult ) );
                 *pulWritablePropertyResponseBufferLength = 0;
@@ -368,20 +371,20 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
             xRequestDecision = prvUserDecideShouldStartUpdate( &xAzureIoTAduOtaUpdateRequest );
 
             xAzIoTResult = AzureIoTADUClient_SendResponse(
-                                &xAzureIoTHubClient,
-                                xRequestDecision,
-                                ulPropertyVersion,
-                                pucWritablePropertyResponseBuffer,
-                                ulWritablePropertyResponseBufferSize,
-                                NULL );
+                &xAzureIoTHubClient,
+                xRequestDecision,
+                ulPropertyVersion,
+                pucWritablePropertyResponseBuffer,
+                ulWritablePropertyResponseBufferSize,
+                NULL );
 
-            if ( xAzIoTResult != eAzureIoTSuccess )
+            if( xAzIoTResult != eAzureIoTSuccess )
             {
                 LogError( ( "AzureIoTADUClient_GetResponse failed: result 0x%08x", xAzIoTResult ) );
                 return;
             }
 
-            if ( xRequestDecision == eAzureIoTADURequestDecisionAccept )
+            if( xRequestDecision == eAzureIoTADURequestDecisionAccept )
             {
                 xProcessUpdateRequest = true;
             }
@@ -403,6 +406,7 @@ uint32_t ulCreateReportedPropertiesUpdate( uint8_t * pucPropertiesData,
 {
     /* No reported properties to send if length is zero. */
     uint32_t lBytesWritten = 0;
+
     return lBytesWritten;
 }
 /*-----------------------------------------------------------*/
@@ -416,6 +420,7 @@ uint32_t ulHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
                           uint32_t ulCommandResponsePayloadBufferSize )
 {
     uint32_t ulCommandResponsePayloadLength = sizeof( sampleazureiotCOMMAND_EMPTY_PAYLOAD ) - 1;
+
     *pulResponseStatus = AZ_IOT_STATUS_NOT_FOUND;
     configASSERT( ulCommandResponsePayloadBufferSize >= ulCommandResponsePayloadLength );
     ( void ) memcpy( pucCommandResponsePayloadBuffer, sampleazureiotCOMMAND_EMPTY_PAYLOAD, ulCommandResponsePayloadLength );

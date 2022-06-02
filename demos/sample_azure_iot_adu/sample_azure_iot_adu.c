@@ -178,13 +178,14 @@ static uint32_t ulReportedPropertiesUpdateLength;
 
 uint8_t ucAduContextBuffer[ ADU_CONTEXT_BUFFER_SIZE ];
 
-#define democonfigPNP_COMPONENTS_LIST_LENGTH 1
-static AzureIoTHubClientComponent_t pnp_components[democonfigPNP_COMPONENTS_LIST_LENGTH] = {
-    azureiothubCREATE_COMPONENT(AZ_IOT_ADU_PROPERTIES_COMPONENT_NAME)
+#define democonfigPNP_COMPONENTS_LIST_LENGTH    1
+static AzureIoTHubClientComponent_t pnp_components[ democonfigPNP_COMPONENTS_LIST_LENGTH ] =
+{
+    azureiothubCREATE_COMPONENT( AZ_IOT_ADU_PROPERTIES_COMPONENT_NAME )
 };
-#define democonfigPNP_COMPONENTS_LIST pnp_components
+#define democonfigPNP_COMPONENTS_LIST    pnp_components
 
-// TODO: REMOVE THIS BLOCKER ONCE OTA IS IMPLEMENTED
+/* TODO: REMOVE THIS BLOCKER ONCE OTA IS IMPLEMENTED */
 bool xDidDeviceUpdate = false;
 
 /*-----------------------------------------------------------*/
@@ -360,7 +361,7 @@ static void prvConnectHTTP( AzureIoTTransportInterface_t * pxHTTPTransport,
     LogInfo( ( "Connecting socket to %s\r\n", pucURL ) );
     xStatus = Azure_Socket_Connect( pxHTTPTransport->pxNetworkContext, pucURL, 80, xRecvTimeout, xSendTimeout );
 
-    LogInfo( (" xStatus: %i\r\n", xStatus));
+    LogInfo( ( " xStatus: %i\r\n", xStatus ) );
 
     configASSERT( xStatus == eSocketTransportSuccess );
 }
@@ -466,8 +467,8 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash()
                            az_span_size( xUrlPath ) );
 
         LogInfo( ( "[ADU] HTTP Requesting | %d:%d\r\n",
-                     xImage.ulCurrentOffset,
-                     xImage.ulCurrentOffset + azureiothttpCHUNK_DOWNLOAD_SIZE - 1 ) );
+                   xImage.ulCurrentOffset,
+                   xImage.ulCurrentOffset + azureiothttpCHUNK_DOWNLOAD_SIZE - 1 ) );
 
         if( ( xHttpResult = AzureIoTHTTP_Request( &xHTTP, xImage.ulCurrentOffset,
                                                   xImage.ulCurrentOffset + azureiothttpCHUNK_DOWNLOAD_SIZE - 1,
@@ -475,8 +476,8 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash()
                                                   &ulHttpDataBufferLength ) ) == eAzureIoTHTTPSuccess )
         {
             LogInfo( ( "[ADU] HTTP Request was successful | %d:%d\r\n",
-                         xImage.ulCurrentOffset,
-                         xImage.ulCurrentOffset + azureiothttpCHUNK_DOWNLOAD_SIZE - 1 ) );
+                       xImage.ulCurrentOffset,
+                       xImage.ulCurrentOffset + azureiothttpCHUNK_DOWNLOAD_SIZE - 1 ) );
 
             /* Write bytes to the flash */
             LogInfo( ( "[ADU] Write bytes to flash\r\n" ) );
@@ -766,7 +767,7 @@ static void prvAzureDemoTask( void * pvParameters )
                                                      sampleazureiotPROCESS_LOOP_TIMEOUT_MS );
             configASSERT( xResult == eAzureIoTSuccess );
 
-            // TODO: REMOVE !xDidDeviceUpdate for NXP once properly implemented
+            /* TODO: REMOVE !xDidDeviceUpdate for NXP once properly implemented */
             if( xProcessUpdateRequest && !xDidDeviceUpdate )
             {
                 xResult = prvDownloadUpdateImageIntoFlash();

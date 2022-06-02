@@ -88,7 +88,7 @@ SocketTransportStatus_t Azure_Socket_Connect( NetworkContext_t * pxNetworkContex
     }
     else
     {
-      xSocketStatus = eSocketTransportSuccess;
+        xSocketStatus = eSocketTransportSuccess;
     }
 
     return xSocketStatus;
