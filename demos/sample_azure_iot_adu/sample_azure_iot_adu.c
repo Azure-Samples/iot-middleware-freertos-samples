@@ -178,12 +178,12 @@ static uint32_t ulReportedPropertiesUpdateLength;
 
 uint8_t ucAduContextBuffer[ ADU_CONTEXT_BUFFER_SIZE ];
 
-#define democonfigPNP_COMPONENTS_LIST_LENGTH    1
-static AzureIoTHubClientComponent_t pnp_components[ democonfigPNP_COMPONENTS_LIST_LENGTH ] =
+#define sampleaduPNP_COMPONENTS_LIST_LENGTH    1
+static AzureIoTHubClientComponent_t pnp_components[ sampleaduPNP_COMPONENTS_LIST_LENGTH ] =
 {
     azureiothubCREATE_COMPONENT( AZ_IOT_ADU_PROPERTIES_COMPONENT_NAME )
 };
-#define democonfigPNP_COMPONENTS_LIST    pnp_components
+#define sampleaduPNP_COMPONENTS_LIST    pnp_components
 
 /* TODO: REMOVE THIS BLOCKER ONCE OTA IS IMPLEMENTED */
 /* This does not affect devices that actually implement the OTA process */
@@ -687,12 +687,12 @@ static void prvAzureDemoTask( void * pvParameters )
         xHubOptions.pucModelID = ( const uint8_t * ) sampleazureiotMODEL_ID;
         xHubOptions.ulModelIDLength = sizeof( sampleazureiotMODEL_ID ) - 1;
 
-        #ifdef democonfigPNP_COMPONENTS_LIST_LENGTH
-            #if democonfigPNP_COMPONENTS_LIST_LENGTH > 0
-                xHubOptions.pxComponentList = democonfigPNP_COMPONENTS_LIST;
-                xHubOptions.ulComponentListLength = democonfigPNP_COMPONENTS_LIST_LENGTH;
+        #ifdef sampleaduPNP_COMPONENTS_LIST_LENGTH
+            #if sampleaduPNP_COMPONENTS_LIST_LENGTH > 0
+                xHubOptions.pxComponentList = sampleaduPNP_COMPONENTS_LIST;
+                xHubOptions.ulComponentListLength = sampleaduPNP_COMPONENTS_LIST_LENGTH;
             #endif /* > 0 */
-        #endif /* democonfigPNP_COMPONENTS_LIST_LENGTH */
+        #endif /* sampleaduPNP_COMPONENTS_LIST_LENGTH */
 
         xResult = AzureIoTHubClient_Init( &xAzureIoTHubClient,
                                           pucIotHubHostname, pulIothubHostnameLength,
