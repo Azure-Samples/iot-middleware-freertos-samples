@@ -65,7 +65,7 @@ do
             exit_if_binary_does_not_exist "./demos/projects/ESPRESSIF/aduotaupdate/build" "azure_iot_freertos_esp32.bin"
             ;;
         "-nxp")
-            # fetch_freertos
+            fetch_freertos
 
             echo -e "::group::Building sample for NXP mimxrt1060 port"
             sample_build "NXP" "mimxrt1060" "build_nxp_mimxrt1060"
