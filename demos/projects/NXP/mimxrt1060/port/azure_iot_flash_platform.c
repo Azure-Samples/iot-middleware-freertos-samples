@@ -37,7 +37,7 @@ static AzureIoTResult_t prvBase64Decode( uint8_t * base64Encoded,
         return eAzureIoTErrorFailed;
     }
 
-    AZLogInfo( ( "Unencoded the base64 encoding\r\n" ) );
+    LogInfo( ( "Unencoded the base64 encoding\r\n" ) );
 
     return eAzureIoTSuccess;
 }
@@ -47,6 +47,8 @@ AzureIoTResult_t AzureIoTPlatform_Init( AzureADUImage_t * const pxAduImage )
     (void) pxAduImage;
 
     // TODO: Fill in initialization for NXP flash writing capability.
+
+    LogInfo( ( "AzureIoTPlatform_Init()\r\n" ) );
 
     return eAzureIoTSuccess;
 }
@@ -63,6 +65,8 @@ AzureIoTResult_t AzureIoTPlatform_WriteBlock( AzureADUImage_t * const pxAduImage
 
     // TODO: Fill in to write pData of size ulBlockSize to ulOffset in memory.
 
+    LogInfo( ( "AzureIoTPlatform_WriteBlock(): offset %i\r\n", ulOffset ) );
+
     return eAzureIoTSuccess;
 }
 
@@ -76,6 +80,8 @@ AzureIoTResult_t AzureIoTPlatform_VerifyImage( AzureADUImage_t * const pxAduImag
 
     // TODO: Fill in to verify bytes written to flash bank match the SHA256 given by pucSHA256Hash.
 
+    LogInfo( ( "AzureIoTPlatform_VerifyImage()\r\n" ) );
+
     return eAzureIoTSuccess;
 }
 
@@ -85,6 +91,8 @@ AzureIoTResult_t AzureIoTPlatform_EnableImage( AzureADUImage_t * const pxAduImag
 
     // TODO: Fill in to program board to decide which memory bank to use on reboot.
 
+    LogInfo( ( "AzureIoTPlatform_EnableImage()\r\n" ) );
+
     return eAzureIoTSuccess;
 }
 
@@ -93,6 +101,8 @@ AzureIoTResult_t AzureIoTPlatform_ResetDevice( AzureADUImage_t * const pxAduImag
     (void)pxAduImage;
 
     // TODO: Fill in to reboot the device.
+
+    LogInfo( ( "AzureIoTPlatform_ResetDevice()\r\n" ) );
 
     return eAzureIoTSuccess;
 }

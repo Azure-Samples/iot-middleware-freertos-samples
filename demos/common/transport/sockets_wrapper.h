@@ -14,7 +14,7 @@
 typedef void * SocketHandle;
 
 #ifndef SOCKETS_MAX_HOST_NAME_LENGTH
-    #define SOCKETS_MAX_HOST_NAME_LENGTH    ( 64 )
+    #define SOCKETS_MAX_HOST_NAME_LENGTH    ( 128 )
 #endif
 
 /**
