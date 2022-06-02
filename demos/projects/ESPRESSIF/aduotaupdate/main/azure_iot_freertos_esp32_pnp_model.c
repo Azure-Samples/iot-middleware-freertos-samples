@@ -285,7 +285,7 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
 }
 /*-----------------------------------------------------------*/
 
-uint32_t ulCreateReportedPropertiesUpdate( uint8_t * pucPropertiesData,
+uint32_t ulSampleCreateReportedPropertiesUpdate( uint8_t * pucPropertiesData,
                                                  uint32_t ulPropertiesDataSize )
 {
     /* No reported properties to send if length is zero. */
