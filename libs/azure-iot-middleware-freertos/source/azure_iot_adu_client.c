@@ -97,33 +97,33 @@ static void prvCastUpdateRequest(
     AzureIoTADUUpdateRequest_t * pxUpdateRequest )
 {
     pxUpdateRequest->xWorkflow.pucID = az_span_ptr( pxBaseUpdateRequest->workflow.id );
-    pxUpdateRequest->xWorkflow.ulIDLength = az_span_size( pxBaseUpdateRequest->workflow.id );
+    pxUpdateRequest->xWorkflow.ulIDLength = (uint32_t)az_span_size( pxBaseUpdateRequest->workflow.id );
     pxUpdateRequest->xWorkflow.xAction = ( AzureIoTADUAction_t ) pxBaseUpdateRequest->workflow.action;
     pxUpdateRequest->xWorkflow.pucRetryTimestamp = az_span_ptr( pxBaseUpdateRequest->workflow.retry_timestamp );
-    pxUpdateRequest->xWorkflow.ulRetryTimestampLength = az_span_size( pxBaseUpdateRequest->workflow.retry_timestamp );
+    pxUpdateRequest->xWorkflow.ulRetryTimestampLength = (uint32_t)az_span_size( pxBaseUpdateRequest->workflow.retry_timestamp );
     pxUpdateRequest->pucUpdateManifestSignature = az_span_ptr( pxBaseUpdateRequest->update_manifest_signature );
-    pxUpdateRequest->ulUpdateManifestSignatureLength = az_span_size( pxBaseUpdateRequest->update_manifest_signature );
+    pxUpdateRequest->ulUpdateManifestSignatureLength = (uint32_t)az_span_size( pxBaseUpdateRequest->update_manifest_signature );
     pxUpdateRequest->ulFileUrlCount = pxBaseUpdateRequest->file_urls_count;
 
     for ( uint32_t ulFileUrlIndex = 0; ulFileUrlIndex < pxBaseUpdateRequest->file_urls_count; ulFileUrlIndex++ )
     {
         pxUpdateRequest->pxFileUrls[ ulFileUrlIndex ].pucId = az_span_ptr( pxBaseUpdateRequest->file_urls[ulFileUrlIndex].id );
-        pxUpdateRequest->pxFileUrls[ ulFileUrlIndex ].ulIdLength = az_span_size( pxBaseUpdateRequest->file_urls[ulFileUrlIndex].id );
+        pxUpdateRequest->pxFileUrls[ ulFileUrlIndex ].ulIdLength = (uint32_t)az_span_size( pxBaseUpdateRequest->file_urls[ulFileUrlIndex].id );
         pxUpdateRequest->pxFileUrls[ ulFileUrlIndex ].pucUrl = az_span_ptr( pxBaseUpdateRequest->file_urls[ulFileUrlIndex].url );
-        pxUpdateRequest->pxFileUrls[ ulFileUrlIndex ].ulUrlLength = az_span_size( pxBaseUpdateRequest->file_urls[ulFileUrlIndex].url );
+        pxUpdateRequest->pxFileUrls[ ulFileUrlIndex ].ulUrlLength = (uint32_t)az_span_size( pxBaseUpdateRequest->file_urls[ulFileUrlIndex].url );
     }
 
     pxUpdateRequest->xUpdateManifest.xUpdateId.pucProvider = az_span_ptr( pxBaseUpdateManifest->update_id.provider );
-    pxUpdateRequest->xUpdateManifest.xUpdateId.ulProviderLength = az_span_size( pxBaseUpdateManifest->update_id.provider );
+    pxUpdateRequest->xUpdateManifest.xUpdateId.ulProviderLength = (uint32_t)az_span_size( pxBaseUpdateManifest->update_id.provider );
     pxUpdateRequest->xUpdateManifest.xUpdateId.pucName = az_span_ptr( pxBaseUpdateManifest->update_id.name );
-    pxUpdateRequest->xUpdateManifest.xUpdateId.ulNameLength = az_span_size( pxBaseUpdateManifest->update_id.name );
+    pxUpdateRequest->xUpdateManifest.xUpdateId.ulNameLength = (uint32_t)az_span_size( pxBaseUpdateManifest->update_id.name );
     pxUpdateRequest->xUpdateManifest.xUpdateId.pucVersion = az_span_ptr( pxBaseUpdateManifest->update_id.version );
-    pxUpdateRequest->xUpdateManifest.xUpdateId.ulVersionLength = az_span_size( pxBaseUpdateManifest->update_id.version );
+    pxUpdateRequest->xUpdateManifest.xUpdateId.ulVersionLength = (uint32_t)az_span_size( pxBaseUpdateManifest->update_id.version );
 
     pxUpdateRequest->xUpdateManifest.xCompatibility.pucDeviceManufacturer = az_span_ptr( pxBaseUpdateManifest->compatibility.device_manufacturer );
-    pxUpdateRequest->xUpdateManifest.xCompatibility.ulDeviceManufacturerLength = az_span_size( pxBaseUpdateManifest->compatibility.device_manufacturer );
+    pxUpdateRequest->xUpdateManifest.xCompatibility.ulDeviceManufacturerLength = (uint32_t)az_span_size( pxBaseUpdateManifest->compatibility.device_manufacturer );
     pxUpdateRequest->xUpdateManifest.xCompatibility.pucDeviceModel = az_span_ptr( pxBaseUpdateManifest->compatibility.device_model );
-    pxUpdateRequest->xUpdateManifest.xCompatibility.ulDeviceModelLength = az_span_size( pxBaseUpdateManifest->compatibility.device_model );
+    pxUpdateRequest->xUpdateManifest.xCompatibility.ulDeviceModelLength = (uint32_t)az_span_size( pxBaseUpdateManifest->compatibility.device_model );
 
     pxUpdateRequest->xUpdateManifest.xInstructions.ulStepsCount = pxBaseUpdateManifest->instructions.steps_count;
 
@@ -132,11 +132,11 @@ static void prvCastUpdateRequest(
         pxUpdateRequest->xUpdateManifest.xInstructions.pxSteps[ ulStepIndex ].pucHandler =
             az_span_ptr( pxBaseUpdateManifest->instructions.steps[ ulStepIndex ].handler );
         pxUpdateRequest->xUpdateManifest.xInstructions.pxSteps[ ulStepIndex ].ulHandlerLength =
-            az_span_size( pxBaseUpdateManifest->instructions.steps[ ulStepIndex ].handler );
+            (uint32_t)az_span_size( pxBaseUpdateManifest->instructions.steps[ ulStepIndex ].handler );
         pxUpdateRequest->xUpdateManifest.xInstructions.pxSteps[ ulStepIndex ].pucInstalledCriteria =
             az_span_ptr( pxBaseUpdateManifest->instructions.steps[ ulStepIndex ].handler_properties.installed_criteria );
         pxUpdateRequest->xUpdateManifest.xInstructions.pxSteps[ ulStepIndex ].ulInstalledCriteriaLength =
-            az_span_size( pxBaseUpdateManifest->instructions.steps[ ulStepIndex ].handler_properties.installed_criteria );
+            (uint32_t)az_span_size( pxBaseUpdateManifest->instructions.steps[ ulStepIndex ].handler_properties.installed_criteria );
         pxUpdateRequest->xUpdateManifest.xInstructions.pxSteps[ ulStepIndex ].ulFilesCount =
             pxBaseUpdateManifest->instructions.steps[ ulStepIndex ].files_count;
 
@@ -145,7 +145,7 @@ static void prvCastUpdateRequest(
             pxUpdateRequest->xUpdateManifest.xInstructions.pxSteps[ ulStepIndex ].pxFiles[ ulFileIndex ].pucFileName = 
                 az_span_ptr( pxBaseUpdateManifest->instructions.steps[ ulStepIndex ].files[ ulFileIndex ] );
             pxUpdateRequest->xUpdateManifest.xInstructions.pxSteps[ ulStepIndex ].pxFiles[ ulFileIndex ].ulFileNameLength = 
-                az_span_size( pxBaseUpdateManifest->instructions.steps[ ulStepIndex ].files[ ulFileIndex ] );
+                (uint32_t)az_span_size( pxBaseUpdateManifest->instructions.steps[ ulStepIndex ].files[ ulFileIndex ] );
         }
     }
 
@@ -156,11 +156,11 @@ static void prvCastUpdateRequest(
         pxUpdateRequest->xUpdateManifest.pxFiles[ ulFileIndex ].pucId =
             az_span_ptr( pxBaseUpdateManifest->files[ulFileIndex].id );
         pxUpdateRequest->xUpdateManifest.pxFiles[ ulFileIndex ].ulIdLength =
-            az_span_size( pxBaseUpdateManifest->files[ulFileIndex].id );
+            (uint32_t)az_span_size( pxBaseUpdateManifest->files[ulFileIndex].id );
         pxUpdateRequest->xUpdateManifest.pxFiles[ ulFileIndex ].pucFileName =
             az_span_ptr( pxBaseUpdateManifest->files[ulFileIndex].file_name );
         pxUpdateRequest->xUpdateManifest.pxFiles[ ulFileIndex ].ulFileNameLength =
-            az_span_size( pxBaseUpdateManifest->files[ulFileIndex].file_name );
+            (uint32_t)az_span_size( pxBaseUpdateManifest->files[ulFileIndex].file_name );
         pxUpdateRequest->xUpdateManifest.pxFiles[ ulFileIndex ].ulSizeInBytes =
             pxBaseUpdateManifest->files[ulFileIndex].size_in_bytes;
         pxUpdateRequest->xUpdateManifest.pxFiles[ ulFileIndex ].ulHashesCount =
@@ -171,18 +171,18 @@ static void prvCastUpdateRequest(
             pxUpdateRequest->xUpdateManifest.pxFiles[ ulFileIndex ].pxHashes[ ulFileHashIndex ].pucId =
                 az_span_ptr( pxBaseUpdateManifest->files[ulFileIndex].hashes[ulFileHashIndex].id );
             pxUpdateRequest->xUpdateManifest.pxFiles[ ulFileIndex ].pxHashes[ ulFileHashIndex ].ulIdLength =
-                az_span_size( pxBaseUpdateManifest->files[ulFileIndex].hashes[ulFileHashIndex].id );
+                (uint32_t)az_span_size( pxBaseUpdateManifest->files[ulFileIndex].hashes[ulFileHashIndex].id );
             pxUpdateRequest->xUpdateManifest.pxFiles[ ulFileIndex ].pxHashes[ ulFileHashIndex ].pucHash =
                 az_span_ptr( pxBaseUpdateManifest->files[ulFileIndex].hashes[ulFileHashIndex].hash );
             pxUpdateRequest->xUpdateManifest.pxFiles[ ulFileIndex ].pxHashes[ ulFileHashIndex ].ulHashLength =
-                az_span_size( pxBaseUpdateManifest->files[ulFileIndex].hashes[ulFileHashIndex].hash );
+                (uint32_t)az_span_size( pxBaseUpdateManifest->files[ulFileIndex].hashes[ulFileHashIndex].hash );
         }
     }
 
     pxUpdateRequest->xUpdateManifest.pucManifestVersion = az_span_ptr( pxBaseUpdateManifest->manifest_version );
-    pxUpdateRequest->xUpdateManifest.ulManifestVersionLength = az_span_size( pxBaseUpdateManifest->manifest_version );
+    pxUpdateRequest->xUpdateManifest.ulManifestVersionLength = (uint32_t)az_span_size( pxBaseUpdateManifest->manifest_version );
     pxUpdateRequest->xUpdateManifest.pucCreateDateTime = az_span_ptr( pxBaseUpdateManifest->create_date_time );
-    pxUpdateRequest->xUpdateManifest.ulCreateDateTimeLength = az_span_size( pxBaseUpdateManifest->create_date_time );
+    pxUpdateRequest->xUpdateManifest.ulCreateDateTimeLength = (uint32_t)az_span_size( pxBaseUpdateManifest->create_date_time );
 }
 
 AzureIoTResult_t AzureIoTADUClient_ParseRequest( AzureIoTHubClient_t * pxAzureIoTHubClient,
@@ -194,7 +194,7 @@ AzureIoTResult_t AzureIoTADUClient_ParseRequest( AzureIoTHubClient_t * pxAzureIo
     az_iot_adu_ota_update_request xBaseUpdateRequest;
     az_iot_adu_ota_update_manifest xBaseUpdateManifest;
     az_result xAzResult;
-    az_span xBufferSpan = az_span_create( pucBuffer, ulBufferSize );
+    az_span xBufferSpan = az_span_create( pucBuffer, (int32_t)ulBufferSize );
 
     xAzResult = az_iot_adu_ota_parse_service_properties(
         &pxAzureIoTHubClient->_internal.xAzureIoTHubClientCore,
@@ -258,7 +258,7 @@ AzureIoTResult_t AzureIoTADUClient_SendResponse( AzureIoTHubClient_t * pxAzureIo
     xAzResult = AzureIoTHubClient_SendPropertiesReported(
         pxAzureIoTHubClient,
         az_span_ptr( xWritablePropertyResponse ),
-        az_span_size( xWritablePropertyResponse ),
+        (uint32_t)az_span_size( xWritablePropertyResponse ),
         pulRequestId );
 
     if ( xAzResult != eAzureIoTSuccess )
@@ -276,19 +276,19 @@ static void prvFillBaseDeviceInformation(
 {
     pxBaseDeviceInformation->manufacturer = az_span_create(
         ( uint8_t * ) pxDeviceInformation->ucManufacturer,
-        pxDeviceInformation->ulManufacturerLength );
+        (int32_t)pxDeviceInformation->ulManufacturerLength );
     pxBaseDeviceInformation->model = az_span_create(
         ( uint8_t * ) pxDeviceInformation->ucModel,
-        pxDeviceInformation->ulModelLength );
+        (int32_t)pxDeviceInformation->ulModelLength );
     pxBaseDeviceInformation->update_id.name = az_span_create(
         ( uint8_t * ) pxDeviceInformation->xCurrentUpdateId.ucName,
-        pxDeviceInformation->xCurrentUpdateId.ulNameLength );
+        (int32_t)pxDeviceInformation->xCurrentUpdateId.ulNameLength );
     pxBaseDeviceInformation->update_id.provider = az_span_create(
         ( uint8_t * ) pxDeviceInformation->xCurrentUpdateId.ucProvider,
-        pxDeviceInformation->xCurrentUpdateId.ulProviderLength );
+        (int32_t)pxDeviceInformation->xCurrentUpdateId.ulProviderLength );
     pxBaseDeviceInformation->update_id.version = az_span_create(
         ( uint8_t * ) pxDeviceInformation->xCurrentUpdateId.ucVersion,
-        pxDeviceInformation->xCurrentUpdateId.ulVersionLength );
+        (int32_t)pxDeviceInformation->xCurrentUpdateId.ulVersionLength );
     pxBaseDeviceInformation->adu_version = AZ_SPAN_FROM_STR(AZ_IOT_ADU_AGENT_VERSION);
     pxBaseDeviceInformation->do_version = AZ_SPAN_EMPTY;
 }
@@ -302,10 +302,10 @@ static void prvFillBaseAduWorkflow(
         pxBaseWorkflow->action = ( int32_t ) pxAduUpdateRequest->xWorkflow.xAction;
         pxBaseWorkflow->id = az_span_create(
             ( uint8_t * ) pxAduUpdateRequest->xWorkflow.pucID,
-            pxAduUpdateRequest->xWorkflow.ulIDLength );
+           (int32_t) pxAduUpdateRequest->xWorkflow.ulIDLength );
         pxBaseWorkflow->retry_timestamp = az_span_create(
             ( uint8_t * ) pxAduUpdateRequest->xWorkflow.pucRetryTimestamp,
-            pxAduUpdateRequest->xWorkflow.ulRetryTimestampLength );
+            (int32_t)pxAduUpdateRequest->xWorkflow.ulRetryTimestampLength );
     }
 }
 
@@ -325,28 +325,28 @@ static void prvFillBaseAduInstallResults(
         {
             pxBaseInstallResults->result_details = az_span_create(
                 ( uint8_t * ) pxUpdateResults->pucResultDetails,
-                pxUpdateResults->ulResultDetailsLength );
+                (int32_t)pxUpdateResults->ulResultDetailsLength );
         }
         else
         {
             pxBaseInstallResults->result_details = AZ_SPAN_EMPTY;
         }
 
-        pxBaseInstallResults->step_results_count = pxUpdateResults->ulStepResultsCount;
+        pxBaseInstallResults->step_results_count = (int32_t)pxUpdateResults->ulStepResultsCount;
 
-        for( int lIndex = 0; lIndex < pxUpdateResults->ulStepResultsCount; lIndex++ )
+        for( int lIndex = 0; lIndex < (int32_t)pxUpdateResults->ulStepResultsCount; lIndex++ )
         {
             pxBaseInstallResults->step_results[ lIndex ].result_code =
-                pxUpdateResults->pxStepResults[ lIndex ].ulResultCode;
+                (int32_t)pxUpdateResults->pxStepResults[ lIndex ].ulResultCode;
             pxBaseInstallResults->step_results[ lIndex ].extended_result_code =
-                pxUpdateResults->pxStepResults[ lIndex ].ulExtendedResultCode;
+                (int32_t)pxUpdateResults->pxStepResults[ lIndex ].ulExtendedResultCode;
 
             if( ( pxUpdateResults->pxStepResults[ lIndex ].pucResultDetails != NULL ) &&
                 ( pxUpdateResults->pxStepResults[ lIndex ].ulResultDetailsLength > 0 ) )
             {
                 pxBaseInstallResults->step_results[ lIndex ].result_details = az_span_create(
                     ( uint8_t * ) pxUpdateResults->pxStepResults[ lIndex ].pucResultDetails,
-                    pxUpdateResults->pxStepResults[ lIndex ].ulResultDetailsLength
+                    (int32_t)pxUpdateResults->pxStepResults[ lIndex ].ulResultDetailsLength
                     );
             }
             else
@@ -369,7 +369,7 @@ AzureIoTResult_t AzureIoTADUClient_SendAgentState( AzureIoTHubClient_t * pxAzure
     az_iot_adu_ota_device_information xBaseDeviceInformation;
     az_iot_adu_ota_workflow xBaseWorkflow;
     az_iot_adu_ota_install_result xInstallResult; // TODO: fill up.
-    az_span xPropertiesPayload = az_span_create( pucBuffer, ulBufferSize );
+    az_span xPropertiesPayload = az_span_create( pucBuffer, (int32_t)ulBufferSize );
 
     prvFillBaseDeviceInformation( pxDeviceInformation, &xBaseDeviceInformation );
     prvFillBaseAduWorkflow( pxAduUpdateRequest, &xBaseWorkflow );
@@ -395,7 +395,7 @@ AzureIoTResult_t AzureIoTADUClient_SendAgentState( AzureIoTHubClient_t * pxAzure
     if ( AzureIoTHubClient_SendPropertiesReported(
         pxAzureIoTHubClient,
         az_span_ptr( xPropertiesPayload ),
-        az_span_size( xPropertiesPayload ),
+        (uint32_t)az_span_size( xPropertiesPayload ),
         pulRequestId ) != eAzureIoTSuccess )
     {
         AZLogError( ( "[ADU] Failed sending ADU agent state." ) );

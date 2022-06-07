@@ -235,120 +235,58 @@ static uint32_t prvGetNewMaxTemp( double xUpdatedTemperature,
 }
 /*-----------------------------------------------------------*/
 
-/**
- * @brief Generate an update for the device's target temperature property online,
- *        acknowledging the update from the IoT Hub.
- */
-static uint32_t prvGenerateAckForIncomingTemperature( double xUpdatedTemperature,
-                                                      uint32_t ulVersion,
-                                                      uint8_t * pucResponseBuffer,
-                                                      uint32_t ulResponseBufferSize )
+
+static bool prvIsUpdateAlreadyInstalled( const AzureIoTADUUpdateRequest_t * pxAduOtaUpdateRequest )
 {
-    AzureIoTResult_t xResult;
-    AzureIoTJSONWriter_t xWriter;
-    int32_t lBytesWritten;
-
-    /* Building the acknowledgement payload for the temperature property to signal we successfully received and accept it. */
-    xResult = AzureIoTJSONWriter_Init( &xWriter, pucResponseBuffer, ulResponseBufferSize );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTJSONWriter_AppendBeginObject( &xWriter );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTHubClientProperties_BuilderBeginResponseStatus( &xAzureIoTHubClient,
-                                                                      &xWriter,
-                                                                      ( const uint8_t * ) sampleazureiotPROPERTY_TARGET_TEMPERATURE_TEXT,
-                                                                      sizeof( sampleazureiotPROPERTY_TARGET_TEMPERATURE_TEXT ) - 1,
-                                                                      sampleazureiotPROPERTY_STATUS_SUCCESS,
-                                                                      ulVersion,
-                                                                      ( const uint8_t * ) sampleazureiotPROPERTY_SUCCESS,
-                                                                      sizeof( sampleazureiotPROPERTY_SUCCESS ) - 1 );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTJSONWriter_AppendDouble( &xWriter, xUpdatedTemperature, sampleazureiotDOUBLE_DECIMAL_PLACE_DIGITS );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTHubClientProperties_BuilderEndResponseStatus( &xAzureIoTHubClient,
-                                                                    &xWriter );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTJSONWriter_AppendEndObject( &xWriter );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    lBytesWritten = AzureIoTJSONWriter_GetBytesUsed( &xWriter );
-    configASSERT( lBytesWritten > 0 );
-
-    return ( uint32_t ) lBytesWritten;
+    if( ( pxAduOtaUpdateRequest->xUpdateManifest.xUpdateId.ulNameLength ==
+          xADUDeviceInformation.xCurrentUpdateId.ulNameLength ) &&
+        ( strncmp( ( const char * ) pxAduOtaUpdateRequest->xUpdateManifest.xUpdateId.pucName,
+                   ( const char * ) xADUDeviceInformation.xCurrentUpdateId.ucName,
+                   ( size_t ) xADUDeviceInformation.xCurrentUpdateId.ulNameLength ) == 0 ) &&
+        ( pxAduOtaUpdateRequest->xUpdateManifest.xUpdateId.ulProviderLength ==
+          xADUDeviceInformation.xCurrentUpdateId.ulProviderLength ) &&
+        ( strncmp( ( const char * ) pxAduOtaUpdateRequest->xUpdateManifest.xUpdateId.pucProvider,
+                   ( const char * ) xADUDeviceInformation.xCurrentUpdateId.ucProvider,
+                   ( size_t ) xADUDeviceInformation.xCurrentUpdateId.ulProviderLength ) == 0 ) &&
+        ( pxAduOtaUpdateRequest->xUpdateManifest.xUpdateId.ulVersionLength ==
+          xADUDeviceInformation.xCurrentUpdateId.ulVersionLength ) &&
+        ( strncmp( ( const char * ) pxAduOtaUpdateRequest->xUpdateManifest.xUpdateId.pucVersion,
+                   ( const char * ) xADUDeviceInformation.xCurrentUpdateId.ucVersion,
+                   ( size_t ) xADUDeviceInformation.xCurrentUpdateId.ulVersionLength ) == 0 ) )
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Properties callback handler
+ * @brief Sample function to decide if an update request should be accepted or rejected.
+ *
+ * @remark The user application can implement any logic to decide if an update request
+ *         should be accepted or not. Factors would be if the device is currently busy,
+ *         if it is within business hours, or any other factor the user would like to
+ *         take into account. Rejected update requests get redelivered upon reconnection
+ *         with the Azure IoT Hub.
+ *
+ * @param[in] pxAduOtaUpdateRequest    The parsed update request.
+ * @return An #AzureIoTADURequestDecision_t with the decision to accept or reject the update.
  */
-static AzureIoTResult_t prvProcessProperties( AzureIoTHubClientPropertiesResponse_t * pxMessage,
-                                              uint8_t * pucWritablePropertyResponseBuffer,
-                                              uint32_t ulWritablePropertyResponseBufferSize,
-                                              uint32_t * pulWritablePropertyResponseBufferLength )
+static AzureIoTADURequestDecision_t prvUserDecideShouldStartUpdate( AzureIoTADUUpdateRequest_t * pxAduOtaUpdateRequest )
 {
-    AzureIoTResult_t xResult;
-    AzureIoTJSONReader_t xReader;
-    const uint8_t * pucComponentName = NULL;
-    uint32_t ulComponentNameLength = 0;
-    uint32_t ulPropertyVersion;
-
-    xResult = AzureIoTJSONReader_Init( &xReader, pxMessage->pvMessagePayload, pxMessage->ulPayloadLength );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTHubClientProperties_GetPropertiesVersion( &xAzureIoTHubClient, &xReader, pxMessage->xMessageType, &ulPropertyVersion );
-
-    if( xResult != eAzureIoTSuccess )
+    if( prvIsUpdateAlreadyInstalled( pxAduOtaUpdateRequest ) )
     {
-        LogError( ( "Error getting the property version: result 0x%08x", xResult ) );
+        LogInfo( ( "[ADU] Rejecting update request (current version is up-to-date)" ) );
+        return eAzureIoTADURequestDecisionReject;
     }
     else
     {
-        /* Reset JSON reader to the beginning */
-        xResult = AzureIoTJSONReader_Init( &xReader, pxMessage->pvMessagePayload, pxMessage->ulPayloadLength );
-        configASSERT( xResult == eAzureIoTSuccess );
-
-        while( ( xResult = AzureIoTHubClientProperties_GetNextComponentProperty( &xAzureIoTHubClient, &xReader,
-                                                                                 pxMessage->xMessageType, eAzureIoTHubClientPropertyWritable,
-                                                                                 &pucComponentName, &ulComponentNameLength ) ) == eAzureIoTSuccess )
-        {
-            if( ulComponentNameLength > 0 )
-            {
-                if( AzureIoTADUClient_IsADUComponent( &xAzureIoTADUClient, ( const char * ) pucComponentName, ulComponentNameLength ) )
-                {
-                    xResult = AzureIoTADUClient_ADUProcessComponent(
-                        &xAzureIoTADUClient,
-                        &xReader,
-                        ulPropertyVersion,
-                        pucWritablePropertyResponseBuffer,
-                        ulWritablePropertyResponseBufferSize,
-                        pulWritablePropertyResponseBufferLength );
-                }
-            }
-            else
-            {
-                LogInfo( ( "Unknown property arrived: skipping over it." ) );
-
-                /* Unknown property arrived. We have to skip over the property and value to continue iterating. */
-                prvSkipPropertyAndValue( &xReader );
-            }
-        }
-
-        if( xResult != eAzureIoTErrorEndOfProperties )
-        {
-            LogError( ( "There was an error parsing the properties: result 0x%08x", xResult ) );
-        }
-        else
-        {
-            LogInfo( ( "Successfully parsed properties" ) );
-            xResult = eAzureIoTSuccess;
-        }
+        LogInfo( ( "[ADU] Accepting update request" ) );
+        return eAzureIoTADURequestDecisionAccept;
     }
-
-    return xResult;
 }
 /*-----------------------------------------------------------*/
 
@@ -360,29 +298,116 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
                                 uint32_t ulWritablePropertyResponseBufferSize,
                                 uint32_t * pulWritablePropertyResponseBufferLength )
 {
-    AzureIoTResult_t xResult;
-    double xIncomingTemperature;
-    uint32_t ulVersion;
-    bool xWasMaxTemperatureChanged = false;
+    AzureIoTResult_t xAzIoTResult;
+    AzureIoTJSONReader_t xJsonReader;
+    const uint8_t * pucComponentName = NULL;
+    uint32_t ulComponentNameLength = 0;
+    uint32_t ulPropertyVersion;
 
-    xResult = prvProcessProperties( pxMessage,
-                                    pucWritablePropertyResponseBuffer,
-                                    ulWritablePropertyResponseBufferSize,
-                                    pulWritablePropertyResponseBufferLength );
+    LogInfo( ( "Writable properties received: %.*s\r\n",
+               pxMessage->ulPayloadLength, ( char * ) pxMessage->pvMessagePayload ) );
 
-    if( xResult == eAzureIoTSuccess )
+    xAzIoTResult = AzureIoTJSONReader_Init( &xJsonReader, pxMessage->pvMessagePayload, pxMessage->ulPayloadLength );
+
+    if( xAzIoTResult != eAzureIoTSuccess )
     {
-        prvUpdateLocalProperties( xIncomingTemperature, ulVersion, &xWasMaxTemperatureChanged );
-        *pulWritablePropertyResponseBufferLength = prvGenerateAckForIncomingTemperature(
-            xIncomingTemperature,
-            ulVersion,
-            pucWritablePropertyResponseBuffer,
-            ulWritablePropertyResponseBufferSize );
+        LogError( ( "AzureIoTJSONReader_Init failed: result 0x%08x", xAzIoTResult ) );
+        *pulWritablePropertyResponseBufferLength = 0;
+        return;
     }
-    else
+
+    xAzIoTResult = AzureIoTHubClientProperties_GetPropertiesVersion( &xAzureIoTHubClient, &xJsonReader, pxMessage->xMessageType, &ulPropertyVersion );
+
+    if( xAzIoTResult != eAzureIoTSuccess )
     {
-        LogError( ( "There was an error processing incoming properties: result 0x%08x", xResult ) );
+        LogError( ( "AzureIoTHubClientProperties_GetPropertiesVersion failed: result 0x%08x", xAzIoTResult ) );
+        *pulWritablePropertyResponseBufferLength = 0;
+        return;
     }
+
+    xAzIoTResult = AzureIoTJSONReader_Init( &xJsonReader, pxMessage->pvMessagePayload, pxMessage->ulPayloadLength );
+
+    if( xAzIoTResult != eAzureIoTSuccess )
+    {
+        LogError( ( "AzureIoTJSONReader_Init failed: result 0x%08x", xAzIoTResult ) );
+        *pulWritablePropertyResponseBufferLength = 0;
+        return;
+    }
+
+    /**
+     * If the PnP component is for Azure Device Update, function
+     * AzureIoTADUClient_SendResponse shall be used to publish back the
+     * response for the ADU writable properties.
+     * Thus, to prevent this callback to publish a response in duplicate,
+     * pulWritablePropertyResponseBufferLength must be set to zero.
+     */
+    *pulWritablePropertyResponseBufferLength = 0;
+
+    while( ( xAzIoTResult = AzureIoTHubClientProperties_GetNextComponentProperty( &xAzureIoTHubClient, &xJsonReader,
+                                                                                  pxMessage->xMessageType, eAzureIoTHubClientPropertyWritable,
+                                                                                  &pucComponentName, &ulComponentNameLength ) ) == eAzureIoTSuccess )
+    {
+        LogInfo( ( "Properties component name: %.*s", ulComponentNameLength, pucComponentName ) );
+
+        /* TODO: fix sign of pucComponentName in AzureIoTADUClient_IsADUComponent (should be uint8_t*) */
+        if( AzureIoTADUClient_IsADUComponent( ( const char * ) pucComponentName, ulComponentNameLength ) )
+        {
+            AzureIoTADURequestDecision_t xRequestDecision;
+
+            xAzIoTResult = AzureIoTADUClient_ParseRequest(
+                &xAzureIoTHubClient,
+                &xJsonReader,
+                &xAzureIoTAduOtaUpdateRequest,
+                ucAduContextBuffer,
+                ADU_CONTEXT_BUFFER_SIZE );
+
+            if( xAzIoTResult != eAzureIoTSuccess )
+            {
+                LogError( ( "AzureIoTADUClient_ParseRequest failed: result 0x%08x", xAzIoTResult ) );
+                *pulWritablePropertyResponseBufferLength = 0;
+                return;
+            }
+
+            xRequestDecision = prvUserDecideShouldStartUpdate( &xAzureIoTAduOtaUpdateRequest );
+
+            xAzIoTResult = AzureIoTADUClient_SendResponse(
+                &xAzureIoTHubClient,
+                xRequestDecision,
+                ulPropertyVersion,
+                pucWritablePropertyResponseBuffer,
+                ulWritablePropertyResponseBufferSize,
+                NULL );
+
+            if( xAzIoTResult != eAzureIoTSuccess )
+            {
+                LogError( ( "AzureIoTADUClient_GetResponse failed: result 0x%08x", xAzIoTResult ) );
+                return;
+            }
+
+            if( xRequestDecision == eAzureIoTADURequestDecisionAccept )
+            {
+                xProcessUpdateRequest = true;
+            }
+        }
+        else
+        {
+            LogInfo( ( "Component not ADU OTA: %.*s", ulComponentNameLength, pucComponentName ) );
+            prvSkipPropertyAndValue( &xJsonReader );
+        }
+    }
+}
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Implements the sample interface for generating reported properties payload.
+ */
+uint32_t ulCreateReportedPropertiesUpdate( uint8_t * pucPropertiesData,
+                                           uint32_t ulPropertiesDataSize )
+{
+    /* No reported properties to send if length is zero. */
+    uint32_t lBytesWritten = 0;
+
+    return lBytesWritten;
 }
 /*-----------------------------------------------------------*/
 
@@ -394,62 +419,11 @@ uint32_t ulHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
                           uint8_t * pucCommandResponsePayloadBuffer,
                           uint32_t ulCommandResponsePayloadBufferSize )
 {
-    AzureIoTResult_t xResult;
-    AzureIoTJSONReader_t xReader;
-    AzureIoTJSONWriter_t xWriter;
-    int32_t lCommandNameLength;
-    int32_t ulCommandResponsePayloadLength;
+    uint32_t ulCommandResponsePayloadLength = sizeof( sampleazureiotCOMMAND_EMPTY_PAYLOAD ) - 1;
 
-    LogInfo( ( "Command payload : %.*s \r\n",
-               pxMessage->ulPayloadLength,
-               ( const char * ) pxMessage->pvMessagePayload ) );
-
-    lCommandNameLength = sizeof( sampleazureiotCOMMAND_MAX_MIN_REPORT ) - 1;
-
-    if( ( lCommandNameLength == pxMessage->usCommandNameLength ) &&
-        ( strncmp( sampleazureiotCOMMAND_MAX_MIN_REPORT, ( const char * ) pxMessage->pucCommandName, lCommandNameLength ) == 0 ) )
-    {
-        /* Is for max min report */
-
-        /*Initialize the reader from which we pull the "since". */
-        xResult = AzureIoTJSONReader_Init( &xReader, pxMessage->pvMessagePayload, pxMessage->ulPayloadLength );
-        configASSERT( xResult == eAzureIoTSuccess );
-
-        /* Initialize the JSON writer with a buffer to which we will write the response payload. */
-        xResult = AzureIoTJSONWriter_Init( &xWriter, pucCommandResponsePayloadBuffer, ulCommandResponsePayloadBufferSize );
-        configASSERT( xResult == eAzureIoTSuccess );
-
-        /* Read from the writer the "since" value and use it to construct the response payload in the writer. */
-        xResult = prvInvokeMaxMinCommand( &xReader, &xWriter );
-
-        if( xResult == eAzureIoTSuccess )
-        {
-            ulCommandResponsePayloadLength = AzureIoTJSONWriter_GetBytesUsed( &xWriter );
-
-            *pulResponseStatus = AZ_IOT_STATUS_OK;
-        }
-        else
-        {
-            LogError( ( "Error generating command payload: result 0x%08x", xResult ) );
-
-            *pulResponseStatus = 501;
-            ulCommandResponsePayloadLength = sizeof( sampleazureiotCOMMAND_EMPTY_PAYLOAD ) - 1;
-            configASSERT( ulCommandResponsePayloadBufferSize >= ulCommandResponsePayloadLength );
-            ( void ) memcpy( pucCommandResponsePayloadBuffer, sampleazureiotCOMMAND_EMPTY_PAYLOAD, ulCommandResponsePayloadLength );
-        }
-    }
-    else
-    {
-        /* Not for max min report (not for this device) */
-        LogInfo( ( "Received command is not for this device: %.*s",
-                   pxMessage->usCommandNameLength,
-                   pxMessage->pucCommandName ) );
-
-        *pulResponseStatus = AZ_IOT_STATUS_NOT_FOUND;
-        ulCommandResponsePayloadLength = sizeof( sampleazureiotCOMMAND_EMPTY_PAYLOAD ) - 1;
-        configASSERT( ulCommandResponsePayloadBufferSize >= ulCommandResponsePayloadLength );
-        ( void ) memcpy( pucCommandResponsePayloadBuffer, sampleazureiotCOMMAND_EMPTY_PAYLOAD, ulCommandResponsePayloadLength );
-    }
+    *pulResponseStatus = AZ_IOT_STATUS_NOT_FOUND;
+    configASSERT( ulCommandResponsePayloadBufferSize >= ulCommandResponsePayloadLength );
+    ( void ) memcpy( pucCommandResponsePayloadBuffer, sampleazureiotCOMMAND_EMPTY_PAYLOAD, ulCommandResponsePayloadLength );
 
     return ulCommandResponsePayloadLength;
 }
@@ -476,16 +450,6 @@ uint32_t ulCreateTelemetry( uint8_t * pucTelemetryData,
     }
 
     return result;
-}
-/*-----------------------------------------------------------*/
-
-/**
- * @brief Implements the sample interface for generating reported properties payload.
- */
-uint32_t ulCreateReportedPropertiesUpdate( uint8_t * pucPropertiesData,
-                                           uint32_t ulPropertiesDataSize )
-{
-    return prvGetNewMaxTemp( xDeviceCurrentTemperature, pucPropertiesData, ulPropertiesDataSize );
 }
 
 /*-----------------------------------------------------------*/

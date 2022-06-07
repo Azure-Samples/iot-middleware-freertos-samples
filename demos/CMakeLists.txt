@@ -76,6 +76,7 @@ if(NOT (TARGET SAMPLE::TRANSPORT::MBEDTLS))
     add_library(SAMPLE::TRANSPORT::MBEDTLS INTERFACE IMPORTED)
     target_sources(SAMPLE::TRANSPORT::MBEDTLS INTERFACE 
         ${CMAKE_CURRENT_SOURCE_DIR}/common/transport/transport_tls_socket_using_mbedtls.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/common/transport/transport_socket.c
         ${CMAKE_CURRENT_SOURCE_DIR}/common/utilities/crypto_using_mbedtls.c
         ${CMAKE_CURRENT_SOURCE_DIR}/common/utilities/mbedtls_freertos_port.c)
     target_include_directories(SAMPLE::TRANSPORT::MBEDTLS INTERFACE
