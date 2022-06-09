@@ -54,7 +54,11 @@ typedef struct
  * For reference:
  * https://docs.microsoft.com/en-us/azure/iot-hub-device-update/device-update-plug-and-play
  */
+typedef struct
 {
+  az_span manufacturer;
+  az_span model;
+  az_span adu_version;
   az_span do_version;
   az_iot_adu_update_id update_id;
 } az_iot_adu_device_information;
