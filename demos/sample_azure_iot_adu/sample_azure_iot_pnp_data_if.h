@@ -23,7 +23,7 @@
 #define sampleazureiotPROVISIONING_PAYLOAD    "{\"modelId\":\"" sampleazureiotMODEL_ID "\"}"
 
 extern AzureIoTHubClient_t xAzureIoTHubClient;
-extern AzureIoTADUUpdateRequest_t xAzureIoTAduOtaUpdateRequest;
+extern AzureIoTADUUpdateRequest_t xAzureIoTAduUpdateRequest;
 extern bool xProcessUpdateRequest;
 extern AzureIoTHubClientADUDeviceInformation_t xADUDeviceInformation;
 

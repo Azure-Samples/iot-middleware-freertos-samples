@@ -144,7 +144,7 @@ struct NetworkContext
 };
 
 AzureIoTHubClient_t xAzureIoTHubClient;
-AzureIoTADUUpdateRequest_t xAzureIoTAduOtaUpdateRequest;
+AzureIoTADUUpdateRequest_t xAzureIoTAduUpdateRequest;
 bool xProcessUpdateRequest = false;
 
 AzureIoTHubClientADUDeviceInformation_t xADUDeviceInformation =
@@ -185,8 +185,8 @@ static AzureIoTHubClientComponent_t pnp_components[ sampleaduPNP_COMPONENTS_LIST
 };
 #define sampleaduPNP_COMPONENTS_LIST    pnp_components
 
-/* TODO: REMOVE THIS BLOCKER ONCE OTA IS IMPLEMENTED */
-/* This does not affect devices that actually implement the OTA process */
+/* TODO: REMOVE THIS BLOCKER ONCE ADU IS IMPLEMENTED */
+/* This does not affect devices that actually implement the ADU process */
 /* as they will reboot before getting to the place where this is used. */
 bool xDidDeviceUpdate = false;
 
@@ -409,7 +409,7 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash()
 
     xResult = AzureIoTADUClient_SendAgentState( &xAzureIoTHubClient,
                                                 &xADUDeviceInformation,
-                                                &xAzureIoTAduOtaUpdateRequest,
+                                                &xAzureIoTAduUpdateRequest,
                                                 eAzureIoTADUAgentStateDeploymentInProgress,
                                                 NULL,
                                                 ucScratchBuffer,
@@ -424,8 +424,8 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash()
     az_span xUrlPath;
     prvParseAduUrl(
         az_span_create(
-            xAzureIoTAduOtaUpdateRequest.pxFileUrls[ 0 ].pucUrl,
-            xAzureIoTAduOtaUpdateRequest.pxFileUrls[ 0 ].ulUrlLength ),
+            xAzureIoTAduUpdateRequest.pxFileUrls[ 0 ].pucUrl,
+            xAzureIoTAduUpdateRequest.pxFileUrls[ 0 ].ulUrlLength ),
         &xUrlHost, &xUrlPath );
 
     /* TODO: remove this hack. */
@@ -524,8 +524,8 @@ static AzureIoTResult_t prvEnableImageAndResetDevice()
 
     if( AzureIoTPlatform_VerifyImage(
             &xImage,
-            xAzureIoTAduOtaUpdateRequest.xUpdateManifest.pxFiles[ 0 ].pxHashes[ 0 ].pucHash,
-            xAzureIoTAduOtaUpdateRequest.xUpdateManifest.pxFiles[ 0 ].pxHashes[ 0 ].ulHashLength
+            xAzureIoTAduUpdateRequest.xUpdateManifest.pxFiles[ 0 ].pxHashes[ 0 ].pucHash,
+            xAzureIoTAduUpdateRequest.xUpdateManifest.pxFiles[ 0 ].pxHashes[ 0 ].ulHashLength
             ) != eAzureIoTSuccess )
     {
         AZLogError( ( "[ADU] File hash from ADU did not match calculated hash\r\n" ) );
@@ -554,7 +554,7 @@ static AzureIoTResult_t prvEnableImageAndResetDevice()
     xUpdateResults.pucResultDetails = NULL;
     xUpdateResults.ulResultDetailsLength = 0;
     xUpdateResults.ulStepResultsCount =
-        xAzureIoTAduOtaUpdateRequest.xUpdateManifest.xInstructions.ulStepsCount;
+        xAzureIoTAduUpdateRequest.xUpdateManifest.xInstructions.ulStepsCount;
 
     /*
      * The order of the step results must match order of the steps
@@ -572,7 +572,7 @@ static AzureIoTResult_t prvEnableImageAndResetDevice()
 
     xResult = AzureIoTADUClient_SendAgentState( &xAzureIoTHubClient,
                                                 &xADUDeviceInformation,
-                                                &xAzureIoTAduOtaUpdateRequest,
+                                                &xAzureIoTAduUpdateRequest,
                                                 eAzureIoTADUAgentStateDeploymentInProgress,
                                                 &xUpdateResults,
                                                 ucScratchBuffer,
@@ -611,7 +611,7 @@ static AzureIoTResult_t prvEnableImageAndResetDevice()
 static void prvAzureDemoTask( void * pvParameters )
 {
     LogInfo( ( "------------------------------------------------------------------------------" ) );
-    LogInfo( ( "ADU OTA SAMPLE" ) );
+    LogInfo( ( "ADU SAMPLE" ) );
     LogInfo( ( "Version: " democonfigADU_UPDATE_VERSION ) );
     LogInfo( ( "------------------------------------------------------------------------------" ) );
 

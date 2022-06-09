@@ -8,8 +8,8 @@
 #include "azure_iot_hub_client.h"
 #include "azure_iot_hub_client_properties.h"
 
-// ADU OTA
-#include <azure/iot/az_iot_adu_ota.h>
+// Azure Device Update
+#include <azure/iot/az_iot_adu.h>
 
 /**
  * @brief Generates a json with the device key information.
@@ -72,11 +72,11 @@ void vSampleHandleWritablePropertiesUpdate( AzureIoTHubClientPropertiesResponse_
 uint32_t ulSampleCreateReportedPropertiesUpdate( uint8_t * pucPropertiesData,
                                                  uint32_t ulPropertiesDataSize );
 
-// ADU OTA
-extern az_iot_adu_ota_update_request xOtaUpdateRequest;
-extern az_iot_adu_ota_device_information xOtaDeviceInformation;
-extern az_iot_adu_ota_workflow * pxOtaLastWorkflow;
-extern double xOtaLastInstalledVersion;
-extern az_span xGetOtaLastInstalledVersion( );
+// Azure Device Update
+extern az_iot_adu_update_request xUpdateRequest;
+extern az_iot_adu_device_information xDeviceInformation;
+extern az_iot_adu_workflow * pxLastWorkflow;
+extern double xLastInstalledVersion;
+extern az_span xGetLastInstalledVersion( );
 
 #endif // AZURE_IOT_FREERTOS_ESP32_PNP_MODEL_H

@@ -36,7 +36,7 @@ add_library (az_iot_hub
   ${CMAKE_CURRENT_LIST_DIR}/az_iot_hub_client_methods.c
   ${CMAKE_CURRENT_LIST_DIR}/az_iot_hub_client_commands.c
   ${CMAKE_CURRENT_LIST_DIR}/az_iot_hub_client_properties.c
-  ${CMAKE_CURRENT_LIST_DIR}/az_iot_adu_ota.c
+  ${CMAKE_CURRENT_LIST_DIR}/az_iot_adu.c
 )
 
 target_include_directories (az_iot_hub

@@ -9,7 +9,7 @@
 
 #include "azure_iot_json_writer.h"
 #include "azure_iot_flash_platform.h"
-#include <azure/iot/az_iot_adu_ota.h>
+#include <azure/iot/az_iot_adu.h>
 
 /*
  *
@@ -87,13 +87,13 @@
 bool AzureIoTADUClient_IsADUComponent( const char * pucComponentName,
                                        uint32_t ulComponentNameLength )
 {
-    return az_iot_adu_ota_is_component_device_update(
+    return az_iot_adu_is_component_device_update(
         az_span_create( ( uint8_t * ) pucComponentName, ( int32_t ) ulComponentNameLength ) );
 }
 
 static void prvCastUpdateRequest(
-    az_iot_adu_ota_update_request * pxBaseUpdateRequest,
-    az_iot_adu_ota_update_manifest * pxBaseUpdateManifest,
+    az_iot_adu_update_request * pxBaseUpdateRequest,
+    az_iot_adu_update_manifest * pxBaseUpdateManifest,
     AzureIoTADUUpdateRequest_t * pxUpdateRequest )
 {
     pxUpdateRequest->xWorkflow.pucID = az_span_ptr( pxBaseUpdateRequest->workflow.id );
@@ -190,12 +190,12 @@ AzureIoTResult_t AzureIoTADUClient_ParseRequest( AzureIoTJSONReader_t * pxReader
                                                  uint8_t * pucBuffer,
                                                  uint32_t ulBufferSize)
 {
-    az_iot_adu_ota_update_request xBaseUpdateRequest;
-    az_iot_adu_ota_update_manifest xBaseUpdateManifest;
+    az_iot_adu_update_request xBaseUpdateRequest;
+    az_iot_adu_update_manifest xBaseUpdateManifest;
     az_result xAzResult;
     az_span xBufferSpan = az_span_create( pucBuffer, (int32_t)ulBufferSize );
 
-    xAzResult = az_iot_adu_ota_parse_service_properties(
+    xAzResult = az_iot_adu_parse_service_properties(
         &pxReader->_internal.xCoreReader,
         xBufferSpan,
         &xBaseUpdateRequest,
@@ -203,19 +203,19 @@ AzureIoTResult_t AzureIoTADUClient_ParseRequest( AzureIoTJSONReader_t * pxReader
 
     if( az_result_failed( xAzResult ) )
     {
-        AZLogError( ( "az_iot_adu_ota_parse_service_properties failed" ) );
+        AZLogError( ( "az_iot_adu_parse_service_properties failed" ) );
         /* TODO: return individualized/specific errors. */
         return eAzureIoTErrorFailed;
     }
     else
     {
-        xAzResult = az_iot_adu_ota_parse_update_manifest(
+        xAzResult = az_iot_adu_parse_update_manifest(
             xBaseUpdateRequest.update_manifest,
             &xBaseUpdateManifest );
 
         if( az_result_failed( xAzResult ) )
         {
-            AZLogError( ( "az_iot_adu_ota_parse_update_manifest failed: 0x%08x", xAzResult ) );
+            AZLogError( ( "az_iot_adu_parse_update_manifest failed: 0x%08x", xAzResult ) );
             /* TODO: return individualized/specific errors. */
             return eAzureIoTErrorFailed;
         }
@@ -237,9 +237,9 @@ AzureIoTResult_t AzureIoTADUClient_SendResponse( AzureIoTHubClient_t * pxAzureIo
         pucWritablePropertyResponseBuffer,
         ( int32_t ) ulWritablePropertyResponseBufferSize );
 
-    // TODO: consume xRequestDecision in az_iot_adu_ota_get_service_properties_response
+    // TODO: consume xRequestDecision in az_iot_adu_get_service_properties_response
     ( void ) xRequestDecision;
-    az_result xAzResult = az_iot_adu_ota_get_service_properties_response(
+    az_result xAzResult = az_iot_adu_get_service_properties_response(
         ( int32_t ) ulPropertyVersion,
         200,
         xWritablePropertyResponse,
@@ -247,7 +247,7 @@ AzureIoTResult_t AzureIoTADUClient_SendResponse( AzureIoTHubClient_t * pxAzureIo
 
     if( az_result_failed( xAzResult ) )
     {
-        AZLogError( ( "az_iot_adu_ota_get_service_properties_response failed: 0x%08x (%d)", xAzResult, ulWritablePropertyResponseBufferSize ) );
+        AZLogError( ( "az_iot_adu_get_service_properties_response failed: 0x%08x (%d)", xAzResult, ulWritablePropertyResponseBufferSize ) );
         /* TODO: return individualized/specific errors. */
         return eAzureIoTErrorFailed;
     }
@@ -269,7 +269,7 @@ AzureIoTResult_t AzureIoTADUClient_SendResponse( AzureIoTHubClient_t * pxAzureIo
 
 static void prvFillBaseDeviceInformation(
     AzureIoTHubClientADUDeviceInformation_t * pxDeviceInformation,
-    az_iot_adu_ota_device_information * pxBaseDeviceInformation )
+    az_iot_adu_device_information * pxBaseDeviceInformation )
 {
     pxBaseDeviceInformation->manufacturer = az_span_create(
         ( uint8_t * ) pxDeviceInformation->ucManufacturer,
@@ -292,7 +292,7 @@ static void prvFillBaseDeviceInformation(
 
 static void prvFillBaseAduWorkflow(
     AzureIoTADUUpdateRequest_t * pxAduUpdateRequest,
-    az_iot_adu_ota_workflow * pxBaseWorkflow )
+    az_iot_adu_workflow * pxBaseWorkflow )
 {
     if (pxAduUpdateRequest != NULL)
     {
@@ -308,7 +308,7 @@ static void prvFillBaseAduWorkflow(
 
 static void prvFillBaseAduInstallResults(
     AzureIoTHubClientADUInstallResult_t * pxUpdateResults,
-    az_iot_adu_ota_install_result * pxBaseInstallResults )
+    az_iot_adu_install_result * pxBaseInstallResults )
 {
     memset( pxBaseInstallResults, 0, sizeof( *pxBaseInstallResults ) );
 
@@ -363,16 +363,16 @@ AzureIoTResult_t AzureIoTADUClient_SendAgentState( AzureIoTHubClient_t * pxAzure
                                                  uint32_t ulBufferSize,
                                                  uint32_t * pulRequestId )
 {
-    az_iot_adu_ota_device_information xBaseDeviceInformation;
-    az_iot_adu_ota_workflow xBaseWorkflow;
-    az_iot_adu_ota_install_result xInstallResult; // TODO: fill up.
+    az_iot_adu_device_information xBaseDeviceInformation;
+    az_iot_adu_workflow xBaseWorkflow;
+    az_iot_adu_install_result xInstallResult; // TODO: fill up.
     az_span xPropertiesPayload = az_span_create( pucBuffer, (int32_t)ulBufferSize );
 
     prvFillBaseDeviceInformation( pxDeviceInformation, &xBaseDeviceInformation );
     prvFillBaseAduWorkflow( pxAduUpdateRequest, &xBaseWorkflow );
     prvFillBaseAduInstallResults( pxUpdateResults, &xInstallResult );
 
-    az_result xAzResult = az_iot_adu_ota_get_properties_payload(
+    az_result xAzResult = az_iot_adu_get_properties_payload(
         &xBaseDeviceInformation,
         ( int32_t ) xAgentState,
         pxAduUpdateRequest != NULL ? &xBaseWorkflow : NULL,
@@ -383,7 +383,7 @@ AzureIoTResult_t AzureIoTADUClient_SendAgentState( AzureIoTHubClient_t * pxAzure
 
     if( az_result_failed( xAzResult ) )
     {
-        AZLogError( ( "az_iot_adu_ota_get_properties_payload failed: 0x%08x", xAzResult ) );
+        AZLogError( ( "az_iot_adu_get_properties_payload failed: 0x%08x", xAzResult ) );
         /* TODO: return individualized/specific errors. */
         return eAzureIoTErrorFailed;
     }
