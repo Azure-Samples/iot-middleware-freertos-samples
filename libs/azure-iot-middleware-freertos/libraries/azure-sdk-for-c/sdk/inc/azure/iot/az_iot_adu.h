@@ -268,9 +268,8 @@ AZ_NODISCARD az_result az_iot_adu_get_service_properties_response(
  *                                data types).
  * @return An #az_result value indicating the result of the operation.
  */
-AZ_NODISCARD az_result az_iot_adu_parse_update_manifest(
-    az_span payload,
-    az_iot_adu_update_manifest* update_manifest);
+AZ_NODISCARD az_result
+az_iot_adu_parse_update_manifest(az_span payload, az_iot_adu_update_manifest* update_manifest);
 
 #include <azure/core/_az_cfg_suffix.h>
 

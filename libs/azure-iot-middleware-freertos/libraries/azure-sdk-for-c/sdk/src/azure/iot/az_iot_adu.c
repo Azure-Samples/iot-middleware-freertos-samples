@@ -97,9 +97,7 @@ AZ_NODISCARD bool az_iot_adu_is_component_device_update(az_span component_name)
       AZ_SPAN_FROM_STR(AZ_IOT_ADU_AGENT_COMPONENT_NAME), component_name);
 }
 
-static az_span generate_update_id_string(
-    az_iot_adu_update_id update_id,
-    az_span update_id_string)
+static az_span generate_update_id_string(az_iot_adu_update_id update_id, az_span update_id_string)
 {
   // TODO: Investigate a way to leverage azure SDK core for this.
   az_span remainder = update_id_string;
@@ -574,9 +572,8 @@ AZ_NODISCARD az_result az_iot_adu_get_service_properties_response(
   return AZ_OK;
 }
 
-AZ_NODISCARD az_result az_iot_adu_parse_update_manifest(
-    az_span payload,
-    az_iot_adu_update_manifest* update_manifest)
+AZ_NODISCARD az_result
+az_iot_adu_parse_update_manifest(az_span payload, az_iot_adu_update_manifest* update_manifest)
 {
   _az_PRECONDITION_VALID_SPAN(payload, 1, false);
   _az_PRECONDITION_NOT_NULL(update_manifest);
@@ -775,8 +772,7 @@ AZ_NODISCARD az_result az_iot_adu_parse_update_manifest(
         RETURN_IF_JSON_TOKEN_TYPE_NOT((&jr), AZ_JSON_TOKEN_PROPERTY_NAME);
 
         if (az_json_token_is_text_equal(
-                &jr.token,
-                AZ_SPAN_FROM_STR(AZ_IOT_ADU_AGENT_PROPERTY_NAME_DEVICE_MANUFACTURER)))
+                &jr.token, AZ_SPAN_FROM_STR(AZ_IOT_ADU_AGENT_PROPERTY_NAME_DEVICE_MANUFACTURER)))
         {
           _az_RETURN_IF_FAILED(az_json_reader_next_token(&jr));
           RETURN_IF_JSON_TOKEN_TYPE_NOT((&jr), AZ_JSON_TOKEN_STRING);
@@ -832,8 +828,7 @@ AZ_NODISCARD az_result az_iot_adu_parse_update_manifest(
             update_manifest->files[files_index].file_name = jr.token.slice;
           }
           else if (az_json_token_is_text_equal(
-                       &jr.token,
-                       AZ_SPAN_FROM_STR(AZ_IOT_ADU_AGENT_PROPERTY_NAME_SIZE_IN_BYTES)))
+                       &jr.token, AZ_SPAN_FROM_STR(AZ_IOT_ADU_AGENT_PROPERTY_NAME_SIZE_IN_BYTES)))
           {
             _az_RETURN_IF_FAILED(az_json_reader_next_token(&jr));
             RETURN_IF_JSON_TOKEN_TYPE_NOT((&jr), AZ_JSON_TOKEN_NUMBER);
