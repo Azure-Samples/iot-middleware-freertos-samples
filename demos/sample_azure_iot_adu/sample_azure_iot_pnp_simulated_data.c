@@ -236,21 +236,21 @@ static uint32_t prvGetNewMaxTemp( double xUpdatedTemperature,
 /*-----------------------------------------------------------*/
 
 
-static bool prvIsUpdateAlreadyInstalled( const AzureIoTADUUpdateRequest_t * pxAduOtaUpdateRequest )
+static bool prvIsUpdateAlreadyInstalled( const AzureIoTADUUpdateRequest_t * pxAduUpdateRequest )
 {
-    if( ( pxAduOtaUpdateRequest->xUpdateManifest.xUpdateId.ulNameLength ==
+    if( ( pxAduUpdateRequest->xUpdateManifest.xUpdateId.ulNameLength ==
           xADUDeviceInformation.xCurrentUpdateId.ulNameLength ) &&
-        ( strncmp( ( const char * ) pxAduOtaUpdateRequest->xUpdateManifest.xUpdateId.pucName,
+        ( strncmp( ( const char * ) pxAduUpdateRequest->xUpdateManifest.xUpdateId.pucName,
                    ( const char * ) xADUDeviceInformation.xCurrentUpdateId.ucName,
                    ( size_t ) xADUDeviceInformation.xCurrentUpdateId.ulNameLength ) == 0 ) &&
-        ( pxAduOtaUpdateRequest->xUpdateManifest.xUpdateId.ulProviderLength ==
+        ( pxAduUpdateRequest->xUpdateManifest.xUpdateId.ulProviderLength ==
           xADUDeviceInformation.xCurrentUpdateId.ulProviderLength ) &&
-        ( strncmp( ( const char * ) pxAduOtaUpdateRequest->xUpdateManifest.xUpdateId.pucProvider,
+        ( strncmp( ( const char * ) pxAduUpdateRequest->xUpdateManifest.xUpdateId.pucProvider,
                    ( const char * ) xADUDeviceInformation.xCurrentUpdateId.ucProvider,
                    ( size_t ) xADUDeviceInformation.xCurrentUpdateId.ulProviderLength ) == 0 ) &&
-        ( pxAduOtaUpdateRequest->xUpdateManifest.xUpdateId.ulVersionLength ==
+        ( pxAduUpdateRequest->xUpdateManifest.xUpdateId.ulVersionLength ==
           xADUDeviceInformation.xCurrentUpdateId.ulVersionLength ) &&
-        ( strncmp( ( const char * ) pxAduOtaUpdateRequest->xUpdateManifest.xUpdateId.pucVersion,
+        ( strncmp( ( const char * ) pxAduUpdateRequest->xUpdateManifest.xUpdateId.pucVersion,
                    ( const char * ) xADUDeviceInformation.xCurrentUpdateId.ucVersion,
                    ( size_t ) xADUDeviceInformation.xCurrentUpdateId.ulVersionLength ) == 0 ) )
     {
@@ -272,12 +272,12 @@ static bool prvIsUpdateAlreadyInstalled( const AzureIoTADUUpdateRequest_t * pxAd
  *         take into account. Rejected update requests get redelivered upon reconnection
  *         with the Azure IoT Hub.
  *
- * @param[in] pxAduOtaUpdateRequest    The parsed update request.
+ * @param[in] pxAduUpdateRequest    The parsed update request.
  * @return An #AzureIoTADURequestDecision_t with the decision to accept or reject the update.
  */
-static AzureIoTADURequestDecision_t prvUserDecideShouldStartUpdate( AzureIoTADUUpdateRequest_t * pxAduOtaUpdateRequest )
+static AzureIoTADURequestDecision_t prvUserDecideShouldStartUpdate( AzureIoTADUUpdateRequest_t * pxAduUpdateRequest )
 {
-    if( prvIsUpdateAlreadyInstalled( pxAduOtaUpdateRequest ) )
+    if( prvIsUpdateAlreadyInstalled( pxAduUpdateRequest ) )
     {
         LogInfo( ( "[ADU] Rejecting update request (current version is up-to-date)" ) );
         return eAzureIoTADURequestDecisionReject;
@@ -356,7 +356,7 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
 
             xAzIoTResult = AzureIoTADUClient_ParseRequest(
                 &xJsonReader,
-                &xAzureIoTAduOtaUpdateRequest,
+                &xAzureIoTAduUpdateRequest,
                 ucAduContextBuffer,
                 ADU_CONTEXT_BUFFER_SIZE );
 
@@ -367,7 +367,7 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
                 return;
             }
 
-            xRequestDecision = prvUserDecideShouldStartUpdate( &xAzureIoTAduOtaUpdateRequest );
+            xRequestDecision = prvUserDecideShouldStartUpdate( &xAzureIoTAduUpdateRequest );
 
             xAzIoTResult = AzureIoTADUClient_SendResponse(
                 &xAzureIoTHubClient,
@@ -390,7 +390,7 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
         }
         else
         {
-            LogInfo( ( "Component not ADU OTA: %.*s", ulComponentNameLength, pucComponentName ) );
+            LogInfo( ( "Component not ADU: %.*s", ulComponentNameLength, pucComponentName ) );
             prvSkipPropertyAndValue( &xJsonReader );
         }
     }

@@ -61,8 +61,8 @@ do
             # exit_if_binary_does_not_exist "./demos/projects/ESPRESSIF/esp32/build" "azure_iot_freertos_esp32.bin"
             # sample_build "ESPRESSIF" "aziotkit" "build"
             # exit_if_binary_does_not_exist "./demos/projects/ESPRESSIF/aziotkit/build" "azure_iot_freertos_esp32.bin"
-            sample_build "ESPRESSIF" "aduotaupdate" "build"
-            exit_if_binary_does_not_exist "./demos/projects/ESPRESSIF/aduotaupdate/build" "azure_iot_freertos_esp32.bin"
+            sample_build "ESPRESSIF" "adu" "build"
+            exit_if_binary_does_not_exist "./demos/projects/ESPRESSIF/adu/build" "azure_iot_freertos_esp32.bin"
             ;;
         "-nxp")
             fetch_freertos

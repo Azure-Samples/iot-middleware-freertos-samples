@@ -21,7 +21,7 @@
 #include "esp_log.h"
 
 #ifndef LIBRARY_LOG_NAME
-    #define LIBRARY_LOG_NAME    "AzureIoTOTADemo"
+    #define LIBRARY_LOG_NAME    "AzureIoTADUDemo"
 #endif
 
 #define SINGLE_PARENTHESIS_LOGE( x, ... ) ESP_LOGE( LIBRARY_LOG_NAME, x, ##__VA_ARGS__ )

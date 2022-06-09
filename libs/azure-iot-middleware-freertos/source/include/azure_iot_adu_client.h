@@ -13,7 +13,7 @@
 #include "azure_iot_hub_client.h"
 #include "azure_iot_json_reader.h"
 #include "azure_iot_http.h"
-#include <azure/iot/az_iot_adu_ota.h>
+#include <azure/iot/az_iot_adu.h>
 #include "azure_iot_flash_platform.h"
 
 
@@ -102,21 +102,21 @@
  *
  */
 
-// TODO: repurpose these, setting them to the values from azure-sdk-for-c
-#define azureiotaduSTEPS_MAX                                    2
-#define azureiotaduAGENT_FILES_MAX                              2
-#define azureiotaduDEVICE_INFO_MANUFACTURER_SIZE                16
-#define azureiotaduDEVICE_INFO_MODEL_SIZE                       24
-#define azureiotaduUPDATE_PROVIDER_SIZE                         16
-#define azureiotaduUPDATE_NAME_SIZE                             24
-#define azureiotaduUPDATE_VERSION_SIZE                          10
+/* TODO: repurpose these, setting them to the values from azure-sdk-for-c */
+#define azureiotaduSTEPS_MAX                        2
+#define azureiotaduAGENT_FILES_MAX                  2
+#define azureiotaduDEVICE_INFO_MANUFACTURER_SIZE    16
+#define azureiotaduDEVICE_INFO_MODEL_SIZE           24
+#define azureiotaduUPDATE_PROVIDER_SIZE             16
+#define azureiotaduUPDATE_NAME_SIZE                 24
+#define azureiotaduUPDATE_VERSION_SIZE              10
 
 /**
  * @brief ADU Update ID.
  *
  *  https://docs.microsoft.com/en-us/azure/iot-hub-device-update/understand-device-update#device-update-agent
  */
-// TODO: remove this in favor of AzureIoTADUUpdateId_t
+/* TODO: remove this in favor of AzureIoTADUUpdateId_t */
 typedef struct AzureIoTHubClientADUUpdateId
 {
     const uint8_t ucProvider[ azureiotaduUPDATE_PROVIDER_SIZE ];
@@ -206,7 +206,7 @@ typedef struct AzureIoTHubClientADUInstallResult
     const uint8_t * pucResultDetails;
     uint32_t ulResultDetailsLength;
 
-    AzureIoTHubClientADUStepResult_t pxStepResults[MAX_INSTRUCTIONS_STEPS];
+    AzureIoTHubClientADUStepResult_t pxStepResults[ MAX_INSTRUCTIONS_STEPS ];
     uint32_t ulStepResultsCount;
 } AzureIoTHubClientADUInstallResult_t;
 
@@ -232,7 +232,7 @@ typedef enum AzureIoTADUAgentState
     eAzureIoTADUAgentStateError,
 } AzureIoTADUAgentState_t;
 
-// TODO: clean everything that can be removed from this point above.
+/* TODO: clean everything that can be removed from this point above. */
 
 typedef enum AzureIoTADURequestDecision
 {
@@ -288,7 +288,7 @@ typedef struct AzureIoTADUUpdateManifestFile
     uint32_t ulFileNameLength;
     uint32_t ulSizeInBytes;
     uint32_t ulHashesCount;
-    AzureIoTADUUpdateManifestFileHash_t pxHashes[MAX_FILE_HASH_COUNT];
+    AzureIoTADUUpdateManifestFileHash_t pxHashes[ MAX_FILE_HASH_COUNT ];
 } AzureIoTADUUpdateManifestFile_t;
 
 typedef struct AzureIoTADUInstructionStep
@@ -298,13 +298,13 @@ typedef struct AzureIoTADUInstructionStep
     uint8_t * pucInstalledCriteria;
     uint32_t ulInstalledCriteriaLength;
     uint32_t ulFilesCount;
-    AzureIoTADUUpdateManifestInstructionStepFile_t pxFiles[AZ_IOT_ADU_OTA_FILE_URL_MAX_COUNT];
+    AzureIoTADUUpdateManifestInstructionStepFile_t pxFiles[ AZ_IOT_ADU_FILE_URL_MAX_COUNT ];
 } AzureIoTADUInstructionStep_t;
 
 typedef struct AzureIoTADUInstructions
 {
     uint32_t ulStepsCount;
-    AzureIoTADUInstructionStep_t pxSteps[MAX_INSTRUCTIONS_STEPS];
+    AzureIoTADUInstructionStep_t pxSteps[ MAX_INSTRUCTIONS_STEPS ];
 } AzureIoTADUInstructions_t;
 
 typedef struct AzureIoTADUUpdateManifest
@@ -313,7 +313,7 @@ typedef struct AzureIoTADUUpdateManifest
     AzureIoTADUCompatibility_t xCompatibility;
     AzureIoTADUInstructions_t xInstructions;
     uint32_t ulFilesCount;
-    AzureIoTADUUpdateManifestFile_t pxFiles[AZ_IOT_ADU_OTA_FILE_URL_MAX_COUNT];
+    AzureIoTADUUpdateManifestFile_t pxFiles[ AZ_IOT_ADU_FILE_URL_MAX_COUNT ];
     uint8_t * pucManifestVersion;
     uint32_t ulManifestVersionLength;
     uint8_t * pucCreateDateTime;
@@ -329,7 +329,7 @@ typedef struct AzureIoTADUUpdateRequest
     uint8_t * pucUpdateManifestSignature;
     uint32_t ulUpdateManifestSignatureLength;
     uint32_t ulFileUrlCount;
-    AzureIoTADUUpdateManifestFileUrl_t pxFileUrls[ AZ_IOT_ADU_OTA_FILE_URL_MAX_COUNT ];
+    AzureIoTADUUpdateManifestFileUrl_t pxFileUrls[ AZ_IOT_ADU_FILE_URL_MAX_COUNT ];
     AzureIoTADUUpdateManifest_t xUpdateManifest;
 } AzureIoTADUUpdateRequest_t;
 
@@ -352,7 +352,7 @@ bool AzureIoTADUClient_IsADUComponent( const char * pucComponentName,
 AzureIoTResult_t AzureIoTADUClient_ParseRequest( AzureIoTJSONReader_t * pxReader,
                                                  AzureIoTADUUpdateRequest_t * pxAduUpdateRequest,
                                                  uint8_t * pucBuffer,
-                                                 uint32_t ulBufferSize);
+                                                 uint32_t ulBufferSize );
 
 /**
  * @brief Updates the ADU Agent Client with ADU service device update properties.
@@ -363,8 +363,8 @@ AzureIoTResult_t AzureIoTADUClient_ParseRequest( AzureIoTJSONReader_t * pxReader
  *         the update request is applicable (e.g., if the version is not already
  *         installed).
  *         This function also provides the payload to acknowledge the ADU service
- *         Azure Plug-and-Play writable properties.   
- * 
+ *         Azure Plug-and-Play writable properties.
+ *
  * @param[in] pxAduClient The #AzureIoTADUClient_t * to use for this call.
  * @param[in] pxReader  A #AzureIoTJSONReader_t initialized with the ADU
  *                      service writable properties json, set to the
@@ -380,20 +380,20 @@ AzureIoTResult_t AzureIoTADUClient_ParseRequest( AzureIoTJSONReader_t * pxReader
  * @return An #AzureIoTResult_t with the result of the operation.
  */
 AzureIoTResult_t AzureIoTADUClient_SendResponse( AzureIoTHubClient_t * pxAzureIoTHubClient,
-                                                AzureIoTADURequestDecision_t xRequestDecision,
-                                                uint32_t ulPropertyVersion,
-                                                uint8_t * pucWritablePropertyResponseBuffer,
-                                                uint32_t ulWritablePropertyResponseBufferSize,
-                                                uint32_t * pulRequestId );
+                                                 AzureIoTADURequestDecision_t xRequestDecision,
+                                                 uint32_t ulPropertyVersion,
+                                                 uint8_t * pucWritablePropertyResponseBuffer,
+                                                 uint32_t ulWritablePropertyResponseBufferSize,
+                                                 uint32_t * pulRequestId );
 
 AzureIoTResult_t AzureIoTADUClient_SendAgentState( AzureIoTHubClient_t * pxAzureIoTHubClient,
-                                                 AzureIoTHubClientADUDeviceInformation_t * pxDeviceInformation,
-                                                 AzureIoTADUUpdateRequest_t * pxAduUpdateRequest,
-                                                 AzureIoTADUAgentState_t xAgentState,
-                                                 AzureIoTHubClientADUInstallResult_t * pxUpdateResults,
-                                                 uint8_t * pucBuffer,
-                                                 uint32_t ulBufferSize,
-                                                 uint32_t * pulRequestId );
+                                                   AzureIoTHubClientADUDeviceInformation_t * pxDeviceInformation,
+                                                   AzureIoTADUUpdateRequest_t * pxAduUpdateRequest,
+                                                   AzureIoTADUAgentState_t xAgentState,
+                                                   AzureIoTHubClientADUInstallResult_t * pxUpdateResults,
+                                                   uint8_t * pucBuffer,
+                                                   uint32_t ulBufferSize,
+                                                   uint32_t * pulRequestId );
 
 
 #endif /* AZURE_IOT_ADU_CLIENT_H */
