@@ -9,8 +9,6 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-#include "azure_iot_adu_client.h"
-
 /* Azure Provisioning/IoT Hub library includes */
 #include "azure_iot_hub_client.h"
 #include "azure_iot_hub_client_properties.h"
@@ -28,9 +26,6 @@
 
 /* Crypto helper header. */
 #include "crypto.h"
-
-/* JWS Verification Code */
-#include "jws.h"
 
 /* Demo Specific configs. */
 #include "demo_config.h"
@@ -317,11 +312,6 @@ static uint32_t prvSetupNetworkCredentials( NetworkCredentials_t * pxNetworkCred
 
     return 0;
 }
-
-
-/*-----------------------------------------------------------*/
-
-
 /*-----------------------------------------------------------*/
 
 /**
@@ -529,22 +519,6 @@ static void prvAzureDemoTask( void * pvParameters )
         ulStatus = prvConnectToServerWithBackoffRetries( democonfigENDPOINT, democonfigIOTHUB_PORT,
                                                          pXNetworkCredentials, &xNetworkContext );
         configASSERT( ulStatus == 0 );
-
-        /* Verify ADU Manifest */
-        char ucEscapedManifest[] = "{\"manifestVersion\":\"4\",\"updateId\":{\"provider\":\"ESPRESSIF\",\"name\":\"ESP32-Azure-IoT-Kit\",\"version\":\"1.1\"},\"compatibility\":[{\"deviceManufacturer\":\"ESPRESSIF\",\"deviceModel\":\"ESP32-Azure-IoT-Kit\"}],\"instructions\":{\"steps\":[{\"handler\":\"microsoft/swupdate:1\",\"files\":[\"f9fec76f10aede60e\"],\"handlerProperties\":{\"installedCriteria\":\"1.0\"}}]},\"files\":{\"f9fec76f10aede60e\":{\"fileName\":\"azure_iot_freertos_esp32-v1.1.bin\",\"sizeInBytes\":861520,\"hashes\":{\"sha256\":\"BwsqbyduNatbrmHaLauoxeC1EY4J8Dv7mE76RxUfUAk=\"}}},\"createdDateTime\":\"2022-04-19T15:52:45.8497679Z\"}";
-        char ucManifestSignature[] = "eyJhbGciOiJSUzI1NiIsInNqd2siOiJleUpoYkdjaU9pSlNVekkxTmlJc0ltdHBaQ0k2SWtGRVZTNHlNREEzTURJdVVpSjkuZXlKcmRIa2lPaUpTVTBFaUxDSnVJam9pYkV4bWMwdHZPRmwwWW1Oak1sRXpUalV3VlhSTVNXWlhVVXhXVTBGRlltTm9LMFl2WTJVM1V6Rlpja3BvV0U5VGNucFRaa051VEhCVmFYRlFWSGMwZWxndmRHbEJja0ZGZFhrM1JFRmxWVzVGU0VWamVEZE9hM2QzZVRVdk9IcExaV3AyWTBWWWNFRktMMlV6UWt0SE5FVTBiMjVtU0ZGRmNFOXplSGRQUzBWbFJ6QkhkamwzVjB3emVsUmpUblprUzFoUFJGaEdNMVZRWlVveGIwZGlVRkZ0Y3pKNmJVTktlRUppZEZOSldVbDBiWFpwWTNneVpXdGtWbnBYUm5jdmRrdFVUblZMYXpob2NVczNTRkptYWs5VlMzVkxXSGxqSzNsSVVVa3dZVVpDY2pKNmEyc3plR2d4ZEVWUFN6azRWMHBtZUdKamFsQnpSRTgyWjNwWmVtdFlla05OZW1Fd1R6QkhhV0pDWjB4QlZGUTVUV1k0V1ZCd1dVY3lhblpQWVVSVmIwTlJiakpWWTFWU1RtUnNPR2hLWW5scWJscHZNa3B5SzFVNE5IbDFjVTlyTjBZMFdubFRiMEoyTkdKWVNrZ3lXbEpTV2tab0wzVlRiSE5XT1hkU2JWbG9XWEoyT1RGRVdtbHhhemhJVWpaRVUyeHVabTVsZFRJNFJsUm9SVzF0YjNOVlRUTnJNbGxNYzBKak5FSnZkWEIwTTNsaFNEaFpia3BVTnpSMU16TjFlakU1TDAxNlZIVnFTMmMzVkdGcE1USXJXR0owYmxwRU9XcFVSMkY1U25Sc2FFWmxWeXRJUXpVM1FYUkJSbHBvY1ZsM2VVZHJXQ3M0TTBGaFVGaGFOR0V4VHpoMU1qTk9WVWQxTWtGd04yOU5NVTR3ZVVKS0swbHNUM29pTENKbElqb2lRVkZCUWlJc0ltRnNaeUk2SWxKVE1qVTJJaXdpYTJsa0lqb2lRVVJWTGpJeE1EWXdPUzVTTGxNaWZRLlJLS2VBZE02dGFjdWZpSVU3eTV2S3dsNFpQLURMNnEteHlrTndEdkljZFpIaTBIa2RIZ1V2WnoyZzZCTmpLS21WTU92dXp6TjhEczhybXo1dnMwT1RJN2tYUG1YeDZFLUYyUXVoUXNxT3J5LS1aN2J3TW5LYTNkZk1sbkthWU9PdURtV252RWMyR0hWdVVTSzREbmw0TE9vTTQxOVlMNThWTDAtSEthU18xYmNOUDhXYjVZR08xZXh1RmpiVGtIZkNIU0duVThJeUFjczlGTjhUT3JETHZpVEtwcWtvM3RiSUwxZE1TN3NhLWJkZExUVWp6TnVLTmFpNnpIWTdSanZGbjhjUDN6R2xjQnN1aVQ0XzVVaDZ0M05rZW1UdV9tZjdtZUFLLTBTMTAzMFpSNnNTR281azgtTE1sX0ZaUmh4djNFZFNtR2RBUTNlMDVMRzNnVVAyNzhTQWVzWHhNQUlHWmcxUFE3aEpoZGZHdmVGanJNdkdTSVFEM09wRnEtZHREcEFXbUo2Zm5sZFA1UWxYek5tQkJTMlZRQUtXZU9BYjh0Yjl5aVhsemhtT1dLRjF4SzlseHpYUG9GNmllOFRUWlJ4T0hxTjNiSkVISkVoQmVLclh6YkViV2tFNm4zTEoxbkd5M1htUlVFcER0Umdpa0tBUzZybFhFT0VneXNjIn0.eyJzaGEyNTYiOiJJVHB3ZWxTTjJRWHBBaDFDNVoxWjVDNmV3VzNHK2kvM1VKcm1kZ1lSaG1VPSJ9.jmh3bEm-pfjzlxJfylexPX0fUqMeCiyP5uvFTd0QdAIk9cMIxv-8_SfzCTrhT-SvTf8XFTLkoFbhgsa0y5nTLxSm8Y2fR3WvkGIZGGywV89zQ-fEGnmM4lsiunlXI6hrVv3uQQeKhjcRWAgwpcwXE4xlP2cejPV9Auxy8rcRnNrf5-3Y21M1QBmCgkDj4Kv9xABo9U5w90I5XEu4hzbWbLAr-KLCiokck4rze6zLKjistAge8VtC318yBiEN2np_GQAXvt_IHkSkS6VTxryCX7hA5TdNQiugQvoXzTPVeRa0WmfAjk1FQZq_JuWJbEazPrhzQtKDhikO9aD-O9Ju6SCTsDVdmUIv0Hn_aq2a3l1rvcajhfpsPGdy3Lw605AGs1Fctu7W3jK5IFcoOstNvW905ywOV_NP5xlcm3vn17kGjgXAgeSaWo1NDT11ghPwZy82M5mKEof9gRy_edu99TSB00MRo3TX-vE80FIrjIrBAFToTDjRadE04JFfaiOX";
-
-        uint32_t ulManifestVerifyResult = JWS_Verify( ucEscapedManifest, strlen( ucEscapedManifest ),
-                                                      ucManifestSignature, strlen( ucManifestSignature ) );
-
-        if( ulManifestVerifyResult == 0 )
-        {
-            LogInfo( ( "Manifest Verification Successful\r\n" ) );
-        }
-        else
-        {
-            LogInfo( ( "Manifest Verification Failed\r\n" ) );
-        }
 
         /* Fill in Transport Interface send and receive function pointers. */
         xTransport.pxNetworkContext = &xNetworkContext;

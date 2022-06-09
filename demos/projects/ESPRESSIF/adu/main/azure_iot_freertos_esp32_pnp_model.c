@@ -12,6 +12,8 @@
 #include "azure_iot_hub_client.h"
 #include "azure_iot_hub_client_properties.h"
 
+#include "jws.h"
+
 #include "sample_azure_iot_pnp_data_if.h"
 /*-----------------------------------------------------------*/
 
@@ -252,6 +254,17 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
                 LogError( ( "AzureIoTADUClient_ParseRequest failed: result 0x%08x", xAzIoTResult ) );
                 *pulWritablePropertyResponseBufferLength = 0;
                 return;
+            }
+
+            LogInfo( ( "Verifying JWS Manifest" ) );
+            uint32_t ulJWSVerify = JWS_ManifestAuthenticate( (char*)xAzureIoTAduUpdateRequest.pucUpdateManifest,
+                                                       xAzureIoTAduUpdateRequest.ulUpdateManifestLength,
+                                                       (char*)xAzureIoTAduUpdateRequest.pucUpdateManifestSignature,
+                                                       xAzureIoTAduUpdateRequest.ulUpdateManifestSignatureLength);
+            if (ulJWSVerify != 0)
+            {
+              LogError( ( "JWS_ManifestAuthenticate failed: JWS was not validated successfully" ) );
+              return;
             }
 
             xRequestDecision = prvUserDecideShouldStartUpdate( &xAzureIoTAduUpdateRequest );

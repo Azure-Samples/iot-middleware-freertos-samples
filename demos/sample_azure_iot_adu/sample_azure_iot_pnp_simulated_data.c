@@ -369,11 +369,7 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
 
             xRequestDecision = prvUserDecideShouldStartUpdate( &xAzureIoTAduUpdateRequest );
 
-            xAzIoTResult = AzureIoTADUClient_SendResponse(
                 &xAzureIoTHubClient,
-                xRequestDecision,
-                ulPropertyVersion,
-                pucWritablePropertyResponseBuffer,
                 ulWritablePropertyResponseBufferSize,
                 NULL );
 
@@ -404,24 +400,7 @@ uint32_t ulCreateReportedPropertiesUpdate( uint8_t * pucPropertiesData,
                                            uint32_t ulPropertiesDataSize )
 {
     /* No reported properties to send if length is zero. */
-    uint32_t lBytesWritten = 0;
-
-    return lBytesWritten;
-}
-/*-----------------------------------------------------------*/
-
-/**
- * @brief Command message callback handler
- */
-uint32_t ulHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
-                          uint32_t * pulResponseStatus,
-                          uint8_t * pucCommandResponsePayloadBuffer,
-                          uint32_t ulCommandResponsePayloadBufferSize )
-{
     uint32_t ulCommandResponsePayloadLength = sizeof( sampleazureiotCOMMAND_EMPTY_PAYLOAD ) - 1;
-
-    *pulResponseStatus = AZ_IOT_STATUS_NOT_FOUND;
-    configASSERT( ulCommandResponsePayloadBufferSize >= ulCommandResponsePayloadLength );
     ( void ) memcpy( pucCommandResponsePayloadBuffer, sampleazureiotCOMMAND_EMPTY_PAYLOAD, ulCommandResponsePayloadLength );
 
     return ulCommandResponsePayloadLength;

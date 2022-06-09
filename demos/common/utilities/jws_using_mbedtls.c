@@ -1,6 +1,8 @@
 /* Copyright (c) Microsoft Corporation.
  * Licensed under the MIT License. */
 
+#include "jws.h"
+
 #include "azure/az_core.h"
 #include "azure/az_iot.h"
 
@@ -15,36 +17,60 @@
 #include "mbedtls/entropy.h"
 #include "mbedtls/cipher.h"
 
-#define azureiotRSA3072_SIZE    384
-#define azureiotSHA256_SIZE     32
+/* For logging */
+#include "demo_config.h"
 
-char ucBase64DecodedHeader[ 1400 ];
-char ucBase64DecodedPayload[ 60 ];
-char ucBase64DecodedSignature[ 400 ];
+/**
+ * @brief Convenience macro to return if an operation failed.
+ */
+#define azureiotresultRETURN_IF_FAILED( exp )        \
+    do                                               \
+    {                                                \
+        AzureIoTResult_t const _xAzResult = ( exp ); \
+        if( _xAzResult != eAzureIoTSuccess )         \
+        {                                            \
+            return _xAzResult;                       \
+        }                                            \
+    } while( 0 )
 
-char ucBase64DecodedJWKHeader[ 48 ];
-char ucBase64DecodedJWKPayload[ 700 ];
-char ucBase64DecodedJWKSignature[ 500 ];
+#define jwsRSA3072_SIZE            384
+#define jwsSHA256_SIZE             32
+#define jwsPKCS7_PAYLOAD_OFFSET    19
 
-char ucBase64DecodedSigningKeyN[ azureiotRSA3072_SIZE ];
-char ucBase64DecodedSigningKeyE[ 16 ];
+#define jwsSHA256_JSON_VALUE       "sha256"
+#define jwsSJWK_JSON_VALUE         "sjwk"
+#define jwsKID_JSON_VALUE          "kid"
+#define jwsN_JSON_VALUE            "n"
+#define jwsE_JSON_VALUE            "e"
+#define jwsALG_JSON_VALUE          "alg"
 
-char ucEscapedManifestSHACalculation[ azureiotSHA256_SIZE ];
-char parsedSha[ azureiotSHA256_SIZE ];
+static unsigned char ucJWSHeader[ 1400 ];
+static unsigned char ucJWSPayload[ 60 ];
+static unsigned char ucJWSSignature[ 400 ];
 
-char ucCalculatationBuffer[ azureiotRSA3072_SIZE + azureiotSHA256_SIZE ];
+static unsigned char ucJWKHeader[ 48 ];
+static unsigned char ucJWKPayload[ 700 ];
+static unsigned char ucJWKSignature[ 500 ];
 
-static uint32_t prvSplitJWS( char * pucJWS,
+static unsigned char ucSigningKeyN[ jwsRSA3072_SIZE ];
+static unsigned char ucSigningKeyE[ 16 ];
+
+static unsigned char ucManifestSHACalculation[ jwsSHA256_SIZE ];
+static unsigned char ucParsedManifestSha[ jwsSHA256_SIZE ];
+
+static unsigned char ucScratchCalculatationBuffer[ jwsRSA3072_SIZE + jwsSHA256_SIZE ];
+
+static uint32_t prvSplitJWS( unsigned char * pucJWS,
                              uint32_t ulJWSLength,
-                             char ** ppucHeader,
+                             unsigned char ** ppucHeader,
                              uint32_t * pulHeaderLength,
-                             char ** ppucPayload,
+                             unsigned char ** ppucPayload,
                              uint32_t * pulPayloadLength,
-                             char ** ppucSignature,
+                             unsigned char ** ppucSignature,
                              uint32_t * pulSignatureLength )
 {
-    char * pucFirstDot;
-    char * pucSecondDot;
+    unsigned char * pucFirstDot;
+    unsigned char * pucSecondDot;
     uint32_t ulDotCount = 0;
     uint32_t ulIndex = 0;
 
@@ -88,12 +114,10 @@ static uint32_t prvSplitJWS( char * pucJWS,
     return 0;
 }
 
-static void prvSwapToUrlEncodingChars( char * pucSignature,
+static void prvSwapToUrlEncodingChars( unsigned char * pucSignature,
                                        uint32_t ulSignatureLength )
 {
     uint32_t ulIndex = 0;
-
-    char * hold = pucSignature;
 
     while( ulIndex < ulSignatureLength )
     {
@@ -111,9 +135,19 @@ static void prvSwapToUrlEncodingChars( char * pucSignature,
     }
 }
 
-uint32_t AzureIoT_SHA256Calculate( const char * input,
-                                   uint32_t inputLength,
-                                   char * output )
+/**
+ * @brief Calculate the SHA256 over a buffer of bytes
+ *
+ * @param pucInput The input buffer over which to calculate the SHA256.
+ * @param ulInputLength The length of \p pucInput.
+ * @param pucOutput The output buffer into which the SHA256. It must be 32 bytes in length.
+ * @return uint32_t The result of the operation.
+ * @retval 0 if successful.
+ * @retval Non-0 if not successful.
+ */
+static uint32_t prvJWS_SHA256Calculate( const unsigned char * pucInput,
+                                        uint32_t ulInputLength,
+                                        unsigned char * pucOutput )
 {
     mbedtls_md_context_t ctx;
     mbedtls_md_type_t md_type = MBEDTLS_MD_SHA256;
@@ -121,131 +155,126 @@ uint32_t AzureIoT_SHA256Calculate( const char * input,
     mbedtls_md_init( &ctx );
     mbedtls_md_setup( &ctx, mbedtls_md_info_from_type( md_type ), 0 );
     mbedtls_md_starts( &ctx );
-    mbedtls_md_update( &ctx, ( const unsigned char * ) input, inputLength );
-    mbedtls_md_finish( &ctx, output );
+    mbedtls_md_update( &ctx, pucInput, ulInputLength );
+    mbedtls_md_finish( &ctx, pucOutput );
     mbedtls_md_free( &ctx );
 
     return 0;
 }
 
-uint32_t AzureIoT_RS256Verify( char * input,
-                               uint32_t inputLength,
-                               char * signature,
-                               uint32_t signatureLength,
-                               unsigned char * n,
-                               uint32_t nLength,
-                               unsigned char * e,
-                               uint32_t eLength,
-                               char * buffer,
-                               uint32_t bufferLength )
+/**
+ * @brief Verify the manifest via RS256 for the JWS.
+ *
+ * @param pucInput The input over which the RS256 will be verified.
+ * @param ulInputLength The length of \p pucInput.
+ * @param pucSignature The encrypted signature which will be decrypted by \p pucN and \p pucE.
+ * @param ulSignatureLength The length of \p pucSignature.
+ * @param pucN The key's modulus which is used to decrypt \p signature.
+ * @param ulNLength The length of \p pucN.
+ * @param pucE The exponent used for the key.
+ * @param ulELength The length of \p pucE.
+ * @param pucBuffer The buffer used as scratch space to make the calculations. It should be at least
+ * `jwsRSA3072_SIZE` + `jwsSHA256_SIZE` in size.
+ * @param ulBufferLength The length of \p pucBuffer.
+ * @return uint32_t The result of the operation.
+ * @retval 0 if successful.
+ * @retval Non-0 if not successful.
+ */
+static uint32_t prvJWS_RS256Verify( unsigned char * pucInput,
+                                    uint32_t ulInputLength,
+                                    unsigned char * pucSignature,
+                                    uint32_t ulSignatureLength,
+                                    unsigned char * pucN,
+                                    uint32_t ulNLength,
+                                    unsigned char * pucE,
+                                    uint32_t ulELength,
+                                    unsigned char * pucBuffer,
+                                    uint32_t ulBufferLength )
 {
     AzureIoTResult_t xResult;
-    int mbedTLSResult;
+    int32_t lMbedTLSResult;
 
-    if( bufferLength < azureiotRSA3072_SIZE + azureiotSHA256_SIZE )
+    if( ulBufferLength < jwsRSA3072_SIZE + jwsSHA256_SIZE )
     {
-        printf( "Buffer Not Large Enough\n" );
+        LogInfo( ( "Buffer Not Large Enough\n" ) );
         return 1;
     }
 
-    char * shaBuffer = buffer + azureiotRSA3072_SIZE;
-    char * metadata;
-    uint32_t metadataLength;
-
-    char * decryptedPtr = buffer;
-    size_t decryptedLength;
-
-    printf( "RS256 Verify Input:\n" );
-    printf( "%.*s", inputLength, input );
-    printf( "\n" );
+    unsigned char * pucShaBuffer = pucBuffer + jwsRSA3072_SIZE;
+    size_t ulDecryptedLength;
 
     /* The signature is encrypted using the input key. We need to decrypt the */
-    /* signature which gives us the SHA256 inside a PKCS7 structure. We then compare
+    /* signature which gives us the SHA256 inside a PKCS7 structure. We then compare */
     /* that to the SHA256 of the input. */
     mbedtls_rsa_context ctx;
 
     mbedtls_rsa_init( &ctx, MBEDTLS_RSA_PKCS_V15, 0 );
 
-    printf( "---- Initializing Decryption ----\n" );
+    LogInfo( ( "--- Initializing Decryption ---\n" ) );
 
-    mbedTLSResult = mbedtls_rsa_import_raw( &ctx,
-                                            n, nLength,
-                                            NULL, 0,
-                                            NULL, 0,
-                                            NULL, 0,
-                                            e, eLength );
-    printf( "\tN Length: %i | E Length: %i\n", nLength, eLength );
+    lMbedTLSResult = mbedtls_rsa_import_raw( &ctx,
+                                             pucN, ulNLength,
+                                             NULL, 0,
+                                             NULL, 0,
+                                             NULL, 0,
+                                             pucE, ulELength );
 
-    if( mbedTLSResult != 0 )
+    if( lMbedTLSResult != 0 )
     {
-        printf( "mbedtls res: %i\n", mbedTLSResult );
+        LogError( ( "mbedtls_rsa_import_raw res: %i\n", lMbedTLSResult ) );
+        mbedtls_rsa_free( &ctx );
+        return lMbedTLSResult;
     }
 
-    mbedTLSResult = mbedtls_rsa_complete( &ctx );
+    lMbedTLSResult = mbedtls_rsa_complete( &ctx );
 
-    if( mbedTLSResult != 0 )
+    if( lMbedTLSResult != 0 )
     {
-        printf( "mbedtls res: %i\n", mbedTLSResult );
+        LogError( ( "mbedtls_rsa_complete res: %i\n", lMbedTLSResult ) );
+        mbedtls_rsa_free( &ctx );
+        return lMbedTLSResult;
     }
 
-    mbedTLSResult = mbedtls_rsa_check_pubkey( &ctx );
+    lMbedTLSResult = mbedtls_rsa_check_pubkey( &ctx );
 
-    if( mbedTLSResult != 0 )
+    if( lMbedTLSResult != 0 )
     {
-        printf( "mbedtls res: %i\n", mbedTLSResult );
+        LogError( ( "mbedtls_rsa_check_pubkey res: %i\n", lMbedTLSResult ) );
+        mbedtls_rsa_free( &ctx );
+        return lMbedTLSResult;
     }
 
-    printf( "---- Decrypting ----\n" );
+    LogInfo( ( "--- Decrypting ---\n" ) );
 
     /* RSA */
-    mbedTLSResult = mbedtls_rsa_pkcs1_decrypt( &ctx, NULL, NULL, MBEDTLS_RSA_PUBLIC, &decryptedLength, signature, buffer, azureiotRSA3072_SIZE );
+    lMbedTLSResult = mbedtls_rsa_pkcs1_decrypt( &ctx, NULL, NULL, MBEDTLS_RSA_PUBLIC, &ulDecryptedLength, pucSignature, pucBuffer, jwsRSA3072_SIZE );
 
-    if( mbedTLSResult != 0 )
+    if( lMbedTLSResult != 0 )
     {
-        printf( "mbedtls res: %i | %x\n", mbedTLSResult, -mbedTLSResult );
+        LogError( ( "mbedtls_rsa_pkcs1_decrypt res: %i\n", lMbedTLSResult ) );
+        mbedtls_rsa_free( &ctx );
+        return lMbedTLSResult;
     }
 
-    printf( "\tDecrypted text length: %li\n", decryptedLength );
+    mbedtls_rsa_free( &ctx );
 
-    printf( "\tDecrypted text:\n" );
-    int i = 0;
+    LogInfo( ( "---- Calculating SHA256 over input ----\n" ) );
+    xResult = prvJWS_SHA256Calculate( pucInput, ulInputLength,
+                                      pucShaBuffer );
 
-    while( i < decryptedLength )
-    {
-        printf( "0x%.2x ", ( unsigned char ) *( buffer + i ) );
-        i++;
-    }
+    LogInfo( ( "--- Checking if SHA256 of header+payload matches decrypted SHA256 ---\n" ) );
 
-    printf( "\n" );
-
-    printf( "---- Calculating SHA256 over input ----\n" );
-    xResult = AzureIoT_SHA256Calculate( input, inputLength,
-                                        shaBuffer );
-
-    printf( "\tCalculated: " );
-
-    i = 0;
-
-    while( i < azureiotSHA256_SIZE )
-    {
-        printf( "0x%.2x ", ( unsigned char ) *( shaBuffer + i ) );
-        i++;
-    }
-
-    printf( "\n" );
-
-    printf( "--- Checking for if SHA256 of header+payload matches decrypted SHA256 ---\n" );
-
-    int doTheyMatch = memcmp( buffer + 19, shaBuffer, azureiotSHA256_SIZE );
+    /* TODO: remove this once we have a valid PKCS7 parser. */
+    int doTheyMatch = memcmp( pucBuffer + jwsPKCS7_PAYLOAD_OFFSET, pucShaBuffer, jwsSHA256_SIZE );
 
     if( doTheyMatch == 0 )
     {
-        printf( "\tSHA of JWK matches\n" );
+        LogInfo( ( "SHA of JWK matches\n" ) );
         xResult = 0;
     }
     else
     {
-        printf( "\tThey don't match\n" );
+        LogError( ( "SHA of JWK does NOT match\n" ) );
         xResult = 1;
     }
 
@@ -253,99 +282,108 @@ uint32_t AzureIoT_RS256Verify( char * input,
 }
 
 
-
-uint32_t JWS_Verify( const char * pucEscapedManifest,
-                     uint32_t ulEscapedManifestLength,
-                     char * pucJWS,
-                     uint32_t ulJWSLength )
+uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
+                                   uint32_t ulManifestLength,
+                                   char * pucJWS,
+                                   uint32_t ulJWSLength )
 {
     uint32_t ulVerificationResult;
 
-    int mbedtResult;
-    char * pucHeader;
-    char * pucPayload;
-    char * pucSignature;
-    uint32_t ulHeaderLength;
-    uint32_t ulPayloadLength;
+    int lMbedResult;
+    unsigned char * pucBase64EncodedHeader;
+    unsigned char * pucBase64EncodedPayload;
+    unsigned char * pucBase64EncodedSignature;
+    uint32_t ulBase64EncodedHeaderLength;
+    uint32_t ulBase64EncodedPayloadLength;
     uint32_t ulSignatureLength;
     AzureIoTJSONReader_t xJSONReader;
 
-    printf( "---------------------Begin Signature Validation --------------------\n\n" );
+    LogInfo( ( "---------------------Begin Signature Validation --------------------\n\n" ) );
 
     /*------------------- Parse and Decode the Manifest Sig ------------------------*/
 
-    AzureIoTResult_t xResult = prvSplitJWS( pucJWS, ulJWSLength,
-                                            &pucHeader, &ulHeaderLength,
-                                            &pucPayload, &ulPayloadLength,
-                                            &pucSignature, &ulSignatureLength );
-    prvSwapToUrlEncodingChars( pucSignature, ulSignatureLength );
+    AzureIoTResult_t xResult = prvSplitJWS( ( unsigned char * ) pucJWS, ulJWSLength,
+                                            &pucBase64EncodedHeader, &ulBase64EncodedHeaderLength,
+                                            &pucBase64EncodedPayload, &ulBase64EncodedPayloadLength,
+                                            &pucBase64EncodedSignature, &ulSignatureLength );
+    prvSwapToUrlEncodingChars( pucBase64EncodedSignature, ulSignatureLength );
 
-    printf( "---JWS Base64 Decode Header---\n" );
-    int32_t outJWSDecodedHeaderLength;
-    mbedtResult = mbedtls_base64_decode( ucBase64DecodedHeader, sizeof( ucBase64DecodedHeader ), ( size_t * ) &outJWSDecodedHeaderLength, pucHeader, ulHeaderLength );
-    printf( "\tmbedTLS Return: 0x%x\n", mbedtResult );
-    printf( "\tOut Decoded Size: %i\n", outJWSDecodedHeaderLength );
-    printf( "\t%.*s\n\n", ( int ) outJWSDecodedHeaderLength, ucBase64DecodedHeader );
+    LogInfo( ( "---JWS Base64 Decode Header---\n" ) );
+    int32_t outJWSHeaderLength;
+    lMbedResult = mbedtls_base64_decode( ( unsigned char * ) ucJWSHeader, sizeof( ucJWSHeader ), ( size_t * ) &outJWSHeaderLength, ( const unsigned char * ) pucBase64EncodedHeader, ulBase64EncodedHeaderLength );
+    /* TODO: here and elsewhere, remove verbose logs */
+    /* LogInfo(( "\tmbedTLS Return: 0x%x\n", lMbedResult )); */
+    /* LogInfo(( "\tOut Decoded Size: %i\n", outJWSHeaderLength )); */
+    /* LogInfo(( "\t%.*s\n\n", ( int ) outJWSHeaderLength, ( char * ) ucJWSHeader )); */
 
-    printf( "---JWS Base64 Decode Payload---\n" );
-    int32_t outJWSDecodedLength;
-    mbedtResult = mbedtls_base64_decode( ucBase64DecodedPayload, sizeof( ucBase64DecodedPayload ), ( size_t * ) &outJWSDecodedLength, pucPayload, ulPayloadLength );
-    printf( "\tmbedTLS Return: 0x%x\n", mbedtResult );
-    printf( "\tOut Decoded Size: %i\n", outJWSDecodedLength );
-    printf( "\t%.*s\n\n", ( int ) outJWSDecodedLength, ucBase64DecodedPayload );
+    LogInfo( ( "---JWS Base64 Decode Payload---\n" ) );
+    int32_t outJWSPayloadLength;
+    lMbedResult = mbedtls_base64_decode( ( unsigned char * ) ucJWSPayload, sizeof( ucJWSPayload ), ( size_t * ) &outJWSPayloadLength, ( const unsigned char * ) pucBase64EncodedPayload, ulBase64EncodedPayloadLength );
+    /* LogInfo(( "\tmbedTLS Return: 0x%x\n", lMbedResult )); */
+    /* LogInfo(( "\tOut Decoded Size: %i\n", outJWSPayloadLength )); */
+    /* LogInfo(( "\t%.*s\n\n", ( int ) outJWSPayloadLength, ( char * ) ucJWSPayload )); */
 
-    printf( "---JWS Base64 Decode Signature---\n" );
-    int32_t outJWSDecodedSignatureLength;
-    mbedtResult = mbedtls_base64_decode( ucBase64DecodedSignature, sizeof( ucBase64DecodedSignature ), ( size_t * ) &outJWSDecodedSignatureLength, pucSignature, ulSignatureLength );
-    printf( "\tmbedTLS Return: 0x%x\n", mbedtResult );
-    printf( "\tOut Decoded Size: %i\n", outJWSDecodedSignatureLength );
-    printf( "\t%.*s\n\n", ( int ) outJWSDecodedSignatureLength, ucBase64DecodedSignature );
+    LogInfo( ( "---JWS Base64 Decode Signature---\n" ) );
+    int32_t outJWSSignatureLength;
+    lMbedResult = mbedtls_base64_decode( ( unsigned char * ) ucJWSSignature, sizeof( ucJWSSignature ), ( size_t * ) &outJWSSignatureLength, ( const unsigned char * ) pucBase64EncodedSignature, ulSignatureLength );
+    /* LogInfo(( "\tmbedTLS Return: 0x%x\n", lMbedResult )); */
+    /* LogInfo(( "\tOut Decoded Size: %i\n", outJWSSignatureLength )); */
+    /* LogInfo(( "\t%.*s\n\n", ( int ) outJWSSignatureLength, ( char * ) ucJWSSignature )); */
 
 
     /*------------------- Parse JSK JSON Payload ------------------------*/
 
     /* The "sjwk" is the signed signing public key */
-    printf( "---Parsing JWS JSON Payload---\n" );
+    LogInfo( ( "---Parsing JWS JSON Payload---\n" ) );
+    unsigned char * pucJWKManifest;
+    az_span xJWKManifestSpan;
 
     /*TODO: REMOVE THIS HACK */
-    ucBase64DecodedHeader[ outJWSDecodedHeaderLength ] = '"';
-    ucBase64DecodedHeader[ outJWSDecodedHeaderLength + 1 ] = '}';
-    outJWSDecodedHeaderLength = outJWSDecodedHeaderLength + 2;
-    AzureIoTJSONReader_Init( &xJSONReader, ucBase64DecodedHeader, outJWSDecodedHeaderLength );
-    xResult = AzureIoTJSONReader_NextToken( &xJSONReader );
+    /* The JWK standard explicitly prohibits the padding characters from base64 encoded sections. */
+    /* The mbedtls base64 decoder does not assume the padding characters, and therefore cuts the */
+    /* decoding short. We hardcode the remaining characters in for now. */
+    ucJWSHeader[ outJWSHeaderLength ] = '"';
+    ucJWSHeader[ outJWSHeaderLength + 1 ] = '}';
+    outJWSHeaderLength = outJWSHeaderLength + 2;
+    AzureIoTJSONReader_Init( &xJSONReader, ( const uint8_t * ) ucJWSHeader, outJWSHeaderLength );
+    azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( &xJSONReader ) );
 
     while( xResult == eAzureIoTSuccess )
     {
-        if( AzureIoTJSONReader_TokenIsTextEqual( &xJSONReader, "sjwk", strlen( "sjwk" ) ) )
+        if( AzureIoTJSONReader_TokenIsTextEqual( &xJSONReader, ( const uint8_t * ) jwsSJWK_JSON_VALUE, sizeof( jwsSJWK_JSON_VALUE ) - 1 ) )
         {
-            xResult = AzureIoTJSONReader_NextToken( &xJSONReader );
-            printf( "Coreresult: %i\n", xResult );
+            azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( &xJSONReader ) );
             break;
         }
         else
         {
-            xResult = AzureIoTJSONReader_NextToken( &xJSONReader );
-            xResult = AzureIoTJSONReader_SkipChildren( &xJSONReader );
+            azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( &xJSONReader ) );
+            azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_SkipChildren( &xJSONReader ) );
             xResult = AzureIoTJSONReader_NextToken( &xJSONReader );
         }
     }
 
-    az_span xJWKManifestSpan = xJSONReader._internal.xCoreReader.token.slice;
+    if( ( xResult != eAzureIoTSuccess ) && ( xResult != eAzureIoTErrorJSONReaderDone ) )
+    {
+        LogError( ( "Parse JSK JSON Payload Error: %i\n", xResult ) );
+        return xResult;
+    }
 
-    char * pucJWKManifest = az_span_ptr( xJWKManifestSpan );
+    xJWKManifestSpan = xJSONReader._internal.xCoreReader.token.slice;
+
+    pucJWKManifest = az_span_ptr( xJWKManifestSpan );
     uint32_t ulJWKManifestLength = az_span_size( xJWKManifestSpan );
-    printf( "JWKManifest Length: %i\n", ulJWKManifestLength );
 
     /*------------------- Base64 Decode the JWK Payload ------------------------*/
 
-    char * pucJWKHeader;
-    char * pucJWKPayload;
-    char * pucJWKSignature;
+    unsigned char * pucJWKHeader;
+    unsigned char * pucJWKPayload;
+    unsigned char * pucJWKSignature;
     uint32_t ulJWKHeaderLength;
     uint32_t ulJWKPayloadLength;
     uint32_t ulJWKSignatureLength;
 
-    printf( "--- Base64 Decoding JWS Payload ---\n" );
+    LogInfo( ( "--- Base64 Decoding JWS Payload ---\n" ) );
 
     xResult = prvSplitJWS( pucJWKManifest, ulJWKManifestLength,
                            &pucJWKHeader, &ulJWKHeaderLength,
@@ -353,203 +391,237 @@ uint32_t JWS_Verify( const char * pucEscapedManifest,
                            &pucJWKSignature, &ulJWKSignatureLength );
     prvSwapToUrlEncodingChars( pucJWKSignature, ulJWKSignatureLength );
 
-    printf( "--- JWK Base64 Decode Header ---\n" );
-    int32_t outDecodedJWKSizeOne;
-    mbedtls_base64_decode( ucBase64DecodedJWKHeader, sizeof( ucBase64DecodedJWKHeader ), ( size_t * ) &outDecodedJWKSizeOne, pucJWKHeader, ulJWKHeaderLength );
-    printf( "\tCore Return: 0x%x\n", mbedtResult );
-    printf( "\tOut Decoded Size: %i\n", outDecodedJWKSizeOne );
-    printf( "\t%.*s\n\n", ( int ) outDecodedJWKSizeOne, ucBase64DecodedJWKHeader );
+    LogInfo( ( "--- JWK Base64 Decode Header ---\n" ) );
+    int32_t outJWKHeaderLength;
+    lMbedResult = mbedtls_base64_decode( ( unsigned char * ) ucJWKHeader, sizeof( ucJWKHeader ), ( size_t * ) &outJWKHeaderLength, pucJWKHeader, ulJWKHeaderLength );
+    /* LogInfo(( "\tmbedTLS Return: 0x%x\n", lMbedResult )); */
+    /* LogInfo(( "\tOut Decoded Size: %i\n", outJWKHeaderLength )); */
+    /* LogInfo(( "\t%.*s\n\n", ( int ) outJWKHeaderLength, ( char * ) ucJWKHeader )); */
 
-    printf( "--- JWK Base64 Decode Payload ---\n" );
-    int32_t outDecodedJWKSizeTwo;
-    mbedtResult = mbedtls_base64_decode( ucBase64DecodedJWKPayload,
-                                         sizeof( ucBase64DecodedJWKPayload ),
-                                         ( size_t * ) &outDecodedJWKSizeTwo,
+    LogInfo( ( "--- JWK Base64 Decode Payload ---\n" ) );
+    int32_t outJWKPayloadLength;
+    lMbedResult = mbedtls_base64_decode( ( unsigned char * ) ucJWKPayload,
+                                         sizeof( ucJWKPayload ),
+                                         ( size_t * ) &outJWKPayloadLength,
                                          pucJWKPayload,
                                          ulJWKPayloadLength );
-    printf( "\tCore Return: 0x%x\n", mbedtResult );
-    printf( "\tOut Decoded Size: %i\n", outDecodedJWKSizeTwo );
-    printf( "\t%.*s\n\n", ( int ) outDecodedJWKSizeTwo, ucBase64DecodedJWKPayload );
+    /* LogInfo(( "\tmbedTLS Return: 0x%x\n", lMbedResult )); */
+    /* LogInfo(( "\tOut Decoded Size: %i\n", outJWKPayloadLength )); */
+    /* LogInfo(( "\t%.*s\n\n", ( int ) outJWKPayloadLength, ( char * ) ucJWKPayload )); */
 
-    printf( "--- JWK Base64 Decode Signature ---\n" );
-    int32_t outDecodedJWKSizeThree;
-    mbedtResult = mbedtls_base64_decode( ucBase64DecodedJWKSignature, sizeof( ucBase64DecodedJWKSignature ), ( size_t * ) &outDecodedJWKSizeThree, pucJWKSignature, ulJWKSignatureLength );
-    printf( "\tCore Return: 0x%x\n", mbedtResult );
-    printf( "\tOut Decoded Size: %i\n", outDecodedJWKSizeThree );
-    printf( "\t%.*s\n\n", ( int ) outDecodedJWKSizeThree, ucBase64DecodedJWKSignature );
+    LogInfo( ( "--- JWK Base64 Decode Signature ---\n" ) );
+    int32_t outJWKSignatureLength;
+    lMbedResult = mbedtls_base64_decode( ( unsigned char * ) ucJWKSignature, sizeof( ucJWKSignature ), ( size_t * ) &outJWKSignatureLength, pucJWKSignature, ulJWKSignatureLength );
+    /* LogInfo(( "\tmbedTLS Return: 0x%x\n", lMbedResult )); */
+    /* LogInfo(( "\tOut Decoded Size: %i\n", outJWKSignatureLength )); */
+    /* LogInfo(( "\t%.*s\n\n", ( int ) outJWKSignatureLength, ( char * ) ucJWKSignature )); */
 
     /*------------------- Parse id for root key ------------------------*/
 
-    printf( "--- Checking Root Key ---\n" );
+    LogInfo( ( "--- Checking Root Key ---\n" ) );
     az_span kidSpan;
-    AzureIoTJSONReader_Init( &xJSONReader, ucBase64DecodedJWKHeader, outDecodedJWKSizeOne );
-    xResult = AzureIoTJSONReader_NextToken( &xJSONReader );
+    AzureIoTJSONReader_Init( &xJSONReader, ( const uint8_t * ) ucJWKHeader, outJWKHeaderLength );
+    /*Begin object */
+    azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( &xJSONReader ) );
+    /*Property Name */
+    azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( &xJSONReader ) );
 
     while( xResult == eAzureIoTSuccess )
     {
-        if( AzureIoTJSONReader_TokenIsTextEqual( &xJSONReader, "kid", strlen( "kid" ) ) )
+        if( AzureIoTJSONReader_TokenIsTextEqual( &xJSONReader, ( const uint8_t * ) jwsKID_JSON_VALUE, sizeof( jwsKID_JSON_VALUE ) - 1 ) )
         {
-            xResult = AzureIoTJSONReader_NextToken( &xJSONReader );
+            azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( &xJSONReader ) );
             kidSpan = xJSONReader._internal.xCoreReader.token.slice;
 
-            xResult = AzureIoTJSONReader_NextToken( &xJSONReader );
+            break;
         }
         else
         {
-            xResult = AzureIoTJSONReader_NextToken( &xJSONReader );
-            xResult = AzureIoTJSONReader_SkipChildren( &xJSONReader );
+            azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( &xJSONReader ) );
+            azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_SkipChildren( &xJSONReader ) );
             xResult = AzureIoTJSONReader_NextToken( &xJSONReader );
         }
+    }
+
+    if( ( xResult != eAzureIoTSuccess ) && ( xResult != eAzureIoTErrorJSONReaderDone ) )
+    {
+        LogError( ( "Parse Root Key Error: %i\n", xResult ) );
+        return xResult;
     }
 
     az_span rootKeyIDSpan = az_span_create( ( uint8_t * ) AzureIoTADURootKeyId, sizeof( AzureIoTADURootKeyId ) - 1 );
 
     if( az_span_is_content_equal( rootKeyIDSpan, kidSpan ) )
     {
-        printf( "\tUsing the correct root key\n" );
+        LogInfo( ( "Using the correct root key\n" ) );
     }
     else
     {
-        printf( "\tUsing the wrong root key\n" );
+        LogError( ( "Using the wrong root key\n" ) );
 
-        while( 1 )
-        {
-        }
+        return 1;
     }
 
     /*------------------- Parse necessary pieces for the verification ------------------------*/
 
-    az_span nSpan;
-    az_span eSpan;
-    az_span algSpan;
-    printf( "--- Parse Signing Key Payload ---\n" );
+    az_span nSpan = AZ_SPAN_EMPTY;
+    az_span eSpan = AZ_SPAN_EMPTY;
+    az_span algSpan = AZ_SPAN_EMPTY;
+    LogInfo( ( "--- Parse Signing Key Payload ---\n" ) );
 
-    AzureIoTJSONReader_Init( &xJSONReader, ucBase64DecodedJWKPayload, outDecodedJWKSizeTwo );
-    xResult = AzureIoTJSONReader_NextToken( &xJSONReader );
+    AzureIoTJSONReader_Init( &xJSONReader, ( const uint8_t * ) ucJWKPayload, outJWKPayloadLength );
+    /*Begin object */
+    azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( &xJSONReader ) );
+    /*Property Name */
+    azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( &xJSONReader ) );
 
-    while( xResult == eAzureIoTSuccess )
+    while( xResult == eAzureIoTSuccess && ( az_span_size( nSpan ) == 0 || az_span_size( eSpan ) == 0 || az_span_size( algSpan ) == 0 ) )
     {
-        if( AzureIoTJSONReader_TokenIsTextEqual( &xJSONReader, "n", strlen( "n" ) ) )
+        if( AzureIoTJSONReader_TokenIsTextEqual( &xJSONReader, ( const uint8_t * ) jwsN_JSON_VALUE, sizeof( jwsN_JSON_VALUE ) - 1 ) )
         {
-            xResult = AzureIoTJSONReader_NextToken( &xJSONReader );
+            azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( &xJSONReader ) );
             nSpan = xJSONReader._internal.xCoreReader.token.slice;
 
             xResult = AzureIoTJSONReader_NextToken( &xJSONReader );
         }
-        else if( AzureIoTJSONReader_TokenIsTextEqual( &xJSONReader, "e", strlen( "e" ) ) )
+        else if( AzureIoTJSONReader_TokenIsTextEqual( &xJSONReader, ( const uint8_t * ) jwsE_JSON_VALUE, sizeof( jwsE_JSON_VALUE ) - 1 ) )
         {
-            xResult = AzureIoTJSONReader_NextToken( &xJSONReader );
+            azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( &xJSONReader ) );
             eSpan = xJSONReader._internal.xCoreReader.token.slice;
 
             xResult = AzureIoTJSONReader_NextToken( &xJSONReader );
         }
-        else if( AzureIoTJSONReader_TokenIsTextEqual( &xJSONReader, "alg", strlen( "alg" ) ) )
+        else if( AzureIoTJSONReader_TokenIsTextEqual( &xJSONReader, ( const uint8_t * ) jwsALG_JSON_VALUE, sizeof( jwsALG_JSON_VALUE ) - 1 ) )
         {
-            xResult = AzureIoTJSONReader_NextToken( &xJSONReader );
+            azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( &xJSONReader ) );
             algSpan = xJSONReader._internal.xCoreReader.token.slice;
 
             xResult = AzureIoTJSONReader_NextToken( &xJSONReader );
         }
         else
         {
-            xResult = AzureIoTJSONReader_NextToken( &xJSONReader );
-            xResult = AzureIoTJSONReader_SkipChildren( &xJSONReader );
+            azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( &xJSONReader ) );
+            azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_SkipChildren( &xJSONReader ) );
             xResult = AzureIoTJSONReader_NextToken( &xJSONReader );
         }
     }
 
-    printf( "--- Print Signing Key Parts ---\n" );
-    printf( "\tnSpan: %.*s\n", az_span_size( nSpan ), az_span_ptr( nSpan ) );
-    printf( "\teSpan: %.*s\n", az_span_size( eSpan ), az_span_ptr( eSpan ) );
-    printf( "\talgSpan: %.*s\n", az_span_size( algSpan ), az_span_ptr( algSpan ) );
+    if( ( xResult != eAzureIoTSuccess ) && ( xResult != eAzureIoTErrorJSONReaderDone ) )
+    {
+        LogError( ( "Parse Signing Key Payload Error: %i\n", xResult ) );
+        return xResult;
+    }
+
+    /* LogInfo(( "--- Print Signing Key Parts ---\n" )); */
+    /* LogInfo(( "\tnSpan: %.*s\n", az_span_size( nSpan ), az_span_ptr( nSpan ) )); */
+    /* LogInfo(( "\teSpan: %.*s\n", az_span_size( eSpan ), az_span_ptr( eSpan ) )); */
+    /* LogInfo(( "\talgSpan: %.*s\n", az_span_size( algSpan ), az_span_ptr( algSpan ) )); */
 
     /*------------------- Base64 decode the key ------------------------*/
-    printf( "--- Signing key base64 decoding N ---\n" );
-    int32_t outDecodedSigningKeyN;
-    mbedtResult = mbedtls_base64_decode( ucBase64DecodedSigningKeyN, sizeof( ucBase64DecodedSigningKeyN ), ( size_t * ) &outDecodedSigningKeyN, az_span_ptr( nSpan ), az_span_size( nSpan ) );
-    printf( "\tmbedtResult Return: 0x%x\n", mbedtResult );
-    printf( "\tOut Decoded Size: %i\n", outDecodedSigningKeyN );
-    printf( "\t%.*s\n\n", ( int ) outDecodedSigningKeyN, ucBase64DecodedSigningKeyN );
+    LogInfo( ( "--- Signing key base64 decoding N ---\n" ) );
+    int32_t outSigningKeyNLength;
+    lMbedResult = mbedtls_base64_decode( ( unsigned char * ) ucSigningKeyN, sizeof( ucSigningKeyN ), ( size_t * ) &outSigningKeyNLength, az_span_ptr( nSpan ), az_span_size( nSpan ) );
+    /* LogInfo(( "\tlMbedResult Return: 0x%x\n", lMbedResult )); */
+    /* LogInfo(( "\tOut Decoded Size: %i\n", outSigningKeyNLength )); */
+    /* LogInfo(( "\t%.*s\n\n", ( int ) outSigningKeyNLength, ( char * ) ucSigningKeyN )); */
 
-    printf( "--- Signing key base64 decoding E ---\n" );
-    int32_t outDecodedSigningKeyE;
-    mbedtResult = mbedtls_base64_decode( ucBase64DecodedSigningKeyE, sizeof( ucBase64DecodedSigningKeyE ), ( size_t * ) &outDecodedSigningKeyE, az_span_ptr( eSpan ), az_span_size( eSpan ) );
-    printf( "\tmbedtResult Return: 0x%x\n", mbedtResult );
-    printf( "\tOut Decoded Size: %i\n", outDecodedSigningKeyE );
-    printf( "\t%.*s\n\n", ( int ) outDecodedSigningKeyE, ucBase64DecodedSigningKeyE );
+    LogInfo( ( "--- Signing key base64 decoding E ---\n" ) );
+    int32_t outSigningKeyELength;
+    lMbedResult = mbedtls_base64_decode( ( unsigned char * ) ucSigningKeyE, sizeof( ucSigningKeyE ), ( size_t * ) &outSigningKeyELength, az_span_ptr( eSpan ), az_span_size( eSpan ) );
+    /* LogInfo(( "\tlMbedResult Return: 0x%x\n", lMbedResult )); */
+    /* LogInfo(( "\tOut Decoded Size: %i\n", outSigningKeyELength )); */
+    /* LogInfo(( "\t%.*s\n\n", ( int ) outSigningKeyELength, ( char * ) ucSigningKeyE )); */
 
 
     /*------------------- Verify the signature ------------------------*/
-    ulVerificationResult = AzureIoT_RS256Verify( pucJWKHeader, ulJWKHeaderLength + ulJWKPayloadLength + 1,
-                                                 ucBase64DecodedJWKSignature, outDecodedJWKSizeThree,
-                                                 ( unsigned char * ) AzureIoTADURootKeyN, sizeof( AzureIoTADURootKeyN ),
-                                                 ( unsigned char * ) AzureIoTADURootKeyE, sizeof( AzureIoTADURootKeyE ),
-                                                 ucCalculatationBuffer, sizeof( ucCalculatationBuffer ) );
+    ulVerificationResult = prvJWS_RS256Verify( pucJWKHeader, ulJWKHeaderLength + ulJWKPayloadLength + 1,
+                                               ucJWKSignature, outJWKSignatureLength,
+                                               ( unsigned char * ) AzureIoTADURootKeyN, sizeof( AzureIoTADURootKeyN ),
+                                               ( unsigned char * ) AzureIoTADURootKeyE, sizeof( AzureIoTADURootKeyE ),
+                                               ucScratchCalculatationBuffer, sizeof( ucScratchCalculatationBuffer ) );
 
     if( ulVerificationResult != 0 )
     {
-        printf( "Verification of signing key failed\n" );
+        LogError( ( "Verification of signing key failed\n" ) );
         return ulVerificationResult;
     }
 
     /*------------------- Verify that the signature was signed by signing key ------------------------*/
-    ulVerificationResult = AzureIoT_RS256Verify( pucHeader, ulHeaderLength + ulPayloadLength + 1,
-                                                 ucBase64DecodedSignature, outJWSDecodedSignatureLength,
-                                                 ucBase64DecodedSigningKeyN, outDecodedSigningKeyN,
-                                                 ucBase64DecodedSigningKeyE, outDecodedSigningKeyE,
-                                                 ucCalculatationBuffer, sizeof( ucCalculatationBuffer ) );
+    ulVerificationResult = prvJWS_RS256Verify( pucBase64EncodedHeader, ulBase64EncodedHeaderLength + ulBase64EncodedPayloadLength + 1,
+                                               ucJWSSignature, outJWSSignatureLength,
+                                               ucSigningKeyN, outSigningKeyNLength,
+                                               ucSigningKeyE, outSigningKeyELength,
+                                               ucScratchCalculatationBuffer, sizeof( ucScratchCalculatationBuffer ) );
 
     if( ulVerificationResult != 0 )
     {
-        printf( "Verification of signed manifest SHA failed\n" );
+        LogError( ( "Verification of signed manifest SHA failed\n" ) );
         return ulVerificationResult;
     }
 
     /*------------------- Verify that the SHAs match ------------------------*/
-    /* decodedSpanHeader */
-    ulVerificationResult = AzureIoT_SHA256Calculate( pucEscapedManifest,
-                                                     ulEscapedManifestLength,
-                                                     ucEscapedManifestSHACalculation );
+    ulVerificationResult = prvJWS_SHA256Calculate( ( const unsigned char * ) pucManifest,
+                                                   ulManifestLength,
+                                                   ucManifestSHACalculation );
 
-    xResult = AzureIoTJSONReader_Init( &xJSONReader, ucBase64DecodedPayload, outJWSDecodedLength );
+    if( ulVerificationResult != 0 )
+    {
+        LogError( ( "SHA256 Calculation failed" ) );
+        return ulVerificationResult;
+    }
+
+    AzureIoTJSONReader_Init( &xJSONReader, ( const uint8_t * ) ucJWSPayload, outJWSPayloadLength );
     /*Begin object */
-    xResult = AzureIoTJSONReader_NextToken( &xJSONReader );
+    azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( &xJSONReader ) );
     /*Property Name */
-    xResult = AzureIoTJSONReader_NextToken( &xJSONReader );
+    azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( &xJSONReader ) );
 
     az_span sha256Span;
 
     while( xResult == eAzureIoTSuccess )
     {
-        if( AzureIoTJSONReader_TokenIsTextEqual( &xJSONReader, "sha256", strlen( "sha256" ) ) )
+        if( AzureIoTJSONReader_TokenIsTextEqual( &xJSONReader, ( const uint8_t * ) jwsSHA256_JSON_VALUE, sizeof( jwsSHA256_JSON_VALUE ) - 1 ) )
         {
-            xResult = AzureIoTJSONReader_NextToken( &xJSONReader );
+            azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( &xJSONReader ) );
             sha256Span = xJSONReader._internal.xCoreReader.token.slice;
             break;
         }
         else
         {
-            xResult = AzureIoTJSONReader_NextToken( &xJSONReader );
-            xResult = AzureIoTJSONReader_SkipChildren( &xJSONReader );
+            azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( &xJSONReader ) );
+            azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_SkipChildren( &xJSONReader ) );
             xResult = AzureIoTJSONReader_NextToken( &xJSONReader );
         }
     }
 
-    printf( "Parsed SHA: %.*s\n", az_span_size( sha256Span ), az_span_ptr( sha256Span ) );
+    if( ( xResult != eAzureIoTSuccess ) && ( xResult != eAzureIoTErrorJSONReaderDone ) )
+    {
+        LogError( ( "Parse SHA256 Error: %i\n", xResult ) );
+        return xResult;
+    }
 
-    int32_t outParseSha;
-    mbedtResult = mbedtls_base64_decode( parsedSha, sizeof( parsedSha ), ( size_t * ) &outParseSha, az_span_ptr( sha256Span ), az_span_size( sha256Span ) );
+    LogInfo( ( "Parsed SHA: %.*s\n", az_span_size( sha256Span ), ( char * ) az_span_ptr( sha256Span ) ) );
 
-    ulVerificationResult = memcmp( ucEscapedManifestSHACalculation, parsedSha, azureiotSHA256_SIZE );
+    int32_t outParsedManifestShaSize;
+    lMbedResult = mbedtls_base64_decode( ( unsigned char * ) ucParsedManifestSha, sizeof( ucParsedManifestSha ), ( size_t * ) &outParsedManifestShaSize, az_span_ptr( sha256Span ), az_span_size( sha256Span ) );
+    ( void ) lMbedResult;
+
+    if( outParsedManifestShaSize != jwsSHA256_SIZE )
+    {
+        LogError( ( "Base64 decoded SHA256 is not the correct length\n" ) );
+        return 1;
+    }
+
+    ulVerificationResult = memcmp( ucManifestSHACalculation, ucParsedManifestSha, jwsSHA256_SIZE );
 
     if( ulVerificationResult != 0 )
     {
-        printf( "Calculated manifest SHA does not match SHA in payload\n" );
+        LogError( ( "Calculated manifest SHA does not match SHA in payload\n" ) );
         return ulVerificationResult;
     }
     else
     {
-        printf( "Calculated manifest SHA matches parsed SHA\n" );
+        LogInfo( ( "Calculated manifest SHA matches parsed SHA\n" ) );
     }
 
     /*------------------- Done (Loop) ------------------------*/
