@@ -242,7 +242,6 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
             AzureIoTADURequestDecision_t xRequestDecision;
 
             xAzIoTResult = AzureIoTADUClient_ParseRequest(
-                                &xAzureIoTHubClient,
                                 &xJsonReader,
                                 &xAzureIoTAduOtaUpdateRequest,
                                 ucAduContextBuffer,
