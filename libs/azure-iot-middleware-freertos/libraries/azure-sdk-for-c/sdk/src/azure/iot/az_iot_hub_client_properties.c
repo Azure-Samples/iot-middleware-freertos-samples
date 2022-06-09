@@ -3,10 +3,6 @@
 
 #include <azure/iot/az_iot_hub_client_properties.h>
 
-#include <azure/core/az_json.h>
-#include <azure/core/az_result.h>
-#include <azure/core/az_span.h>
-
 #include <azure/core/internal/az_precondition_internal.h>
 #include <azure/core/internal/az_result_internal.h>
 

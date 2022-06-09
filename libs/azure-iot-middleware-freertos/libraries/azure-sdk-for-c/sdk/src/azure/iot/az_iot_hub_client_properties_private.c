@@ -3,10 +3,13 @@
 
 #include "az_iot_hub_client_properties_private.h"
 
-#include <azure/az_core.h>
-#include <azure/az_iot.h>
+#include <azure/core/az_json.h>
+#include <azure/core/az_result.h>
+#include <azure/core/az_span.h>
 #include <azure/core/internal/az_precondition_internal.h>
 #include <azure/core/internal/az_result_internal.h>
+#include <azure/iot/az_iot_hub_client.h>
+#include <azure/iot/az_iot_hub_client_properties.h>
 
 // Move reader to the value of property name
 static az_result json_child_token_move(az_json_reader* ref_jr, az_span property_name)
