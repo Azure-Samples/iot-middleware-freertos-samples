@@ -169,6 +169,46 @@ AZ_NODISCARD az_result az_iot_adu_ota_get_properties_payload(
   _az_RETURN_IF_FAILED(az_iot_hub_client_properties_writer_begin_component(
       NULL, &jw, AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_COMPONENT_NAME)));
 
+  /* Fill the agent property name.  */
+  _az_RETURN_IF_FAILED(az_json_writer_append_property_name(
+      &jw, AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_AGENT)));
+  _az_RETURN_IF_FAILED(az_json_writer_append_begin_object(&jw));
+
+  /* Fill the deviceProperties.  */
+  _az_RETURN_IF_FAILED(az_json_writer_append_property_name(
+      &jw, AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_DEVICEPROPERTIES)));
+  _az_RETURN_IF_FAILED(az_json_writer_append_begin_object(&jw));
+
+  _az_RETURN_IF_FAILED(az_json_writer_append_property_name(
+      &jw, AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_MANUFACTURER)));
+  _az_RETURN_IF_FAILED(az_json_writer_append_string(&jw, device_information->manufacturer));
+
+  _az_RETURN_IF_FAILED(az_json_writer_append_property_name(
+      &jw, AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_MODEL)));
+  _az_RETURN_IF_FAILED(az_json_writer_append_string(&jw, device_information->model));
+
+  // TODO: verify if this needs to be exposed as an option.
+  _az_RETURN_IF_FAILED(az_json_writer_append_property_name(
+      &jw, AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_INTERFACE_ID)));
+  _az_RETURN_IF_FAILED(
+      az_json_writer_append_string(&jw, AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_INTERFACE_ID)));
+
+  _az_RETURN_IF_FAILED(az_json_writer_append_property_name(
+      &jw, AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_ADU_VERSION)));
+  _az_RETURN_IF_FAILED(az_json_writer_append_string(&jw, device_information->adu_version));
+
+  if (!az_span_is_content_equal(device_information->do_version, AZ_SPAN_EMPTY))
+  {
+    // TODO: verify if 'doVer' is required.
+    //       Ref:
+    //       https://docs.microsoft.com/en-us/azure/iot-hub-device-update/device-update-plug-and-play
+    _az_RETURN_IF_FAILED(az_json_writer_append_property_name(
+        &jw, AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_DO_VERSION)));
+    _az_RETURN_IF_FAILED(az_json_writer_append_string(&jw, device_information->do_version));
+  }
+
+  _az_RETURN_IF_FAILED(az_json_writer_append_end_object(&jw));
+
   /* Fill the compatible property names. */
   _az_RETURN_IF_FAILED(az_json_writer_append_property_name(
       &jw, AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_COMPAT_PROPERTY_NAMES)));
