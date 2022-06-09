@@ -4,6 +4,8 @@
 #include <azure/iot/az_iot_adu_ota.h>
 #include <azure/iot/az_iot_hub_client_properties.h>
 
+#include "az_iot_hub_client_properties_private.h"
+
 #include <azure/core/internal/az_precondition_internal.h>
 #include <azure/core/internal/az_result_internal.h>
 #include <stdio.h>
@@ -140,7 +142,6 @@ static az_result generate_step_id(az_span buffer, uint32_t step_index, az_span* 
 }
 
 AZ_NODISCARD az_result az_iot_adu_ota_get_properties_payload(
-    az_iot_hub_client const* iot_hub_client,
     az_iot_adu_ota_device_information* device_information,
     int32_t agent_state,
     az_iot_adu_ota_workflow* workflow,
@@ -148,7 +149,6 @@ AZ_NODISCARD az_result az_iot_adu_ota_get_properties_payload(
     az_span payload,
     az_span* out_payload)
 {
-  _az_PRECONDITION_NOT_NULL(iot_hub_client);
   _az_PRECONDITION_NOT_NULL(device_information);
   _az_PRECONDITION_VALID_SPAN(device_information->manufacturer, 1, false);
   _az_PRECONDITION_VALID_SPAN(device_information->model, 1, false);
@@ -167,47 +167,7 @@ AZ_NODISCARD az_result az_iot_adu_ota_get_properties_payload(
 
   /* Fill the ADU agent component name.  */
   _az_RETURN_IF_FAILED(az_iot_hub_client_properties_writer_begin_component(
-      iot_hub_client, &jw, AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_COMPONENT_NAME)));
-
-  /* Fill the agent property name.  */
-  _az_RETURN_IF_FAILED(az_json_writer_append_property_name(
-      &jw, AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_AGENT)));
-  _az_RETURN_IF_FAILED(az_json_writer_append_begin_object(&jw));
-
-  /* Fill the deviceProperties.  */
-  _az_RETURN_IF_FAILED(az_json_writer_append_property_name(
-      &jw, AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_DEVICEPROPERTIES)));
-  _az_RETURN_IF_FAILED(az_json_writer_append_begin_object(&jw));
-
-  _az_RETURN_IF_FAILED(az_json_writer_append_property_name(
-      &jw, AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_MANUFACTURER)));
-  _az_RETURN_IF_FAILED(az_json_writer_append_string(&jw, device_information->manufacturer));
-
-  _az_RETURN_IF_FAILED(az_json_writer_append_property_name(
-      &jw, AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_MODEL)));
-  _az_RETURN_IF_FAILED(az_json_writer_append_string(&jw, device_information->model));
-
-  // TODO: verify if this needs to be exposed as an option.
-  _az_RETURN_IF_FAILED(az_json_writer_append_property_name(
-      &jw, AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_INTERFACE_ID)));
-  _az_RETURN_IF_FAILED(
-      az_json_writer_append_string(&jw, AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_INTERFACE_ID)));
-
-  _az_RETURN_IF_FAILED(az_json_writer_append_property_name(
-      &jw, AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_ADU_VERSION)));
-  _az_RETURN_IF_FAILED(az_json_writer_append_string(&jw, device_information->adu_version));
-
-  if (!az_span_is_content_equal(device_information->do_version, AZ_SPAN_EMPTY))
-  {
-    // TODO: verify if 'doVer' is required.
-    //       Ref:
-    //       https://docs.microsoft.com/en-us/azure/iot-hub-device-update/device-update-plug-and-play
-    _az_RETURN_IF_FAILED(az_json_writer_append_property_name(
-        &jw, AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_DO_VERSION)));
-    _az_RETURN_IF_FAILED(az_json_writer_append_string(&jw, device_information->do_version));
-  }
-
-  _az_RETURN_IF_FAILED(az_json_writer_append_end_object(&jw));
+      NULL, &jw, AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_COMPONENT_NAME)));
 
   /* Fill the compatible property names. */
   _az_RETURN_IF_FAILED(az_json_writer_append_property_name(
@@ -329,7 +289,7 @@ AZ_NODISCARD az_result az_iot_adu_ota_get_properties_payload(
 
   _az_RETURN_IF_FAILED(az_json_writer_append_end_object(&jw));
 
-  _az_RETURN_IF_FAILED(az_iot_hub_client_properties_writer_end_component(iot_hub_client, &jw));
+  _az_RETURN_IF_FAILED(az_iot_hub_client_properties_writer_end_component(NULL, &jw));
   _az_RETURN_IF_FAILED(az_json_writer_append_end_object(&jw));
 
   *out_payload = az_json_writer_get_bytes_used_in_destination(&jw);
@@ -339,13 +299,11 @@ AZ_NODISCARD az_result az_iot_adu_ota_get_properties_payload(
 
 // Reference: AzureRTOS/AZ_IOT_ADU_OTA_agent_service_properties_get(...)
 AZ_NODISCARD az_result az_iot_adu_ota_parse_service_properties(
-    az_iot_hub_client const* iot_hub_client,
     az_json_reader* jr,
     az_span buffer,
     az_iot_adu_ota_update_request* update_request,
     az_span* buffer_remainder)
 {
-  _az_PRECONDITION_NOT_NULL(iot_hub_client);
   _az_PRECONDITION_NOT_NULL(jr);
   _az_PRECONDITION_VALID_SPAN(buffer, 1, false);
   _az_PRECONDITION_NOT_NULL(update_request);
@@ -541,13 +499,11 @@ AZ_NODISCARD az_result az_iot_adu_ota_parse_service_properties(
 }
 
 AZ_NODISCARD az_result az_iot_adu_ota_get_service_properties_response(
-    az_iot_hub_client const* iot_hub_client,
     int32_t version,
     int32_t status,
     az_span payload,
     az_span* out_payload)
 {
-  _az_PRECONDITION_NOT_NULL(iot_hub_client);
   _az_PRECONDITION_VALID_SPAN(payload, 1, false);
   _az_PRECONDITION_NOT_NULL(out_payload);
 
@@ -557,9 +513,9 @@ AZ_NODISCARD az_result az_iot_adu_ota_get_service_properties_response(
   _az_RETURN_IF_FAILED(az_json_writer_init(&jw, payload, NULL));
   _az_RETURN_IF_FAILED(az_json_writer_append_begin_object(&jw));
   _az_RETURN_IF_FAILED(az_iot_hub_client_properties_writer_begin_component(
-      iot_hub_client, &jw, AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_COMPONENT_NAME)));
+      NULL, &jw, AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_COMPONENT_NAME)));
   _az_RETURN_IF_FAILED(az_iot_hub_client_properties_writer_begin_response_status(
-      iot_hub_client,
+      NULL,
       &jw,
       AZ_SPAN_FROM_STR(AZ_IOT_ADU_OTA_AGENT_PROPERTY_NAME_SERVICE),
       status,
@@ -571,9 +527,8 @@ AZ_NODISCARD az_result az_iot_adu_ota_get_service_properties_response(
   _az_RETURN_IF_FAILED(az_json_writer_append_begin_object(&jw));
   _az_RETURN_IF_FAILED(az_json_writer_append_end_object(&jw));
 
-  _az_RETURN_IF_FAILED(
-      az_iot_hub_client_properties_writer_end_response_status(iot_hub_client, &jw));
-  _az_RETURN_IF_FAILED(az_iot_hub_client_properties_writer_end_component(iot_hub_client, &jw));
+  _az_RETURN_IF_FAILED(az_iot_hub_client_properties_writer_end_response_status(NULL, &jw));
+  _az_RETURN_IF_FAILED(az_iot_hub_client_properties_writer_end_component(NULL, &jw));
   _az_RETURN_IF_FAILED(az_json_writer_append_end_object(&jw));
 
   *out_payload = az_json_writer_get_bytes_used_in_destination(&jw);

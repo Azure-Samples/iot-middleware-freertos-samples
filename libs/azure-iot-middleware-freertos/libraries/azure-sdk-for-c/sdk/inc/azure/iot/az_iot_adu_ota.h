@@ -177,7 +177,6 @@ AZ_NODISCARD bool az_iot_adu_ota_is_component_device_update(az_span component_na
  * @brief Generates the Azure Plug-and-Play (reported) properties payload
  *        with the state of the ADU agent.
  *
- * @param[in] iot_hub_client        A pointer to the #az_iot_hub_client instance.
  * @param[in] device_information    A pointer to a #az_iot_adu_ota_device_information
  *                                  structure with all the details of the device,
  *                                  as required by the ADU service.
@@ -202,7 +201,6 @@ AZ_NODISCARD bool az_iot_adu_ota_is_component_device_update(az_span component_na
  * @return An #az_result value indicating the result of the operation.
  */
 AZ_NODISCARD az_result az_iot_adu_ota_get_properties_payload(
-    az_iot_hub_client const* iot_hub_client,
     az_iot_adu_ota_device_information* device_information,
     int32_t agent_state,
     az_iot_adu_ota_workflow* workflow,
@@ -214,7 +212,6 @@ AZ_NODISCARD az_result az_iot_adu_ota_get_properties_payload(
  * @brief Parses the json content from the ADU service writable properties into
  *        a pre-defined structure.
  *
- * @param[in] iot_hub_client       A pointer to the #az_iot_hub_client instance.
  * @param[in] jr                   A #az_json_reader initialized with the ADU
  *                                 service writable properties json, set to the
  *                                 beginning of the json object that is the value
@@ -232,7 +229,6 @@ AZ_NODISCARD az_result az_iot_adu_ota_get_properties_payload(
  * @return An #az_result value indicating the result of the operation.
  */
 AZ_NODISCARD az_result az_iot_adu_ota_parse_service_properties(
-    az_iot_hub_client const* iot_hub_client,
     az_json_reader* jr,
     az_span buffer,
     az_iot_adu_ota_update_request* update_request,
@@ -242,7 +238,6 @@ AZ_NODISCARD az_result az_iot_adu_ota_parse_service_properties(
  * @brief    Generates the payload necessary to respond to the service
              after receiving incoming properties.
  *
- * @param[in] iot_hub_client    A pointer to the #az_iot_hub_client instance.
  * @param[in] version           Version of the writable properties.
  * @param[in] status            Azure Plug-and-Play status code for the
  *                              writable properties acknowledgement.
@@ -254,7 +249,6 @@ AZ_NODISCARD az_result az_iot_adu_ota_parse_service_properties(
  * @return An #az_result value indicating the result of the operation.
  */
 AZ_NODISCARD az_result az_iot_adu_ota_get_service_properties_response(
-    az_iot_hub_client const* iot_hub_client,
     int32_t version,
     int32_t status,
     az_span payload,

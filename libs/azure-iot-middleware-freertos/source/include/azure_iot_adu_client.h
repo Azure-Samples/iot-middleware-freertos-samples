@@ -349,8 +349,7 @@ typedef struct AzureIoTADUUpdateRequest
 bool AzureIoTADUClient_IsADUComponent( const char * pucComponentName,
                                        uint32_t ulComponentNameLength );
 
-AzureIoTResult_t AzureIoTADUClient_ParseRequest( AzureIoTHubClient_t * pxAzureIoTHubClient,
-                                                 AzureIoTJSONReader_t * pxReader,
+AzureIoTResult_t AzureIoTADUClient_ParseRequest( AzureIoTJSONReader_t * pxReader,
                                                  AzureIoTADUUpdateRequest_t * pxAduUpdateRequest,
                                                  uint8_t * pucBuffer,
                                                  uint32_t ulBufferSize);

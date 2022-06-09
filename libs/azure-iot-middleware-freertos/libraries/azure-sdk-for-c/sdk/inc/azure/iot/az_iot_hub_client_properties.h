@@ -46,7 +46,6 @@
  * Plug and Play component.
  * @param[in] component_name The component name associated with the reported properties.
  *
- * @pre \p client must not be `NULL`.
  * @pre \p ref_json_writer must not be `NULL`.
  * @pre \p component_name must be a valid, non-empty #az_span.
  *
@@ -69,7 +68,6 @@ AZ_NODISCARD az_result az_iot_hub_client_properties_writer_begin_component(
  * @param[in,out] ref_json_writer The #az_json_writer to append the necessary characters for an IoT
  * Plug and Play component.
  *
- * @pre \p client must not be `NULL`.
  * @pre \p ref_json_writer must not be `NULL`.
  *
  * @return An #az_result value indicating the result of the operation.
@@ -145,7 +143,6 @@ AZ_NODISCARD az_result az_iot_hub_client_properties_writer_end_component(
  * @param[in] description An optional description detailing the context or any details about
  * the acknowledgement. This can be #AZ_SPAN_EMPTY.
  *
- * @pre \p client must not be `NULL`.
  * @pre \p ref_json_writer must not be `NULL`.
  * @pre \p property_name must be a valid, non-empty #az_span.
  *
@@ -169,7 +166,6 @@ AZ_NODISCARD az_result az_iot_hub_client_properties_writer_begin_response_status
  * @param[in] client The #az_iot_hub_client to use for this call.
  * @param[in,out] ref_json_writer The initialized #az_json_writer to append data to.
  *
- * @pre \p client must not be `NULL`.
  * @pre \p ref_json_writer must not be `NULL`.
  *
  * @return An #az_result value indicating the result of the operation.
@@ -195,7 +191,6 @@ AZ_NODISCARD az_result az_iot_hub_client_properties_writer_end_response_status(
  * type associated with the payload.
  * @param[out] out_version The numeric version of the properties in the JSON payload.
  *
- * @pre \p client must not be `NULL`.
  * @pre \p ref_json_reader must not be `NULL`.
  * @pre \p message_type must be `AZ_IOT_HUB_CLIENT_PROPERTIES_MESSAGE_TYPE_WRITABLE_UPDATED` or
  * `AZ_IOT_HUB_CLIENT_PROPERTIES_MESSAGE_TYPE_GET_RESPONSE`.
