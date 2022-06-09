@@ -185,8 +185,7 @@ static void prvCastUpdateRequest(
     pxUpdateRequest->xUpdateManifest.ulCreateDateTimeLength = (uint32_t)az_span_size( pxBaseUpdateManifest->create_date_time );
 }
 
-AzureIoTResult_t AzureIoTADUClient_ParseRequest( AzureIoTHubClient_t * pxAzureIoTHubClient,
-                                                 AzureIoTJSONReader_t * pxReader,
+AzureIoTResult_t AzureIoTADUClient_ParseRequest( AzureIoTJSONReader_t * pxReader,
                                                  AzureIoTADUUpdateRequest_t * pxAduUpdateRequest,
                                                  uint8_t * pucBuffer,
                                                  uint32_t ulBufferSize)
@@ -197,7 +196,6 @@ AzureIoTResult_t AzureIoTADUClient_ParseRequest( AzureIoTHubClient_t * pxAzureIo
     az_span xBufferSpan = az_span_create( pucBuffer, (int32_t)ulBufferSize );
 
     xAzResult = az_iot_adu_ota_parse_service_properties(
-        &pxAzureIoTHubClient->_internal.xAzureIoTHubClientCore,
         &pxReader->_internal.xCoreReader,
         xBufferSpan,
         &xBaseUpdateRequest,
@@ -242,7 +240,6 @@ AzureIoTResult_t AzureIoTADUClient_SendResponse( AzureIoTHubClient_t * pxAzureIo
     // TODO: consume xRequestDecision in az_iot_adu_ota_get_service_properties_response
     ( void ) xRequestDecision;
     az_result xAzResult = az_iot_adu_ota_get_service_properties_response(
-        &pxAzureIoTHubClient->_internal.xAzureIoTHubClientCore,
         ( int32_t ) ulPropertyVersion,
         200,
         xWritablePropertyResponse,
@@ -376,7 +373,6 @@ AzureIoTResult_t AzureIoTADUClient_SendAgentState( AzureIoTHubClient_t * pxAzure
     prvFillBaseAduInstallResults( pxUpdateResults, &xInstallResult );
 
     az_result xAzResult = az_iot_adu_ota_get_properties_payload(
-        &pxAzureIoTHubClient->_internal.xAzureIoTHubClientCore,
         &xBaseDeviceInformation,
         ( int32_t ) xAgentState,
         pxAduUpdateRequest != NULL ? &xBaseWorkflow : NULL,
