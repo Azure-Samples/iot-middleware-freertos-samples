@@ -165,11 +165,17 @@ static void az_base64_decode_test(void** state)
 
   uint8_t expected_buffer1[1] = { 1 };
   _az_base64_decode_test_helper(AZ_SPAN_FROM_STR("AQ=="), AZ_SPAN_FROM_BUFFER(expected_buffer1));
+  uint8_t expected_buffer0[1] = { 1 };
+  _az_base64_decode_test_helper(AZ_SPAN_FROM_STR("AQ"), AZ_SPAN_FROM_BUFFER(expected_buffer0));
   uint8_t expected_buffer2[2] = { 1, 2 };
   _az_base64_decode_test_helper(AZ_SPAN_FROM_STR("AQI="), AZ_SPAN_FROM_BUFFER(expected_buffer2));
   uint8_t expected_buffer3[3] = { 1, 2, 3 };
   _az_base64_decode_test_helper(AZ_SPAN_FROM_STR("AQID"), AZ_SPAN_FROM_BUFFER(expected_buffer3));
   uint8_t expected_buffer4[4] = { 1, 2, 3, 4 };
+  // Test two short padding characters
+  _az_base64_decode_test_helper(AZ_SPAN_FROM_STR("AQIDBA"), AZ_SPAN_FROM_BUFFER(expected_buffer4));
+  // Test one short padding character
+  _az_base64_decode_test_helper(AZ_SPAN_FROM_STR("AQIDBA="), AZ_SPAN_FROM_BUFFER(expected_buffer4));
   _az_base64_decode_test_helper(
       AZ_SPAN_FROM_STR("AQIDBA=="), AZ_SPAN_FROM_BUFFER(expected_buffer4));
   uint8_t expected_buffer5[5] = { 1, 2, 3, 4, 5 };
@@ -244,21 +250,6 @@ static void az_base64_decode_source_small_test(void** state)
 
   assert_int_equal(
       az_base64_decode(destination, AZ_SPAN_FROM_STR("AQIDB"), &bytes_written),
-      AZ_ERROR_UNEXPECTED_END);
-  assert_int_equal(bytes_written, 0);
-
-  assert_int_equal(
-      az_base64_decode(destination, AZ_SPAN_FROM_STR("AQIDBA"), &bytes_written),
-      AZ_ERROR_UNEXPECTED_END);
-  assert_int_equal(bytes_written, 0);
-
-  assert_int_equal(
-      az_base64_decode(destination, AZ_SPAN_FROM_STR("AQIDBA="), &bytes_written),
-      AZ_ERROR_UNEXPECTED_END);
-  assert_int_equal(bytes_written, 0);
-
-  assert_int_equal(
-      az_base64_decode(destination, AZ_SPAN_FROM_STR("AQIDBAU"), &bytes_written),
       AZ_ERROR_UNEXPECTED_END);
   assert_int_equal(bytes_written, 0);
 }
