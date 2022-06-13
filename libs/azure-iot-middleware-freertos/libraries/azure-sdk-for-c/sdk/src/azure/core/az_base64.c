@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // SPDX-License-Identifier: MIT
+
 #include <azure/core/az_base64.h>
 #include <azure/core/internal/az_precondition_internal.h>
 
@@ -403,7 +404,7 @@ AZ_NODISCARD az_result
 az_base64_decode(az_span destination_bytes, az_span source_base64_text, int32_t* out_written)
 {
   _az_PRECONDITION_VALID_SPAN(destination_bytes, 1, false);
-  _az_PRECONDITION_VALID_SPAN(source_base64_text, 1, false);
+  _az_PRECONDITION_VALID_SPAN(source_base64_text, 2, false);
   _az_PRECONDITION_NOT_NULL(out_written);
 
   int32_t source_length = az_span_size(source_base64_text);
