@@ -241,9 +241,9 @@ AZ_NODISCARD az_result az_iot_adu_get_properties_payload(
       // Taking from the end of the remaining buffer to avoid az_json_writer overlapping
       // with the data we will generate in that buffer.
       az_span step_id = az_span_slice_to_end(
-          remaining_buffer, az_span_size(remaining_buffer) - RESULT_STEP_ID_MAX_SIZE);
+          remaining_buffer, az_span_size(remaining_buffer) - (int32_t)RESULT_STEP_ID_MAX_SIZE);
 
-      _az_RETURN_IF_FAILED(generate_step_id(step_id, i, &step_id));
+      _az_RETURN_IF_FAILED(generate_step_id(step_id, (uint32_t)i, &step_id));
 
       _az_RETURN_IF_FAILED(az_json_writer_append_property_name(&jw, step_id));
       _az_RETURN_IF_FAILED(az_json_writer_append_begin_object(&jw));
