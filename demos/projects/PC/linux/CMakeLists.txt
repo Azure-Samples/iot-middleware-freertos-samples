@@ -45,34 +45,34 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 add_map_file(${PROJECT_NAME} ${PROJECT_NAME}.map)
 
 # ADU demo files and dependencies
-add_executable(${PROJECT_NAME}-adu
-  main.c
-  ${CMAKE_CURRENT_LIST_DIR}/port/azure_iot_flash_platform.c
-)
-target_link_libraries(${PROJECT_NAME}-adu PRIVATE
-    FreeRTOS::Timers
-    FreeRTOS::Heap::3
-    FreeRTOS::EventGroups
-    FreeRTOS::Posix
-    FreeRTOSPlus::Utilities::backoff_algorithm
-    FreeRTOSPlus::Utilities::logging
-    FreeRTOSPlus::ThirdParty::mbedtls
-    FreeRTOSPlus::TCPIP
-    FreeRTOSPlus::TCPIP::PORT
-    az::iot_middleware::freertos
-    pthread
-    pcap
-    SAMPLE::AZUREIOTADU
-    SAMPLE::TRANSPORT::MBEDTLS
-    SAMPLE::TRANSPORT::SOCKET
-    SAMPLE::SOCKET::FREERTOSTCPIP)
+# add_executable(${PROJECT_NAME}-adu
+#   main.c
+#   ${CMAKE_CURRENT_LIST_DIR}/port/azure_iot_flash_platform.c
+# )
+# target_link_libraries(${PROJECT_NAME}-adu PRIVATE
+#     FreeRTOS::Timers
+#     FreeRTOS::Heap::3
+#     FreeRTOS::EventGroups
+#     FreeRTOS::Posix
+#     FreeRTOSPlus::Utilities::backoff_algorithm
+#     FreeRTOSPlus::Utilities::logging
+#     FreeRTOSPlus::ThirdParty::mbedtls
+#     FreeRTOSPlus::TCPIP
+#     FreeRTOSPlus::TCPIP::PORT
+#     az::iot_middleware::freertos
+#     pthread
+#     pcap
+#     SAMPLE::AZUREIOTADU
+#     SAMPLE::TRANSPORT::MBEDTLS
+#     SAMPLE::TRANSPORT::SOCKET
+#     SAMPLE::SOCKET::FREERTOSTCPIP)
 
-target_include_directories(${PROJECT_NAME}-adu
-    PUBLIC
-        ${CMAKE_CURRENT_LIST_DIR}/port
-)
+# target_include_directories(${PROJECT_NAME}-adu
+#     PUBLIC
+#         ${CMAKE_CURRENT_LIST_DIR}/port
+# )
 
-add_map_file(${PROJECT_NAME}-adu ${PROJECT_NAME}-adu.map)
+# add_map_file(${PROJECT_NAME}-adu ${PROJECT_NAME}-adu.map)
 
 # Add demo files and dependencies for PnP Sample
 add_executable(${PROJECT_NAME}-pnp main.c)
@@ -94,3 +94,26 @@ target_link_libraries(${PROJECT_NAME}-pnp PRIVATE
     SAMPLE::SOCKET::FREERTOSTCPIP)
 
 add_map_file(${PROJECT_NAME}-pnp ${PROJECT_NAME}-pnp.map)
+
+# Add demo files and dependencies for PnP Sample
+add_executable(jws_using_mbedtls_ut
+${CMAKE_CURRENT_LIST_DIR}/tests/main.c
+${CMAKE_CURRENT_LIST_DIR}/tests/aux_needed_functions.c
+${CMAKE_CURRENT_LIST_DIR}/../../../../demos/common/tests/jws_using_mbedtls_ut.c
+)
+target_link_libraries(jws_using_mbedtls_ut PRIVATE
+    FreeRTOS::Timers
+    FreeRTOS::Heap::3
+    FreeRTOS::EventGroups
+    FreeRTOS::Posix
+    FreeRTOSPlus::Utilities::backoff_algorithm
+    FreeRTOSPlus::Utilities::logging
+    FreeRTOSPlus::ThirdParty::mbedtls
+    FreeRTOSPlus::TCPIP
+    FreeRTOSPlus::TCPIP::PORT
+    az::iot_middleware::freertos
+    pthread
+    pcap
+    SAMPLE::AZUREIOTPNP
+    SAMPLE::TRANSPORT::MBEDTLS
+    SAMPLE::SOCKET::FREERTOSTCPIP)

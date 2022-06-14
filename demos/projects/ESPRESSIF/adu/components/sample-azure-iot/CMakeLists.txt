@@ -9,6 +9,7 @@ idf_component_get_property(MBEDTLS_DIR mbedtls COMPONENT_DIR)
 
 set(COMPONENT_SOURCES
     ${ROOT_PATH}/demos/sample_azure_iot_adu/sample_azure_iot_adu.c
+    ${ROOT_PATH}/demos/common/utilities/jws_using_mbedtls.c
     ${CMAKE_CURRENT_LIST_DIR}/backoff_algorithm.c
     ${CMAKE_CURRENT_LIST_DIR}/transport_tls_esp32.c
     ${CMAKE_CURRENT_LIST_DIR}/transport_socket_esp32.c
