@@ -10,7 +10,7 @@
 #include "mbedtls/ctr_drbg.h"
 #include "mbedtls/entropy.h"
 
-#include "jws.h"
+#include "sample_adu_jws.h"
 #include "demo_config.h"
 #include "FreeRTOSConfig.h"
 

@@ -12,7 +12,7 @@
 #include "azure_iot_hub_client.h"
 #include "azure_iot_hub_client_properties.h"
 
-#include "jws.h"
+#include "sample_adu_jws.h"
 
 #include "sample_azure_iot_pnp_data_if.h"
 /*-----------------------------------------------------------*/

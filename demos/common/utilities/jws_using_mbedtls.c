@@ -1,7 +1,7 @@
 /* Copyright (c) Microsoft Corporation.
  * Licensed under the MIT License. */
 
-#include "jws.h"
+#include "sample_adu_jws.h"
 
 #include "azure/az_core.h"
 #include "azure/az_iot.h"
