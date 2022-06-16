@@ -13,6 +13,24 @@
 
 #include <stdint.h>
 
+#define jwsRSA3072_SIZE                   384
+#define jwsSHA256_SIZE                    32
+#define jwsPKCS7_PAYLOAD_OFFSET           19
+#define jwsJWS_HEADER_SIZE                1400
+#define jwsJWS_PAYLOAD_SIZE               60
+#define jwsJWS_SIGNATURE_SIZE             400
+#define jwsJWK_HEADER_SIZE                48
+#define jwsJWK_PAYLOAD_SIZE               700
+#define jwsJWK_SIGNATURE_SIZE             400
+#define jwsSIGNING_KEY_E_SIZE             16
+#define jwsSHA_CALCULATION_SCRATCH_SIZE   jwsRSA3072_SIZE + jwsSHA256_SIZE
+
+#define jwsSCRATCH_BUFFER_SIZE (jwsRSA3072_SIZE + jwsSHA256_SIZE + \
+                                jwsPKCS7_PAYLOAD_OFFSET + jwsJWS_HEADER_SIZE + \
+                                jwsJWS_PAYLOAD_SIZE + jwsJWS_SIGNATURE_SIZE + \
+                                jwsJWK_HEADER_SIZE + jwsJWK_PAYLOAD_SIZE + jwsJWK_SIGNATURE_SIZE + \
+                                jwsSIGNING_KEY_E_SIZE + jwsSHA_CALCULATION_SCRATCH_SIZE)
+
 /**
  * @brief Authenticate the manifest from ADU.
  *

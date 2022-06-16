@@ -33,37 +33,12 @@
         }                                            \
     } while( 0 )
 
-#define jwsRSA3072_SIZE            384
-#define jwsSHA256_SIZE             32
-#define jwsPKCS7_PAYLOAD_OFFSET    19
-#define jwsJWS_HEADER_SIZE         1400
-#define jwsJWS_PAYLOAD_SIZE        60
-#define jwsJWS_SIGNATURE_SIZE      400
-#define jwsJWK_HEADER_SIZE         48
-#define jwsJWK_PAYLOAD_SIZE       700
-#define jwsJWK_SIGNATURE_SIZE      400
-
 #define jwsSHA256_JSON_VALUE       "sha256"
 #define jwsSJWK_JSON_VALUE         "sjwk"
 #define jwsKID_JSON_VALUE          "kid"
 #define jwsN_JSON_VALUE            "n"
 #define jwsE_JSON_VALUE            "e"
 #define jwsALG_JSON_VALUE          "alg"
-
-static unsigned char* ucJWSPayload[ 60 ];
-static unsigned char* ucJWSSignature[ 400 ];
-
-static unsigned char* ucJWKHeader[ 48 ];
-static unsigned char* ucJWKPayload[ 700 ];
-static unsigned char* ucJWKSignature[ 500 ];
-
-static unsigned char* ucSigningKeyN[ jwsRSA3072_SIZE ];
-static unsigned char* ucSigningKeyE[ 16 ];
-
-static unsigned char* ucManifestSHACalculation[ jwsSHA256_SIZE ];
-static unsigned char* ucParsedManifestSha[ jwsSHA256_SIZE ];
-
-static unsigned char* ucScratchCalculatationBuffer[ jwsRSA3072_SIZE + jwsSHA256_SIZE ];
 
 static uint32_t prvSplitJWS( unsigned char * pucJWS,
                              uint32_t ulJWSLength,
@@ -286,7 +261,6 @@ static uint32_t prvJWS_RS256Verify( unsigned char * pucInput,
     return xResult;
 }
 
-
 uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
                                    uint32_t ulManifestLength,
                                    char * pucJWS,
@@ -305,21 +279,37 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
     uint32_t ulBase64SignatureLength;
     AzureIoTJSONReader_t xJSONReader;
 
-    ucJWSHeader = pucScratchBuffer;
+    char* ucJWSHeader = pucScratchBuffer;
     pucScratchBuffer += jwsJWS_HEADER_SIZE;
 
-    ucJWSPayload = pucScratchBuffer;
-    pucScratchBuffer += jwsJWS_HEADER_SIZE;
+    char* ucJWSPayload = pucScratchBuffer;
+    pucScratchBuffer += jwsJWS_PAYLOAD_SIZE;
 
-    ucJWSSignature = pucScratchBuffer;
-    ucJWKHeader = pucScratchBuffer;
-    ucJWKPayload = pucScratchBuffer;
-    ucJWKSignature = pucScratchBuffer;
-    ucSigningKeyN = pucScratchBuffer;
-    ucSigningKeyE = pucScratchBuffer;
-    ucManifestSHACalculation = pucScratchBuffer;
-    ucParsedManifestSha = pucScratchBuffer;
-    ucScratchCalculatationBuffer = pucScratchBuffer;
+    char* ucJWSSignature = pucScratchBuffer;
+    pucScratchBuffer += jwsJWS_SIGNATURE_SIZE;
+
+    char* ucJWKHeader = pucScratchBuffer;
+    pucScratchBuffer += jwsJWK_HEADER_SIZE;
+
+    char* ucJWKPayload = pucScratchBuffer;
+    pucScratchBuffer += jwsJWK_PAYLOAD_SIZE;
+
+    char* ucJWKSignature = pucScratchBuffer;
+    pucScratchBuffer += jwsJWK_SIGNATURE_SIZE;
+
+    char* ucSigningKeyN = pucScratchBuffer;
+    pucScratchBuffer += jwsRSA3072_SIZE;
+
+    char* ucSigningKeyE = pucScratchBuffer;
+    pucScratchBuffer += jwsSIGNING_KEY_E_SIZE;
+
+    char* ucManifestSHACalculation = pucScratchBuffer;
+    pucScratchBuffer += jwsSHA256_SIZE;
+
+    char* ucParsedManifestSha = pucScratchBuffer;
+    pucScratchBuffer += jwsSHA256_SIZE;
+
+    char* ucScratchCalculatationBuffer = pucScratchBuffer;
 
     LogInfo( ( "---------------------Begin Signature Validation --------------------\n\n" ) );
 
@@ -336,7 +326,7 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
     LogInfo( ( "---JWS Base64 Decode Header---\n" ) );
     int32_t outJWSHeaderLength;
     az_span xJWSBase64EncodedHeaderSpan = az_span_create( pucBase64EncodedHeader, ulBase64EncodedHeaderLength );
-    az_span xJWSHeaderSpan = az_span_create( ucJWSHeader, sizeof( ucJWSHeader ) );
+    az_span xJWSHeaderSpan = az_span_create( ucJWSHeader, jwsJWS_HEADER_SIZE );
     az_result xCoreResult = az_base64_decode( xJWSHeaderSpan, xJWSBase64EncodedHeaderSpan, &outJWSHeaderLength );
     /* TODO: here and elsewhere, remove verbose logs */
     /* LogInfo(( "az_base64_decode return: 0x%x\n", xCoreResult)); */
@@ -346,7 +336,7 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
     LogInfo( ( "---JWS Base64 Decode Payload---\n" ) );
     int32_t outJWSPayloadLength;
     az_span xJWSBase64EncodedPayloadSpan = az_span_create( pucBase64EncodedPayload, ulBase64EncodedPayloadLength );
-    az_span xJWSPayloadSpan = az_span_create( ucJWSPayload, sizeof( ucJWSPayload ) );
+    az_span xJWSPayloadSpan = az_span_create( ucJWSPayload, jwsJWS_PAYLOAD_SIZE );
     xCoreResult = az_base64_decode( xJWSPayloadSpan, xJWSBase64EncodedPayloadSpan, &outJWSPayloadLength );
     /* LogInfo(( "az_base64_decode return: 0x%x\n", xCoreResult)); */
     /* LogInfo(( "\tOut Decoded Size: %i\n", outJWSPayloadLength )); */
@@ -355,7 +345,7 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
     LogInfo( ( "---JWS Base64 Decode Signature---\n" ) );
     int32_t outJWSSignatureLength;
     az_span xJWSBase64EncodedSignatureSpan = az_span_create( pucBase64EncodedSignature, ulBase64SignatureLength );
-    az_span xJWSSignatureSpan = az_span_create( ucJWSSignature, sizeof( ucJWSSignature ) );
+    az_span xJWSSignatureSpan = az_span_create( ucJWSSignature, jwsJWS_SIGNATURE_SIZE );
     xCoreResult = az_base64_decode( xJWSSignatureSpan, xJWSBase64EncodedSignatureSpan, &outJWSSignatureLength );
     /* LogInfo(( "az_base64_decode return: 0x%x\n", xCoreResult)); */
     /* LogInfo(( "\tOut Decoded Size: %i\n", outJWSSignatureLength )); */
@@ -418,7 +408,7 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
     LogInfo( ( "--- JWK Base64 Decode Header ---\n" ) );
     int32_t outJWKHeaderLength;
     az_span xJWKBase64EncodedHeaderSpan = az_span_create( pucJWKBase64EncodedHeader, ulJWKBase64EncodedHeaderLength );
-    az_span xJWKHeaderSpan = az_span_create( ucJWKHeader, sizeof( ucJWKHeader ) );
+    az_span xJWKHeaderSpan = az_span_create( ucJWKHeader, jwsJWK_HEADER_SIZE );
     xCoreResult = az_base64_decode( xJWKHeaderSpan, xJWKBase64EncodedHeaderSpan, &outJWKHeaderLength );
     /* LogInfo(( "az_base64_decode return: 0x%x\n", xCoreResult)); */
     /* LogInfo(( "\tOut Decoded Size: %i\n", outJWKHeaderLength )); */
@@ -427,7 +417,7 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
     LogInfo( ( "--- JWK Base64 Decode Payload ---\n" ) );
     int32_t outJWKPayloadLength;
     az_span xJWKBase64EncodedPayloadSpan = az_span_create( pucJWKBase64EncodedPayload, ulJWKBase64EncodedPayloadLength );
-    az_span xJWKPayloadSpan = az_span_create( ucJWKPayload, sizeof( ucJWKPayload ) );
+    az_span xJWKPayloadSpan = az_span_create( ucJWKPayload, jwsJWK_PAYLOAD_SIZE );
     xCoreResult = az_base64_decode( xJWKPayloadSpan, xJWKBase64EncodedPayloadSpan, &outJWKPayloadLength );
     /* LogInfo(( "az_base64_decode return: 0x%x\n", xCoreResult)); */
     /* LogInfo(( "\tOut Decoded Size: %i\n", outJWKPayloadLength )); */
@@ -436,7 +426,7 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
     LogInfo( ( "--- JWK Base64 Decode Signature ---\n" ) );
     int32_t outJWKSignatureLength;
     az_span xJWKBase64EncodedSignatureSpan = az_span_create( pucJWKBase64EncodedSignature, ulJWKBase64EncodedSignatureLength );
-    az_span xJWKSignatureSpan = az_span_create( ucJWKSignature, sizeof( ucJWKSignature ) );
+    az_span xJWKSignatureSpan = az_span_create( ucJWKSignature, jwsJWK_SIGNATURE_SIZE );
     xCoreResult = az_base64_decode( xJWKSignatureSpan, xJWKBase64EncodedSignatureSpan, &outJWKSignatureLength );
     /* LogInfo(( "az_base64_decode return: 0x%x\n", xCoreResult)); */
     /* LogInfo(( "\tOut Decoded Size: %i\n", outJWKSignatureLength )); */
@@ -546,7 +536,7 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
     /*------------------- Base64 decode the key ------------------------*/
     LogInfo( ( "--- Signing key base64 decoding N ---\n" ) );
     int32_t outSigningKeyNLength;
-    az_span xNSpan = az_span_create( ucSigningKeyN, sizeof( ucSigningKeyN ) );
+    az_span xNSpan = az_span_create( ucSigningKeyN, jwsRSA3072_SIZE );
     xCoreResult = az_base64_decode( xNSpan, xBase64EncodedNSpan, &outSigningKeyNLength );
     /* LogInfo(( "az_base64_decode return: 0x%x\n", xCoreResult)); */
     /* LogInfo(( "\tOut Decoded Size: %i\n", outSigningKeyNLength )); */
@@ -554,7 +544,7 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
 
     LogInfo( ( "--- Signing key base64 decoding E ---\n" ) );
     int32_t outSigningKeyELength;
-    az_span xESpan = az_span_create( ucSigningKeyE, sizeof( ucSigningKeyE ) );
+    az_span xESpan = az_span_create( ucSigningKeyE, jwsSIGNING_KEY_E_SIZE );
     xCoreResult = az_base64_decode( xESpan, xBase64EncodedESpan, &outSigningKeyELength );
     /* LogInfo(( "az_base64_decode return: 0x%x\n", xCoreResult)); */
     /* LogInfo(( "\tOut Decoded Size: %i\n", outSigningKeyELength )); */
@@ -566,7 +556,7 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
                                                ucJWKSignature, outJWKSignatureLength,
                                                ( unsigned char * ) AzureIoTADURootKeyN, sizeof( AzureIoTADURootKeyN ),
                                                ( unsigned char * ) AzureIoTADURootKeyE, sizeof( AzureIoTADURootKeyE ),
-                                               ucScratchCalculatationBuffer, sizeof( ucScratchCalculatationBuffer ) );
+                                               ucScratchCalculatationBuffer, jwsSHA_CALCULATION_SCRATCH_SIZE );
 
     if( ulVerificationResult != 0 )
     {
@@ -579,7 +569,7 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
                                                ucJWSSignature, outJWSSignatureLength,
                                                ucSigningKeyN, outSigningKeyNLength,
                                                ucSigningKeyE, outSigningKeyELength,
-                                               ucScratchCalculatationBuffer, sizeof( ucScratchCalculatationBuffer ) );
+                                               ucScratchCalculatationBuffer, jwsSHA_CALCULATION_SCRATCH_SIZE );
 
     if( ulVerificationResult != 0 )
     {
@@ -631,7 +621,7 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
     LogInfo( ( "Parsed SHA: %.*s\n", az_span_size( sha256Span ), ( char * ) az_span_ptr( sha256Span ) ) );
 
     int32_t outParsedManifestShaSize;
-    az_span xParsedManifestSHA = az_span_create( ucParsedManifestSha, sizeof( ucParsedManifestSha ) );
+    az_span xParsedManifestSHA = az_span_create( ucParsedManifestSha, jwsSHA256_SIZE );
     xCoreResult = az_base64_decode( xParsedManifestSHA, sha256Span, &outParsedManifestShaSize );
 
     if( outParsedManifestShaSize != jwsSHA256_SIZE )
