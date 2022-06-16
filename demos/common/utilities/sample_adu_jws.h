@@ -8,8 +8,8 @@
  *
  */
 
-#ifndef JWS_H
-#define JWS_H
+#ifndef SAMPLE_ADU_JWS_H
+#define SAMPLE_ADU_JWS_H
 
 #include <stdint.h>
 
@@ -38,7 +38,8 @@
  * @param ulManifestLength The length of \p pucManifest.
  * @param pucJWS The JWS used to authenticate \p pucManifest.
  * @param ulJWSLength The length of \p pucJWS.
- * @param pucScratchBuffer Scratch buffer space for calculations.
+ * @param pucScratchBuffer Scratch buffer space for calculations. It should be
+ * `jwsSCRATCH_BUFFER_SIZE` in length.
  * @param ulScratchBufferLength The length of \p pucScratchBuffer.
  * @return uint32_t The return value of this function.
  * @retval 0 if successful.
@@ -51,4 +52,4 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
                                    char* pucScratchBuffer,
                                    uint32_t ulScratchBufferLength );
 
-#endif /* JWS_H */
+#endif /* SAMPLE_ADU_JWS_H */
