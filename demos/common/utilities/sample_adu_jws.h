@@ -20,6 +20,8 @@
  * @param ulManifestLength The length of \p pucManifest.
  * @param pucJWS The JWS used to authenticate \p pucManifest.
  * @param ulJWSLength The length of \p pucJWS.
+ * @param pucScratchBuffer Scratch buffer space for calculations.
+ * @param ulScratchBufferLength The length of \p pucScratchBuffer.
  * @return uint32_t The return value of this function.
  * @retval 0 if successful.
  * @retval Otherwise if failed.
@@ -27,6 +29,8 @@
 uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
                                    uint32_t ulManifestLength,
                                    char * pucJWS,
-                                   uint32_t ulJWSLength );
+                                   uint32_t ulJWSLength,
+                                   char* pucScratchBuffer,
+                                   uint32_t ulScratchBufferLength );
 
 #endif /* JWS_H */

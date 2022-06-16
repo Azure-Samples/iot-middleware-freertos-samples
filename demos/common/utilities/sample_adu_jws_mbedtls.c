@@ -36,6 +36,12 @@
 #define jwsRSA3072_SIZE            384
 #define jwsSHA256_SIZE             32
 #define jwsPKCS7_PAYLOAD_OFFSET    19
+#define jwsJWS_HEADER_SIZE         1400
+#define jwsJWS_PAYLOAD_SIZE        60
+#define jwsJWS_SIGNATURE_SIZE      400
+#define jwsJWK_HEADER_SIZE         48
+#define jwsJWK_PAYLOAD_SIZE       700
+#define jwsJWK_SIGNATURE_SIZE      400
 
 #define jwsSHA256_JSON_VALUE       "sha256"
 #define jwsSJWK_JSON_VALUE         "sjwk"
@@ -44,21 +50,20 @@
 #define jwsE_JSON_VALUE            "e"
 #define jwsALG_JSON_VALUE          "alg"
 
-static unsigned char ucJWSHeader[ 1400 ];
-static unsigned char ucJWSPayload[ 60 ];
-static unsigned char ucJWSSignature[ 400 ];
+static unsigned char* ucJWSPayload[ 60 ];
+static unsigned char* ucJWSSignature[ 400 ];
 
-static unsigned char ucJWKHeader[ 48 ];
-static unsigned char ucJWKPayload[ 700 ];
-static unsigned char ucJWKSignature[ 500 ];
+static unsigned char* ucJWKHeader[ 48 ];
+static unsigned char* ucJWKPayload[ 700 ];
+static unsigned char* ucJWKSignature[ 500 ];
 
-static unsigned char ucSigningKeyN[ jwsRSA3072_SIZE ];
-static unsigned char ucSigningKeyE[ 16 ];
+static unsigned char* ucSigningKeyN[ jwsRSA3072_SIZE ];
+static unsigned char* ucSigningKeyE[ 16 ];
 
-static unsigned char ucManifestSHACalculation[ jwsSHA256_SIZE ];
-static unsigned char ucParsedManifestSha[ jwsSHA256_SIZE ];
+static unsigned char* ucManifestSHACalculation[ jwsSHA256_SIZE ];
+static unsigned char* ucParsedManifestSha[ jwsSHA256_SIZE ];
 
-static unsigned char ucScratchCalculatationBuffer[ jwsRSA3072_SIZE + jwsSHA256_SIZE ];
+static unsigned char* ucScratchCalculatationBuffer[ jwsRSA3072_SIZE + jwsSHA256_SIZE ];
 
 static uint32_t prvSplitJWS( unsigned char * pucJWS,
                              uint32_t ulJWSLength,
@@ -285,7 +290,9 @@ static uint32_t prvJWS_RS256Verify( unsigned char * pucInput,
 uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
                                    uint32_t ulManifestLength,
                                    char * pucJWS,
-                                   uint32_t ulJWSLength )
+                                   uint32_t ulJWSLength,
+                                   char* pucScratchBuffer,
+                                   uint32_t ulScratchBufferLength )
 {
     uint32_t ulVerificationResult;
 
@@ -297,6 +304,22 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
     uint32_t ulBase64EncodedPayloadLength;
     uint32_t ulBase64SignatureLength;
     AzureIoTJSONReader_t xJSONReader;
+
+    ucJWSHeader = pucScratchBuffer;
+    pucScratchBuffer += jwsJWS_HEADER_SIZE;
+
+    ucJWSPayload = pucScratchBuffer;
+    pucScratchBuffer += jwsJWS_HEADER_SIZE;
+
+    ucJWSSignature = pucScratchBuffer;
+    ucJWKHeader = pucScratchBuffer;
+    ucJWKPayload = pucScratchBuffer;
+    ucJWKSignature = pucScratchBuffer;
+    ucSigningKeyN = pucScratchBuffer;
+    ucSigningKeyE = pucScratchBuffer;
+    ucManifestSHACalculation = pucScratchBuffer;
+    ucParsedManifestSha = pucScratchBuffer;
+    ucScratchCalculatationBuffer = pucScratchBuffer;
 
     LogInfo( ( "---------------------Begin Signature Validation --------------------\n\n" ) );
 

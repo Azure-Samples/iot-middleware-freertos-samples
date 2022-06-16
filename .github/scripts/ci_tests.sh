@@ -101,7 +101,7 @@ do
             exit_if_binary_does_not_exist "build_pc_linux" "iot-middleware-sample-pnp"
 
             echo -e "::group::Running manifest verification tests"
-            ./build_pc_linux/demos/projects/PC/linux/jws_using_mbedtls_ut
+            ./build_pc_linux/demos/projects/PC/linux/sample_adu_jws_mbedtls_ut
             ;;
         * )
             echo "build for $arg not found";;
