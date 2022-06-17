@@ -46,11 +46,11 @@
  * @retval 0 if successful.
  * @retval Otherwise if failed.
  */
-uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
+uint32_t JWS_ManifestAuthenticate( const uint8_t * pucManifest,
                                    uint32_t ulManifestLength,
-                                   char * pucJWS,
+                                   uint8_t * pucJWS,
                                    uint32_t ulJWSLength,
-                                   char * pucScratchBuffer,
+                                   uint8_t * pucScratchBuffer,
                                    uint32_t ulScratchBufferLength );
 
 #endif /* SAMPLE_ADU_JWS_H */

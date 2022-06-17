@@ -41,17 +41,17 @@ const uint8_t jws_e_json_value[] = "e";
 const uint8_t jws_alg_json_value[] = "alg";
 
 /* prvSplitJWS takes a JWS payload and returns pointers to its constituent header, payload, and signature parts. */
-static uint32_t prvSplitJWS( unsigned char * pucJWS,
+static uint32_t prvSplitJWS( uint8_t * pucJWS,
                              uint32_t ulJWSLength,
-                             unsigned char ** ppucHeader,
+                             uint8_t ** ppucHeader,
                              uint32_t * pulHeaderLength,
-                             unsigned char ** ppucPayload,
+                             uint8_t ** ppucPayload,
                              uint32_t * pulPayloadLength,
-                             unsigned char ** ppucSignature,
+                             uint8_t ** ppucSignature,
                              uint32_t * pulSignatureLength )
 {
-    unsigned char * pucFirstDot;
-    unsigned char * pucSecondDot;
+    uint8_t * pucFirstDot;
+    uint8_t * pucSecondDot;
     uint32_t ulDotCount = 0;
     uint32_t ulIndex = 0;
 
@@ -98,7 +98,7 @@ static uint32_t prvSplitJWS( unsigned char * pucJWS,
 /* Usual base64 encoded characters use `+` and `/` for the two extra characters */
 /* In URL encoded schemes, those aren't allowed, so the characters are swapped */
 /* for `-` and `_`. We have to swap them back to the usual characters. */
-static void prvSwapToUrlEncodingChars( unsigned char * pucSignature,
+static void prvSwapToUrlEncodingChars( uint8_t * pucSignature,
                                        uint32_t ulSignatureLength )
 {
     uint32_t ulIndex = 0;
@@ -129,9 +129,9 @@ static void prvSwapToUrlEncodingChars( unsigned char * pucSignature,
  * @retval 0 if successful.
  * @retval Non-0 if not successful.
  */
-static uint32_t prvJWS_SHA256Calculate( const unsigned char * pucInput,
+static uint32_t prvJWS_SHA256Calculate( const uint8_t * pucInput,
                                         uint32_t ulInputLength,
-                                        unsigned char * pucOutput )
+                                        uint8_t * pucOutput )
 {
     mbedtls_md_context_t ctx;
     mbedtls_md_type_t md_type = MBEDTLS_MD_SHA256;
@@ -164,20 +164,20 @@ static uint32_t prvJWS_SHA256Calculate( const unsigned char * pucInput,
  * @retval 0 if successful.
  * @retval Non-0 if not successful.
  */
-static uint32_t prvJWS_RS256Verify( unsigned char * pucInput,
+static uint32_t prvJWS_RS256Verify( uint8_t * pucInput,
                                     uint32_t ulInputLength,
-                                    unsigned char * pucSignature,
+                                    uint8_t * pucSignature,
                                     uint32_t ulSignatureLength,
-                                    unsigned char * pucN,
+                                    uint8_t * pucN,
                                     uint32_t ulNLength,
-                                    unsigned char * pucE,
+                                    uint8_t * pucE,
                                     uint32_t ulELength,
-                                    unsigned char * pucBuffer,
+                                    uint8_t * pucBuffer,
                                     uint32_t ulBufferLength )
 {
     AzureIoTResult_t xResult;
     int32_t lMbedTLSResult;
-    unsigned char * pucShaBuffer;
+    uint8_t * pucShaBuffer;
     size_t ulDecryptedLength;
     mbedtls_rsa_context ctx;
     int shaMatchResult;
@@ -342,23 +342,26 @@ static int32_t prvFindKeyParts( AzureIoTJSONReader_t * pxPayload,
     /*Property Name */
     azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( pxPayload ) );
 
-    while( xResult == eAzureIoTSuccess && ( az_span_size( *pxBase64EncodedNSpan ) == 0 || az_span_size( *pxBase64EncodedESpan ) == 0 || az_span_size( *pxAlgSpan ) == 0 ) )
+    while( xResult == eAzureIoTSuccess &&
+           ( az_span_size( *pxBase64EncodedNSpan ) == 0 ||
+             az_span_size( *pxBase64EncodedESpan ) == 0 ||
+             az_span_size( *pxAlgSpan ) == 0 ) )
     {
-        if( AzureIoTJSONReader_TokenIsTextEqual( pxPayload, ( const uint8_t * ) jws_n_json_value, sizeof( jws_n_json_value ) - 1 ) )
+        if( AzureIoTJSONReader_TokenIsTextEqual( pxPayload, jws_n_json_value, sizeof( jws_n_json_value ) - 1 ) )
         {
             azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( pxPayload ) );
             *pxBase64EncodedNSpan = pxPayload->_internal.xCoreReader.token.slice;
 
             xResult = AzureIoTJSONReader_NextToken( pxPayload );
         }
-        else if( AzureIoTJSONReader_TokenIsTextEqual( pxPayload, ( const uint8_t * ) jws_e_json_value, sizeof( jws_e_json_value ) - 1 ) )
+        else if( AzureIoTJSONReader_TokenIsTextEqual( pxPayload, jws_e_json_value, sizeof( jws_e_json_value ) - 1 ) )
         {
             azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( pxPayload ) );
             *pxBase64EncodedESpan = pxPayload->_internal.xCoreReader.token.slice;
 
             xResult = AzureIoTJSONReader_NextToken( pxPayload );
         }
-        else if( AzureIoTJSONReader_TokenIsTextEqual( pxPayload, ( const uint8_t * ) jws_alg_json_value, sizeof( jws_alg_json_value ) - 1 ) )
+        else if( AzureIoTJSONReader_TokenIsTextEqual( pxPayload, jws_alg_json_value, sizeof( jws_alg_json_value ) - 1 ) )
         {
             azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( pxPayload ) );
             *pxAlgSpan = pxPayload->_internal.xCoreReader.token.slice;
@@ -395,7 +398,7 @@ static int32_t prvFindSHA( AzureIoTJSONReader_t * pxPayload,
 
     while( xResult == eAzureIoTSuccess )
     {
-        if( AzureIoTJSONReader_TokenIsTextEqual( pxPayload, ( const uint8_t * ) jws_sha256_json_value, sizeof( jws_sha256_json_value ) - 1 ) )
+        if( AzureIoTJSONReader_TokenIsTextEqual( pxPayload, jws_sha256_json_value, sizeof( jws_sha256_json_value ) - 1 ) )
         {
             azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( pxPayload ) );
             break;
@@ -421,21 +424,21 @@ static int32_t prvFindSHA( AzureIoTJSONReader_t * pxPayload,
     return 0;
 }
 
-uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
+uint32_t JWS_ManifestAuthenticate( const uint8_t * pucManifest,
                                    uint32_t ulManifestLength,
-                                   char * pucJWS,
+                                   uint8_t * pucJWS,
                                    uint32_t ulJWSLength,
-                                   char * pucScratchBuffer,
+                                   uint8_t * pucScratchBuffer,
                                    uint32_t ulScratchBufferLength )
 {
     uint32_t ulVerificationResult;
 
-    unsigned char * pucBase64EncodedHeader;
-    unsigned char * pucBase64EncodedPayload;
-    unsigned char * pucBase64EncodedSignature;
-    unsigned char * pucJWKBase64EncodedHeader;
-    unsigned char * pucJWKBase64EncodedPayload;
-    unsigned char * pucJWKBase64EncodedSignature;
+    uint8_t * pucBase64EncodedHeader;
+    uint8_t * pucBase64EncodedPayload;
+    uint8_t * pucBase64EncodedSignature;
+    uint8_t * pucJWKBase64EncodedHeader;
+    uint8_t * pucJWKBase64EncodedPayload;
+    uint8_t * pucJWKBase64EncodedSignature;
     uint32_t ulBase64EncodedHeaderLength;
     uint32_t ulBase64EncodedPayloadLength;
     uint32_t ulBase64SignatureLength;
@@ -468,41 +471,41 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
     }
 
     /* Partition the scratch buffer */
-    unsigned char * ucJWSHeader = pucScratchBuffer;
+    uint8_t * ucJWSHeader = pucScratchBuffer;
     pucScratchBuffer += jwsJWS_HEADER_SIZE;
 
-    unsigned char * ucJWSPayload = pucScratchBuffer;
+    uint8_t * ucJWSPayload = pucScratchBuffer;
     pucScratchBuffer += jwsJWS_PAYLOAD_SIZE;
 
-    unsigned char * ucJWSSignature = pucScratchBuffer;
+    uint8_t * ucJWSSignature = pucScratchBuffer;
     pucScratchBuffer += jwsJWS_SIGNATURE_SIZE;
 
-    unsigned char * ucJWKHeader = pucScratchBuffer;
+    uint8_t * ucJWKHeader = pucScratchBuffer;
     pucScratchBuffer += jwsJWK_HEADER_SIZE;
 
-    unsigned char * ucJWKPayload = pucScratchBuffer;
+    uint8_t * ucJWKPayload = pucScratchBuffer;
     pucScratchBuffer += jwsJWK_PAYLOAD_SIZE;
 
-    unsigned char * ucJWKSignature = pucScratchBuffer;
+    uint8_t * ucJWKSignature = pucScratchBuffer;
     pucScratchBuffer += jwsJWK_SIGNATURE_SIZE;
 
-    unsigned char * ucSigningKeyN = pucScratchBuffer;
+    uint8_t * ucSigningKeyN = pucScratchBuffer;
     pucScratchBuffer += jwsRSA3072_SIZE;
 
-    unsigned char * ucSigningKeyE = pucScratchBuffer;
+    uint8_t * ucSigningKeyE = pucScratchBuffer;
     pucScratchBuffer += jwsSIGNING_KEY_E_SIZE;
 
-    unsigned char * ucManifestSHACalculation = pucScratchBuffer;
+    uint8_t * ucManifestSHACalculation = pucScratchBuffer;
     pucScratchBuffer += jwsSHA256_SIZE;
 
-    unsigned char * ucParsedManifestSha = pucScratchBuffer;
+    uint8_t * ucParsedManifestSha = pucScratchBuffer;
     pucScratchBuffer += jwsSHA256_SIZE;
 
-    unsigned char * ucScratchCalculatationBuffer = pucScratchBuffer;
+    uint8_t * ucScratchCalculatationBuffer = pucScratchBuffer;
 
     /*------------------- Parse and Decode the Manifest Sig ------------------------*/
 
-    xResult = prvSplitJWS( ( unsigned char * ) pucJWS, ulJWSLength,
+    xResult = prvSplitJWS( pucJWS, ulJWSLength,
                            &pucBase64EncodedHeader, &ulBase64EncodedHeaderLength,
                            &pucBase64EncodedPayload, &ulBase64EncodedPayloadLength,
                            &pucBase64EncodedSignature, &ulBase64SignatureLength );
@@ -517,8 +520,8 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
 
     /* Note that we do not use mbedTLS to base64 decode values since we need the ability to assume padding characters. */
     /* mbedTLS will stop the decoding short and we would then need to add in the remaining characters. */
-    xCoreResult = az_base64_decode( az_span_create( ( uint8_t * ) ucJWSHeader, jwsJWS_HEADER_SIZE ),
-                                    az_span_create( ( uint8_t * ) pucBase64EncodedHeader, ulBase64EncodedHeaderLength ),
+    xCoreResult = az_base64_decode( az_span_create( ucJWSHeader, jwsJWS_HEADER_SIZE ),
+                                    az_span_create( pucBase64EncodedHeader, ulBase64EncodedHeaderLength ),
                                     &outJWSHeaderLength );
 
     if( az_result_failed( xCoreResult ) )
@@ -527,8 +530,8 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
         return eAzureIoTErrorFailed;
     }
 
-    xCoreResult = az_base64_decode( az_span_create( ( uint8_t * ) ucJWSPayload, jwsJWS_PAYLOAD_SIZE ),
-                                    az_span_create( ( uint8_t * ) pucBase64EncodedPayload, ulBase64EncodedPayloadLength ),
+    xCoreResult = az_base64_decode( az_span_create( ucJWSPayload, jwsJWS_PAYLOAD_SIZE ),
+                                    az_span_create( pucBase64EncodedPayload, ulBase64EncodedPayloadLength ),
                                     &outJWSPayloadLength );
 
     if( az_result_failed( xCoreResult ) )
@@ -537,8 +540,8 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
         return eAzureIoTErrorFailed;
     }
 
-    xCoreResult = az_base64_decode( az_span_create( ( uint8_t * ) ucJWSSignature, jwsJWS_SIGNATURE_SIZE ),
-                                    az_span_create( ( uint8_t * ) pucBase64EncodedSignature, ulBase64SignatureLength ),
+    xCoreResult = az_base64_decode( az_span_create( ucJWSSignature, jwsJWS_SIGNATURE_SIZE ),
+                                    az_span_create( pucBase64EncodedSignature, ulBase64SignatureLength ),
                                     &outJWSSignatureLength );
 
     if( az_result_failed( xCoreResult ) )
@@ -550,7 +553,7 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
     /*------------------- Parse JSK JSON Payload ------------------------*/
 
     /* The "sjwk" is the signed signing public key */
-    AzureIoTJSONReader_Init( &xJSONReader, ( const uint8_t * ) ucJWSHeader, outJWSHeaderLength );
+    AzureIoTJSONReader_Init( &xJSONReader, ucJWSHeader, outJWSHeaderLength );
 
     if( prvFindJWSValue( &xJSONReader, &xJWKManifestSpan ) != 0 )
     {
@@ -572,8 +575,8 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
 
     prvSwapToUrlEncodingChars( pucJWKBase64EncodedSignature, ulJWKBase64EncodedSignatureLength );
 
-    xCoreResult = az_base64_decode( az_span_create( ( uint8_t * ) ucJWKHeader, jwsJWK_HEADER_SIZE ),
-                                    az_span_create( ( uint8_t * ) pucJWKBase64EncodedHeader, ulJWKBase64EncodedHeaderLength ),
+    xCoreResult = az_base64_decode( az_span_create( ucJWKHeader, jwsJWK_HEADER_SIZE ),
+                                    az_span_create( pucJWKBase64EncodedHeader, ulJWKBase64EncodedHeaderLength ),
                                     &outJWKHeaderLength );
 
     if( az_result_failed( xCoreResult ) )
@@ -582,8 +585,8 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
         return eAzureIoTErrorFailed;
     }
 
-    xCoreResult = az_base64_decode( az_span_create( ( uint8_t * ) ucJWKPayload, jwsJWK_PAYLOAD_SIZE ),
-                                    az_span_create( ( uint8_t * ) pucJWKBase64EncodedPayload, ulJWKBase64EncodedPayloadLength ),
+    xCoreResult = az_base64_decode( az_span_create( ucJWKPayload, jwsJWK_PAYLOAD_SIZE ),
+                                    az_span_create( pucJWKBase64EncodedPayload, ulJWKBase64EncodedPayloadLength ),
                                     &outJWKPayloadLength );
 
     if( az_result_failed( xCoreResult ) )
@@ -592,8 +595,8 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
         return eAzureIoTErrorFailed;
     }
 
-    xCoreResult = az_base64_decode( az_span_create( ( uint8_t * ) ucJWKSignature, jwsJWK_SIGNATURE_SIZE ),
-                                    az_span_create( ( uint8_t * ) pucJWKBase64EncodedSignature, ulJWKBase64EncodedSignatureLength ),
+    xCoreResult = az_base64_decode( az_span_create( ucJWKSignature, jwsJWK_SIGNATURE_SIZE ),
+                                    az_span_create( pucJWKBase64EncodedSignature, ulJWKBase64EncodedSignatureLength ),
                                     &outJWKSignatureLength );
 
     if( az_result_failed( xCoreResult ) )
@@ -603,7 +606,7 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
     }
 
     /*------------------- Parse id for root key ------------------------*/
-    AzureIoTJSONReader_Init( &xJSONReader, ( const uint8_t * ) ucJWKHeader, outJWKHeaderLength );
+    AzureIoTJSONReader_Init( &xJSONReader, ucJWKHeader, outJWKHeaderLength );
 
     if( prvFindRootKeyValue( &xJSONReader, &kidSpan ) != 0 )
     {
@@ -618,7 +621,7 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
     }
 
     /*------------------- Parse necessary pieces for the verification ------------------------*/
-    AzureIoTJSONReader_Init( &xJSONReader, ( const uint8_t * ) ucJWKPayload, outJWKPayloadLength );
+    AzureIoTJSONReader_Init( &xJSONReader, ucJWKPayload, outJWKPayloadLength );
 
     if( prvFindKeyParts( &xJSONReader, &xBase64EncodedNSpan, &xBase64EncodedESpan, &xAlgSpan ) != 0 )
     {
@@ -627,7 +630,7 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
     }
 
     /*------------------- Base64 decode the key ------------------------*/
-    xCoreResult = az_base64_decode( az_span_create( ( uint8_t * ) ucSigningKeyN, jwsRSA3072_SIZE ),
+    xCoreResult = az_base64_decode( az_span_create( ucSigningKeyN, jwsRSA3072_SIZE ),
                                     xBase64EncodedNSpan,
                                     &outSigningKeyNLength );
 
@@ -637,7 +640,7 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
         return eAzureIoTErrorFailed;
     }
 
-    xCoreResult = az_base64_decode( az_span_create( ( uint8_t * ) ucSigningKeyE, jwsSIGNING_KEY_E_SIZE ),
+    xCoreResult = az_base64_decode( az_span_create( ucSigningKeyE, jwsSIGNING_KEY_E_SIZE ),
                                     xBase64EncodedESpan,
                                     &outSigningKeyELength );
 
@@ -650,8 +653,8 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
     /*------------------- Verify the signature ------------------------*/
     ulVerificationResult = prvJWS_RS256Verify( pucJWKBase64EncodedHeader, ulJWKBase64EncodedHeaderLength + ulJWKBase64EncodedPayloadLength + 1,
                                                ucJWKSignature, outJWKSignatureLength,
-                                               ( unsigned char * ) AzureIoTADURootKeyN, sizeof( AzureIoTADURootKeyN ),
-                                               ( unsigned char * ) AzureIoTADURootKeyE, sizeof( AzureIoTADURootKeyE ),
+                                               ( uint8_t * ) AzureIoTADURootKeyN, sizeof( AzureIoTADURootKeyN ),
+                                               ( uint8_t * ) AzureIoTADURootKeyE, sizeof( AzureIoTADURootKeyE ),
                                                ucScratchCalculatationBuffer, jwsSHA_CALCULATION_SCRATCH_SIZE );
 
     if( ulVerificationResult != 0 )
@@ -674,7 +677,7 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
     }
 
     /*------------------- Verify that the SHAs match ------------------------*/
-    ulVerificationResult = prvJWS_SHA256Calculate( ( const unsigned char * ) pucManifest,
+    ulVerificationResult = prvJWS_SHA256Calculate( pucManifest,
                                                    ulManifestLength,
                                                    ucManifestSHACalculation );
 
@@ -684,7 +687,7 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
         return ulVerificationResult;
     }
 
-    AzureIoTJSONReader_Init( &xJSONReader, ( const uint8_t * ) ucJWSPayload, outJWSPayloadLength );
+    AzureIoTJSONReader_Init( &xJSONReader, ucJWSPayload, outJWSPayloadLength );
 
     if( prvFindSHA( &xJSONReader, &sha256Span ) != 0 )
     {
@@ -692,7 +695,7 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
         return eAzureIoTErrorFailed;
     }
 
-    xCoreResult = az_base64_decode( az_span_create( ( uint8_t * ) ucParsedManifestSha, jwsSHA256_SIZE ),
+    xCoreResult = az_base64_decode( az_span_create( ucParsedManifestSha, jwsSHA256_SIZE ),
                                     sha256Span,
                                     &outParsedManifestShaSize );
 

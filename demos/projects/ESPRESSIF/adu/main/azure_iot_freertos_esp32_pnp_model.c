@@ -80,6 +80,8 @@ static const char *TAG = "sample_azureiotkit";
 #define sampleazureiotPROPERTY_SUCCESS             "success"
 /*-----------------------------------------------------------*/
 
+static uint8_t ucADUScratchBuffer[jwsSCRATCH_BUFFER_SIZE];
+
 /**
  * @brief Command message callback handler
  */
@@ -258,10 +260,12 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
             }
 
             LogInfo( ( "Verifying JWS Manifest" ) );
-            uint32_t ulJWSVerify = JWS_ManifestAuthenticate( (char*)xAzureIoTAduUpdateRequest.pucUpdateManifest,
+            uint32_t ulJWSVerify = JWS_ManifestAuthenticate( xAzureIoTAduUpdateRequest.pucUpdateManifest,
                                                        xAzureIoTAduUpdateRequest.ulUpdateManifestLength,
-                                                       (char*)xAzureIoTAduUpdateRequest.pucUpdateManifestSignature,
-                                                       xAzureIoTAduUpdateRequest.ulUpdateManifestSignatureLength);
+                                                       xAzureIoTAduUpdateRequest.pucUpdateManifestSignature,
+                                                       xAzureIoTAduUpdateRequest.ulUpdateManifestSignatureLength,
+                                                       ucADUScratchBuffer,
+                                                       sizeof(ucADUScratchBuffer));
             if (ulJWSVerify != 0)
             {
               LogError( ( "JWS_ManifestAuthenticate failed: JWS was not validated successfully: %i", ulJWSVerify ) );

@@ -112,9 +112,9 @@
 #define azureiotaduUPDATE_VERSION_SIZE              10
 
 /* ADU.200702.R: root production key from 7/2/2020  */
-extern const unsigned char AzureIoTADURootKeyId[13];
-extern const unsigned char AzureIoTADURootKeyN[385];
-extern const unsigned char AzureIoTADURootKeyE[3];
+extern const uint8_t AzureIoTADURootKeyId[13];
+extern const uint8_t AzureIoTADURootKeyN[385];
+extern const uint8_t AzureIoTADURootKeyE[3];
 
 /**
  * @brief ADU Update ID.
