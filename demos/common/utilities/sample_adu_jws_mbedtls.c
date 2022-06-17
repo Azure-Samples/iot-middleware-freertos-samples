@@ -33,12 +33,12 @@
         }                                            \
     } while( 0 )
 
-#define jwsSHA256_JSON_VALUE       "sha256"
-#define jwsSJWK_JSON_VALUE         "sjwk"
-#define jwsKID_JSON_VALUE          "kid"
-#define jwsN_JSON_VALUE            "n"
-#define jwsE_JSON_VALUE            "e"
-#define jwsALG_JSON_VALUE          "alg"
+const uint8_t jws_sha256_json_value[] = "sha256";
+const uint8_t jws_sjwk_json_value[] = "sjwk";
+const uint8_t jws_kid_json_value[] = "kid";
+const uint8_t jws_n_json_value[] = "n";
+const uint8_t jws_e_json_value[] = "e";
+const uint8_t jws_alg_json_value[] = "alg";
 
 static uint32_t prvSplitJWS( unsigned char * pucJWS,
                              uint32_t ulJWSLength,
@@ -94,6 +94,9 @@ static uint32_t prvSplitJWS( unsigned char * pucJWS,
     return 0;
 }
 
+// Usual base64 encoded characters use `+` and `/` for the two extra characters
+// In URL encoded schemes, those aren't allowed, so the characters are swapped
+// for `-` and `_`. We have to swap them back to the usual characters.
 static void prvSwapToUrlEncodingChars( unsigned char * pucSignature,
                                        uint32_t ulSignatureLength )
 {
@@ -173,21 +176,22 @@ static uint32_t prvJWS_RS256Verify( unsigned char * pucInput,
 {
     AzureIoTResult_t xResult;
     int32_t lMbedTLSResult;
+    unsigned char * pucShaBuffer;
+    size_t ulDecryptedLength;
+    mbedtls_rsa_context ctx;
+    int shaMatchResult;
 
-    if( ulBufferLength < jwsRSA3072_SIZE + jwsSHA256_SIZE )
+    if( ulBufferLength < jwsSHA_CALCULATION_SCRATCH_SIZE )
     {
         LogError( ( "[JWS] Buffer Not Large Enough\n" ) );
         return 1;
     }
 
-    unsigned char * pucShaBuffer = pucBuffer + jwsRSA3072_SIZE;
-    size_t ulDecryptedLength;
+    pucShaBuffer = pucBuffer + jwsRSA3072_SIZE;
 
     /* The signature is encrypted using the input key. We need to decrypt the */
     /* signature which gives us the SHA256 inside a PKCS7 structure. We then compare */
     /* that to the SHA256 of the input. */
-    mbedtls_rsa_context ctx;
-
     mbedtls_rsa_init( &ctx, MBEDTLS_RSA_PKCS_V15, 0 );
 
     lMbedTLSResult = mbedtls_rsa_import_raw( &ctx,
@@ -238,9 +242,9 @@ static uint32_t prvJWS_RS256Verify( unsigned char * pucInput,
                                       pucShaBuffer );
 
     /* TODO: remove this once we have a valid PKCS7 parser. */
-    int doTheyMatch = memcmp( pucBuffer + jwsPKCS7_PAYLOAD_OFFSET, pucShaBuffer, jwsSHA256_SIZE );
+    shaMatchResult = memcmp( pucBuffer + jwsPKCS7_PAYLOAD_OFFSET, pucShaBuffer, jwsSHA256_SIZE );
 
-    if( doTheyMatch )
+    if( shaMatchResult )
     {
         LogError( ( "[JWS] SHA of JWK does NOT match\n" ) );
         xResult = 1;
@@ -265,7 +269,16 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
     uint32_t ulBase64EncodedHeaderLength;
     uint32_t ulBase64EncodedPayloadLength;
     uint32_t ulBase64SignatureLength;
+    az_result xCoreResult;
+    AzureIoTResult_t xResult;
     AzureIoTJSONReader_t xJSONReader;
+    AzureIoTJSONTokenType_t xJSONTokenType;
+
+    if(ulScratchBufferLength < jwsSHA_CALCULATION_SCRATCH_SIZE)
+    {
+      LogError(("[JWS] Scratch buffer size too small\n"));
+      return eAzureIoTErrorFailed;
+    }
 
     // Partition the scratch buffer
     char* ucJWSHeader = pucScratchBuffer;
@@ -302,10 +315,16 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
 
     /*------------------- Parse and Decode the Manifest Sig ------------------------*/
 
-    AzureIoTResult_t xResult = prvSplitJWS( ( unsigned char * ) pucJWS, ulJWSLength,
+    xResult = prvSplitJWS( ( unsigned char * ) pucJWS, ulJWSLength,
                                             &pucBase64EncodedHeader, &ulBase64EncodedHeaderLength,
                                             &pucBase64EncodedPayload, &ulBase64EncodedPayloadLength,
                                             &pucBase64EncodedSignature, &ulBase64SignatureLength );
+    if (xResult != eAzureIoTSuccess)
+    {
+      LogError(("[JWS] prvSplitJWS failed: result %i\n", xResult));
+      return xResult;
+    }
+
     prvSwapToUrlEncodingChars( pucBase64EncodedSignature, ulBase64SignatureLength );
 
     /* Note that we do not use mbedTLS to base64 decode values since we need the ability to assume padding characters. */
@@ -313,7 +332,7 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
     int32_t outJWSHeaderLength;
     az_span xJWSBase64EncodedHeaderSpan = az_span_create( pucBase64EncodedHeader, ulBase64EncodedHeaderLength );
     az_span xJWSHeaderSpan = az_span_create( ucJWSHeader, jwsJWS_HEADER_SIZE );
-    az_result xCoreResult = az_base64_decode( xJWSHeaderSpan, xJWSBase64EncodedHeaderSpan, &outJWSHeaderLength );
+    xCoreResult = az_base64_decode( xJWSHeaderSpan, xJWSBase64EncodedHeaderSpan, &outJWSHeaderLength );
     if(az_result_failed(xCoreResult))
     {
       LogError(("[JWS] az_base64_decode failed: result %i\n", xCoreResult));
@@ -352,7 +371,7 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
 
     while( xResult == eAzureIoTSuccess )
     {
-        if( AzureIoTJSONReader_TokenIsTextEqual( &xJSONReader, ( const uint8_t * ) jwsSJWK_JSON_VALUE, sizeof( jwsSJWK_JSON_VALUE ) - 1 ) )
+        if( AzureIoTJSONReader_TokenIsTextEqual( &xJSONReader, ( const uint8_t * ) jws_sjwk_json_value, sizeof( jws_sjwk_json_value ) - 1 ) )
         {
             azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( &xJSONReader ) );
             break;
@@ -365,14 +384,15 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
         }
     }
 
-    if( ( xResult != eAzureIoTSuccess ) && ( xResult != eAzureIoTErrorJSONReaderDone ) )
+    azureiotresultRETURN_IF_FAILED(AzureIoTJSONReader_TokenType(&xJSONReader, &xJSONTokenType ));
+
+    if( ( xResult != eAzureIoTSuccess ) && xJSONTokenType == eAzureIoTJSONTokenSTRING)
     {
         LogError( ( "[JWS] Parse JSK JSON Payload Error: 0x%08x\n", xResult ) );
         return xResult;
     }
 
     xJWKManifestSpan = xJSONReader._internal.xCoreReader.token.slice;
-
     pucJWKManifest = az_span_ptr( xJWKManifestSpan );
     uint32_t ulJWKManifestLength = az_span_size( xJWKManifestSpan );
 
@@ -389,6 +409,11 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
                            &pucJWKBase64EncodedHeader, &ulJWKBase64EncodedHeaderLength,
                            &pucJWKBase64EncodedPayload, &ulJWKBase64EncodedPayloadLength,
                            &pucJWKBase64EncodedSignature, &ulJWKBase64EncodedSignatureLength );
+    if (xResult != eAzureIoTSuccess)
+    {
+      LogError(("[JWS] prvSplitJWS failed: result %i\n", xResult));
+      return xResult;
+    }
     prvSwapToUrlEncodingChars( pucJWKBase64EncodedSignature, ulJWKBase64EncodedSignatureLength );
 
     int32_t outJWKHeaderLength;
@@ -432,7 +457,7 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
 
     while( xResult == eAzureIoTSuccess )
     {
-        if( AzureIoTJSONReader_TokenIsTextEqual( &xJSONReader, ( const uint8_t * ) jwsKID_JSON_VALUE, sizeof( jwsKID_JSON_VALUE ) - 1 ) )
+        if( AzureIoTJSONReader_TokenIsTextEqual( &xJSONReader, ( const uint8_t * ) jws_kid_json_value, sizeof( jws_kid_json_value ) - 1 ) )
         {
             azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( &xJSONReader ) );
             kidSpan = xJSONReader._internal.xCoreReader.token.slice;
@@ -447,7 +472,9 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
         }
     }
 
-    if( ( xResult != eAzureIoTSuccess ) && ( xResult != eAzureIoTErrorJSONReaderDone ) )
+    azureiotresultRETURN_IF_FAILED(AzureIoTJSONReader_TokenType(&xJSONReader, &xJSONTokenType ));
+
+    if( ( xResult != eAzureIoTSuccess ) && ( xJSONTokenType != eAzureIoTJSONTokenSTRING ) )
     {
         LogError( ( "[JWS] Parse Root Key Error: %i\n", xResult ) );
         return xResult;
@@ -475,21 +502,21 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
 
     while( xResult == eAzureIoTSuccess && ( az_span_size( xBase64EncodedNSpan ) == 0 || az_span_size( xBase64EncodedESpan ) == 0 || az_span_size( xAlgSpan ) == 0 ) )
     {
-        if( AzureIoTJSONReader_TokenIsTextEqual( &xJSONReader, ( const uint8_t * ) jwsN_JSON_VALUE, sizeof( jwsN_JSON_VALUE ) - 1 ) )
+        if( AzureIoTJSONReader_TokenIsTextEqual( &xJSONReader, ( const uint8_t * ) jws_n_json_value, sizeof( jws_n_json_value ) - 1 ) )
         {
             azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( &xJSONReader ) );
             xBase64EncodedNSpan = xJSONReader._internal.xCoreReader.token.slice;
 
             xResult = AzureIoTJSONReader_NextToken( &xJSONReader );
         }
-        else if( AzureIoTJSONReader_TokenIsTextEqual( &xJSONReader, ( const uint8_t * ) jwsE_JSON_VALUE, sizeof( jwsE_JSON_VALUE ) - 1 ) )
+        else if( AzureIoTJSONReader_TokenIsTextEqual( &xJSONReader, ( const uint8_t * ) jws_e_json_value, sizeof( jws_e_json_value ) - 1 ) )
         {
             azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( &xJSONReader ) );
             xBase64EncodedESpan = xJSONReader._internal.xCoreReader.token.slice;
 
             xResult = AzureIoTJSONReader_NextToken( &xJSONReader );
         }
-        else if( AzureIoTJSONReader_TokenIsTextEqual( &xJSONReader, ( const uint8_t * ) jwsALG_JSON_VALUE, sizeof( jwsALG_JSON_VALUE ) - 1 ) )
+        else if( AzureIoTJSONReader_TokenIsTextEqual( &xJSONReader, ( const uint8_t * ) jws_alg_json_value, sizeof( jws_alg_json_value ) - 1 ) )
         {
             azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( &xJSONReader ) );
             xAlgSpan = xJSONReader._internal.xCoreReader.token.slice;
@@ -576,7 +603,7 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
 
     while( xResult == eAzureIoTSuccess )
     {
-        if( AzureIoTJSONReader_TokenIsTextEqual( &xJSONReader, ( const uint8_t * ) jwsSHA256_JSON_VALUE, sizeof( jwsSHA256_JSON_VALUE ) - 1 ) )
+        if( AzureIoTJSONReader_TokenIsTextEqual( &xJSONReader, ( const uint8_t * ) jws_sha256_json_value, sizeof( jws_sha256_json_value ) - 1 ) )
         {
             azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( &xJSONReader ) );
             sha256Span = xJSONReader._internal.xCoreReader.token.slice;
