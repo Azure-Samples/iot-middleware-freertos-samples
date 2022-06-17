@@ -254,7 +254,7 @@ static uint32_t prvJWS_RS256Verify( unsigned char * pucInput,
     return xResult;
 }
 
-static uint32_t prvFindJWSValue( AzureIoTJSONReader_t * pxPayload )
+static uint32_t prvFindJWSValue( AzureIoTJSONReader_t * pxPayload, az_span * pxJWSValue )
 {
     AzureIoTResult_t xResult = eAzureIoTSuccess;
     AzureIoTJSONTokenType_t xJSONTokenType;
@@ -284,6 +284,8 @@ static uint32_t prvFindJWSValue( AzureIoTJSONReader_t * pxPayload )
         LogError( ( "[JWS] Parse JSK JSON Payload Error: 0x%08x", xResult ) );
         return xResult;
     }
+
+    *pxJWSValue = pxPayload->_internal.xCoreReader.token.slice;
 
     return 0;
 }
@@ -325,7 +327,7 @@ static int32_t prvFindRootKeyValue( AzureIoTJSONReader_t * pxPayload,
     }
 }
 
-static int32_t prvFindKeyParts( AzureIoTJSONReader_t * xPayload,
+static int32_t prvFindKeyParts( AzureIoTJSONReader_t * pxPayload,
                                 az_span * pxBase64EncodedNSpan,
                                 az_span * pxBase64EncodedESpan,
                                 az_span * pxAlgSpan )
@@ -333,38 +335,38 @@ static int32_t prvFindKeyParts( AzureIoTJSONReader_t * xPayload,
     AzureIoTResult_t xResult = eAzureIoTSuccess;
 
     /*Begin object */
-    azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( xPayload ) );
+    azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( pxPayload ) );
     /*Property Name */
-    azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( xPayload ) );
+    azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( pxPayload ) );
 
     while( xResult == eAzureIoTSuccess && ( az_span_size( *pxBase64EncodedNSpan ) == 0 || az_span_size( *pxBase64EncodedESpan ) == 0 || az_span_size( *pxAlgSpan ) == 0 ) )
     {
-        if( AzureIoTJSONReader_TokenIsTextEqual( xPayload, ( const uint8_t * ) jws_n_json_value, sizeof( jws_n_json_value ) - 1 ) )
+        if( AzureIoTJSONReader_TokenIsTextEqual( pxPayload, ( const uint8_t * ) jws_n_json_value, sizeof( jws_n_json_value ) - 1 ) )
         {
-            azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( xPayload ) );
-            *pxBase64EncodedNSpan = xPayload->_internal.xCoreReader.token.slice;
+            azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( pxPayload ) );
+            *pxBase64EncodedNSpan = pxPayload->_internal.xCoreReader.token.slice;
 
-            xResult = AzureIoTJSONReader_NextToken( xPayload );
+            xResult = AzureIoTJSONReader_NextToken( pxPayload );
         }
-        else if( AzureIoTJSONReader_TokenIsTextEqual( xPayload, ( const uint8_t * ) jws_e_json_value, sizeof( jws_e_json_value ) - 1 ) )
+        else if( AzureIoTJSONReader_TokenIsTextEqual( pxPayload, ( const uint8_t * ) jws_e_json_value, sizeof( jws_e_json_value ) - 1 ) )
         {
-            azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( xPayload ) );
-            *pxBase64EncodedESpan = xPayload->_internal.xCoreReader.token.slice;
+            azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( pxPayload ) );
+            *pxBase64EncodedESpan = pxPayload->_internal.xCoreReader.token.slice;
 
-            xResult = AzureIoTJSONReader_NextToken( xPayload );
+            xResult = AzureIoTJSONReader_NextToken( pxPayload );
         }
-        else if( AzureIoTJSONReader_TokenIsTextEqual( xPayload, ( const uint8_t * ) jws_alg_json_value, sizeof( jws_alg_json_value ) - 1 ) )
+        else if( AzureIoTJSONReader_TokenIsTextEqual( pxPayload, ( const uint8_t * ) jws_alg_json_value, sizeof( jws_alg_json_value ) - 1 ) )
         {
-            azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( xPayload ) );
-            *pxAlgSpan = xPayload->_internal.xCoreReader.token.slice;
+            azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( pxPayload ) );
+            *pxAlgSpan = pxPayload->_internal.xCoreReader.token.slice;
 
-            xResult = AzureIoTJSONReader_NextToken( xPayload );
+            xResult = AzureIoTJSONReader_NextToken( pxPayload );
         }
         else
         {
-            azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( xPayload ) );
-            azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_SkipChildren( xPayload ) );
-            xResult = AzureIoTJSONReader_NextToken( xPayload );
+            azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( pxPayload ) );
+            azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_SkipChildren( pxPayload ) );
+            xResult = AzureIoTJSONReader_NextToken( pxPayload );
         }
     }
 
@@ -373,6 +375,44 @@ static int32_t prvFindKeyParts( AzureIoTJSONReader_t * xPayload,
         LogError( ( "[JWS] Parse Signing Key Payload Error: %i", xResult ) );
         return xResult;
     }
+
+    return 0;
+}
+
+static int32_t prvFindSHA( AzureIoTJSONReader_t * pxPayload, az_span * pxSHA )
+{
+    AzureIoTResult_t xResult = eAzureIoTSuccess;
+    AzureIoTJSONTokenType_t xJSONTokenType;
+
+    /*Begin object */
+    azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( pxPayload ) );
+    /*Property Name */
+    azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( pxPayload ) );
+
+    while( xResult == eAzureIoTSuccess )
+    {
+        if( AzureIoTJSONReader_TokenIsTextEqual( pxPayload, ( const uint8_t * ) jws_sha256_json_value, sizeof( jws_sha256_json_value ) - 1 ) )
+        {
+            azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( pxPayload ) );
+            break;
+        }
+        else
+        {
+            azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( pxPayload ) );
+            azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_SkipChildren( pxPayload ) );
+            xResult = AzureIoTJSONReader_NextToken( pxPayload );
+        }
+    }
+
+    azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_TokenType( pxPayload, &xJSONTokenType ) );
+
+    if( ( xResult != eAzureIoTSuccess ) && ( xJSONTokenType == eAzureIoTJSONTokenSTRING ) )
+    {
+        LogError( ( "[JWS] Parse JSK JSON Payload Error: 0x%08x", xResult ) );
+        return xResult;
+    }
+
+    *pxSHA = pxPayload->_internal.xCoreReader.token.slice;
 
     return 0;
 }
@@ -495,13 +535,12 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
 
     AzureIoTJSONReader_Init( &xJSONReader, ( const uint8_t * ) az_span_ptr( xJWSHeaderSpan ), outJWSHeaderLength );
 
-    if( prvFindJWSValue( &xJSONReader ) != 0 )
+    if( prvFindJWSValue( &xJSONReader, &xJWKManifestSpan ) != 0 )
     {
         LogError( ( "Error finding sjwk value in payload" ) );
         return eAzureIoTErrorFailed;
     }
 
-    xJWKManifestSpan = xJSONReader._internal.xCoreReader.token.slice;
     pucJWKManifest = az_span_ptr( xJWKManifestSpan );
     uint32_t ulJWKManifestLength = az_span_size( xJWKManifestSpan );
 
@@ -653,33 +692,13 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
     }
 
     AzureIoTJSONReader_Init( &xJSONReader, ( const uint8_t * ) ucJWSPayload, outJWSPayloadLength );
-    /*Begin object */
-    azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( &xJSONReader ) );
-    /*Property Name */
-    azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( &xJSONReader ) );
 
     az_span sha256Span;
 
-    while( xResult == eAzureIoTSuccess )
+    if( prvFindSHA( &xJSONReader, &sha256Span ) != 0 )
     {
-        if( AzureIoTJSONReader_TokenIsTextEqual( &xJSONReader, ( const uint8_t * ) jws_sha256_json_value, sizeof( jws_sha256_json_value ) - 1 ) )
-        {
-            azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( &xJSONReader ) );
-            sha256Span = xJSONReader._internal.xCoreReader.token.slice;
-            break;
-        }
-        else
-        {
-            azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( &xJSONReader ) );
-            azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_SkipChildren( &xJSONReader ) );
-            xResult = AzureIoTJSONReader_NextToken( &xJSONReader );
-        }
-    }
-
-    if( ( xResult != eAzureIoTSuccess ) && ( xResult != eAzureIoTErrorJSONReaderDone ) )
-    {
-        LogError( ( "[JWS] Parse SHA256 Error: %i", xResult ) );
-        return xResult;
+        LogError( ( "Error finding manifest signature SHA" ) );
+        return eAzureIoTErrorFailed;
     }
 
     int32_t outParsedManifestShaSize;
