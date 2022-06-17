@@ -40,6 +40,7 @@ const uint8_t jws_n_json_value[] = "n";
 const uint8_t jws_e_json_value[] = "e";
 const uint8_t jws_alg_json_value[] = "alg";
 
+/* prvSplitJWS takes a JWS payload and returns pointers to its constituent header, payload, and signature parts. */
 static uint32_t prvSplitJWS( unsigned char * pucJWS,
                              uint32_t ulJWSLength,
                              unsigned char ** ppucHeader,
@@ -183,7 +184,7 @@ static uint32_t prvJWS_RS256Verify( unsigned char * pucInput,
 
     if( ulBufferLength < jwsSHA_CALCULATION_SCRATCH_SIZE )
     {
-        LogError( ( "[JWS] Buffer Not Large Enough\n" ) );
+        LogError( ( "[JWS] Buffer Not Large Enough" ) );
         return 1;
     }
 
@@ -203,7 +204,7 @@ static uint32_t prvJWS_RS256Verify( unsigned char * pucInput,
 
     if( lMbedTLSResult != 0 )
     {
-        LogError( ( "[JWS] mbedtls_rsa_import_raw res: %i\n", lMbedTLSResult ) );
+        LogError( ( "[JWS] mbedtls_rsa_import_raw res: %i", lMbedTLSResult ) );
         mbedtls_rsa_free( &ctx );
         return lMbedTLSResult;
     }
@@ -212,7 +213,7 @@ static uint32_t prvJWS_RS256Verify( unsigned char * pucInput,
 
     if( lMbedTLSResult != 0 )
     {
-        LogError( ( "[JWS] mbedtls_rsa_complete res: %i\n", lMbedTLSResult ) );
+        LogError( ( "[JWS] mbedtls_rsa_complete res: %i", lMbedTLSResult ) );
         mbedtls_rsa_free( &ctx );
         return lMbedTLSResult;
     }
@@ -221,7 +222,7 @@ static uint32_t prvJWS_RS256Verify( unsigned char * pucInput,
 
     if( lMbedTLSResult != 0 )
     {
-        LogError( ( "[JWS] mbedtls_rsa_check_pubkey res: %i\n", lMbedTLSResult ) );
+        LogError( ( "[JWS] mbedtls_rsa_check_pubkey res: %i", lMbedTLSResult ) );
         mbedtls_rsa_free( &ctx );
         return lMbedTLSResult;
     }
@@ -231,7 +232,7 @@ static uint32_t prvJWS_RS256Verify( unsigned char * pucInput,
 
     if( lMbedTLSResult != 0 )
     {
-        LogError( ( "[JWS] mbedtls_rsa_pkcs1_decrypt res: %i\n", lMbedTLSResult ) );
+        LogError( ( "[JWS] mbedtls_rsa_pkcs1_decrypt res: %i", lMbedTLSResult ) );
         mbedtls_rsa_free( &ctx );
         return lMbedTLSResult;
     }
@@ -246,7 +247,7 @@ static uint32_t prvJWS_RS256Verify( unsigned char * pucInput,
 
     if( shaMatchResult )
     {
-        LogError( ( "[JWS] SHA of JWK does NOT match\n" ) );
+        LogError( ( "[JWS] SHA of JWK does NOT match" ) );
         xResult = 1;
     }
 
@@ -276,7 +277,7 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
 
     if(ulScratchBufferLength < jwsSHA_CALCULATION_SCRATCH_SIZE)
     {
-      LogError(("[JWS] Scratch buffer size too small\n"));
+      LogError(("[JWS] Scratch buffer size too small"));
       return eAzureIoTErrorFailed;
     }
 
@@ -321,7 +322,7 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
                                             &pucBase64EncodedSignature, &ulBase64SignatureLength );
     if (xResult != eAzureIoTSuccess)
     {
-      LogError(("[JWS] prvSplitJWS failed: result %i\n", xResult));
+      LogError(("[JWS] prvSplitJWS failed: result %i", xResult));
       return xResult;
     }
 
@@ -335,7 +336,7 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
     xCoreResult = az_base64_decode( xJWSHeaderSpan, xJWSBase64EncodedHeaderSpan, &outJWSHeaderLength );
     if(az_result_failed(xCoreResult))
     {
-      LogError(("[JWS] az_base64_decode failed: result %i\n", xCoreResult));
+      LogError(("[JWS] az_base64_decode failed: result %i", xCoreResult));
       return eAzureIoTErrorFailed;
     }
 
@@ -345,7 +346,7 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
     xCoreResult = az_base64_decode( xJWSPayloadSpan, xJWSBase64EncodedPayloadSpan, &outJWSPayloadLength );
     if(az_result_failed(xCoreResult))
     {
-      LogError(("[JWS] az_base64_decode failed: result %i\n", xCoreResult));
+      LogError(("[JWS] az_base64_decode failed: result %i", xCoreResult));
       return eAzureIoTErrorFailed;
     }
 
@@ -355,7 +356,7 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
     xCoreResult = az_base64_decode( xJWSSignatureSpan, xJWSBase64EncodedSignatureSpan, &outJWSSignatureLength );
     if(az_result_failed(xCoreResult))
     {
-      LogError(("[JWS] az_base64_decode failed: result %i\n", xCoreResult));
+      LogError(("[JWS] az_base64_decode failed: result %i", xCoreResult));
       return eAzureIoTErrorFailed;
     }
 
@@ -388,7 +389,7 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
 
     if( ( xResult != eAzureIoTSuccess ) && xJSONTokenType == eAzureIoTJSONTokenSTRING)
     {
-        LogError( ( "[JWS] Parse JSK JSON Payload Error: 0x%08x\n", xResult ) );
+        LogError( ( "[JWS] Parse JSK JSON Payload Error: 0x%08x", xResult ) );
         return xResult;
     }
 
@@ -411,7 +412,7 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
                            &pucJWKBase64EncodedSignature, &ulJWKBase64EncodedSignatureLength );
     if (xResult != eAzureIoTSuccess)
     {
-      LogError(("[JWS] prvSplitJWS failed: result %i\n", xResult));
+      LogError(("[JWS] prvSplitJWS failed: result %i", xResult));
       return xResult;
     }
     prvSwapToUrlEncodingChars( pucJWKBase64EncodedSignature, ulJWKBase64EncodedSignatureLength );
@@ -422,7 +423,7 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
     xCoreResult = az_base64_decode( xJWKHeaderSpan, xJWKBase64EncodedHeaderSpan, &outJWKHeaderLength );
     if(az_result_failed(xCoreResult))
     {
-      LogError(("[JWS] az_base64_decode failed: result %i\n", xCoreResult));
+      LogError(("[JWS] az_base64_decode failed: result %i", xCoreResult));
       return eAzureIoTErrorFailed;
     }
 
@@ -432,7 +433,7 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
     xCoreResult = az_base64_decode( xJWKPayloadSpan, xJWKBase64EncodedPayloadSpan, &outJWKPayloadLength );
     if(az_result_failed(xCoreResult))
     {
-      LogError(("[JWS] az_base64_decode failed: result %i\n", xCoreResult));
+      LogError(("[JWS] az_base64_decode failed: result %i", xCoreResult));
       return eAzureIoTErrorFailed;
     }
 
@@ -442,7 +443,7 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
     xCoreResult = az_base64_decode( xJWKSignatureSpan, xJWKBase64EncodedSignatureSpan, &outJWKSignatureLength );
     if(az_result_failed(xCoreResult))
     {
-      LogError(("[JWS] az_base64_decode failed: result %i\n", xCoreResult));
+      LogError(("[JWS] az_base64_decode failed: result %i", xCoreResult));
       return eAzureIoTErrorFailed;
     }
 
@@ -476,7 +477,7 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
 
     if( ( xResult != eAzureIoTSuccess ) && ( xJSONTokenType != eAzureIoTJSONTokenSTRING ) )
     {
-        LogError( ( "[JWS] Parse Root Key Error: %i\n", xResult ) );
+        LogError( ( "[JWS] Parse Root Key Error: %i", xResult ) );
         return xResult;
     }
 
@@ -484,7 +485,7 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
 
     if( !az_span_is_content_equal( rootKeyIDSpan, kidSpan ) )
     {
-        LogError( ( "[JWS] Using the wrong root key\n" ) );
+        LogError( ( "[JWS] Using the wrong root key" ) );
         return eAzureIoTErrorFailed;
     }
 
@@ -533,7 +534,7 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
 
     if( ( xResult != eAzureIoTSuccess ) && ( xResult != eAzureIoTErrorJSONReaderDone ) )
     {
-        LogError( ( "[JWS] Parse Signing Key Payload Error: %i\n", xResult ) );
+        LogError( ( "[JWS] Parse Signing Key Payload Error: %i", xResult ) );
         return xResult;
     }
 
@@ -543,7 +544,7 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
     xCoreResult = az_base64_decode( xNSpan, xBase64EncodedNSpan, &outSigningKeyNLength );
     if(az_result_failed(xCoreResult))
     {
-      LogError(("[JWS] az_base64_decode failed: result %i\n", xCoreResult));
+      LogError(("[JWS] az_base64_decode failed: result %i", xCoreResult));
       return eAzureIoTErrorFailed;
     }
 
@@ -552,7 +553,7 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
     xCoreResult = az_base64_decode( xESpan, xBase64EncodedESpan, &outSigningKeyELength );
     if(az_result_failed(xCoreResult))
     {
-      LogError(("[JWS] az_base64_decode failed: result %i\n", xCoreResult));
+      LogError(("[JWS] az_base64_decode failed: result %i", xCoreResult));
       return eAzureIoTErrorFailed;
     }
 
@@ -565,7 +566,7 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
 
     if( ulVerificationResult != 0 )
     {
-        LogError( ( "[JWS] Verification of signing key failed\n" ) );
+        LogError( ( "[JWS] Verification of signing key failed" ) );
         return ulVerificationResult;
     }
 
@@ -578,7 +579,7 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
 
     if( ulVerificationResult != 0 )
     {
-        LogError( ( "[JWS] Verification of signed manifest SHA failed\n" ) );
+        LogError( ( "[JWS] Verification of signed manifest SHA failed" ) );
         return ulVerificationResult;
     }
 
@@ -619,7 +620,7 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
 
     if( ( xResult != eAzureIoTSuccess ) && ( xResult != eAzureIoTErrorJSONReaderDone ) )
     {
-        LogError( ( "[JWS] Parse SHA256 Error: %i\n", xResult ) );
+        LogError( ( "[JWS] Parse SHA256 Error: %i", xResult ) );
         return xResult;
     }
 
@@ -628,13 +629,13 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
     xCoreResult = az_base64_decode( xParsedManifestSHA, sha256Span, &outParsedManifestShaSize );
     if(az_result_failed(xCoreResult))
     {
-      LogError(("[JWS] az_base64_decode failed: result %i\n", xCoreResult));
+      LogError(("[JWS] az_base64_decode failed: result %i", xCoreResult));
       return eAzureIoTErrorFailed;
     }
 
     if( outParsedManifestShaSize != jwsSHA256_SIZE )
     {
-        LogError( ( "[JWS] Base64 decoded SHA256 is not the correct length\n" ) );
+        LogError( ( "[JWS] Base64 decoded SHA256 is not the correct length" ) );
         return 1;
     }
 
@@ -642,12 +643,12 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
 
     if( ulVerificationResult != 0 )
     {
-        LogError( ( "[JWS] Calculated manifest SHA does not match SHA in payload\n" ) );
+        LogError( ( "[JWS] Calculated manifest SHA does not match SHA in payload" ) );
         return ulVerificationResult;
     }
     else
     {
-        LogInfo( ( "[JWS] Calculated manifest SHA matches parsed SHA\n" ) );
+        LogInfo( ( "[JWS] Calculated manifest SHA matches parsed SHA" ) );
     }
 
     /*------------------- Done (Loop) ------------------------*/

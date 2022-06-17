@@ -2,6 +2,7 @@
  * Licensed under the MIT License. */
 
 #include <string.h>
+#include <errno.h>
 
 /* Kernel includes. */
 #include "FreeRTOS.h"
@@ -38,6 +39,7 @@ int mbedtls_platform_entropy_poll( void * data,
 
     if( file == NULL )
     {
+        printf("fopen failed: %i\n", errno);
         return( MBEDTLS_ERR_ENTROPY_SOURCE_FAILED );
     }
 
@@ -45,6 +47,7 @@ int mbedtls_platform_entropy_poll( void * data,
 
     if( read_len != len )
     {
+        printf("fread failed: %i\n", errno);
         fclose( file );
         return( MBEDTLS_ERR_ENTROPY_SOURCE_FAILED );
     }

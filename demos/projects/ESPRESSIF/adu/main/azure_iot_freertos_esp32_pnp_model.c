@@ -264,7 +264,7 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
                                                        xAzureIoTAduUpdateRequest.ulUpdateManifestSignatureLength);
             if (ulJWSVerify != 0)
             {
-              LogError( ( "JWS_ManifestAuthenticate failed: JWS was not validated successfully" ) );
+              LogError( ( "JWS_ManifestAuthenticate failed: JWS was not validated successfully: %i", ulJWSVerify ) );
               return;
             }
 
