@@ -254,6 +254,129 @@ static uint32_t prvJWS_RS256Verify( unsigned char * pucInput,
     return xResult;
 }
 
+static uint32_t prvFindJWSValue( AzureIoTJSONReader_t * pxPayload )
+{
+    AzureIoTResult_t xResult = eAzureIoTSuccess;
+    AzureIoTJSONTokenType_t xJSONTokenType;
+
+    azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( pxPayload ) );
+
+    while( xResult == eAzureIoTSuccess )
+    {
+        if( AzureIoTJSONReader_TokenIsTextEqual( pxPayload, ( const uint8_t * ) jws_sjwk_json_value, sizeof( jws_sjwk_json_value ) - 1 ) )
+        {
+            /* Found name, move to value */
+            azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( pxPayload ) );
+            break;
+        }
+        else
+        {
+            azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( pxPayload ) );
+            azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_SkipChildren( pxPayload ) );
+            xResult = AzureIoTJSONReader_NextToken( pxPayload );
+        }
+    }
+
+    azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_TokenType( pxPayload, &xJSONTokenType ) );
+
+    if( ( xResult != eAzureIoTSuccess ) && ( xJSONTokenType == eAzureIoTJSONTokenSTRING ) )
+    {
+        LogError( ( "[JWS] Parse JSK JSON Payload Error: 0x%08x", xResult ) );
+        return xResult;
+    }
+
+    return 0;
+}
+
+static int32_t prvFindRootKeyValue( AzureIoTJSONReader_t * pxPayload,
+                                    az_span * pxKIDSpan )
+{
+    AzureIoTResult_t xResult = eAzureIoTSuccess;
+    AzureIoTJSONTokenType_t xJSONTokenType;
+
+    /*Begin object */
+    azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( pxPayload ) );
+    /*Property Name */
+    azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( pxPayload ) );
+
+    while( xResult == eAzureIoTSuccess )
+    {
+        if( AzureIoTJSONReader_TokenIsTextEqual( pxPayload, ( const uint8_t * ) jws_kid_json_value, sizeof( jws_kid_json_value ) - 1 ) )
+        {
+            azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( pxPayload ) );
+            *pxKIDSpan = pxPayload->_internal.xCoreReader.token.slice;
+
+            break;
+        }
+        else
+        {
+            azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( pxPayload ) );
+            azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_SkipChildren( pxPayload ) );
+            xResult = AzureIoTJSONReader_NextToken( pxPayload );
+        }
+    }
+
+    azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_TokenType( pxPayload, &xJSONTokenType ) );
+
+    if( ( xResult != eAzureIoTSuccess ) && ( xJSONTokenType != eAzureIoTJSONTokenSTRING ) )
+    {
+        LogError( ( "[JWS] Parse Root Key Error: %i", xResult ) );
+        return xResult;
+    }
+}
+
+static int32_t prvFindKeyParts( AzureIoTJSONReader_t * xPayload,
+                                az_span * pxBase64EncodedNSpan,
+                                az_span * pxBase64EncodedESpan,
+                                az_span * pxAlgSpan )
+{
+    AzureIoTResult_t xResult = eAzureIoTSuccess;
+
+    /*Begin object */
+    azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( xPayload ) );
+    /*Property Name */
+    azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( xPayload ) );
+
+    while( xResult == eAzureIoTSuccess && ( az_span_size( *pxBase64EncodedNSpan ) == 0 || az_span_size( *pxBase64EncodedESpan ) == 0 || az_span_size( *pxAlgSpan ) == 0 ) )
+    {
+        if( AzureIoTJSONReader_TokenIsTextEqual( xPayload, ( const uint8_t * ) jws_n_json_value, sizeof( jws_n_json_value ) - 1 ) )
+        {
+            azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( xPayload ) );
+            *pxBase64EncodedNSpan = xPayload->_internal.xCoreReader.token.slice;
+
+            xResult = AzureIoTJSONReader_NextToken( xPayload );
+        }
+        else if( AzureIoTJSONReader_TokenIsTextEqual( xPayload, ( const uint8_t * ) jws_e_json_value, sizeof( jws_e_json_value ) - 1 ) )
+        {
+            azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( xPayload ) );
+            *pxBase64EncodedESpan = xPayload->_internal.xCoreReader.token.slice;
+
+            xResult = AzureIoTJSONReader_NextToken( xPayload );
+        }
+        else if( AzureIoTJSONReader_TokenIsTextEqual( xPayload, ( const uint8_t * ) jws_alg_json_value, sizeof( jws_alg_json_value ) - 1 ) )
+        {
+            azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( xPayload ) );
+            *pxAlgSpan = xPayload->_internal.xCoreReader.token.slice;
+
+            xResult = AzureIoTJSONReader_NextToken( xPayload );
+        }
+        else
+        {
+            azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( xPayload ) );
+            azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_SkipChildren( xPayload ) );
+            xResult = AzureIoTJSONReader_NextToken( xPayload );
+        }
+    }
+
+    if( ( xResult != eAzureIoTSuccess ) && ( xResult != eAzureIoTErrorJSONReaderDone ) )
+    {
+        LogError( ( "[JWS] Parse Signing Key Payload Error: %i", xResult ) );
+        return xResult;
+    }
+
+    return 0;
+}
+
 uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
                                    uint32_t ulManifestLength,
                                    char * pucJWS,
@@ -371,29 +494,11 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
     az_span xJWKManifestSpan;
 
     AzureIoTJSONReader_Init( &xJSONReader, ( const uint8_t * ) az_span_ptr( xJWSHeaderSpan ), outJWSHeaderLength );
-    azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( &xJSONReader ) );
 
-    while( xResult == eAzureIoTSuccess )
+    if( prvFindJWSValue( &xJSONReader ) != 0 )
     {
-        if( AzureIoTJSONReader_TokenIsTextEqual( &xJSONReader, ( const uint8_t * ) jws_sjwk_json_value, sizeof( jws_sjwk_json_value ) - 1 ) )
-        {
-            azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( &xJSONReader ) );
-            break;
-        }
-        else
-        {
-            azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( &xJSONReader ) );
-            azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_SkipChildren( &xJSONReader ) );
-            xResult = AzureIoTJSONReader_NextToken( &xJSONReader );
-        }
-    }
-
-    azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_TokenType( &xJSONReader, &xJSONTokenType ) );
-
-    if( ( xResult != eAzureIoTSuccess ) && ( xJSONTokenType == eAzureIoTJSONTokenSTRING ) )
-    {
-        LogError( ( "[JWS] Parse JSK JSON Payload Error: 0x%08x", xResult ) );
-        return xResult;
+        LogError( ( "Error finding sjwk value in payload" ) );
+        return eAzureIoTErrorFailed;
     }
 
     xJWKManifestSpan = xJSONReader._internal.xCoreReader.token.slice;
@@ -458,35 +563,13 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
     /*------------------- Parse id for root key ------------------------*/
 
     az_span kidSpan;
+
     AzureIoTJSONReader_Init( &xJSONReader, ( const uint8_t * ) ucJWKHeader, outJWKHeaderLength );
-    /*Begin object */
-    azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( &xJSONReader ) );
-    /*Property Name */
-    azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( &xJSONReader ) );
 
-    while( xResult == eAzureIoTSuccess )
+    if( prvFindRootKeyValue( &xJSONReader, &kidSpan ) != 0 )
     {
-        if( AzureIoTJSONReader_TokenIsTextEqual( &xJSONReader, ( const uint8_t * ) jws_kid_json_value, sizeof( jws_kid_json_value ) - 1 ) )
-        {
-            azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( &xJSONReader ) );
-            kidSpan = xJSONReader._internal.xCoreReader.token.slice;
-
-            break;
-        }
-        else
-        {
-            azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( &xJSONReader ) );
-            azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_SkipChildren( &xJSONReader ) );
-            xResult = AzureIoTJSONReader_NextToken( &xJSONReader );
-        }
-    }
-
-    azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_TokenType( &xJSONReader, &xJSONTokenType ) );
-
-    if( ( xResult != eAzureIoTSuccess ) && ( xJSONTokenType != eAzureIoTJSONTokenSTRING ) )
-    {
-        LogError( ( "[JWS] Parse Root Key Error: %i", xResult ) );
-        return xResult;
+        LogError( ( "Could not find kid in JSON" ) );
+        return eAzureIoTErrorFailed;
     }
 
     az_span rootKeyIDSpan = az_span_create( ( uint8_t * ) AzureIoTADURootKeyId, sizeof( AzureIoTADURootKeyId ) - 1 );
@@ -504,46 +587,11 @@ uint32_t JWS_ManifestAuthenticate( const char * pucManifest,
     az_span xAlgSpan = AZ_SPAN_EMPTY;
 
     AzureIoTJSONReader_Init( &xJSONReader, ( const uint8_t * ) ucJWKPayload, outJWKPayloadLength );
-    /*Begin object */
-    azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( &xJSONReader ) );
-    /*Property Name */
-    azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( &xJSONReader ) );
 
-    while( xResult == eAzureIoTSuccess && ( az_span_size( xBase64EncodedNSpan ) == 0 || az_span_size( xBase64EncodedESpan ) == 0 || az_span_size( xAlgSpan ) == 0 ) )
+    if( prvFindKeyParts( &xJSONReader, &xBase64EncodedNSpan, &xBase64EncodedESpan, &xAlgSpan ) != 0 )
     {
-        if( AzureIoTJSONReader_TokenIsTextEqual( &xJSONReader, ( const uint8_t * ) jws_n_json_value, sizeof( jws_n_json_value ) - 1 ) )
-        {
-            azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( &xJSONReader ) );
-            xBase64EncodedNSpan = xJSONReader._internal.xCoreReader.token.slice;
-
-            xResult = AzureIoTJSONReader_NextToken( &xJSONReader );
-        }
-        else if( AzureIoTJSONReader_TokenIsTextEqual( &xJSONReader, ( const uint8_t * ) jws_e_json_value, sizeof( jws_e_json_value ) - 1 ) )
-        {
-            azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( &xJSONReader ) );
-            xBase64EncodedESpan = xJSONReader._internal.xCoreReader.token.slice;
-
-            xResult = AzureIoTJSONReader_NextToken( &xJSONReader );
-        }
-        else if( AzureIoTJSONReader_TokenIsTextEqual( &xJSONReader, ( const uint8_t * ) jws_alg_json_value, sizeof( jws_alg_json_value ) - 1 ) )
-        {
-            azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( &xJSONReader ) );
-            xAlgSpan = xJSONReader._internal.xCoreReader.token.slice;
-
-            xResult = AzureIoTJSONReader_NextToken( &xJSONReader );
-        }
-        else
-        {
-            azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_NextToken( &xJSONReader ) );
-            azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_SkipChildren( &xJSONReader ) );
-            xResult = AzureIoTJSONReader_NextToken( &xJSONReader );
-        }
-    }
-
-    if( ( xResult != eAzureIoTSuccess ) && ( xResult != eAzureIoTErrorJSONReaderDone ) )
-    {
-        LogError( ( "[JWS] Parse Signing Key Payload Error: %i", xResult ) );
-        return xResult;
+        LogError( ( "Could not find parts for the signing key" ) );
+        return eAzureIoTErrorFailed;
     }
 
     /*------------------- Base64 decode the key ------------------------*/
