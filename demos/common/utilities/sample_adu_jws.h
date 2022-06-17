@@ -34,13 +34,13 @@
 /**
  * @brief Authenticate the manifest from ADU.
  *
- * @param pucManifest The escaped manifest from the ADU twin property.
- * @param ulManifestLength The length of \p pucManifest.
- * @param pucJWS The JWS used to authenticate \p pucManifest.
- * @param ulJWSLength The length of \p pucJWS.
- * @param pucScratchBuffer Scratch buffer space for calculations. It should be
+ * @param[in] pucManifest The escaped manifest from the ADU twin property.
+ * @param[in] ulManifestLength The length of \p pucManifest.
+ * @param[in] pucJWS The JWS used to authenticate \p pucManifest.
+ * @param[in] ulJWSLength The length of \p pucJWS.
+ * @param[in] pucScratchBuffer Scratch buffer space for calculations. It should be
  * `jwsSCRATCH_BUFFER_SIZE` in length.
- * @param ulScratchBufferLength The length of \p pucScratchBuffer.
+ * @param[in] ulScratchBufferLength The length of \p pucScratchBuffer.
  * @return uint32_t The return value of this function.
  * @retval 0 if successful.
  * @retval Otherwise if failed.
