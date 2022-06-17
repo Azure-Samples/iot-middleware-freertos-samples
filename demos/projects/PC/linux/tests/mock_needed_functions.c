@@ -2,8 +2,8 @@
  * Licensed under the MIT License. */
 
 /*
-THESE FUNCTIONS AND VALUES ARE NEEDED FOR COMPILATIONS OF THE UNIT TESTS
-*/
+ * THESE FUNCTIONS AND VALUES ARE NEEDED FOR COMPILATIONS OF THE UNIT TESTS
+ */
 
 /* Standard includes. */
 #include <stdarg.h>
