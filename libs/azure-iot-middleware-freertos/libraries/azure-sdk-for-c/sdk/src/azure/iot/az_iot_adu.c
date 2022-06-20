@@ -77,13 +77,13 @@
 #define NULL_TERM_CHAR_SIZE 1
 #define UPDATE_ID_ESCAPING_CHARS_LENGTH 24
 
-#define RETURN_IF_JSON_TOKEN_TYPE_NOT(jr_ptr, json_token_type) \
+#define RETURN_IF_JSON_TOKEN_NOT_TYPE(jr_ptr, json_token_type) \
   if (jr_ptr->token.kind != json_token_type)                   \
   {                                                            \
     return AZ_ERROR_JSON_INVALID_STATE;                        \
   }
 
-#define RETURN_IF_JSON_TOKEN_TEXT_NOT(jr_ptr, literal_text)                         \
+#define RETURN_IF_JSON_TOKEN_NOT_TEXT(jr_ptr, literal_text)                         \
   if (!az_json_token_is_text_equal(&jr_ptr->token, AZ_SPAN_FROM_STR(literal_text))) \
   {                                                                                 \
     return AZ_ERROR_JSON_INVALID_STATE;                                             \
@@ -137,7 +137,7 @@ static az_result generate_step_id(az_span buffer, uint32_t step_index, az_span* 
   return AZ_OK;
 }
 
-AZ_NODISCARD az_result az_iot_adu_get_properties_payload(
+AZ_NODISCARD az_result az_iot_adu_get_agent_state_payload(
     az_iot_adu_device_information* device_information,
     int32_t agent_state,
     az_iot_adu_workflow* workflow,
@@ -335,24 +335,24 @@ AZ_NODISCARD az_result az_iot_adu_get_properties_payload(
 
 // Reference: AzureRTOS/AZ_IOT_ADU_agent_service_properties_get(...)
 AZ_NODISCARD az_result az_iot_adu_parse_service_properties(
-    az_json_reader* jr,
+    az_json_reader* ref_json_reader,
     az_span buffer,
     az_iot_adu_update_request* update_request,
     az_span* buffer_remainder)
 {
-  _az_PRECONDITION_NOT_NULL(jr);
+  _az_PRECONDITION_NOT_NULL(ref_json_reader);
   _az_PRECONDITION_VALID_SPAN(buffer, 1, false);
   _az_PRECONDITION_NOT_NULL(update_request);
 
   int32_t required_size;
   int32_t out_length;
 
-  RETURN_IF_JSON_TOKEN_TYPE_NOT(jr, AZ_JSON_TOKEN_PROPERTY_NAME);
-  RETURN_IF_JSON_TOKEN_TEXT_NOT(jr, AZ_IOT_ADU_AGENT_PROPERTY_NAME_SERVICE);
+  RETURN_IF_JSON_TOKEN_NOT_TYPE(ref_json_reader, AZ_JSON_TOKEN_PROPERTY_NAME);
+  RETURN_IF_JSON_TOKEN_NOT_TEXT(ref_json_reader, AZ_IOT_ADU_AGENT_PROPERTY_NAME_SERVICE);
 
-  _az_RETURN_IF_FAILED(az_json_reader_next_token(jr));
-  RETURN_IF_JSON_TOKEN_TYPE_NOT(jr, AZ_JSON_TOKEN_BEGIN_OBJECT);
-  _az_RETURN_IF_FAILED(az_json_reader_next_token(jr));
+  _az_RETURN_IF_FAILED(az_json_reader_next_token(ref_json_reader));
+  RETURN_IF_JSON_TOKEN_NOT_TYPE(ref_json_reader, AZ_JSON_TOKEN_BEGIN_OBJECT);
+  _az_RETURN_IF_FAILED(az_json_reader_next_token(ref_json_reader));
 
   update_request->workflow.action = 0;
   update_request->workflow.id = AZ_SPAN_EMPTY;
@@ -361,41 +361,41 @@ AZ_NODISCARD az_result az_iot_adu_parse_service_properties(
   update_request->update_manifest_signature = AZ_SPAN_EMPTY;
   update_request->file_urls_count = 0;
 
-  while (jr->token.kind != AZ_JSON_TOKEN_END_OBJECT)
+  while (ref_json_reader->token.kind != AZ_JSON_TOKEN_END_OBJECT)
   {
-    RETURN_IF_JSON_TOKEN_TYPE_NOT(jr, AZ_JSON_TOKEN_PROPERTY_NAME);
+    RETURN_IF_JSON_TOKEN_NOT_TYPE(ref_json_reader, AZ_JSON_TOKEN_PROPERTY_NAME);
 
     if (az_json_token_is_text_equal(
-            &jr->token, AZ_SPAN_FROM_STR(AZ_IOT_ADU_AGENT_PROPERTY_NAME_WORKFLOW)))
+            &ref_json_reader->token, AZ_SPAN_FROM_STR(AZ_IOT_ADU_AGENT_PROPERTY_NAME_WORKFLOW)))
     {
-      _az_RETURN_IF_FAILED(az_json_reader_next_token(jr));
-      RETURN_IF_JSON_TOKEN_TYPE_NOT(jr, AZ_JSON_TOKEN_BEGIN_OBJECT);
-      _az_RETURN_IF_FAILED(az_json_reader_next_token(jr));
+      _az_RETURN_IF_FAILED(az_json_reader_next_token(ref_json_reader));
+      RETURN_IF_JSON_TOKEN_NOT_TYPE(ref_json_reader, AZ_JSON_TOKEN_BEGIN_OBJECT);
+      _az_RETURN_IF_FAILED(az_json_reader_next_token(ref_json_reader));
 
-      while (jr->token.kind != AZ_JSON_TOKEN_END_OBJECT)
+      while (ref_json_reader->token.kind != AZ_JSON_TOKEN_END_OBJECT)
       {
-        RETURN_IF_JSON_TOKEN_TYPE_NOT(jr, AZ_JSON_TOKEN_PROPERTY_NAME);
+        RETURN_IF_JSON_TOKEN_NOT_TYPE(ref_json_reader, AZ_JSON_TOKEN_PROPERTY_NAME);
 
         if (az_json_token_is_text_equal(
-                &jr->token, AZ_SPAN_FROM_STR(AZ_IOT_ADU_AGENT_PROPERTY_NAME_ACTION)))
+                &ref_json_reader->token, AZ_SPAN_FROM_STR(AZ_IOT_ADU_AGENT_PROPERTY_NAME_ACTION)))
         {
-          _az_RETURN_IF_FAILED(az_json_reader_next_token(jr));
+          _az_RETURN_IF_FAILED(az_json_reader_next_token(ref_json_reader));
           _az_RETURN_IF_FAILED(
-              az_json_token_get_int32(&jr->token, &update_request->workflow.action));
+              az_json_token_get_int32(&ref_json_reader->token, &update_request->workflow.action));
         }
         else if (az_json_token_is_text_equal(
-                     &jr->token, AZ_SPAN_FROM_STR(AZ_IOT_ADU_AGENT_PROPERTY_NAME_ID)))
+                     &ref_json_reader->token, AZ_SPAN_FROM_STR(AZ_IOT_ADU_AGENT_PROPERTY_NAME_ID)))
         {
-          _az_RETURN_IF_FAILED(az_json_reader_next_token(jr));
+          _az_RETURN_IF_FAILED(az_json_reader_next_token(ref_json_reader));
 
-          required_size = jr->token.size + NULL_TERM_CHAR_SIZE;
+          required_size = ref_json_reader->token.size + NULL_TERM_CHAR_SIZE;
 
           _az_RETURN_IF_NOT_ENOUGH_SIZE(buffer, required_size);
 
           update_request->workflow.id = split_az_span(buffer, required_size, &buffer);
 
           _az_RETURN_IF_FAILED(az_json_token_get_string(
-              &jr->token,
+              &ref_json_reader->token,
               (char*)az_span_ptr(update_request->workflow.id),
               az_span_size(update_request->workflow.id),
               &out_length));
@@ -411,18 +411,22 @@ AZ_NODISCARD az_result az_iot_adu_parse_service_properties(
           return AZ_ERROR_JSON_INVALID_STATE;
         }
 
-        _az_RETURN_IF_FAILED(az_json_reader_next_token(jr));
+        _az_RETURN_IF_FAILED(az_json_reader_next_token(ref_json_reader));
       }
     }
     else if (az_json_token_is_text_equal(
-                 &jr->token, AZ_SPAN_FROM_STR(AZ_IOT_ADU_AGENT_PROPERTY_NAME_UPDATE_MANIFEST)))
+                 &ref_json_reader->token,
+                 AZ_SPAN_FROM_STR(AZ_IOT_ADU_AGENT_PROPERTY_NAME_UPDATE_MANIFEST)))
     {
       int32_t update_manifest_length;
 
-      _az_RETURN_IF_FAILED(az_json_reader_next_token(jr));
+      _az_RETURN_IF_FAILED(az_json_reader_next_token(ref_json_reader));
 
       _az_RETURN_IF_FAILED(az_json_token_get_string(
-          &jr->token, (char*)az_span_ptr(buffer), az_span_size(buffer), &update_manifest_length));
+          &ref_json_reader->token,
+          (char*)az_span_ptr(buffer),
+          az_span_size(buffer),
+          &update_manifest_length));
 
       // TODO: find a way to get rid of az_json_token_get_string (which adds a \0 at the end!!!!!!)
       //       Preferably have a function that does not copy anything.
@@ -443,19 +447,19 @@ AZ_NODISCARD az_result az_iot_adu_parse_service_properties(
       update_request->update_manifest = split_az_span(buffer, update_manifest_length, &buffer);
     }
     else if (az_json_token_is_text_equal(
-                 &jr->token,
+                 &ref_json_reader->token,
                  AZ_SPAN_FROM_STR(AZ_IOT_ADU_AGENT_PROPERTY_NAME_UPDATE_MANIFEST_SIGNATURE)))
     {
-      _az_RETURN_IF_FAILED(az_json_reader_next_token(jr));
+      _az_RETURN_IF_FAILED(az_json_reader_next_token(ref_json_reader));
 
-      required_size = jr->token.size + NULL_TERM_CHAR_SIZE;
+      required_size = ref_json_reader->token.size + NULL_TERM_CHAR_SIZE;
 
       _az_RETURN_IF_NOT_ENOUGH_SIZE(buffer, required_size);
 
       update_request->update_manifest_signature = split_az_span(buffer, required_size, &buffer);
 
       _az_RETURN_IF_FAILED(az_json_token_get_string(
-          &jr->token,
+          &ref_json_reader->token,
           (char*)az_span_ptr(update_request->update_manifest_signature),
           az_span_size(update_request->update_manifest_signature),
           &out_length));
@@ -466,17 +470,18 @@ AZ_NODISCARD az_result az_iot_adu_parse_service_properties(
           = az_span_slice(update_request->update_manifest_signature, 0, out_length);
     }
     else if (az_json_token_is_text_equal(
-                 &jr->token, AZ_SPAN_FROM_STR(AZ_IOT_ADU_AGENT_PROPERTY_NAME_FILEURLS)))
+                 &ref_json_reader->token,
+                 AZ_SPAN_FROM_STR(AZ_IOT_ADU_AGENT_PROPERTY_NAME_FILEURLS)))
     {
-      _az_RETURN_IF_FAILED(az_json_reader_next_token(jr));
-      RETURN_IF_JSON_TOKEN_TYPE_NOT(jr, AZ_JSON_TOKEN_BEGIN_OBJECT);
-      _az_RETURN_IF_FAILED(az_json_reader_next_token(jr));
+      _az_RETURN_IF_FAILED(az_json_reader_next_token(ref_json_reader));
+      RETURN_IF_JSON_TOKEN_NOT_TYPE(ref_json_reader, AZ_JSON_TOKEN_BEGIN_OBJECT);
+      _az_RETURN_IF_FAILED(az_json_reader_next_token(ref_json_reader));
 
-      while (jr->token.kind != AZ_JSON_TOKEN_END_OBJECT)
+      while (ref_json_reader->token.kind != AZ_JSON_TOKEN_END_OBJECT)
       {
-        RETURN_IF_JSON_TOKEN_TYPE_NOT(jr, AZ_JSON_TOKEN_PROPERTY_NAME);
+        RETURN_IF_JSON_TOKEN_NOT_TYPE(ref_json_reader, AZ_JSON_TOKEN_PROPERTY_NAME);
 
-        required_size = jr->token.size + NULL_TERM_CHAR_SIZE;
+        required_size = ref_json_reader->token.size + NULL_TERM_CHAR_SIZE;
 
         _az_RETURN_IF_NOT_ENOUGH_SIZE(buffer, required_size);
 
@@ -484,7 +489,7 @@ AZ_NODISCARD az_result az_iot_adu_parse_service_properties(
             = split_az_span(buffer, required_size, &buffer);
 
         _az_RETURN_IF_FAILED(az_json_token_get_string(
-            &jr->token,
+            &ref_json_reader->token,
             (char*)az_span_ptr(update_request->file_urls[update_request->file_urls_count].id),
             az_span_size(update_request->file_urls[update_request->file_urls_count].id),
             &out_length));
@@ -495,10 +500,10 @@ AZ_NODISCARD az_result az_iot_adu_parse_service_properties(
         update_request->file_urls[update_request->file_urls_count].id = az_span_slice(
             update_request->file_urls[update_request->file_urls_count].id, 0, out_length);
 
-        _az_RETURN_IF_FAILED(az_json_reader_next_token(jr));
-        RETURN_IF_JSON_TOKEN_TYPE_NOT(jr, AZ_JSON_TOKEN_STRING);
+        _az_RETURN_IF_FAILED(az_json_reader_next_token(ref_json_reader));
+        RETURN_IF_JSON_TOKEN_NOT_TYPE(ref_json_reader, AZ_JSON_TOKEN_STRING);
 
-        required_size = jr->token.size + NULL_TERM_CHAR_SIZE;
+        required_size = ref_json_reader->token.size + NULL_TERM_CHAR_SIZE;
 
         _az_RETURN_IF_NOT_ENOUGH_SIZE(buffer, required_size);
 
@@ -506,7 +511,7 @@ AZ_NODISCARD az_result az_iot_adu_parse_service_properties(
             = split_az_span(buffer, required_size, &buffer);
 
         _az_RETURN_IF_FAILED(az_json_token_get_string(
-            &jr->token,
+            &ref_json_reader->token,
             (char*)az_span_ptr(update_request->file_urls[update_request->file_urls_count].url),
             az_span_size(update_request->file_urls[update_request->file_urls_count].url),
             &out_length));
@@ -519,11 +524,11 @@ AZ_NODISCARD az_result az_iot_adu_parse_service_properties(
 
         update_request->file_urls_count++;
 
-        _az_RETURN_IF_FAILED(az_json_reader_next_token(jr));
+        _az_RETURN_IF_FAILED(az_json_reader_next_token(ref_json_reader));
       }
     }
 
-    _az_RETURN_IF_FAILED(az_json_reader_next_token(jr));
+    _az_RETURN_IF_FAILED(az_json_reader_next_token(ref_json_reader));
   }
 
   if (buffer_remainder != NULL)
@@ -594,12 +599,12 @@ az_iot_adu_parse_update_manifest(az_span payload, az_iot_adu_update_manifest* up
   _az_RETURN_IF_FAILED(az_json_reader_init(&jr, payload, NULL));
 
   _az_RETURN_IF_FAILED(az_json_reader_next_token(&jr));
-  RETURN_IF_JSON_TOKEN_TYPE_NOT((&jr), AZ_JSON_TOKEN_BEGIN_OBJECT);
+  RETURN_IF_JSON_TOKEN_NOT_TYPE((&jr), AZ_JSON_TOKEN_BEGIN_OBJECT);
   _az_RETURN_IF_FAILED(az_json_reader_next_token(&jr));
 
   while (jr.token.kind != AZ_JSON_TOKEN_END_OBJECT)
   {
-    RETURN_IF_JSON_TOKEN_TYPE_NOT((&jr), AZ_JSON_TOKEN_PROPERTY_NAME);
+    RETURN_IF_JSON_TOKEN_NOT_TYPE((&jr), AZ_JSON_TOKEN_PROPERTY_NAME);
 
     bool property_parsed = true;
 
@@ -607,22 +612,22 @@ az_iot_adu_parse_update_manifest(az_span payload, az_iot_adu_update_manifest* up
             &jr.token, AZ_SPAN_FROM_STR(AZ_IOT_ADU_AGENT_PROPERTY_NAME_MANIFEST_VERSION)))
     {
       _az_RETURN_IF_FAILED(az_json_reader_next_token(&jr));
-      RETURN_IF_JSON_TOKEN_TYPE_NOT((&jr), AZ_JSON_TOKEN_STRING);
+      RETURN_IF_JSON_TOKEN_NOT_TYPE((&jr), AZ_JSON_TOKEN_STRING);
       update_manifest->manifest_version = jr.token.slice;
     }
     else if (az_json_token_is_text_equal(
                  &jr.token, AZ_SPAN_FROM_STR(AZ_IOT_ADU_AGENT_PROPERTY_NAME_INSTRUCTIONS)))
     {
       _az_RETURN_IF_FAILED(az_json_reader_next_token(&jr));
-      RETURN_IF_JSON_TOKEN_TYPE_NOT((&jr), AZ_JSON_TOKEN_BEGIN_OBJECT);
+      RETURN_IF_JSON_TOKEN_NOT_TYPE((&jr), AZ_JSON_TOKEN_BEGIN_OBJECT);
       _az_RETURN_IF_FAILED(az_json_reader_next_token(&jr));
-      RETURN_IF_JSON_TOKEN_TYPE_NOT((&jr), AZ_JSON_TOKEN_PROPERTY_NAME);
+      RETURN_IF_JSON_TOKEN_NOT_TYPE((&jr), AZ_JSON_TOKEN_PROPERTY_NAME);
 
       if (az_json_token_is_text_equal(
               &jr.token, AZ_SPAN_FROM_STR(AZ_IOT_ADU_AGENT_PROPERTY_NAME_STEPS)))
       {
         _az_RETURN_IF_FAILED(az_json_reader_next_token(&jr));
-        RETURN_IF_JSON_TOKEN_TYPE_NOT((&jr), AZ_JSON_TOKEN_BEGIN_ARRAY);
+        RETURN_IF_JSON_TOKEN_NOT_TYPE((&jr), AZ_JSON_TOKEN_BEGIN_ARRAY);
         _az_RETURN_IF_FAILED(az_json_reader_next_token(&jr));
 
         update_manifest->instructions.steps_count = 0;
@@ -631,18 +636,18 @@ az_iot_adu_parse_update_manifest(az_span payload, az_iot_adu_update_manifest* up
         {
           uint32_t step_index = update_manifest->instructions.steps_count;
 
-          RETURN_IF_JSON_TOKEN_TYPE_NOT((&jr), AZ_JSON_TOKEN_BEGIN_OBJECT);
+          RETURN_IF_JSON_TOKEN_NOT_TYPE((&jr), AZ_JSON_TOKEN_BEGIN_OBJECT);
           _az_RETURN_IF_FAILED(az_json_reader_next_token(&jr));
 
           while (jr.token.kind != AZ_JSON_TOKEN_END_OBJECT)
           {
-            RETURN_IF_JSON_TOKEN_TYPE_NOT((&jr), AZ_JSON_TOKEN_PROPERTY_NAME);
+            RETURN_IF_JSON_TOKEN_NOT_TYPE((&jr), AZ_JSON_TOKEN_PROPERTY_NAME);
 
             if (az_json_token_is_text_equal(
                     &jr.token, AZ_SPAN_FROM_STR(AZ_IOT_ADU_AGENT_PROPERTY_NAME_HANDLER)))
             {
               _az_RETURN_IF_FAILED(az_json_reader_next_token(&jr));
-              RETURN_IF_JSON_TOKEN_TYPE_NOT((&jr), AZ_JSON_TOKEN_STRING);
+              RETURN_IF_JSON_TOKEN_NOT_TYPE((&jr), AZ_JSON_TOKEN_STRING);
 
               update_manifest->instructions.steps[step_index].handler = jr.token.slice;
             }
@@ -650,7 +655,7 @@ az_iot_adu_parse_update_manifest(az_span payload, az_iot_adu_update_manifest* up
                          &jr.token, AZ_SPAN_FROM_STR(AZ_IOT_ADU_AGENT_PROPERTY_NAME_FILES)))
             {
               _az_RETURN_IF_FAILED(az_json_reader_next_token(&jr));
-              RETURN_IF_JSON_TOKEN_TYPE_NOT((&jr), AZ_JSON_TOKEN_BEGIN_ARRAY);
+              RETURN_IF_JSON_TOKEN_NOT_TYPE((&jr), AZ_JSON_TOKEN_BEGIN_ARRAY);
               _az_RETURN_IF_FAILED(az_json_reader_next_token(&jr));
 
               update_manifest->instructions.steps[step_index].files_count = 0;
@@ -659,7 +664,7 @@ az_iot_adu_parse_update_manifest(az_span payload, az_iot_adu_update_manifest* up
               {
                 uint32_t file_index = update_manifest->instructions.steps[step_index].files_count;
 
-                RETURN_IF_JSON_TOKEN_TYPE_NOT((&jr), AZ_JSON_TOKEN_STRING);
+                RETURN_IF_JSON_TOKEN_NOT_TYPE((&jr), AZ_JSON_TOKEN_STRING);
 
                 update_manifest->instructions.steps[step_index].files[file_index] = jr.token.slice;
                 update_manifest->instructions.steps[step_index].files_count++;
@@ -673,21 +678,21 @@ az_iot_adu_parse_update_manifest(az_span payload, az_iot_adu_update_manifest* up
             {
               // TODO: properly save installed criteria as a map instead of fixed field.
               _az_RETURN_IF_FAILED(az_json_reader_next_token(&jr));
-              RETURN_IF_JSON_TOKEN_TYPE_NOT((&jr), AZ_JSON_TOKEN_BEGIN_OBJECT);
+              RETURN_IF_JSON_TOKEN_NOT_TYPE((&jr), AZ_JSON_TOKEN_BEGIN_OBJECT);
               _az_RETURN_IF_FAILED(az_json_reader_next_token(&jr));
-              RETURN_IF_JSON_TOKEN_TYPE_NOT((&jr), AZ_JSON_TOKEN_PROPERTY_NAME);
+              RETURN_IF_JSON_TOKEN_NOT_TYPE((&jr), AZ_JSON_TOKEN_PROPERTY_NAME);
 
               if (az_json_token_is_text_equal(
                       &jr.token,
                       AZ_SPAN_FROM_STR(AZ_IOT_ADU_AGENT_PROPERTY_NAME_INSTALLED_CRITERIA)))
               {
                 _az_RETURN_IF_FAILED(az_json_reader_next_token(&jr));
-                RETURN_IF_JSON_TOKEN_TYPE_NOT((&jr), AZ_JSON_TOKEN_STRING);
+                RETURN_IF_JSON_TOKEN_NOT_TYPE((&jr), AZ_JSON_TOKEN_STRING);
                 update_manifest->instructions.steps[step_index]
                     .handler_properties.installed_criteria
                     = jr.token.slice;
                 _az_RETURN_IF_FAILED(az_json_reader_next_token(&jr));
-                RETURN_IF_JSON_TOKEN_TYPE_NOT((&jr), AZ_JSON_TOKEN_END_OBJECT);
+                RETURN_IF_JSON_TOKEN_NOT_TYPE((&jr), AZ_JSON_TOKEN_END_OBJECT);
               }
               else
               {
@@ -708,7 +713,7 @@ az_iot_adu_parse_update_manifest(az_span payload, az_iot_adu_update_manifest* up
         }
 
         _az_RETURN_IF_FAILED(az_json_reader_next_token(&jr));
-        RETURN_IF_JSON_TOKEN_TYPE_NOT((&jr), AZ_JSON_TOKEN_END_OBJECT);
+        RETURN_IF_JSON_TOKEN_NOT_TYPE((&jr), AZ_JSON_TOKEN_END_OBJECT);
       }
       else
       {
@@ -720,32 +725,32 @@ az_iot_adu_parse_update_manifest(az_span payload, az_iot_adu_update_manifest* up
                  &jr.token, AZ_SPAN_FROM_STR(AZ_IOT_ADU_AGENT_PROPERTY_NAME_UPDATE_ID)))
     {
       _az_RETURN_IF_FAILED(az_json_reader_next_token(&jr));
-      RETURN_IF_JSON_TOKEN_TYPE_NOT((&jr), AZ_JSON_TOKEN_BEGIN_OBJECT);
+      RETURN_IF_JSON_TOKEN_NOT_TYPE((&jr), AZ_JSON_TOKEN_BEGIN_OBJECT);
       _az_RETURN_IF_FAILED(az_json_reader_next_token(&jr));
 
       while (jr.token.kind != AZ_JSON_TOKEN_END_OBJECT)
       {
-        RETURN_IF_JSON_TOKEN_TYPE_NOT((&jr), AZ_JSON_TOKEN_PROPERTY_NAME);
+        RETURN_IF_JSON_TOKEN_NOT_TYPE((&jr), AZ_JSON_TOKEN_PROPERTY_NAME);
 
         if (az_json_token_is_text_equal(
                 &jr.token, AZ_SPAN_FROM_STR(AZ_IOT_ADU_AGENT_PROPERTY_NAME_PROVIDER)))
         {
           _az_RETURN_IF_FAILED(az_json_reader_next_token(&jr));
-          RETURN_IF_JSON_TOKEN_TYPE_NOT((&jr), AZ_JSON_TOKEN_STRING);
+          RETURN_IF_JSON_TOKEN_NOT_TYPE((&jr), AZ_JSON_TOKEN_STRING);
           update_manifest->update_id.provider = jr.token.slice;
         }
         else if (az_json_token_is_text_equal(
                      &jr.token, AZ_SPAN_FROM_STR(AZ_IOT_ADU_AGENT_PROPERTY_NAME_NAME)))
         {
           _az_RETURN_IF_FAILED(az_json_reader_next_token(&jr));
-          RETURN_IF_JSON_TOKEN_TYPE_NOT((&jr), AZ_JSON_TOKEN_STRING);
+          RETURN_IF_JSON_TOKEN_NOT_TYPE((&jr), AZ_JSON_TOKEN_STRING);
           update_manifest->update_id.name = jr.token.slice;
         }
         else if (az_json_token_is_text_equal(
                      &jr.token, AZ_SPAN_FROM_STR(AZ_IOT_ADU_AGENT_PROPERTY_NAME_VERSION)))
         {
           _az_RETURN_IF_FAILED(az_json_reader_next_token(&jr));
-          RETURN_IF_JSON_TOKEN_TYPE_NOT((&jr), AZ_JSON_TOKEN_STRING);
+          RETURN_IF_JSON_TOKEN_NOT_TYPE((&jr), AZ_JSON_TOKEN_STRING);
           update_manifest->update_id.version = jr.token.slice;
         }
         else
@@ -762,27 +767,27 @@ az_iot_adu_parse_update_manifest(az_span payload, az_iot_adu_update_manifest* up
     {
       // TODO: parse this as a map (dictionary) instead.
       _az_RETURN_IF_FAILED(az_json_reader_next_token(&jr));
-      RETURN_IF_JSON_TOKEN_TYPE_NOT((&jr), AZ_JSON_TOKEN_BEGIN_ARRAY);
+      RETURN_IF_JSON_TOKEN_NOT_TYPE((&jr), AZ_JSON_TOKEN_BEGIN_ARRAY);
       _az_RETURN_IF_FAILED(az_json_reader_next_token(&jr));
-      RETURN_IF_JSON_TOKEN_TYPE_NOT((&jr), AZ_JSON_TOKEN_BEGIN_OBJECT);
+      RETURN_IF_JSON_TOKEN_NOT_TYPE((&jr), AZ_JSON_TOKEN_BEGIN_OBJECT);
       _az_RETURN_IF_FAILED(az_json_reader_next_token(&jr));
 
       while (jr.token.kind != AZ_JSON_TOKEN_END_OBJECT)
       {
-        RETURN_IF_JSON_TOKEN_TYPE_NOT((&jr), AZ_JSON_TOKEN_PROPERTY_NAME);
+        RETURN_IF_JSON_TOKEN_NOT_TYPE((&jr), AZ_JSON_TOKEN_PROPERTY_NAME);
 
         if (az_json_token_is_text_equal(
                 &jr.token, AZ_SPAN_FROM_STR(AZ_IOT_ADU_AGENT_PROPERTY_NAME_DEVICE_MANUFACTURER)))
         {
           _az_RETURN_IF_FAILED(az_json_reader_next_token(&jr));
-          RETURN_IF_JSON_TOKEN_TYPE_NOT((&jr), AZ_JSON_TOKEN_STRING);
+          RETURN_IF_JSON_TOKEN_NOT_TYPE((&jr), AZ_JSON_TOKEN_STRING);
           update_manifest->compatibility.device_manufacturer = jr.token.slice;
         }
         else if (az_json_token_is_text_equal(
                      &jr.token, AZ_SPAN_FROM_STR(AZ_IOT_ADU_AGENT_PROPERTY_NAME_DEVICE_MODEL)))
         {
           _az_RETURN_IF_FAILED(az_json_reader_next_token(&jr));
-          RETURN_IF_JSON_TOKEN_TYPE_NOT((&jr), AZ_JSON_TOKEN_STRING);
+          RETURN_IF_JSON_TOKEN_NOT_TYPE((&jr), AZ_JSON_TOKEN_STRING);
           update_manifest->compatibility.device_model = jr.token.slice;
         }
         else
@@ -795,43 +800,43 @@ az_iot_adu_parse_update_manifest(az_span payload, az_iot_adu_update_manifest* up
       }
 
       _az_RETURN_IF_FAILED(az_json_reader_next_token(&jr));
-      RETURN_IF_JSON_TOKEN_TYPE_NOT((&jr), AZ_JSON_TOKEN_END_ARRAY);
+      RETURN_IF_JSON_TOKEN_NOT_TYPE((&jr), AZ_JSON_TOKEN_END_ARRAY);
     }
     else if (az_json_token_is_text_equal(
                  &jr.token, AZ_SPAN_FROM_STR(AZ_IOT_ADU_AGENT_PROPERTY_NAME_FILES)))
     {
       _az_RETURN_IF_FAILED(az_json_reader_next_token(&jr));
-      RETURN_IF_JSON_TOKEN_TYPE_NOT((&jr), AZ_JSON_TOKEN_BEGIN_OBJECT);
+      RETURN_IF_JSON_TOKEN_NOT_TYPE((&jr), AZ_JSON_TOKEN_BEGIN_OBJECT);
       _az_RETURN_IF_FAILED(az_json_reader_next_token(&jr));
 
       while (jr.token.kind != AZ_JSON_TOKEN_END_OBJECT)
       {
         uint32_t files_index = update_manifest->files_count;
 
-        RETURN_IF_JSON_TOKEN_TYPE_NOT((&jr), AZ_JSON_TOKEN_PROPERTY_NAME);
+        RETURN_IF_JSON_TOKEN_NOT_TYPE((&jr), AZ_JSON_TOKEN_PROPERTY_NAME);
 
         update_manifest->files[files_index].id = jr.token.slice;
 
         _az_RETURN_IF_FAILED(az_json_reader_next_token(&jr));
-        RETURN_IF_JSON_TOKEN_TYPE_NOT((&jr), AZ_JSON_TOKEN_BEGIN_OBJECT);
+        RETURN_IF_JSON_TOKEN_NOT_TYPE((&jr), AZ_JSON_TOKEN_BEGIN_OBJECT);
         _az_RETURN_IF_FAILED(az_json_reader_next_token(&jr));
 
         while (jr.token.kind != AZ_JSON_TOKEN_END_OBJECT)
         {
-          RETURN_IF_JSON_TOKEN_TYPE_NOT((&jr), AZ_JSON_TOKEN_PROPERTY_NAME);
+          RETURN_IF_JSON_TOKEN_NOT_TYPE((&jr), AZ_JSON_TOKEN_PROPERTY_NAME);
 
           if (az_json_token_is_text_equal(
                   &jr.token, AZ_SPAN_FROM_STR(AZ_IOT_ADU_AGENT_PROPERTY_NAME_FILE_NAME)))
           {
             _az_RETURN_IF_FAILED(az_json_reader_next_token(&jr));
-            RETURN_IF_JSON_TOKEN_TYPE_NOT((&jr), AZ_JSON_TOKEN_STRING);
+            RETURN_IF_JSON_TOKEN_NOT_TYPE((&jr), AZ_JSON_TOKEN_STRING);
             update_manifest->files[files_index].file_name = jr.token.slice;
           }
           else if (az_json_token_is_text_equal(
                        &jr.token, AZ_SPAN_FROM_STR(AZ_IOT_ADU_AGENT_PROPERTY_NAME_SIZE_IN_BYTES)))
           {
             _az_RETURN_IF_FAILED(az_json_reader_next_token(&jr));
-            RETURN_IF_JSON_TOKEN_TYPE_NOT((&jr), AZ_JSON_TOKEN_NUMBER);
+            RETURN_IF_JSON_TOKEN_NOT_TYPE((&jr), AZ_JSON_TOKEN_NUMBER);
 
             _az_RETURN_IF_FAILED(az_json_token_get_uint32(
                 &jr.token, &update_manifest->files[files_index].size_in_bytes));
@@ -840,7 +845,7 @@ az_iot_adu_parse_update_manifest(az_span payload, az_iot_adu_update_manifest* up
                        &jr.token, AZ_SPAN_FROM_STR(AZ_IOT_ADU_AGENT_PROPERTY_NAME_HASHES)))
           {
             _az_RETURN_IF_FAILED(az_json_reader_next_token(&jr));
-            RETURN_IF_JSON_TOKEN_TYPE_NOT((&jr), AZ_JSON_TOKEN_BEGIN_OBJECT);
+            RETURN_IF_JSON_TOKEN_NOT_TYPE((&jr), AZ_JSON_TOKEN_BEGIN_OBJECT);
             _az_RETURN_IF_FAILED(az_json_reader_next_token(&jr));
 
             update_manifest->files[files_index].hashes_count = 0;
@@ -849,11 +854,11 @@ az_iot_adu_parse_update_manifest(az_span payload, az_iot_adu_update_manifest* up
             {
               uint32_t hashes_count = update_manifest->files[files_index].hashes_count;
 
-              RETURN_IF_JSON_TOKEN_TYPE_NOT((&jr), AZ_JSON_TOKEN_PROPERTY_NAME);
-              update_manifest->files[files_index].hashes[hashes_count].id = jr.token.slice;
+              RETURN_IF_JSON_TOKEN_NOT_TYPE((&jr), AZ_JSON_TOKEN_PROPERTY_NAME);
+              update_manifest->files[files_index].hashes[hashes_count].hash_type = jr.token.slice;
               _az_RETURN_IF_FAILED(az_json_reader_next_token(&jr));
-              RETURN_IF_JSON_TOKEN_TYPE_NOT((&jr), AZ_JSON_TOKEN_STRING);
-              update_manifest->files[files_index].hashes[hashes_count].hash = jr.token.slice;
+              RETURN_IF_JSON_TOKEN_NOT_TYPE((&jr), AZ_JSON_TOKEN_STRING);
+              update_manifest->files[files_index].hashes[hashes_count].hash_value = jr.token.slice;
 
               update_manifest->files[files_index].hashes_count++;
 
@@ -877,7 +882,7 @@ az_iot_adu_parse_update_manifest(az_span payload, az_iot_adu_update_manifest* up
                  &jr.token, AZ_SPAN_FROM_STR(AZ_IOT_ADU_AGENT_PROPERTY_NAME_CREATED_DATE_TIME)))
     {
       _az_RETURN_IF_FAILED(az_json_reader_next_token(&jr));
-      RETURN_IF_JSON_TOKEN_TYPE_NOT((&jr), AZ_JSON_TOKEN_STRING);
+      RETURN_IF_JSON_TOKEN_NOT_TYPE((&jr), AZ_JSON_TOKEN_STRING);
       update_manifest->create_date_time = jr.token.slice;
     }
     else

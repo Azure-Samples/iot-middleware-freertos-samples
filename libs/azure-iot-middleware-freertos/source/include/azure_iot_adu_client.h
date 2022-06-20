@@ -206,7 +206,7 @@ typedef struct AzureIoTHubClientADUInstallResult
     const uint8_t * pucResultDetails;
     uint32_t ulResultDetailsLength;
 
-    AzureIoTHubClientADUStepResult_t pxStepResults[ MAX_INSTRUCTIONS_STEPS ];
+    AzureIoTHubClientADUStepResult_t pxStepResults[ AZ_IOT_ADU_MAX_INSTRUCTIONS_STEPS ];
     uint32_t ulStepResultsCount;
 } AzureIoTHubClientADUInstallResult_t;
 
@@ -288,7 +288,7 @@ typedef struct AzureIoTADUUpdateManifestFile
     uint32_t ulFileNameLength;
     uint32_t ulSizeInBytes;
     uint32_t ulHashesCount;
-    AzureIoTADUUpdateManifestFileHash_t pxHashes[ MAX_FILE_HASH_COUNT ];
+    AzureIoTADUUpdateManifestFileHash_t pxHashes[ AZ_IOT_ADU_MAX_FILE_HASH_COUNT ];
 } AzureIoTADUUpdateManifestFile_t;
 
 typedef struct AzureIoTADUInstructionStep
@@ -298,13 +298,13 @@ typedef struct AzureIoTADUInstructionStep
     uint8_t * pucInstalledCriteria;
     uint32_t ulInstalledCriteriaLength;
     uint32_t ulFilesCount;
-    AzureIoTADUUpdateManifestInstructionStepFile_t pxFiles[ AZ_IOT_ADU_FILE_URL_MAX_COUNT ];
+    AzureIoTADUUpdateManifestInstructionStepFile_t pxFiles[ AZ_IOT_ADU_MAX_FILE_URL_COUNT ];
 } AzureIoTADUInstructionStep_t;
 
 typedef struct AzureIoTADUInstructions
 {
     uint32_t ulStepsCount;
-    AzureIoTADUInstructionStep_t pxSteps[ MAX_INSTRUCTIONS_STEPS ];
+    AzureIoTADUInstructionStep_t pxSteps[ AZ_IOT_ADU_MAX_INSTRUCTIONS_STEPS ];
 } AzureIoTADUInstructions_t;
 
 typedef struct AzureIoTADUUpdateManifest
@@ -313,7 +313,7 @@ typedef struct AzureIoTADUUpdateManifest
     AzureIoTADUCompatibility_t xCompatibility;
     AzureIoTADUInstructions_t xInstructions;
     uint32_t ulFilesCount;
-    AzureIoTADUUpdateManifestFile_t pxFiles[ AZ_IOT_ADU_FILE_URL_MAX_COUNT ];
+    AzureIoTADUUpdateManifestFile_t pxFiles[ AZ_IOT_ADU_MAX_FILE_URL_COUNT ];
     uint8_t * pucManifestVersion;
     uint32_t ulManifestVersionLength;
     uint8_t * pucCreateDateTime;
@@ -329,7 +329,7 @@ typedef struct AzureIoTADUUpdateRequest
     uint8_t * pucUpdateManifestSignature;
     uint32_t ulUpdateManifestSignatureLength;
     uint32_t ulFileUrlCount;
-    AzureIoTADUUpdateManifestFileUrl_t pxFileUrls[ AZ_IOT_ADU_FILE_URL_MAX_COUNT ];
+    AzureIoTADUUpdateManifestFileUrl_t pxFileUrls[ AZ_IOT_ADU_MAX_FILE_URL_COUNT ];
     AzureIoTADUUpdateManifest_t xUpdateManifest;
 } AzureIoTADUUpdateRequest_t;
 
