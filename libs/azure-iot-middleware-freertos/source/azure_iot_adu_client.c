@@ -168,13 +168,13 @@ static void prvCastUpdateRequest( az_iot_adu_update_request * pxBaseUpdateReques
         for( uint32_t ulFileHashIndex = 0; ulFileHashIndex < pxBaseUpdateManifest->files_count; ulFileHashIndex++ )
         {
             pxUpdateRequest->xUpdateManifest.pxFiles[ ulFileIndex ].pxHashes[ ulFileHashIndex ].pucId =
-                az_span_ptr( pxBaseUpdateManifest->files[ ulFileIndex ].hashes[ ulFileHashIndex ].id );
+                az_span_ptr( pxBaseUpdateManifest->files[ ulFileIndex ].hashes[ ulFileHashIndex ].hash_type );
             pxUpdateRequest->xUpdateManifest.pxFiles[ ulFileIndex ].pxHashes[ ulFileHashIndex ].ulIdLength =
-                ( uint32_t ) az_span_size( pxBaseUpdateManifest->files[ ulFileIndex ].hashes[ ulFileHashIndex ].id );
+                ( uint32_t ) az_span_size( pxBaseUpdateManifest->files[ ulFileIndex ].hashes[ ulFileHashIndex ].hash_type );
             pxUpdateRequest->xUpdateManifest.pxFiles[ ulFileIndex ].pxHashes[ ulFileHashIndex ].pucHash =
-                az_span_ptr( pxBaseUpdateManifest->files[ ulFileIndex ].hashes[ ulFileHashIndex ].hash );
+                az_span_ptr( pxBaseUpdateManifest->files[ ulFileIndex ].hashes[ ulFileHashIndex ].hash_value );
             pxUpdateRequest->xUpdateManifest.pxFiles[ ulFileIndex ].pxHashes[ ulFileHashIndex ].ulHashLength =
-                ( uint32_t ) az_span_size( pxBaseUpdateManifest->files[ ulFileIndex ].hashes[ ulFileHashIndex ].hash );
+                ( uint32_t ) az_span_size( pxBaseUpdateManifest->files[ ulFileIndex ].hashes[ ulFileHashIndex ].hash_value );
         }
     }
 
@@ -368,7 +368,7 @@ AzureIoTResult_t AzureIoTADUClient_SendAgentState( AzureIoTHubClient_t * pxAzure
     prvFillBaseAduWorkflow( pxAduUpdateRequest, &xBaseWorkflow );
     prvFillBaseAduInstallResults( pxUpdateResults, &xInstallResult );
 
-    az_result xAzResult = az_iot_adu_get_properties_payload(
+    az_result xAzResult = az_iot_adu_get_agent_state_payload(
         &xBaseDeviceInformation,
         ( int32_t ) xAgentState,
         pxAduUpdateRequest != NULL ? &xBaseWorkflow : NULL,
@@ -379,7 +379,7 @@ AzureIoTResult_t AzureIoTADUClient_SendAgentState( AzureIoTHubClient_t * pxAzure
 
     if( az_result_failed( xAzResult ) )
     {
-        AZLogError( ( "az_iot_adu_get_properties_payload failed: 0x%08x", xAzResult ) );
+        AZLogError( ( "az_iot_adu_get_agent_state_payload failed: 0x%08x", xAzResult ) );
         /* TODO: return individualized/specific errors. */
         return eAzureIoTErrorFailed;
     }

@@ -206,7 +206,7 @@ typedef struct AzureIoTHubClientADUInstallResult
     const uint8_t * pucResultDetails;
     uint32_t ulResultDetailsLength;
 
-    AzureIoTHubClientADUStepResult_t pxStepResults[ MAX_INSTRUCTIONS_STEPS ];
+    AzureIoTHubClientADUStepResult_t pxStepResults[ AZ_IOT_ADU_MAX_INSTRUCTIONS_STEPS ];
     uint32_t ulStepResultsCount;
 } AzureIoTHubClientADUInstallResult_t;
 
@@ -288,7 +288,7 @@ typedef struct AzureIoTADUUpdateManifestFile
     uint32_t ulFileNameLength;
     uint32_t ulSizeInBytes;
     uint32_t ulHashesCount;
-    AzureIoTADUUpdateManifestFileHash_t pxHashes[ MAX_FILE_HASH_COUNT ];
+    AzureIoTADUUpdateManifestFileHash_t pxHashes[ AZ_IOT_ADU_MAX_FILE_HASH_COUNT ];
 } AzureIoTADUUpdateManifestFile_t;
 
 typedef struct AzureIoTADUInstructionStep
@@ -304,7 +304,7 @@ typedef struct AzureIoTADUInstructionStep
 typedef struct AzureIoTADUInstructions
 {
     uint32_t ulStepsCount;
-    AzureIoTADUInstructionStep_t pxSteps[ MAX_INSTRUCTIONS_STEPS ];
+    AzureIoTADUInstructionStep_t pxSteps[ AZ_IOT_ADU_MAX_INSTRUCTIONS_STEPS ];
 } AzureIoTADUInstructions_t;
 
 typedef struct AzureIoTADUUpdateManifest

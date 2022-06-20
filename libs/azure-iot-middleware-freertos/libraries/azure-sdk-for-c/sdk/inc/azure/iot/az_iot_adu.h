@@ -40,8 +40,8 @@
 
 /* Maximum Number of Files Handled by this ADU Agent */
 #define AZ_IOT_ADU_FILE_URL_MAX_COUNT 10
-#define MAX_INSTRUCTIONS_STEPS 10
-#define MAX_FILE_HASH_COUNT 2
+#define AZ_IOT_ADU_MAX_INSTRUCTIONS_STEPS 10
+#define AZ_IOT_ADU_MAX_FILE_HASH_COUNT 2
 
 typedef struct
 {
@@ -76,7 +76,7 @@ typedef struct
   int32_t extended_result_code;
   az_span result_details;
   int32_t step_results_count;
-  az_iot_adu_step_result step_results[MAX_INSTRUCTIONS_STEPS];
+  az_iot_adu_step_result step_results[AZ_IOT_ADU_MAX_INSTRUCTIONS_STEPS];
 } az_iot_adu_install_result;
 
 typedef struct
@@ -127,14 +127,14 @@ typedef struct
 
 typedef struct
 {
-  az_iot_adu_update_manifest_instructions_step steps[MAX_INSTRUCTIONS_STEPS];
+  az_iot_adu_update_manifest_instructions_step steps[AZ_IOT_ADU_MAX_INSTRUCTIONS_STEPS];
   uint32_t steps_count;
 } az_iot_adu_update_manifest_instructions;
 
 typedef struct
 {
-  az_span id;
-  az_span hash;
+  az_span hash_type;
+  az_span hash_value;
 } az_iot_adu_update_manifest_file_hash;
 
 typedef struct
@@ -142,7 +142,7 @@ typedef struct
   az_span id;
   az_span file_name;
   uint32_t size_in_bytes;
-  az_iot_adu_update_manifest_file_hash hashes[MAX_FILE_HASH_COUNT];
+  az_iot_adu_update_manifest_file_hash hashes[AZ_IOT_ADU_MAX_FILE_HASH_COUNT];
   uint32_t hashes_count;
 } az_iot_adu_update_manifest_file;
 
@@ -200,7 +200,7 @@ AZ_NODISCARD bool az_iot_adu_is_component_device_update(az_span component_name);
  *                                  function.
  * @return An #az_result value indicating the result of the operation.
  */
-AZ_NODISCARD az_result az_iot_adu_get_properties_payload(
+AZ_NODISCARD az_result az_iot_adu_get_agent_state_payload(
     az_iot_adu_device_information* device_information,
     int32_t agent_state,
     az_iot_adu_workflow* workflow,
@@ -212,7 +212,7 @@ AZ_NODISCARD az_result az_iot_adu_get_properties_payload(
  * @brief Parses the json content from the ADU service writable properties into
  *        a pre-defined structure.
  *
- * @param[in] jr                   A #az_json_reader initialized with the ADU
+ * @param[in] ref_json_reader      A #az_json_reader initialized with the ADU
  *                                 service writable properties json, set to the
  *                                 beginning of the json object that is the value
  *                                 of the ADU component.
@@ -220,16 +220,16 @@ AZ_NODISCARD az_result az_iot_adu_get_properties_payload(
  *                                 values read from the json content.
  * @param[out] update_request      A pointer to the #az_iot_adu_update_request
  *                                 structure where to store the parsed contents
- *                                 read from the `jr` json reader.
+ *                                 read from the `ref_json_reader` json reader.
  *                                 In summary, this structure holds #az_span
  *                                 instances that point to the actual data
- *                                 parsed from `jr` and copied to `buffer`.
+ *                                 parsed from `ref_json_reader` and copied to `buffer`.
  * @param[out] buffer_remainder    A pointer to an #az_span where to store the
  *                                 remaining available space of `buffer`.
  * @return An #az_result value indicating the result of the operation.
  */
 AZ_NODISCARD az_result az_iot_adu_parse_service_properties(
-    az_json_reader* jr,
+    az_json_reader* ref_json_reader,
     az_span buffer,
     az_iot_adu_update_request* update_request,
     az_span* buffer_remainder);
