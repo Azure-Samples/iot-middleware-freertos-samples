@@ -298,7 +298,7 @@ typedef struct AzureIoTADUInstructionStep
     uint8_t * pucInstalledCriteria;
     uint32_t ulInstalledCriteriaLength;
     uint32_t ulFilesCount;
-    AzureIoTADUUpdateManifestInstructionStepFile_t pxFiles[ AZ_IOT_ADU_FILE_URL_MAX_COUNT ];
+    AzureIoTADUUpdateManifestInstructionStepFile_t pxFiles[ AZ_IOT_ADU_MAX_FILE_URL_COUNT ];
 } AzureIoTADUInstructionStep_t;
 
 typedef struct AzureIoTADUInstructions
@@ -313,7 +313,7 @@ typedef struct AzureIoTADUUpdateManifest
     AzureIoTADUCompatibility_t xCompatibility;
     AzureIoTADUInstructions_t xInstructions;
     uint32_t ulFilesCount;
-    AzureIoTADUUpdateManifestFile_t pxFiles[ AZ_IOT_ADU_FILE_URL_MAX_COUNT ];
+    AzureIoTADUUpdateManifestFile_t pxFiles[ AZ_IOT_ADU_MAX_FILE_URL_COUNT ];
     uint8_t * pucManifestVersion;
     uint32_t ulManifestVersionLength;
     uint8_t * pucCreateDateTime;
@@ -329,7 +329,7 @@ typedef struct AzureIoTADUUpdateRequest
     uint8_t * pucUpdateManifestSignature;
     uint32_t ulUpdateManifestSignatureLength;
     uint32_t ulFileUrlCount;
-    AzureIoTADUUpdateManifestFileUrl_t pxFileUrls[ AZ_IOT_ADU_FILE_URL_MAX_COUNT ];
+    AzureIoTADUUpdateManifestFileUrl_t pxFileUrls[ AZ_IOT_ADU_MAX_FILE_URL_COUNT ];
     AzureIoTADUUpdateManifest_t xUpdateManifest;
 } AzureIoTADUUpdateRequest_t;
 

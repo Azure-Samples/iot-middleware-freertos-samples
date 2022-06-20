@@ -39,7 +39,7 @@
 #define AZ_IOT_ADU_AGENT_STATE_FAILED 255
 
 /* Maximum Number of Files Handled by this ADU Agent */
-#define AZ_IOT_ADU_FILE_URL_MAX_COUNT 10
+#define AZ_IOT_ADU_MAX_FILE_URL_COUNT 10
 #define AZ_IOT_ADU_MAX_INSTRUCTIONS_STEPS 10
 #define AZ_IOT_ADU_MAX_FILE_HASH_COUNT 2
 
@@ -102,7 +102,7 @@ typedef struct
   az_iot_adu_workflow workflow;
   az_span update_manifest;
   az_span update_manifest_signature;
-  az_iot_adu_file_url file_urls[AZ_IOT_ADU_FILE_URL_MAX_COUNT];
+  az_iot_adu_file_url file_urls[AZ_IOT_ADU_MAX_FILE_URL_COUNT];
   uint32_t file_urls_count;
 } az_iot_adu_update_request;
 
@@ -120,7 +120,7 @@ typedef struct
 typedef struct
 {
   az_span handler;
-  az_span files[AZ_IOT_ADU_FILE_URL_MAX_COUNT];
+  az_span files[AZ_IOT_ADU_MAX_FILE_URL_COUNT];
   uint32_t files_count;
   az_iot_adu_update_manifest_instructions_step_handler_properties handler_properties;
 } az_iot_adu_update_manifest_instructions_step;
@@ -158,7 +158,7 @@ typedef struct
   //       It might not be, so this needs to be a generic property bag instead.
   az_iot_adu_update_manifest_compatibility compatibility;
   az_iot_adu_update_manifest_instructions instructions;
-  az_iot_adu_update_manifest_file files[AZ_IOT_ADU_FILE_URL_MAX_COUNT];
+  az_iot_adu_update_manifest_file files[AZ_IOT_ADU_MAX_FILE_URL_COUNT];
   uint32_t files_count;
   az_span create_date_time;
 } az_iot_adu_update_manifest;
