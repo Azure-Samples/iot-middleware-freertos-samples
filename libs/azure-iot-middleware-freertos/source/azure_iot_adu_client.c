@@ -306,7 +306,7 @@ AzureIoTResult_t AzureIoTADUClient_SendResponse( AzureIoTADUClient_t * pxAzureIo
 
     if( az_result_failed( xAzResult ) )
     {
-        AZLogError( ( "az_json_writer_init failed: 0x%08x (%d)", xAzResult ) );
+        AZLogError( ( "az_json_writer_init failed: 0x%08x", xAzResult ) );
         return AzureIoT_TranslateCoreError( xAzResult );
     }
 
