@@ -433,6 +433,10 @@ uint32_t JWS_ManifestAuthenticate( const uint8_t * pucManifest,
 {
     uint32_t ulVerificationResult;
 
+    az_result xCoreResult;
+    AzureIoTResult_t xResult;
+    AzureIoTJSONReader_t xJSONReader;
+    int32_t outParsedManifestShaSize;
     uint8_t * pucBase64EncodedHeader;
     uint8_t * pucBase64EncodedPayload;
     uint8_t * pucBase64EncodedSignature;
@@ -445,10 +449,6 @@ uint32_t JWS_ManifestAuthenticate( const uint8_t * pucManifest,
     uint32_t ulJWKBase64EncodedHeaderLength;
     uint32_t ulJWKBase64EncodedPayloadLength;
     uint32_t ulJWKBase64EncodedSignatureLength;
-    az_result xCoreResult;
-    AzureIoTResult_t xResult;
-    AzureIoTJSONReader_t xJSONReader;
-    int32_t outParsedManifestShaSize;
     int32_t outSigningKeyELength;
     int32_t outSigningKeyNLength;
     int32_t outJWSHeaderLength;
