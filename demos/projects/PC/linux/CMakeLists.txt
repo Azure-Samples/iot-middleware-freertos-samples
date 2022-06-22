@@ -96,12 +96,12 @@ target_link_libraries(${PROJECT_NAME}-pnp PRIVATE
 add_map_file(${PROJECT_NAME}-pnp ${PROJECT_NAME}-pnp.map)
 
 # Add demo files and dependencies for PnP Sample
-add_executable(sample_adu_jws_mbedtls_ut
+add_executable(sample_adu_jws_mbedtls_int_test
 ${CMAKE_CURRENT_LIST_DIR}/tests/main.c
 ${CMAKE_CURRENT_LIST_DIR}/tests/mock_needed_functions.c
-${CMAKE_CURRENT_LIST_DIR}/../../../../demos/common/tests/sample_adu_jws_mbedtls_ut.c
+${CMAKE_CURRENT_LIST_DIR}/../../../../demos/common/tests/sample_adu_jws_mbedtls_int_test.c
 )
-target_link_libraries(sample_adu_jws_mbedtls_ut PRIVATE
+target_link_libraries(sample_adu_jws_mbedtls_int_test PRIVATE
     FreeRTOS::Timers
     FreeRTOS::Heap::3
     FreeRTOS::EventGroups
