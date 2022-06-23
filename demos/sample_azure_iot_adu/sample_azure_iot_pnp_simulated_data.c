@@ -350,11 +350,12 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
         LogInfo( ( "Properties component name: %.*s", ulComponentNameLength, pucComponentName ) );
 
         /* TODO: fix sign of pucComponentName in AzureIoTADUClient_IsADUComponent (should be uint8_t*) */
-        if( AzureIoTADUClient_IsADUComponent( ( const char * ) pucComponentName, ulComponentNameLength ) )
+        if( AzureIoTADUClient_IsADUComponent( &xAzureIoTADUClient, ( const char * ) pucComponentName, ulComponentNameLength ) )
         {
             AzureIoTADURequestDecision_t xRequestDecision;
 
             xAzIoTResult = AzureIoTADUClient_ParseRequest(
+                &xAzureIoTADUClient,
                 &xJsonReader,
                 &xAzureIoTAduUpdateRequest,
                 ucAduContextBuffer,
@@ -370,6 +371,7 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
             xRequestDecision = prvUserDecideShouldStartUpdate( &xAzureIoTAduUpdateRequest );
 
             xAzIoTResult = AzureIoTADUClient_SendResponse(
+                &xAzureIoTADUClient,
                 &xAzureIoTHubClient,
                 xRequestDecision,
                 ulPropertyVersion,

@@ -13,7 +13,7 @@
 #include "azure_iot_hub_client.h"
 #include "azure_iot_json_reader.h"
 #include "azure_iot_http.h"
-#include <azure/iot/az_iot_adu.h>
+#include <azure/iot/az_iot_adu_client.h>
 #include "azure_iot_flash_platform.h"
 
 
@@ -206,7 +206,7 @@ typedef struct AzureIoTHubClientADUInstallResult
     const uint8_t * pucResultDetails;
     uint32_t ulResultDetailsLength;
 
-    AzureIoTHubClientADUStepResult_t pxStepResults[ AZ_IOT_ADU_MAX_INSTRUCTIONS_STEPS ];
+    AzureIoTHubClientADUStepResult_t pxStepResults[ AZ_IOT_ADU_CLIENT_MAX_INSTRUCTIONS_STEPS ];
     uint32_t ulStepResultsCount;
 } AzureIoTHubClientADUInstallResult_t;
 
@@ -288,7 +288,7 @@ typedef struct AzureIoTADUUpdateManifestFile
     uint32_t ulFileNameLength;
     uint32_t ulSizeInBytes;
     uint32_t ulHashesCount;
-    AzureIoTADUUpdateManifestFileHash_t pxHashes[ AZ_IOT_ADU_MAX_FILE_HASH_COUNT ];
+    AzureIoTADUUpdateManifestFileHash_t pxHashes[ AZ_IOT_ADU_CLIENT_MAX_FILE_HASH_COUNT ];
 } AzureIoTADUUpdateManifestFile_t;
 
 typedef struct AzureIoTADUInstructionStep
@@ -298,13 +298,13 @@ typedef struct AzureIoTADUInstructionStep
     uint8_t * pucInstalledCriteria;
     uint32_t ulInstalledCriteriaLength;
     uint32_t ulFilesCount;
-    AzureIoTADUUpdateManifestInstructionStepFile_t pxFiles[ AZ_IOT_ADU_MAX_FILE_URL_COUNT ];
+    AzureIoTADUUpdateManifestInstructionStepFile_t pxFiles[ AZ_IOT_ADU_CLIENT_MAX_FILE_URL_COUNT ];
 } AzureIoTADUInstructionStep_t;
 
 typedef struct AzureIoTADUInstructions
 {
     uint32_t ulStepsCount;
-    AzureIoTADUInstructionStep_t pxSteps[ AZ_IOT_ADU_MAX_INSTRUCTIONS_STEPS ];
+    AzureIoTADUInstructionStep_t pxSteps[ AZ_IOT_ADU_CLIENT_MAX_INSTRUCTIONS_STEPS ];
 } AzureIoTADUInstructions_t;
 
 typedef struct AzureIoTADUUpdateManifest
@@ -313,7 +313,7 @@ typedef struct AzureIoTADUUpdateManifest
     AzureIoTADUCompatibility_t xCompatibility;
     AzureIoTADUInstructions_t xInstructions;
     uint32_t ulFilesCount;
-    AzureIoTADUUpdateManifestFile_t pxFiles[ AZ_IOT_ADU_MAX_FILE_URL_COUNT ];
+    AzureIoTADUUpdateManifestFile_t pxFiles[ AZ_IOT_ADU_CLIENT_MAX_FILE_URL_COUNT ];
     uint8_t * pucManifestVersion;
     uint32_t ulManifestVersionLength;
     uint8_t * pucCreateDateTime;
@@ -329,9 +329,41 @@ typedef struct AzureIoTADUUpdateRequest
     uint8_t * pucUpdateManifestSignature;
     uint32_t ulUpdateManifestSignatureLength;
     uint32_t ulFileUrlCount;
-    AzureIoTADUUpdateManifestFileUrl_t pxFileUrls[ AZ_IOT_ADU_MAX_FILE_URL_COUNT ];
+    AzureIoTADUUpdateManifestFileUrl_t pxFileUrls[ AZ_IOT_ADU_CLIENT_MAX_FILE_URL_COUNT ];
     AzureIoTADUUpdateManifest_t xUpdateManifest;
 } AzureIoTADUUpdateRequest_t;
+
+typedef struct AzureIoTADUClientOptions
+{
+    void * xUnused;
+}
+AzureIoTADUClientOptions_t;
+
+typedef struct AzureIoTADUClient
+{
+    struct
+    {
+        az_iot_adu_client xADUClient;
+    } _internal;
+} AzureIoTADUClient_t;
+
+/**
+ * @brief Initialize the Azure IoT ADU Options with default values.
+ *
+ * @param[out] pxADUClientOptions The #AzureIoTADUClientOptions_t instance to set with default values.
+ * @return An #AzureIoTResult_t with the result of the operation.
+ */
+AzureIoTResult_t AzureIoTADUClient_OptionsInit( AzureIoTADUClientOptions_t * pxADUClientOptions );
+
+/**
+ * @brief Initialize the Azure IoT ADU Client.
+ *
+ * @param pxAzureIoTADUClient The #AzureIoTADUClient_t * to use for this call.
+ * @param pxADUClientOptions The #AzureIoTADUClientOptions_t for the IoT Hub client instance.
+ * @return An #AzureIoTResult_t with the result of the operation.
+ */
+AzureIoTResult_t AzureIoTADUClient_Init( AzureIoTADUClient_t * pxAzureIoTADUClient,
+                                         AzureIoTADUClientOptions_t * pxADUClientOptions );
 
 /**
  * @brief Returns whether the component is the ADU component
@@ -346,10 +378,12 @@ typedef struct AzureIoTADUUpdateRequest
  * @return A boolean value indicating if the writable properties component
  *         is from ADU service.
  */
-bool AzureIoTADUClient_IsADUComponent( const char * pucComponentName,
+bool AzureIoTADUClient_IsADUComponent( AzureIoTADUClient_t * pxAzureIoTADUClient,
+                                       const char * pucComponentName,
                                        uint32_t ulComponentNameLength );
 
-AzureIoTResult_t AzureIoTADUClient_ParseRequest( AzureIoTJSONReader_t * pxReader,
+AzureIoTResult_t AzureIoTADUClient_ParseRequest( AzureIoTADUClient_t * pxAzureIoTADUClient,
+                                                 AzureIoTJSONReader_t * pxReader,
                                                  AzureIoTADUUpdateRequest_t * pxAduUpdateRequest,
                                                  uint8_t * pucBuffer,
                                                  uint32_t ulBufferSize );
@@ -365,7 +399,8 @@ AzureIoTResult_t AzureIoTADUClient_ParseRequest( AzureIoTJSONReader_t * pxReader
  *         This function also provides the payload to acknowledge the ADU service
  *         Azure Plug-and-Play writable properties.
  *
- * @param[in] pxAduClient The #AzureIoTADUClient_t * to use for this call.
+ * @param[in] pxAzureIoTADUClient The #AzureIoTADUClient_t * to use for this call.
+ * @param[in] pxAzureIoTHubClient The #AzureIoTHubClient_t * to use for this call.
  * @param[in] pxReader  A #AzureIoTJSONReader_t initialized with the ADU
  *                      service writable properties json, set to the
  *                      beginning of the json object that is the value
@@ -379,14 +414,32 @@ AzureIoTResult_t AzureIoTADUClient_ParseRequest( AzureIoTJSONReader_t * pxReader
  *              Size of `pucWritablePropertyResponseBuffer`
  * @return An #AzureIoTResult_t with the result of the operation.
  */
-AzureIoTResult_t AzureIoTADUClient_SendResponse( AzureIoTHubClient_t * pxAzureIoTHubClient,
+AzureIoTResult_t AzureIoTADUClient_SendResponse( AzureIoTADUClient_t * pxAzureIoTADUClient,
+                                                 AzureIoTHubClient_t * pxAzureIoTHubClient,
                                                  AzureIoTADURequestDecision_t xRequestDecision,
                                                  uint32_t ulPropertyVersion,
                                                  uint8_t * pucWritablePropertyResponseBuffer,
                                                  uint32_t ulWritablePropertyResponseBufferSize,
                                                  uint32_t * pulRequestId );
 
-AzureIoTResult_t AzureIoTADUClient_SendAgentState( AzureIoTHubClient_t * pxAzureIoTHubClient,
+/**
+ * @brief Sends the current state of the Azure IoT ADU agent.
+ *
+ * @param[in] pxAzureIoTADUClient The #AzureIoTADUClient_t * to use for this call.
+ * @param[in] pxAzureIoTHubClient The #AzureIoTHubClient_t * to use for this call.
+ * @param pxDeviceInformation The device information which will be used to generate the payload.
+ * @param pxAduUpdateRequest The current #AzureIoTADUUpdateRequest_t. This can be `NULL` if there isn't currently
+ * an update request.
+ * @param xAgentState The current #AzureIoTADUAgentState_t.
+ * @param pxUpdateResults The current #AzureIoTHubClientADUInstallResult_t. This can be `NULL` if there aren't any
+ * results from an update.
+ * @param pucBuffer The buffer into which the generated payload will be placed.
+ * @param ulBufferSize The length of \p pucBuffer.
+ * @param pulRequestId An optional request id to be used for the publish. This can be `NULL`.
+ * @return An #AzureIoTResult_t with the result of the operation.
+ */
+AzureIoTResult_t AzureIoTADUClient_SendAgentState( AzureIoTADUClient_t * pxAzureIoTADUClient,
+                                                   AzureIoTHubClient_t * pxAzureIoTHubClient,
                                                    AzureIoTHubClientADUDeviceInformation_t * pxDeviceInformation,
                                                    AzureIoTADUUpdateRequest_t * pxAduUpdateRequest,
                                                    AzureIoTADUAgentState_t xAgentState,
