@@ -359,7 +359,7 @@ AzureIoTResult_t AzureIoTADUClient_OptionsInit( AzureIoTADUClientOptions_t * pxA
  * @brief Initialize the Azure IoT ADU Client.
  *
  * @param pxAzureIoTADUClient The #AzureIoTADUClient_t * to use for this call.
- * @param pxADUClientOptions The #AzureIoTADUClientOptions_t for the IoT Hub client instance.
+ * @param pxADUClientOptions The #AzureIoTADUClientOptions_t for the IoT ADU client instance.
  * @return An #AzureIoTResult_t with the result of the operation.
  */
 AzureIoTResult_t AzureIoTADUClient_Init( AzureIoTADUClient_t * pxAzureIoTADUClient,

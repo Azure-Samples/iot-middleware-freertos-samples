@@ -138,8 +138,6 @@ bool AzureIoTADUClient_IsADUComponent( AzureIoTADUClient_t * pxAzureIoTADUClient
                                        const char * pucComponentName,
                                        uint32_t ulComponentNameLength )
 {
-    ( void ) pxAzureIoTADUClient;
-
     return az_iot_adu_client_is_component_device_update( &pxAzureIoTADUClient->_internal.xADUClient,
                                                          az_span_create( ( uint8_t * ) pucComponentName, ( int32_t ) ulComponentNameLength ) );
 }
@@ -248,8 +246,6 @@ AzureIoTResult_t AzureIoTADUClient_ParseRequest( AzureIoTADUClient_t * pxAzureIo
     az_result xAzResult;
     az_span xBufferSpan = az_span_create( pucBuffer, ( int32_t ) ulBufferSize );
 
-    ( void ) pxAzureIoTADUClient;
-
     xAzResult = az_iot_adu_client_parse_service_properties(
         &pxAzureIoTADUClient->_internal.xADUClient,
         &pxReader->_internal.xCoreReader,
@@ -291,8 +287,6 @@ AzureIoTResult_t AzureIoTADUClient_SendResponse( AzureIoTADUClient_t * pxAzureIo
                                                  uint32_t ulWritablePropertyResponseBufferSize,
                                                  uint32_t * pulRequestId )
 {
-    ( void ) pxAzureIoTADUClient;
-
     az_span xWritablePropertyResponse = az_span_create(
         pucWritablePropertyResponseBuffer,
         ( int32_t ) ulWritablePropertyResponseBufferSize );
