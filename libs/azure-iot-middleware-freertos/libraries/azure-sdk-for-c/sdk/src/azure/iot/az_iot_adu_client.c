@@ -604,9 +604,10 @@ AZ_NODISCARD az_result az_iot_adu_client_get_service_properties_response(
   return AZ_OK;
 }
 
-AZ_NODISCARD az_result az_iot_adu_parse_update_manifest(
+AZ_NODISCARD az_result az_iot_adu_client_parse_update_manifest(
+  az_iot_adu_client* client,
     az_json_reader* ref_json_reader,
-    az_iot_adu_update_manifest* update_manifest)
+    az_iot_adu_client_update_manifest* update_manifest)
 {
   _az_PRECONDITION_NOT_NULL(ref_json_reader);
   _az_PRECONDITION_NOT_NULL(update_manifest);

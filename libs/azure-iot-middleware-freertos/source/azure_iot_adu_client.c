@@ -271,7 +271,8 @@ AzureIoTResult_t AzureIoTADUClient_ParseRequest( AzureIoTADUClient_t * pxAzureIo
             return AzureIoT_TranslateCoreError( xAzResult );
         }
 
-        xAzResult = az_iot_adu_parse_update_manifest(
+        xAzResult = az_iot_adu_client_parse_update_manifest(
+            &pxAzureIoTADUClient->_internal.xADUClient,
             &jr,
             &xBaseUpdateManifest );
 
@@ -313,6 +314,7 @@ AzureIoTResult_t AzureIoTADUClient_SendResponse( AzureIoTADUClient_t * pxAzureIo
     /* TODO: consume xRequestDecision in az_iot_adu_client_get_service_properties_response */
     ( void ) xRequestDecision;
     xAzResult = az_iot_adu_client_get_service_properties_response(
+        &pxAzureIoTADUClient->_internal.xADUClient,
         ( int32_t ) ulPropertyVersion,
         200,
         &jw );
@@ -436,9 +438,9 @@ AzureIoTResult_t AzureIoTADUClient_SendAgentState( AzureIoTADUClient_t * pxAzure
                                                    uint32_t * pulRequestId )
 {
     az_result xAzResult;
-    az_iot_adu_device_information xBaseDeviceInformation;
-    az_iot_adu_workflow xBaseWorkflow;
-    az_iot_adu_install_result xInstallResult; /* TODO: fill up. */
+    az_iot_adu_client_device_information xBaseDeviceInformation;
+    az_iot_adu_client_workflow xBaseWorkflow;
+    az_iot_adu_client_install_result xInstallResult; /* TODO: fill up. */
     az_json_writer jw;
     az_span xPropertiesPayload;
 
@@ -455,6 +457,7 @@ AzureIoTResult_t AzureIoTADUClient_SendAgentState( AzureIoTADUClient_t * pxAzure
     }
 
     xAzResult = az_iot_adu_client_get_agent_state_payload(
+        &pxAzureIoTADUClient->_internal.xADUClient,
         &xBaseDeviceInformation,
         ( int32_t ) xAgentState,
         pxAduUpdateRequest != NULL ? &xBaseWorkflow : NULL,

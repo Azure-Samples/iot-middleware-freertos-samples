@@ -72,7 +72,7 @@ target_link_libraries(az_iot_provisioning
 add_library (az::iot::provisioning ALIAS az_iot_provisioning)
 
 add_library(az_iot_adu
-  ${CMAKE_CURRENT_LIST_DIR}/az_iot_adu.c
+  ${CMAKE_CURRENT_LIST_DIR}/az_iot_adu_client.c
 )
 
 target_include_directories (az_iot_adu
