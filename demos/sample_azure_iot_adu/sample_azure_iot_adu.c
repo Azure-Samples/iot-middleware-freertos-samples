@@ -144,6 +144,7 @@ struct NetworkContext
 };
 
 AzureIoTHubClient_t xAzureIoTHubClient;
+AzureIoTADUClient_t xAzureIoTADUClient;
 AzureIoTADUUpdateRequest_t xAzureIoTAduUpdateRequest;
 bool xProcessUpdateRequest = false;
 
@@ -181,7 +182,7 @@ uint8_t ucAduContextBuffer[ ADU_CONTEXT_BUFFER_SIZE ];
 #define sampleaduPNP_COMPONENTS_LIST_LENGTH    1
 static AzureIoTHubClientComponent_t pnp_components[ sampleaduPNP_COMPONENTS_LIST_LENGTH ] =
 {
-    azureiothubCREATE_COMPONENT( AZ_IOT_ADU_PROPERTIES_COMPONENT_NAME )
+    azureiothubCREATE_COMPONENT( AZ_IOT_ADU_CLIENT_PROPERTIES_COMPONENT_NAME )
 };
 #define sampleaduPNP_COMPONENTS_LIST    pnp_components
 
@@ -407,7 +408,8 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash()
 
     LogInfo( ( "[ADU] Send property update.\r\n" ) );
 
-    xResult = AzureIoTADUClient_SendAgentState( &xAzureIoTHubClient,
+    xResult = AzureIoTADUClient_SendAgentState( &xAzureIoTADUClient,
+                                                &xAzureIoTHubClient,
                                                 &xADUDeviceInformation,
                                                 &xAzureIoTAduUpdateRequest,
                                                 eAzureIoTADUAgentStateDeploymentInProgress,
@@ -570,7 +572,8 @@ static AzureIoTResult_t prvEnableImageAndResetDevice()
 
     LogInfo( ( "[ADU] Send property update.\r\n" ) );
 
-    xResult = AzureIoTADUClient_SendAgentState( &xAzureIoTHubClient,
+    xResult = AzureIoTADUClient_SendAgentState( &xAzureIoTADUClient,
+                                                &xAzureIoTHubClient,
                                                 &xADUDeviceInformation,
                                                 &xAzureIoTAduUpdateRequest,
                                                 eAzureIoTADUAgentStateDeploymentInProgress,
@@ -625,6 +628,7 @@ static void prvAzureDemoTask( void * pvParameters )
     AzureIoTResult_t xResult;
     uint32_t ulStatus;
     AzureIoTHubClientOptions_t xHubOptions = { 0 };
+    AzureIoTADUClientOptions_t xADUOptions = { 0 };
     bool xSessionPresent;
 
     #ifdef democonfigENABLE_DPS_SAMPLE
@@ -703,6 +707,13 @@ static void prvAzureDemoTask( void * pvParameters )
                                           &xTransport );
         configASSERT( xResult == eAzureIoTSuccess );
 
+        /*Init Azure IoT ADU Client Options */
+        xResult = AzureIoTADUClient_OptionsInit( &xADUOptions );
+        configASSERT( xResult == eAzureIoTSuccess );
+
+        xResult = AzureIoTADUClient_Init( &xAzureIoTADUClient, &xADUOptions );
+        configASSERT( xResult == eAzureIoTSuccess );
+
         #ifdef democonfigDEVICE_SYMMETRIC_KEY
             xResult = AzureIoTHubClient_SetSymmetricKey( &xAzureIoTHubClient,
                                                          ( const uint8_t * ) democonfigDEVICE_SYMMETRIC_KEY,
@@ -728,7 +739,8 @@ static void prvAzureDemoTask( void * pvParameters )
                                                          &xAzureIoTHubClient, sampleazureiotSUBSCRIBE_TIMEOUT );
         configASSERT( xResult == eAzureIoTSuccess );
 
-        xResult = AzureIoTADUClient_SendAgentState( &xAzureIoTHubClient,
+        xResult = AzureIoTADUClient_SendAgentState( &xAzureIoTADUClient,
+                                                    &xAzureIoTHubClient,
                                                     &xADUDeviceInformation,
                                                     NULL,
                                                     eAzureIoTADUAgentStateIdle,

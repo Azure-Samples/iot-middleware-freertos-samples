@@ -27,7 +27,7 @@
 #include "azure_iot_freertos_esp32_pnp_model.h"
 
 // Azure Device Update
-#include <azure/iot/az_iot_adu.h>
+#include <azure/iot/az_iot_adu_client.h>
 /*-----------------------------------------------------------*/
 
 #define NR_OF_IP_ADDRESSES_TO_WAIT_FOR 1
