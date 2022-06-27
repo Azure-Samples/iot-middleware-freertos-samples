@@ -73,6 +73,7 @@ static uint32_t prvSplitJWS( uint8_t * pucJWS,
             }
             else if( ulDotCount > 2 )
             {
+                LogError(("JWS had more '.' than required (2)"));
                 return eAzureIoTErrorFailed;
             }
         }
