@@ -7,6 +7,7 @@
 /* Kernel includes. */
 #include "FreeRTOS.h"
 
+#include "azure_iot_private.h"
 #include "azure_iot_json_writer.h"
 #include "azure_iot_flash_platform.h"
 #include "azure_iot_private.h"
@@ -244,6 +245,7 @@ AzureIoTResult_t AzureIoTADUClient_ParseRequest( AzureIoTADUClient_t * pxAzureIo
     az_iot_adu_client_update_request xBaseUpdateRequest;
     az_iot_adu_client_update_manifest xBaseUpdateManifest;
     az_result xAzResult;
+    az_json_reader jr;
     az_span xBufferSpan = az_span_create( pucBuffer, ( int32_t ) ulBufferSize );
 
     xAzResult = az_iot_adu_client_parse_service_properties(
@@ -261,9 +263,17 @@ AzureIoTResult_t AzureIoTADUClient_ParseRequest( AzureIoTADUClient_t * pxAzureIo
     }
     else
     {
+        xAzResult = az_json_reader_init( &jr, xBaseUpdateRequest.update_manifest, NULL );
+
+        if( az_result_failed( xAzResult ) )
+        {
+            AZLogError( ( "az_json_reader_init failed: 0x%08x", xAzResult ) );
+            return AzureIoT_TranslateCoreError( xAzResult );
+        }
+
         xAzResult = az_iot_adu_client_parse_update_manifest(
             &pxAzureIoTADUClient->_internal.xADUClient,
-            xBaseUpdateRequest.update_manifest,
+            &jr,
             &xBaseUpdateManifest );
 
         if( az_result_failed( xAzResult ) )
@@ -287,18 +297,27 @@ AzureIoTResult_t AzureIoTADUClient_SendResponse( AzureIoTADUClient_t * pxAzureIo
                                                  uint32_t ulWritablePropertyResponseBufferSize,
                                                  uint32_t * pulRequestId )
 {
-    az_span xWritablePropertyResponse = az_span_create(
-        pucWritablePropertyResponseBuffer,
-        ( int32_t ) ulWritablePropertyResponseBufferSize );
+    az_result xAzResult;
+    az_json_writer jw;
+    az_span xPayload;
+
+    xAzResult = az_json_writer_init( &jw, az_span_create(
+                                         pucWritablePropertyResponseBuffer,
+                                         ( int32_t ) ulWritablePropertyResponseBufferSize ), NULL );
+
+    if( az_result_failed( xAzResult ) )
+    {
+        AZLogError( ( "az_json_writer_init failed: 0x%08x", xAzResult ) );
+        return AzureIoT_TranslateCoreError( xAzResult );
+    }
 
     /* TODO: consume xRequestDecision in az_iot_adu_client_get_service_properties_response */
     ( void ) xRequestDecision;
-    az_result xAzResult = az_iot_adu_client_get_service_properties_response(
+    xAzResult = az_iot_adu_client_get_service_properties_response(
         &pxAzureIoTADUClient->_internal.xADUClient,
         ( int32_t ) ulPropertyVersion,
         200,
-        xWritablePropertyResponse,
-        &xWritablePropertyResponse );
+        &jw );
 
     if( az_result_failed( xAzResult ) )
     {
@@ -307,10 +326,12 @@ AzureIoTResult_t AzureIoTADUClient_SendResponse( AzureIoTADUClient_t * pxAzureIo
         return AzureIoT_TranslateCoreError( xAzResult );
     }
 
+    xPayload = az_json_writer_get_bytes_used_in_destination( &jw );
+
     xAzResult = AzureIoTHubClient_SendPropertiesReported(
         pxAzureIoTHubClient,
-        az_span_ptr( xWritablePropertyResponse ),
-        ( uint32_t ) az_span_size( xWritablePropertyResponse ),
+        az_span_ptr( xPayload ),
+        ( uint32_t ) az_span_size( xPayload ),
         pulRequestId );
 
     if( xAzResult != eAzureIoTSuccess )
@@ -416,24 +437,32 @@ AzureIoTResult_t AzureIoTADUClient_SendAgentState( AzureIoTADUClient_t * pxAzure
                                                    uint32_t ulBufferSize,
                                                    uint32_t * pulRequestId )
 {
+    az_result xAzResult;
     az_iot_adu_client_device_information xBaseDeviceInformation;
     az_iot_adu_client_workflow xBaseWorkflow;
     az_iot_adu_client_install_result xInstallResult; /* TODO: fill up. */
-    az_span xPropertiesPayload = az_span_create( pucBuffer, ( int32_t ) ulBufferSize );
+    az_json_writer jw;
+    az_span xPropertiesPayload;
 
     prvFillBaseDeviceInformation( pxDeviceInformation, &xBaseDeviceInformation );
     prvFillBaseAduWorkflow( pxAduUpdateRequest, &xBaseWorkflow );
     prvFillBaseAduInstallResults( pxUpdateResults, &xInstallResult );
 
-    az_result xAzResult = az_iot_adu_client_get_agent_state_payload(
+    xAzResult = az_json_writer_init( &jw, az_span_create( pucBuffer, ( int32_t ) ulBufferSize ), NULL );
+
+    if( az_result_failed( xAzResult ) )
+    {
+        AZLogError( ( "az_json_writer_init failed: 0x%08x", xAzResult ) );
+        return AzureIoT_TranslateCoreError( xAzResult );
+    }
+
+    xAzResult = az_iot_adu_client_get_agent_state_payload(
         &pxAzureIoTADUClient->_internal.xADUClient,
         &xBaseDeviceInformation,
         ( int32_t ) xAgentState,
         pxAduUpdateRequest != NULL ? &xBaseWorkflow : NULL,
         pxUpdateResults != NULL ? &xInstallResult : NULL,
-        xPropertiesPayload,
-        &xPropertiesPayload
-        );
+        &jw );
 
     if( az_result_failed( xAzResult ) )
     {
@@ -441,6 +470,8 @@ AzureIoTResult_t AzureIoTADUClient_SendAgentState( AzureIoTADUClient_t * pxAzure
         /* TODO: return individualized/specific errors. */
         return AzureIoT_TranslateCoreError( xAzResult );
     }
+
+    xPropertiesPayload = az_json_writer_get_bytes_used_in_destination( &jw );
 
     if( AzureIoTHubClient_SendPropertiesReported(
             pxAzureIoTHubClient,
