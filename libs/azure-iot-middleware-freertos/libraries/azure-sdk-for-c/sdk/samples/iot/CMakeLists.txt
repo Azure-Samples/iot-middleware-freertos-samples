@@ -175,4 +175,17 @@ target_link_libraries(paho_iot_provisioning_sas_sample
 
 create_map_file(paho_iot_provisioning_sas_sample paho_iot_provisioning_sas_sample.map)
 
+# ADU Sample
+add_executable (paho_iot_adu_sample
+  ${CMAKE_CURRENT_LIST_DIR}/paho_iot_adu_sample.c
+  ${CMAKE_CURRENT_LIST_DIR}/paho_iot_adu_sample_common.c
+)
+
+target_link_libraries(paho_iot_adu_sample
+  PRIVATE
+    az::iot::sample::common
+)
+
+create_map_file(paho_iot_adu_sample paho_iot_adu_sample.map)
+
 endif() # TRANSPORT_PAHO

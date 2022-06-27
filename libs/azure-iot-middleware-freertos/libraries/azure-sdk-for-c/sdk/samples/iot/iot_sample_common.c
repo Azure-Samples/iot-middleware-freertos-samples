@@ -182,6 +182,7 @@ void iot_sample_read_environment_variables(
         break;
 
       case PAHO_IOT_HUB_SAS_TELEMETRY_SAMPLE:
+      case PAHO_IOT_ADU_SAMPLE:
         out_env_vars->hub_device_id = AZ_SPAN_FROM_BUFFER(iot_sample_hub_device_id_buffer);
         read_configuration_entry(
             IOT_SAMPLE_ENV_HUB_SAS_DEVICE_ID,
