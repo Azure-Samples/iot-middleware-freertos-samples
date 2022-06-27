@@ -9,6 +9,7 @@
 
 #include "azure_iot_json_writer.h"
 #include "azure_iot_flash_platform.h"
+#include "azure_iot_private.h"
 #include <azure/iot/az_iot_adu.h>
 
 /*
@@ -203,8 +204,7 @@ AzureIoTResult_t AzureIoTADUClient_ParseRequest( AzureIoTJSONReader_t * pxReader
     if( az_result_failed( xAzResult ) )
     {
         AZLogError( ( "az_iot_adu_parse_service_properties failed" ) );
-        /* TODO: return individualized/specific errors. */
-        return eAzureIoTErrorFailed;
+        return AzureIoT_TranslateCoreError( xAzResult );
     }
     else
     {
@@ -215,8 +215,7 @@ AzureIoTResult_t AzureIoTADUClient_ParseRequest( AzureIoTJSONReader_t * pxReader
         if( az_result_failed( xAzResult ) )
         {
             AZLogError( ( "az_iot_adu_parse_update_manifest failed: 0x%08x", xAzResult ) );
-            /* TODO: return individualized/specific errors. */
-            return eAzureIoTErrorFailed;
+            return AzureIoT_TranslateCoreError( xAzResult );
         }
 
         prvCastUpdateRequest( &xBaseUpdateRequest, &xBaseUpdateManifest, pxAduUpdateRequest );
@@ -247,8 +246,7 @@ AzureIoTResult_t AzureIoTADUClient_SendResponse( AzureIoTHubClient_t * pxAzureIo
     if( az_result_failed( xAzResult ) )
     {
         AZLogError( ( "az_iot_adu_get_service_properties_response failed: 0x%08x (%d)", xAzResult, ulWritablePropertyResponseBufferSize ) );
-        /* TODO: return individualized/specific errors. */
-        return eAzureIoTErrorFailed;
+        return AzureIoT_TranslateCoreError( xAzResult );
     }
 
     xAzResult = AzureIoTHubClient_SendPropertiesReported(
@@ -380,8 +378,7 @@ AzureIoTResult_t AzureIoTADUClient_SendAgentState( AzureIoTHubClient_t * pxAzure
     if( az_result_failed( xAzResult ) )
     {
         AZLogError( ( "az_iot_adu_get_agent_state_payload failed: 0x%08x", xAzResult ) );
-        /* TODO: return individualized/specific errors. */
-        return eAzureIoTErrorFailed;
+        return AzureIoT_TranslateCoreError( xAzResult );
     }
 
     if( AzureIoTHubClient_SendPropertiesReported(
