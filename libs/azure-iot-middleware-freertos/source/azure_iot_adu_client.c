@@ -257,7 +257,7 @@ AzureIoTResult_t AzureIoTADUClient_ParseRequest( AzureIoTADUClient_t * pxAzureIo
     {
         AZLogError( ( "az_iot_adu_client_parse_service_properties failed" ) );
         /* TODO: return individualized/specific errors. */
-        return eAzureIoTErrorFailed;
+        return AzureIoT_TranslateCoreError( xAzResult );
     }
     else
     {
@@ -270,7 +270,7 @@ AzureIoTResult_t AzureIoTADUClient_ParseRequest( AzureIoTADUClient_t * pxAzureIo
         {
             AZLogError( ( "az_iot_adu_client_parse_update_manifest failed: 0x%08x", xAzResult ) );
             /* TODO: return individualized/specific errors. */
-            return eAzureIoTErrorFailed;
+            return AzureIoT_TranslateCoreError( xAzResult );
         }
 
         prvCastUpdateRequest( &xBaseUpdateRequest, &xBaseUpdateManifest, pxAduUpdateRequest );
@@ -304,7 +304,7 @@ AzureIoTResult_t AzureIoTADUClient_SendResponse( AzureIoTADUClient_t * pxAzureIo
     {
         AZLogError( ( "az_iot_adu_client_get_service_properties_response failed: 0x%08x (%d)", xAzResult, ulWritablePropertyResponseBufferSize ) );
         /* TODO: return individualized/specific errors. */
-        return eAzureIoTErrorFailed;
+        return AzureIoT_TranslateCoreError( xAzResult );
     }
 
     xAzResult = AzureIoTHubClient_SendPropertiesReported(
@@ -439,7 +439,7 @@ AzureIoTResult_t AzureIoTADUClient_SendAgentState( AzureIoTADUClient_t * pxAzure
     {
         AZLogError( ( "az_iot_adu_client_get_agent_state_payload failed: 0x%08x", xAzResult ) );
         /* TODO: return individualized/specific errors. */
-        return eAzureIoTErrorFailed;
+        return AzureIoT_TranslateCoreError( xAzResult );
     }
 
     if( AzureIoTHubClient_SendPropertiesReported(
