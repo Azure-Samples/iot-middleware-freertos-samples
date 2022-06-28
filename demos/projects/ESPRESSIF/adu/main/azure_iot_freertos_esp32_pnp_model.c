@@ -260,15 +260,15 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
             }
 
             LogInfo( ( "Verifying JWS Manifest" ) );
-            uint32_t ulJWSVerify = JWS_ManifestAuthenticate( xAzureIoTAduUpdateRequest.pucUpdateManifest,
+            xAzIoTResult = JWS_ManifestAuthenticate( xAzureIoTAduUpdateRequest.pucUpdateManifest,
                                                        xAzureIoTAduUpdateRequest.ulUpdateManifestLength,
                                                        xAzureIoTAduUpdateRequest.pucUpdateManifestSignature,
                                                        xAzureIoTAduUpdateRequest.ulUpdateManifestSignatureLength,
                                                        ucADUScratchBuffer,
                                                        sizeof(ucADUScratchBuffer));
-            if (ulJWSVerify != 0)
+            if (xAzIoTResult != eAzureIoTSuccess)
             {
-              LogError( ( "JWS_ManifestAuthenticate failed: JWS was not validated successfully: %i", ulJWSVerify ) );
+              LogError( ( "JWS_ManifestAuthenticate failed: JWS was not validated successfully: result 0x%08x", xAzIoTResult ) );
               return;
             }
 

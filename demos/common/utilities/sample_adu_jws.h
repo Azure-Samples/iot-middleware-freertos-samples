@@ -13,6 +13,8 @@
 
 #include <stdint.h>
 
+#include "azure_iot_result.h"
+
 #define jwsPKCS7_PAYLOAD_OFFSET            19
 
 #define jwsRSA3072_SIZE                    384
@@ -44,15 +46,15 @@
  * @param[in] pucScratchBuffer Scratch buffer space for calculations. It should be
  * `jwsSCRATCH_BUFFER_SIZE` in length.
  * @param[in] ulScratchBufferLength The length of \p pucScratchBuffer.
- * @return uint32_t The return value of this function.
- * @retval 0 if successful.
+ * @return AzureIoTResult_t The return value of this function.
+ * @retval eAzureIoTSuccess if successful.
  * @retval Otherwise if failed.
  */
-uint32_t JWS_ManifestAuthenticate( const uint8_t * pucManifest,
-                                   uint32_t ulManifestLength,
-                                   uint8_t * pucJWS,
-                                   uint32_t ulJWSLength,
-                                   uint8_t * pucScratchBuffer,
-                                   uint32_t ulScratchBufferLength );
+AzureIoTResult_t JWS_ManifestAuthenticate( const uint8_t * pucManifest,
+                                           uint32_t ulManifestLength,
+                                           uint8_t * pucJWS,
+                                           uint32_t ulJWSLength,
+                                           uint8_t * pucScratchBuffer,
+                                           uint32_t ulScratchBufferLength );
 
 #endif /* SAMPLE_ADU_JWS_H */
