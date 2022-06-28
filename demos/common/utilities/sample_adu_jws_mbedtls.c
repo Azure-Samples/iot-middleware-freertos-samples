@@ -327,12 +327,18 @@ static AzureIoTResult_t prvFindJWSValue( AzureIoTJSONReader_t * pxPayload,
         }
     }
 
-    azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_TokenType( pxPayload, &xJSONTokenType ) );
-
-    if( ( xResult != eAzureIoTSuccess ) && ( xJSONTokenType == eAzureIoTJSONTokenSTRING ) )
+    if( xResult != eAzureIoTSuccess )
     {
         LogError( ( "[JWS] Parse JSK JSON Payload Error: 0x%08x", xResult ) );
         return xResult;
+    }
+
+    azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_TokenType( pxPayload, &xJSONTokenType ) );
+
+    if( xJSONTokenType != eAzureIoTJSONTokenSTRING )
+    {
+        LogError( ( "[JWS] JSON token type wrong | type: %08x", xJSONTokenType ) );
+        return eAzureIoTErrorFailed;
     }
 
     *pxJWSValue = pxPayload->_internal.xCoreReader.token.slice;
@@ -368,12 +374,18 @@ static AzureIoTResult_t prvFindRootKeyValue( AzureIoTJSONReader_t * pxPayload,
         }
     }
 
+    if( xResult != eAzureIoTSuccess )
+    {
+        LogError( ( "[JWS] [JWS] Parse Root Key Error: 0x%08x", xResult ) );
+        return xResult;
+    }
+
     azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_TokenType( pxPayload, &xJSONTokenType ) );
 
-    if( ( xResult != eAzureIoTSuccess ) && ( xJSONTokenType != eAzureIoTJSONTokenSTRING ) )
+    if( xJSONTokenType != eAzureIoTJSONTokenSTRING )
     {
-        LogError( ( "[JWS] Parse Root Key Error: %i", xResult ) );
-        return xResult;
+        LogError( ( "[JWS] JSON token type wrong | type: %08x", xJSONTokenType ) );
+        return eAzureIoTErrorFailed;
     }
 
     return eAzureIoTSuccess;
@@ -434,8 +446,8 @@ static AzureIoTResult_t prvFindKeyParts( AzureIoTJSONReader_t * pxPayload,
     return eAzureIoTSuccess;
 }
 
-static AzureIoTResult_t prvFindSHA( AzureIoTJSONReader_t * pxPayload,
-                                    az_span * pxSHA )
+static AzureIoTResult_t prvFindManifestSHA( AzureIoTJSONReader_t * pxPayload,
+                                            az_span * pxSHA )
 {
     AzureIoTResult_t xResult = eAzureIoTSuccess;
     AzureIoTJSONTokenType_t xJSONTokenType;
@@ -460,12 +472,18 @@ static AzureIoTResult_t prvFindSHA( AzureIoTJSONReader_t * pxPayload,
         }
     }
 
+    if( xResult != eAzureIoTSuccess )
+    {
+        LogError( ( "[JWS] [JWS] Parse manifest SHA error: 0x%08x", xResult ) );
+        return xResult;
+    }
+
     azureiotresultRETURN_IF_FAILED( AzureIoTJSONReader_TokenType( pxPayload, &xJSONTokenType ) );
 
-    if( ( xResult != eAzureIoTSuccess ) && ( xJSONTokenType == eAzureIoTJSONTokenSTRING ) )
+    if( xJSONTokenType != eAzureIoTJSONTokenSTRING )
     {
-        LogError( ( "[JWS] Parse JSK JSON Payload Error: 0x%08x", xResult ) );
-        return xResult;
+        LogError( ( "[JWS] JSON token type wrong | type: %08x", xJSONTokenType ) );
+        return eAzureIoTErrorFailed;
     }
 
     *pxSHA = pxPayload->_internal.xCoreReader.token.slice;
@@ -612,7 +630,7 @@ static AzureIoTResult_t prvValidateRootKey( prvJWSValidationContext_t * pxManife
 
     AzureIoTJSONReader_Init( &xJSONReader, pxManifestContext->ucJWKHeader, pxManifestContext->outJWKHeaderLength );
 
-    if( prvFindRootKeyValue( &xJSONReader, &pxManifestContext->kidSpan ) != 0 )
+    if( prvFindRootKeyValue( &xJSONReader, &pxManifestContext->kidSpan ) != eAzureIoTSuccess )
     {
         LogError( ( "Could not find kid in JSON" ) );
         return eAzureIoTErrorFailed;
@@ -647,7 +665,7 @@ static AzureIoTResult_t prvVerifySHAMatch( prvJWSValidationContext_t * pxManifes
 
     AzureIoTJSONReader_Init( &xJSONReader, pxManifestContext->ucJWSPayload, pxManifestContext->outJWSPayloadLength );
 
-    if( prvFindSHA( &xJSONReader, &pxManifestContext->sha256Span ) != 0 )
+    if( prvFindManifestSHA( &xJSONReader, &pxManifestContext->sha256Span ) != eAzureIoTSuccess )
     {
         LogError( ( "Error finding manifest signature SHA" ) );
         return eAzureIoTErrorFailed;
@@ -671,7 +689,7 @@ static AzureIoTResult_t prvVerifySHAMatch( prvJWSValidationContext_t * pxManifes
 
     if( pxManifestContext->outParsedManifestShaSize != jwsSHA256_SIZE )
     {
-        LogError( ( "[JWS] Base64 decoded SHA256 is not the correct length" ) );
+        LogError( ( "[JWS] Base64 decoded SHA256 is not the correct length | expected: %i | actual: %i", jwsSHA256_SIZE, pxManifestContext->outParsedManifestShaSize ) );
         return eAzureIoTErrorFailed;
     }
 
@@ -742,18 +760,19 @@ AzureIoTResult_t JWS_ManifestAuthenticate( const uint8_t * pucManifest,
         return eAzureIoTErrorFailed;
     }
 
-    /*------------------- Parse JSK JSON Payload ------------------------*/
+    /*------------------- Parse SJWK JSON Payload ------------------------*/
 
     /* The "sjwk" is the signed signing public key */
     AzureIoTJSONReader_Init( &xJSONReader, xManifestContext.ucJWSHeader, xManifestContext.outJWSHeaderLength );
 
-    if( prvFindJWSValue( &xJSONReader, &xManifestContext.xJWKManifestSpan ) != 0 )
+    if( prvFindJWSValue( &xJSONReader, &xManifestContext.xJWKManifestSpan ) != eAzureIoTSuccess )
     {
         LogError( ( "Error finding sjwk value in payload" ) );
         return eAzureIoTErrorFailed;
     }
 
-    /*------------------- Base64 Decode the JWK Payload ------------------------*/
+    /*------------------- Split JWK and Base64 Decode the JWK Payload ------------------------*/
+
     xResult = prvSplitJWS( az_span_ptr( xManifestContext.xJWKManifestSpan ), az_span_size( xManifestContext.xJWKManifestSpan ),
                            &xManifestContext.pucJWKBase64EncodedHeader, &xManifestContext.ulJWKBase64EncodedHeaderLength,
                            &xManifestContext.pucJWKBase64EncodedPayload, &xManifestContext.ulJWKBase64EncodedPayloadLength,
@@ -777,19 +796,22 @@ AzureIoTResult_t JWS_ManifestAuthenticate( const uint8_t * pucManifest,
 
     prvBase64DecodeJWK( &xManifestContext );
 
-    /*------------------- Parse id for root key ------------------------*/
+    /*------------------- Parse root key id ------------------------*/
+
     prvValidateRootKey( &xManifestContext );
 
-    /*------------------- Parse necessary pieces for the verification ------------------------*/
+    /*------------------- Parse necessary pieces for signing key ------------------------*/
+
     AzureIoTJSONReader_Init( &xJSONReader, xManifestContext.ucJWKPayload, xManifestContext.outJWKPayloadLength );
 
-    if( prvFindKeyParts( &xJSONReader, &xManifestContext.xBase64EncodedNSpan, &xManifestContext.xBase64EncodedESpan, &xManifestContext.xAlgSpan ) != 0 )
+    if( prvFindKeyParts( &xJSONReader, &xManifestContext.xBase64EncodedNSpan, &xManifestContext.xBase64EncodedESpan, &xManifestContext.xAlgSpan ) != eAzureIoTSuccess )
     {
         LogError( ( "Could not find parts for the signing key" ) );
         return eAzureIoTErrorFailed;
     }
 
     /*------------------- Verify the signature ------------------------*/
+
     xManifestContext.ucScratchCalculatationBuffer = ucReusableScratchSpaceHead;
     ucReusableScratchSpaceHead += jwsSHA_CALCULATION_SCRATCH_SIZE;
     xResult = prvJWS_RS256Verify( xManifestContext.pucJWKBase64EncodedHeader, xManifestContext.ulJWKBase64EncodedHeaderLength + xManifestContext.ulJWKBase64EncodedPayloadLength + 1,
@@ -805,10 +827,12 @@ AzureIoTResult_t JWS_ManifestAuthenticate( const uint8_t * pucManifest,
     }
 
     /*------------------- Reuse Buffer Space ------------------------*/
+
     /* The JWK verification is now done, so we can reuse the buffers which it used. */
     ucReusableScratchSpaceHead = ucReusableScratchSpaceRoot;
 
     /*------------------- Decode remaining values from JWS ------------------------*/
+
     xManifestContext.ucJWSPayload = ucReusableScratchSpaceHead;
     ucReusableScratchSpaceHead += jwsJWS_PAYLOAD_SIZE;
     xManifestContext.ucJWSSignature = ucReusableScratchSpaceHead;
@@ -823,6 +847,7 @@ AzureIoTResult_t JWS_ManifestAuthenticate( const uint8_t * pucManifest,
     }
 
     /*------------------- Base64 decode the signing key ------------------------*/
+
     xManifestContext.ucSigningKeyN = ucReusableScratchSpaceHead;
     ucReusableScratchSpaceHead += jwsRSA3072_SIZE;
     xManifestContext.ucSigningKeyE = ucReusableScratchSpaceHead;
@@ -837,6 +862,7 @@ AzureIoTResult_t JWS_ManifestAuthenticate( const uint8_t * pucManifest,
     }
 
     /*------------------- Verify that the signature was signed by signing key ------------------------*/
+
     xResult = prvJWS_RS256Verify( xManifestContext.pucBase64EncodedHeader, xManifestContext.ulBase64EncodedHeaderLength + xManifestContext.ulBase64EncodedPayloadLength + 1,
                                   xManifestContext.ucJWSSignature, xManifestContext.outJWSSignatureLength,
                                   xManifestContext.ucSigningKeyN, xManifestContext.outSigningKeyNLength,
@@ -850,6 +876,7 @@ AzureIoTResult_t JWS_ManifestAuthenticate( const uint8_t * pucManifest,
     }
 
     /*------------------- Verify that the SHAs match ------------------------*/
+
     xManifestContext.ucManifestSHACalculation = ucReusableScratchSpaceHead;
     ucReusableScratchSpaceHead += jwsSHA256_SIZE;
     xManifestContext.ucParsedManifestSha = ucReusableScratchSpaceHead;
