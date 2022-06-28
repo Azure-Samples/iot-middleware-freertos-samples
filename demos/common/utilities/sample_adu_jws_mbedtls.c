@@ -639,7 +639,7 @@ static AzureIoTResult_t prvVerifySHAMatch( prvJWSValidationContext_t * pxManifes
                                                    ulManifestLength,
                                                    pxManifestContext->ucManifestSHACalculation );
 
-    if( ulVerificationResult != ulVerificationResult )
+    if( ulVerificationResult != eAzureIoTSuccess )
     {
         LogError( ( "[JWS] SHA256 Calculation failed" ) );
         return ulVerificationResult;
