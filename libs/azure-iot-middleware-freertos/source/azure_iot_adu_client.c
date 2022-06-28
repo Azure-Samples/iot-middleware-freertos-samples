@@ -340,12 +340,11 @@ AzureIoTResult_t AzureIoTADUClient_SendResponse( AzureIoTADUClient_t * pxAzureIo
         return AzureIoT_TranslateCoreError( xAzResult );
     }
 
-    /* TODO: consume xRequestDecision in az_iot_adu_client_get_service_properties_response */
-    ( void ) xRequestDecision;
+    /* Code 406 is "Not Acceptable" */
     xAzResult = az_iot_adu_client_get_service_properties_response(
         &pxAzureIoTADUClient->_internal.xADUClient,
         ( int32_t ) ulPropertyVersion,
-        200,
+        xRequestDecision == eAzureIoTADURequestDecisionAccept ? 200 : 406,
         &jw );
 
     if( az_result_failed( xAzResult ) )
@@ -468,7 +467,7 @@ AzureIoTResult_t AzureIoTADUClient_SendAgentState( AzureIoTADUClient_t * pxAzure
     az_result xAzResult;
     az_iot_adu_client_device_information xBaseDeviceInformation;
     az_iot_adu_client_workflow xBaseWorkflow;
-    az_iot_adu_client_install_result xInstallResult; /* TODO: fill up. */
+    az_iot_adu_client_install_result xInstallResult;
     az_json_writer jw;
     az_span xPropertiesPayload;
 
