@@ -35,7 +35,7 @@ static void testAzureIoTADUClient_Init_Failure( void ** ppvState )
 
     ( void ) ppvState;
 
-    assert_int_equal(AzureIoTADUClient_Init(NULL, &xADUClientOptions), eAzureIoTErrorInvalidArgument);
+    assert_int_equal( AzureIoTADUClient_Init( NULL, &xADUClientOptions ), eAzureIoTErrorInvalidArgument );
 }
 
 uint32_t ulGetAllTests()
