@@ -31,8 +31,8 @@
 
 #include <azure/core/az_result.h>
 #include <azure/core/az_span.h>
-#include <azure/iot/az_iot_hub_client.h>
 #include <azure/iot/az_iot_adu.h>
+#include <azure/iot/az_iot_hub_client.h>
 
 #include "iot_sample_common.h"
 #include "paho_iot_adu_sample_common.h"
@@ -43,7 +43,8 @@
 // All components that the model supports need to be declared to the az_iot_hub_client.
 // In general the az_iot_hub_client knows nothing about the model definition, leaving this entirely
 // to the application.  The component list is the only exception.
-static az_span pnp_device_components[] = { AZ_SPAN_LITERAL_FROM_STR(AZ_IOT_ADU_PROPERTIES_COMPONENT_NAME) };
+static az_span pnp_device_components[]
+    = { AZ_SPAN_LITERAL_FROM_STR(AZ_IOT_ADU_PROPERTIES_COMPONENT_NAME) };
 static int32_t const pnp_components_length
     = sizeof(pnp_device_components) / sizeof(pnp_device_components[0]);
 

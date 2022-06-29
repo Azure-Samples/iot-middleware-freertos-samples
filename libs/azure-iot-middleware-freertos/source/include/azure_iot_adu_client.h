@@ -12,9 +12,7 @@
 #include "azure_iot_result.h"
 #include "azure_iot_hub_client.h"
 #include "azure_iot_json_reader.h"
-#include "azure_iot_http.h"
 #include <azure/iot/az_iot_adu_client.h>
-#include "azure_iot_flash_platform.h"
 
 
 /**************************ADU SECTION******************************** // */

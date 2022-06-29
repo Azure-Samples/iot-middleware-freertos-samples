@@ -41,8 +41,8 @@
 #include <azure/core/az_json.h>
 #include <azure/core/az_result.h>
 #include <azure/core/az_span.h>
-#include <azure/iot/az_iot_hub_client_properties.h>
 #include <azure/iot/az_iot_adu.h>
+#include <azure/iot/az_iot_hub_client_properties.h>
 
 #include "iot_sample_common.h"
 #include "paho_iot_adu_sample_common.h"
@@ -77,17 +77,14 @@ static bool did_update = false;
 static char adu_scratch_buffer[10000];
 
 #define AZ_IOT_ADU_AGENT_VERSION "DU;agent/0.8.0-rc1-public-preview"
-az_iot_adu_device_information adu_device_information = {
-  .manufacturer = AZ_SPAN_LITERAL_FROM_STR(ADU_DEVICE_MANUFACTURER),
-  .model = AZ_SPAN_LITERAL_FROM_STR(ADU_DEVICE_MODEL),
-  .adu_version = AZ_SPAN_LITERAL_FROM_STR(AZ_IOT_ADU_AGENT_VERSION),
-  .do_version = AZ_SPAN_EMPTY,
-  .update_id = {
-    .name = AZ_SPAN_LITERAL_FROM_STR(ADU_DEVICE_MODEL),
-    .provider = AZ_SPAN_LITERAL_FROM_STR(ADU_DEVICE_MANUFACTURER),
-    .version = AZ_SPAN_LITERAL_FROM_STR(ADU_DEVICE_VERSION)
-  }
-};
+az_iot_adu_device_information adu_device_information
+    = { .manufacturer = AZ_SPAN_LITERAL_FROM_STR(ADU_DEVICE_MANUFACTURER),
+        .model = AZ_SPAN_LITERAL_FROM_STR(ADU_DEVICE_MODEL),
+        .adu_version = AZ_SPAN_LITERAL_FROM_STR(AZ_IOT_ADU_AGENT_VERSION),
+        .do_version = AZ_SPAN_EMPTY,
+        .update_id = { .name = AZ_SPAN_LITERAL_FROM_STR(ADU_DEVICE_MODEL),
+                       .provider = AZ_SPAN_LITERAL_FROM_STR(ADU_DEVICE_MANUFACTURER),
+                       .version = AZ_SPAN_LITERAL_FROM_STR(ADU_DEVICE_VERSION) } };
 
 //
 // Functions
@@ -220,11 +217,11 @@ static void send_adu_in_progress_property(void)
       NULL,
       NULL,
       property_buffer,
-      &property_buffer
-      );
+      &property_buffer);
   IOT_SAMPLE_EXIT_IF_AZ_FAILED(rc, "Failed to get adu properties payload");
 
-  publish_mqtt_message(property_document_topic_buffer, property_buffer, IOT_SAMPLE_MQTT_PUBLISH_QOS);
+  publish_mqtt_message(
+      property_document_topic_buffer, property_buffer, IOT_SAMPLE_MQTT_PUBLISH_QOS);
 }
 
 static void send_adu_accept_manifest_property(int32_t version_number)
@@ -244,13 +241,11 @@ static void send_adu_accept_manifest_property(int32_t version_number)
   char property_payload_buffer[SAMPLE_MQTT_PAYLOAD_LENGTH];
   az_span property_buffer = AZ_SPAN_FROM_BUFFER(property_payload_buffer);
   rc = az_iot_adu_get_service_properties_response(
-    version_number,
-    200,
-    property_buffer,
-    &property_buffer );
+      version_number, 200, property_buffer, &property_buffer);
   IOT_SAMPLE_EXIT_IF_AZ_FAILED(rc, "Failed to get service properties response payload");
 
-  publish_mqtt_message(property_document_topic_buffer, property_buffer, IOT_SAMPLE_MQTT_PUBLISH_QOS);
+  publish_mqtt_message(
+      property_document_topic_buffer, property_buffer, IOT_SAMPLE_MQTT_PUBLISH_QOS);
 }
 
 static void send_adu_completed_property(void)
@@ -275,11 +270,11 @@ static void send_adu_completed_property(void)
       NULL,
       NULL,
       property_buffer,
-      &property_buffer
-      );
+      &property_buffer);
   IOT_SAMPLE_EXIT_IF_AZ_FAILED(rc, "Failed to get completed payload");
 
-  publish_mqtt_message(property_document_topic_buffer, property_buffer, IOT_SAMPLE_MQTT_PUBLISH_QOS);
+  publish_mqtt_message(
+      property_document_topic_buffer, property_buffer, IOT_SAMPLE_MQTT_PUBLISH_QOS);
 }
 
 static void download_and_write_to_flash(az_span url)
@@ -302,7 +297,8 @@ static void spoof_new_image(void)
   az_span new_version = az_span_create(adu_new_version, sizeof(adu_new_version));
   az_span_copy(new_version, xBaseUpdateManifest.update_id.version);
   adu_device_information.update_id.version = new_version;
-  adu_device_information.update_id.version = az_span_slice(new_version, 0, az_span_size(xBaseUpdateManifest.update_id.version));
+  adu_device_information.update_id.version
+      = az_span_slice(new_version, 0, az_span_size(xBaseUpdateManifest.update_id.version));
   IOT_SAMPLE_LOG_AZ_SPAN("New version ", adu_device_information.update_id.version);
 }
 // receive_messages_and_send_telemetry_loop will loop to check if there are incoming MQTT
@@ -361,7 +357,8 @@ static void receive_messages_and_send_telemetry_loop(void)
 
     if (did_parse_update && !did_update)
     {
-      IOT_SAMPLE_LOG_AZ_SPAN("Verifying manifest signature: ", xBaseUpdateRequest.update_manifest_signature);
+      IOT_SAMPLE_LOG_AZ_SPAN(
+          "Verifying manifest signature: ", xBaseUpdateRequest.update_manifest_signature);
 
       IOT_SAMPLE_LOG("Manifest has been verified");
 
@@ -447,9 +444,9 @@ static void on_message_received(char* topic, int topic_len, MQTTClient_message c
   }
   else
   {
-      IOT_SAMPLE_LOG_ERROR("Message from unknown topic: az_result return code 0x%08x.", rc);
-      IOT_SAMPLE_LOG_AZ_SPAN("Topic:", topic_span);
-      exit(rc);
+    IOT_SAMPLE_LOG_ERROR("Message from unknown topic: az_result return code 0x%08x.", rc);
+    IOT_SAMPLE_LOG_AZ_SPAN("Topic:", topic_span);
+    exit(rc);
   }
 }
 
@@ -507,48 +504,45 @@ static void process_device_property_message(
 
   az_span component_name;
 
-  az_span xScratchBufferSpan = az_span_create( adu_scratch_buffer, ( int32_t ) sizeof(adu_scratch_buffer) );
+  az_span xScratchBufferSpan
+      = az_span_create(adu_scratch_buffer, (int32_t)sizeof(adu_scratch_buffer));
 
   // Applications call az_iot_hub_client_properties_get_next_component_property to enumerate
   // properties received.
   while (az_result_succeeded(az_iot_hub_client_properties_get_next_component_property(
       &hub_client, &jr, message_type, AZ_IOT_HUB_CLIENT_PROPERTY_WRITABLE, &component_name)))
   {
-    if( az_iot_adu_is_component_device_update(component_name))
+    if (az_iot_adu_is_component_device_update(component_name))
     {
       // ADU Component
       rc = az_iot_adu_parse_service_properties(
-        &jr,
-        xScratchBufferSpan,
-        &xBaseUpdateRequest,
-        &xScratchBufferSpan );
+          &jr, xScratchBufferSpan, &xBaseUpdateRequest, &xScratchBufferSpan);
 
-      if( az_result_failed( rc ) )
+      if (az_result_failed(rc))
       {
-          IOT_SAMPLE_LOG_ERROR( "az_iot_adu_parse_service_properties failed: 0x%08x.", rc );
-          /* TODO: return individualized/specific errors. */
-          return;
+        IOT_SAMPLE_LOG_ERROR("az_iot_adu_parse_service_properties failed: 0x%08x.", rc);
+        /* TODO: return individualized/specific errors. */
+        return;
       }
       else
       {
-          rc = az_iot_adu_parse_update_manifest(
-              xBaseUpdateRequest.update_manifest,
-              &xBaseUpdateManifest );
+        rc = az_iot_adu_parse_update_manifest(
+            xBaseUpdateRequest.update_manifest, &xBaseUpdateManifest);
 
-          if( az_result_failed( rc ) )
-          {
-              IOT_SAMPLE_LOG_ERROR( "az_iot_adu_parse_update_manifest failed: 0x%08x", rc );
-              /* TODO: return individualized/specific errors. */
-              return;
-          }
+        if (az_result_failed(rc))
+        {
+          IOT_SAMPLE_LOG_ERROR("az_iot_adu_parse_update_manifest failed: 0x%08x", rc);
+          /* TODO: return individualized/specific errors. */
+          return;
+        }
 
-          IOT_SAMPLE_LOG_SUCCESS("Parsed Azure device update manifest.");
+        IOT_SAMPLE_LOG_SUCCESS("Parsed Azure device update manifest.");
 
-          IOT_SAMPLE_LOG("Sending manifest property accept");
+        IOT_SAMPLE_LOG("Sending manifest property accept");
 
-          send_adu_accept_manifest_property(version_number);
+        send_adu_accept_manifest_property(version_number);
 
-          did_parse_update = true;
+        did_parse_update = true;
       }
     }
     else
@@ -578,8 +572,8 @@ static void process_device_property_message(
   }
 }
 
-// send_adu_device_reported_property writes a property payload reporting device state and then sends it to
-// Azure IoT Hub.
+// send_adu_device_reported_property writes a property payload reporting device state and then sends
+// it to Azure IoT Hub.
 static void send_adu_device_information_property(void)
 {
   az_result rc;
@@ -599,12 +593,12 @@ static void send_adu_device_information_property(void)
   az_span reported_property_payload = AZ_SPAN_FROM_BUFFER(reported_property_payload_buffer);
 
   rc = az_iot_adu_get_properties_payload(
-    &adu_device_information,
-    AZ_IOT_ADU_AGENT_STATE_IDLE,
-    NULL,
-    NULL,
-    reported_property_payload,
-    &reported_property_payload);
+      &adu_device_information,
+      AZ_IOT_ADU_AGENT_STATE_IDLE,
+      NULL,
+      NULL,
+      reported_property_payload,
+      &reported_property_payload);
   IOT_SAMPLE_EXIT_IF_AZ_FAILED(rc, "Failed to get the adu device information payload");
 
   // Publish the reported property update.

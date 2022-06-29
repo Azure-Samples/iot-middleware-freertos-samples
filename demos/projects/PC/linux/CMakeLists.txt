@@ -60,6 +60,7 @@ target_link_libraries(${PROJECT_NAME}-adu PRIVATE
     FreeRTOSPlus::TCPIP
     FreeRTOSPlus::TCPIP::PORT
     az::iot_middleware::freertos
+    az::iot_middleware::core_http
     pthread
     pcap
     SAMPLE::AZUREIOTADU
