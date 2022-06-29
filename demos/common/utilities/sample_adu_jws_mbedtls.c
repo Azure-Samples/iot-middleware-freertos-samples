@@ -39,6 +39,7 @@ const uint8_t jws_kid_json_value[] = "kid";
 const uint8_t jws_n_json_value[] = "n";
 const uint8_t jws_e_json_value[] = "e";
 const uint8_t jws_alg_json_value[] = "alg";
+const uint8_t jws_alg_rs256[] = "RS256";
 
 typedef struct prvJWSValidationContext
 {
@@ -303,8 +304,8 @@ static AzureIoTResult_t prvJWS_RS256Verify( uint8_t * pucInput,
     return eAzureIoTSuccess;
 }
 
-static AzureIoTResult_t prvFindJWSValue( AzureIoTJSONReader_t * pxPayload,
-                                         az_span * pxJWSValue )
+static AzureIoTResult_t prvFindSJWKValue( AzureIoTJSONReader_t * pxPayload,
+                                          az_span * pxJWSValue )
 {
     AzureIoTResult_t xResult = eAzureIoTSuccess;
     AzureIoTJSONTokenType_t xJSONTokenType;
@@ -376,7 +377,7 @@ static AzureIoTResult_t prvFindRootKeyValue( AzureIoTJSONReader_t * pxPayload,
 
     if( xResult != eAzureIoTSuccess )
     {
-        LogError( ( "[JWS] [JWS] Parse Root Key Error: 0x%08x", xResult ) );
+        LogError( ( "[JWS] Parse Root Key Error: 0x%08x", xResult ) );
         return xResult;
     }
 
@@ -437,10 +438,14 @@ static AzureIoTResult_t prvFindKeyParts( AzureIoTJSONReader_t * pxPayload,
         }
     }
 
-    if( ( xResult != eAzureIoTSuccess ) && ( xResult != eAzureIoTErrorJSONReaderDone ) )
+    if( ( xResult != eAzureIoTSuccess ) ||
+        ( az_span_size( *pxBase64EncodedNSpan ) == 0 ) ||
+        ( az_span_size( *pxBase64EncodedESpan ) == 0 ) ||
+        ( az_span_size( *pxAlgSpan ) == 0 ) )
     {
-        LogError( ( "[JWS] Parse Signing Key Payload Error: %i", xResult ) );
-        return xResult;
+        LogError( ( "[JWS] Parse Signing Key Payload Error: %i",
+                    xResult != eAzureIoTSuccess ? xResult : eAzureIoTErrorFailed ) );
+        return xResult != eAzureIoTSuccess ? xResult : eAzureIoTErrorFailed;
     }
 
     return eAzureIoTSuccess;
@@ -474,7 +479,7 @@ static AzureIoTResult_t prvFindManifestSHA( AzureIoTJSONReader_t * pxPayload,
 
     if( xResult != eAzureIoTSuccess )
     {
-        LogError( ( "[JWS] [JWS] Parse manifest SHA error: 0x%08x", xResult ) );
+        LogError( ( "[JWS] Parse manifest SHA error: 0x%08x", xResult ) );
         return xResult;
     }
 
@@ -765,7 +770,7 @@ AzureIoTResult_t JWS_ManifestAuthenticate( const uint8_t * pucManifest,
     /* The "sjwk" is the signed signing public key */
     AzureIoTJSONReader_Init( &xJSONReader, xManifestContext.ucJWSHeader, xManifestContext.outJWSHeaderLength );
 
-    if( prvFindJWSValue( &xJSONReader, &xManifestContext.xJWKManifestSpan ) != eAzureIoTSuccess )
+    if( prvFindSJWKValue( &xJSONReader, &xManifestContext.xJWKManifestSpan ) != eAzureIoTSuccess )
     {
         LogError( ( "Error finding sjwk value in payload" ) );
         return eAzureIoTErrorFailed;
@@ -862,6 +867,14 @@ AzureIoTResult_t JWS_ManifestAuthenticate( const uint8_t * pucManifest,
     }
 
     /*------------------- Verify that the signature was signed by signing key ------------------------*/
+
+    if( !az_span_is_content_equal( xManifestContext.xAlgSpan, az_span_create( ( uint8_t * ) jws_alg_rs256, sizeof( jws_alg_rs256 ) - 1 ) ) )
+    {
+        LogError( ( "[JWS] Algorithm not supported | expected %.*s | actual %.*s",
+                    sizeof( jws_alg_rs256 ) - 1, jws_alg_rs256,
+                    az_span_size( xManifestContext.xAlgSpan ), az_span_ptr( xManifestContext.xAlgSpan ) ) );
+        return eAzureIoTErrorFailed;
+    }
 
     xResult = prvJWS_RS256Verify( xManifestContext.pucBase64EncodedHeader, xManifestContext.ulBase64EncodedHeaderLength + xManifestContext.ulBase64EncodedPayloadLength + 1,
                                   xManifestContext.ucJWSSignature, xManifestContext.outJWSSignatureLength,
