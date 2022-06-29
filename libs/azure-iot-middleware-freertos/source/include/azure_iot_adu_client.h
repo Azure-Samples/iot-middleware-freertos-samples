@@ -370,9 +370,10 @@ AzureIoTResult_t AzureIoTADUClient_Init( AzureIoTADUClient_t * pxAzureIoTADUClie
  *       AzureIoTHubClient_ADUProcessComponent() call. The properties will be
  *       processed into the AzureIoTADUClient.
  *
+ * @param[in] pxAzureIoTADUClient The #AzureIoTADUClient_t * to use for this call.
  * @param[in] pucComponentName Name of writable properties component to be
  *                             checked.
- * @param[in] ulComponentNameLength    Length of `pucComponentName`.
+ * @param[in] ulComponentNameLength Length of `pucComponentName`.
  * @return A boolean value indicating if the writable properties component
  *         is from ADU service.
  */
@@ -380,6 +381,21 @@ bool AzureIoTADUClient_IsADUComponent( AzureIoTADUClient_t * pxAzureIoTADUClient
                                        const char * pucComponentName,
                                        uint32_t ulComponentNameLength );
 
+/**
+ * @brief Parse the ADU update request into the requisite structure.
+ *
+ * The JSON reader returned to the caller from AzureIoTHubClientProperties_GetNextComponentProperty()
+ * should be passed to this API.
+ *
+ * @param pxAzureIoTADUClient The #AzureIoTADUClient_t * to use for this call.
+ * @param pxReader The initialized JSON reader positioned at the beginning of the ADU subcomponent
+ * property.
+ * @param pxAduUpdateRequest The #AzureIoTADUUpdateRequest_t into which the properties will be parsed.
+ * @param pucBuffer Scratch space for the property values to be copied into. The current recommmended size for this
+ * buffer is at least 8KB.
+ * @param ulBufferSize The size of \p pucBuffer.
+ * @return AzureIoTResult_t An #AzureIoTResult_t with the result of the operation.
+ */
 AzureIoTResult_t AzureIoTADUClient_ParseRequest( AzureIoTADUClient_t * pxAzureIoTADUClient,
                                                  AzureIoTJSONReader_t * pxReader,
                                                  AzureIoTADUUpdateRequest_t * pxAduUpdateRequest,
