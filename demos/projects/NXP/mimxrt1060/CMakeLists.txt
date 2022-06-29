@@ -165,6 +165,7 @@ target_link_libraries(${PROJECT_NAME}-adu PRIVATE
     FreeRTOSPlus::Utilities::logging
     FreeRTOSPlus::ThirdParty::mbedtls
     az::iot_middleware::freertos
+    az::iot_middleware::core_http
     LWIP
     SAMPLE::SOCKET::LWIP
     SAMPLE::AZUREIOTADU

@@ -579,6 +579,8 @@ AZ_NODISCARD az_result az_iot_adu_client_get_service_properties_response(
 {
   _az_PRECONDITION_NOT_NULL(ref_json_writer);
 
+  (void)client;
+
   // Component and response status
   _az_RETURN_IF_FAILED(az_json_writer_append_begin_object(ref_json_writer));
   _az_RETURN_IF_FAILED(az_iot_hub_client_properties_writer_begin_component(
@@ -611,6 +613,8 @@ AZ_NODISCARD az_result az_iot_adu_client_parse_update_manifest(
 {
   _az_PRECONDITION_NOT_NULL(ref_json_reader);
   _az_PRECONDITION_NOT_NULL(update_manifest);
+
+  (void)client;
 
   // Initialize the update_manifest with empty values.
   update_manifest->manifest_version = AZ_SPAN_EMPTY;

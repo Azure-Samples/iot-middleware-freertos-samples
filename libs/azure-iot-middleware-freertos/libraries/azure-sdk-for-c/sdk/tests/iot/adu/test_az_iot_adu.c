@@ -9,7 +9,7 @@
 #include <azure/core/az_precondition.h>
 #include <azure/core/az_span.h>
 #include <azure/core/internal/az_precondition_internal.h>
-#include <azure/iot/az_iot_adu.h>
+#include <azure/iot/az_iot_adu_client.h>
 
 #include <setjmp.h>
 #include <stdarg.h>
@@ -32,7 +32,7 @@ static uint8_t expected_agent_state_payload[]
       "\"installedUpdateId\":\"{\\\"provider\\\":\\\"Contoso\\\",\\\"name\\\":\\\"FooBar\\\","
       "\\\"version\\\":\\\"1.0\\\"}\"}}}";
 
-az_iot_adu_device_information adu_device_information
+az_iot_adu_client_device_information adu_device_information
     = { .manufacturer = AZ_SPAN_LITERAL_FROM_STR(TEST_ADU_DEVICE_MANUFACTURER),
         .model = AZ_SPAN_LITERAL_FROM_STR(TEST_ADU_DEVICE_MODEL),
         .adu_version = AZ_SPAN_LITERAL_FROM_STR(TEST_AZ_IOT_ADU_CLIENT_AGENT_VERSION),
@@ -52,8 +52,11 @@ static void test_az_iot_adu_client_get_agent_state_payload_succeed(void** state)
 {
   (void)state;
 
+  az_iot_adu_client client;
   az_json_writer jw;
   uint8_t payload_buffer[TEST_SPAN_BUFFER_SIZE];
+
+  assert_int_equal(az_iot_adu_client_init(&client, NULL), AZ_OK);
 
   assert_int_equal(
       az_json_writer_init(&jw, az_span_create(payload_buffer, sizeof(payload_buffer)), NULL),
@@ -61,7 +64,7 @@ static void test_az_iot_adu_client_get_agent_state_payload_succeed(void** state)
 
   assert_int_equal(
       az_iot_adu_client_get_agent_state_payload(
-          &adu_device_information, AZ_IOT_ADU_CLIENT_AGENT_STATE_IDLE, NULL, NULL, &jw),
+          &client, &adu_device_information, AZ_IOT_ADU_CLIENT_AGENT_STATE_IDLE, NULL, NULL, &jw),
       AZ_OK);
 
   printf("%.*s\n", (int)sizeof(expected_agent_state_payload), payload_buffer);

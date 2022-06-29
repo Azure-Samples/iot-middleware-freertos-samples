@@ -9,7 +9,6 @@
 
 #include "azure_iot_private.h"
 #include "azure_iot_json_writer.h"
-#include "azure_iot_flash_platform.h"
 #include "azure_iot_private.h"
 #include <azure/iot/az_iot_adu_client.h>
 
