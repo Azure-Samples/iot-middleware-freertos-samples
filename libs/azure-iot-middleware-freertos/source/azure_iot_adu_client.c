@@ -12,6 +12,9 @@
 #include "azure_iot_private.h"
 #include <azure/iot/az_iot_adu_client.h>
 
+#define azureiotaduREQUEST_ACCEPTED_CODE 200
+#define azureiotaduREQUEST_REJECTED_CODE 406
+
 /*
  *
  * Missing features
@@ -344,7 +347,7 @@ AzureIoTResult_t AzureIoTADUClient_SendResponse( AzureIoTADUClient_t * pxAzureIo
     xAzResult = az_iot_adu_client_get_service_properties_response(
         &pxAzureIoTADUClient->_internal.xADUClient,
         ( int32_t ) ulPropertyVersion,
-        xRequestDecision == eAzureIoTADURequestDecisionAccept ? 200 : 406,
+        xRequestDecision == eAzureIoTADURequestDecisionAccept ? azureiotaduREQUEST_ACCEPTED_CODE : azureiotaduREQUEST_REJECTED_CODE,
         &jw );
 
     if( az_result_failed( xAzResult ) )
@@ -467,7 +470,7 @@ AzureIoTResult_t AzureIoTADUClient_SendAgentState( AzureIoTADUClient_t * pxAzure
     az_result xAzResult;
     az_iot_adu_client_device_information xBaseDeviceInformation;
     az_iot_adu_client_workflow xBaseWorkflow;
-    az_iot_adu_client_install_result xInstallResult;
+    az_iot_adu_client_install_result xInstallResult; /* TODO: fill up. */
     az_json_writer jw;
     az_span xPropertiesPayload;
 
