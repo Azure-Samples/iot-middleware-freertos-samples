@@ -108,12 +108,6 @@ typedef struct
 
 typedef struct
 {
-  az_span device_manufacturer;
-  az_span device_model;
-} az_iot_adu_client_update_manifest_compatibility;
-
-typedef struct
-{
   az_span installed_criteria;
 } az_iot_adu_client_update_manifest_instructions_step_handler_properties;
 
@@ -155,9 +149,6 @@ typedef struct
 {
   az_span manifest_version;
   az_iot_adu_client_update_id update_id;
-  // TODO: confirm compat is always through manufacturer and model.
-  //       It might not be, so this needs to be a generic property bag instead.
-  az_iot_adu_client_update_manifest_compatibility compatibility;
   az_iot_adu_client_update_manifest_instructions instructions;
   az_iot_adu_client_update_manifest_file files[AZ_IOT_ADU_CLIENT_MAX_FILE_URL_COUNT];
   uint32_t files_count;
