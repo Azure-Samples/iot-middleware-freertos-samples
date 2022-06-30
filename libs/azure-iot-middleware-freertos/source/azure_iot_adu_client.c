@@ -170,10 +170,8 @@ static void prvCastUpdateRequest( az_iot_adu_client_update_request * pxBaseUpdat
     pxUpdateRequest->xUpdateManifest.xUpdateId.pucVersion = az_span_ptr( pxBaseUpdateManifest->update_id.version );
     pxUpdateRequest->xUpdateManifest.xUpdateId.ulVersionLength = ( uint32_t ) az_span_size( pxBaseUpdateManifest->update_id.version );
 
-    pxUpdateRequest->xUpdateManifest.xCompatibility.pucDeviceManufacturer = az_span_ptr( pxBaseUpdateManifest->compatibility.device_manufacturer );
-    pxUpdateRequest->xUpdateManifest.xCompatibility.ulDeviceManufacturerLength = ( uint32_t ) az_span_size( pxBaseUpdateManifest->compatibility.device_manufacturer );
-    pxUpdateRequest->xUpdateManifest.xCompatibility.pucDeviceModel = az_span_ptr( pxBaseUpdateManifest->compatibility.device_model );
-    pxUpdateRequest->xUpdateManifest.xCompatibility.ulDeviceModelLength = ( uint32_t ) az_span_size( pxBaseUpdateManifest->compatibility.device_model );
+    pxUpdateRequest->xUpdateManifest.pucCompatibilityProperties = az_span_ptr( pxBaseUpdateManifest->compatibility_properties);
+    pxUpdateRequest->xUpdateManifest.ulCompatibilityProperties = ( uint32_t ) az_span_size( pxBaseUpdateManifest->compatibility_properties );
 
     pxUpdateRequest->xUpdateManifest.xInstructions.ulStepsCount = pxBaseUpdateManifest->instructions.steps_count;
 

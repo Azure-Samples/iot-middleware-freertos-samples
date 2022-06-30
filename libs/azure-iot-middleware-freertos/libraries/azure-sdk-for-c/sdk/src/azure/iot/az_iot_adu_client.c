@@ -628,8 +628,7 @@ AZ_NODISCARD az_result az_iot_adu_client_parse_update_manifest(
   update_manifest->update_id.name = AZ_SPAN_EMPTY;
   update_manifest->update_id.provider = AZ_SPAN_EMPTY;
   update_manifest->update_id.version = AZ_SPAN_EMPTY;
-  update_manifest->compatibility.device_manufacturer = AZ_SPAN_EMPTY;
-  update_manifest->compatibility.device_model = AZ_SPAN_EMPTY;
+  update_manifest->compatibility_properties = AZ_SPAN_EMPTY;
   update_manifest->instructions.steps_count = 0;
   update_manifest->files_count = 0;
   update_manifest->create_date_time = AZ_SPAN_EMPTY;
@@ -814,44 +813,21 @@ AZ_NODISCARD az_result az_iot_adu_client_parse_update_manifest(
                  &ref_json_reader->token,
                  AZ_SPAN_FROM_STR(AZ_IOT_ADU_CLIENT_AGENT_PROPERTY_NAME_COMPATIBILITY)))
     {
-      // TODO: parse this as a map (dictionary) instead.
+      /*
+       * According to ADU design, the ADU service compatibility properties
+       * are not intended to be consumed by the ADU agent.
+       * To save on processing, the properties are being exposed as
+       * plain json if the user which to access it.
+       */
       _az_RETURN_IF_FAILED(az_json_reader_next_token(ref_json_reader));
       RETURN_IF_JSON_TOKEN_NOT_TYPE((ref_json_reader), AZ_JSON_TOKEN_BEGIN_ARRAY);
-      _az_RETURN_IF_FAILED(az_json_reader_next_token(ref_json_reader));
-      RETURN_IF_JSON_TOKEN_NOT_TYPE((ref_json_reader), AZ_JSON_TOKEN_BEGIN_OBJECT);
-      _az_RETURN_IF_FAILED(az_json_reader_next_token(ref_json_reader));
 
-      while (ref_json_reader->token.kind != AZ_JSON_TOKEN_END_OBJECT)
+      update_manifest->compatibility_properties = ref_json_reader->token.slice;
+
+      while (ref_json_reader->token.kind != AZ_JSON_TOKEN_END_ARRAY)
       {
-        RETURN_IF_JSON_TOKEN_NOT_TYPE((ref_json_reader), AZ_JSON_TOKEN_PROPERTY_NAME);
-
-        if (az_json_token_is_text_equal(
-                &ref_json_reader->token,
-                AZ_SPAN_FROM_STR(AZ_IOT_ADU_CLIENT_AGENT_PROPERTY_NAME_DEVICE_MANUFACTURER)))
-        {
-          _az_RETURN_IF_FAILED(az_json_reader_next_token(ref_json_reader));
-          RETURN_IF_JSON_TOKEN_NOT_TYPE((ref_json_reader), AZ_JSON_TOKEN_STRING);
-          update_manifest->compatibility.device_manufacturer = ref_json_reader->token.slice;
-        }
-        else if (az_json_token_is_text_equal(
-                     &ref_json_reader->token,
-                     AZ_SPAN_FROM_STR(AZ_IOT_ADU_CLIENT_AGENT_PROPERTY_NAME_DEVICE_MODEL)))
-        {
-          _az_RETURN_IF_FAILED(az_json_reader_next_token(ref_json_reader));
-          RETURN_IF_JSON_TOKEN_NOT_TYPE((ref_json_reader), AZ_JSON_TOKEN_STRING);
-          update_manifest->compatibility.device_model = ref_json_reader->token.slice;
-        }
-        else
-        {
-          // TODO: parse compat as map, and do not return this failure.
-          return AZ_ERROR_JSON_INVALID_STATE;
-        }
-
         _az_RETURN_IF_FAILED(az_json_reader_next_token(ref_json_reader));
       }
-
-      _az_RETURN_IF_FAILED(az_json_reader_next_token(ref_json_reader));
-      RETURN_IF_JSON_TOKEN_NOT_TYPE((ref_json_reader), AZ_JSON_TOKEN_END_ARRAY);
     }
     else if (az_json_token_is_text_equal(
                  &ref_json_reader->token,
