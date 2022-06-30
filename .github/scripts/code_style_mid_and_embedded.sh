@@ -15,6 +15,9 @@ pushd libs/azure-iot-middleware-freertos
 wget https://releases.llvm.org/9.0.0/clang+llvm-9.0.0-x86_64-linux-gnu-ubuntu-18.04.tar.xz
 tar -xvf clang+llvm-9.0.0-x86_64-linux-gnu-ubuntu-18.04.tar.xz
 mv clang+llvm-9.0.0-x86_64-linux-gnu-ubuntu-18.04/bin/clang-format /usr/local/bin
+
+popd
+
 pushd libs/azure-iot-middleware-freertos/libraries/azure-sdk-for-c
 
 find . \( -iname '*.h' -o -iname '*.c' \) -exec clang-format -i {} \;
@@ -27,6 +30,8 @@ if [[ `git status --untracked-files=no --porcelain` ]]; then
   echo "find . \( -iname '*.h' -o -iname '*.c' \) -exec clang-format -i {} \;"
   exit 1
 fi
+
+popd
 
 echo Success, all files are formatted correctly according to the .clang-format file.
 exit 0
