@@ -12,6 +12,7 @@
 #include "azure_iot_private.h"
 #include <azure/iot/az_iot_adu_client.h>
 
+/* Code 406 is "Not Acceptable" */
 #define azureiotaduREQUEST_ACCEPTED_CODE 200
 #define azureiotaduREQUEST_REJECTED_CODE 406
 
@@ -343,7 +344,6 @@ AzureIoTResult_t AzureIoTADUClient_SendResponse( AzureIoTADUClient_t * pxAzureIo
         return AzureIoT_TranslateCoreError( xAzResult );
     }
 
-    /* Code 406 is "Not Acceptable" */
     xAzResult = az_iot_adu_client_get_service_properties_response(
         &pxAzureIoTADUClient->_internal.xADUClient,
         ( int32_t ) ulPropertyVersion,
