@@ -9,7 +9,7 @@
 #include <stdio.h>
 
 /* Define the ADU agent component name.  */
-#define AZ_IOT_ADU_CLIENT_AGENT_COMPONENT_NAME                      "deviceUpdate"
+#define AZ_IOT_ADU_CLIENT_AGENT_COMPONENT_NAME "deviceUpdate"
 
 /* Define the ADU agent interface ID.  */
 #define AZ_IOT_ADU_CLIENT_AGENT_INTERFACE_ID "dtmi:azure:iot:deviceUpdate;1"
