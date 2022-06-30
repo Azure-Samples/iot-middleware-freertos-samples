@@ -258,10 +258,11 @@ typedef struct AzureIoTADUUpdateId
 
 typedef struct AzureIoTADUCompatibility
 {
-    uint8_t * pucDeviceManufacturer;
-    uint32_t ulDeviceManufacturerLength;
-    uint8_t * pucDeviceModel;
-    uint32_t ulDeviceModelLength;
+    uint8_t * pucCompatibilityPropertiesNames[ AZ_IOT_ADU_CLIENT_MAX_COMPATIBILITY_PROPERTIES_COUNT ];
+    uint32_t pulCompatibilityPropertiesNamesLengths[ AZ_IOT_ADU_CLIENT_MAX_COMPATIBILITY_PROPERTIES_COUNT ];
+    uint8_t * pucCompatibilityPropertiesValues[ AZ_IOT_ADU_CLIENT_MAX_COMPATIBILITY_PROPERTIES_COUNT ];
+    uint32_t pulCompatibilityPropertiesValuesLengths[ AZ_IOT_ADU_CLIENT_MAX_COMPATIBILITY_PROPERTIES_COUNT ];
+    uint32_t ulCompatibilityPropertiesLength;
 } AzureIoTADUCompatibility_t;
 
 typedef struct AzureIoTADUInstructionStepFile
@@ -308,7 +309,8 @@ typedef struct AzureIoTADUInstructions
 typedef struct AzureIoTADUUpdateManifest
 {
     AzureIoTADUUpdateId_t xUpdateId;
-    AzureIoTADUCompatibility_t xCompatibility;
+    AzureIoTADUCompatibility_t pxCompatibility[ AZ_IOT_ADU_CLIENT_MAX_COMPATIBILITY_PROPERTIES_BUNDLE_COUNT ];
+    uint32_t ulCompatibilityLength;
     AzureIoTADUInstructions_t xInstructions;
     uint32_t ulFilesCount;
     AzureIoTADUUpdateManifestFile_t pxFiles[ AZ_IOT_ADU_CLIENT_MAX_FILE_URL_COUNT ];

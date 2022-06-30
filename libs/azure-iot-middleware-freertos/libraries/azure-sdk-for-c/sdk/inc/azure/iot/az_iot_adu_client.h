@@ -43,6 +43,10 @@
 #define AZ_IOT_ADU_CLIENT_MAX_INSTRUCTIONS_STEPS 10
 #define AZ_IOT_ADU_CLIENT_MAX_FILE_HASH_COUNT 2
 
+/* Maximum Number of Service Compatibility Properties Handled by this ADU Agent */
+#define AZ_IOT_ADU_CLIENT_MAX_COMPATIBILITY_PROPERTIES_BUNDLE_COUNT 3
+#define AZ_IOT_ADU_CLIENT_MAX_COMPATIBILITY_PROPERTIES_COUNT 3
+
 typedef struct
 {
   az_span provider;
@@ -108,8 +112,9 @@ typedef struct
 
 typedef struct
 {
-  az_span device_manufacturer;
-  az_span device_model;
+  az_span compatibility_property_names[AZ_IOT_ADU_CLIENT_MAX_COMPATIBILITY_PROPERTIES_COUNT];
+  az_span compatibility_property_values[AZ_IOT_ADU_CLIENT_MAX_COMPATIBILITY_PROPERTIES_COUNT];
+  uint32_t compatibility_properties_count;
 } az_iot_adu_client_update_manifest_compatibility;
 
 typedef struct
@@ -155,9 +160,9 @@ typedef struct
 {
   az_span manifest_version;
   az_iot_adu_client_update_id update_id;
-  // TODO: confirm compat is always through manufacturer and model.
-  //       It might not be, so this needs to be a generic property bag instead.
-  az_iot_adu_client_update_manifest_compatibility compatibility;
+  az_iot_adu_client_update_manifest_compatibility
+    compatibility_properties[AZ_IOT_ADU_CLIENT_MAX_COMPATIBILITY_PROPERTIES_BUNDLE_COUNT];
+  uint32_t compatibility_properties_count;
   az_iot_adu_client_update_manifest_instructions instructions;
   az_iot_adu_client_update_manifest_file files[AZ_IOT_ADU_CLIENT_MAX_FILE_URL_COUNT];
   uint32_t files_count;
