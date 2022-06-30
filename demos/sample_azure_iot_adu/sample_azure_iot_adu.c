@@ -150,7 +150,7 @@ AzureIoTADUClient_t xAzureIoTADUClient;
 AzureIoTADUUpdateRequest_t xAzureIoTAduUpdateRequest;
 bool xProcessUpdateRequest = false;
 
-AzureIoTHubClientADUDeviceInformation_t xADUDeviceInformation =
+AzureIoTADUClientDeviceInformation_t xADUDeviceInformation =
 {
     .ucManufacturer       = democonfigADU_DEVICE_MANUFACTURER,
     .ulManufacturerLength = sizeof( democonfigADU_DEVICE_MANUFACTURER ) - 1,
@@ -521,7 +521,7 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash()
 static AzureIoTResult_t prvEnableImageAndResetDevice()
 {
     AzureIoTResult_t xResult;
-    AzureIoTHubClientADUInstallResult_t xUpdateResults;
+    AzureIoTADUClientInstallResult_t xUpdateResults;
 
     /* Call into platform specific image verification */
     LogInfo( ( "[ADU] Image validated against hash from ADU\r\n" ) );

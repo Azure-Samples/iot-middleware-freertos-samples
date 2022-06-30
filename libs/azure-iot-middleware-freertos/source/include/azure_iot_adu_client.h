@@ -110,17 +110,16 @@
 #define azureiotaduUPDATE_VERSION_SIZE              10
 
 /* ADU.200702.R: root production key from 7/2/2020  */
-extern const uint8_t AzureIoTADURootKeyId[13];
-extern const uint8_t AzureIoTADURootKeyN[385];
-extern const uint8_t AzureIoTADURootKeyE[3];
+extern const uint8_t AzureIoTADURootKeyId[ 13 ];
+extern const uint8_t AzureIoTADURootKeyN[ 385 ];
+extern const uint8_t AzureIoTADURootKeyE[ 3 ];
 
 /**
  * @brief ADU Update ID.
  *
  *  https://docs.microsoft.com/en-us/azure/iot-hub-device-update/understand-device-update#device-update-agent
  */
-/* TODO: remove this in favor of AzureIoTADUUpdateId_t */
-typedef struct AzureIoTHubClientADUUpdateId
+typedef struct AzureIoTADUClientUpdateId
 {
     const uint8_t ucProvider[ azureiotaduUPDATE_PROVIDER_SIZE ];
     uint32_t ulProviderLength;
@@ -130,14 +129,14 @@ typedef struct AzureIoTHubClientADUUpdateId
 
     const uint8_t ucVersion[ azureiotaduUPDATE_VERSION_SIZE ];
     uint32_t ulVersionLength;
-} AzureIoTHubClientADUUpdateId_t;
+} AzureIoTADUClientUpdateId_t;
 
 /**
  * @brief ADU Device Information.
  *
  *  https://docs.microsoft.com/en-us/azure/iot-hub-device-update/understand-device-update#device-update-agent
  */
-typedef struct AzureIoTHubClientADUDeviceInformation
+typedef struct AzureIoTADUClientDeviceInformation
 {
     const uint8_t ucManufacturer[ azureiotaduDEVICE_INFO_MANUFACTURER_SIZE ];
     uint32_t ulManufacturerLength;
@@ -145,8 +144,8 @@ typedef struct AzureIoTHubClientADUDeviceInformation
     const uint8_t ucModel[ azureiotaduDEVICE_INFO_MODEL_SIZE ];
     uint32_t ulModelLength;
 
-    AzureIoTHubClientADUUpdateId_t xCurrentUpdateId;
-} AzureIoTHubClientADUDeviceInformation_t;
+    AzureIoTADUClientUpdateId_t xCurrentUpdateId;
+} AzureIoTADUClientDeviceInformation_t;
 
 /**
  * @brief Actions requested by the ADU Service
@@ -181,7 +180,7 @@ typedef enum AzureIoTADUAction
  *
  *  https://docs.microsoft.com/en-us/azure/iot-hub-device-update/understand-device-update#device-update-agent
  */
-typedef struct AzureIoTHubClientADUWorkflow
+typedef struct AzureIoTADUClientWorkflow
 {
     AzureIoTADUAction_t xAction;
 
@@ -190,18 +189,18 @@ typedef struct AzureIoTHubClientADUWorkflow
 
     const uint8_t * pucRetryTimestamp;
     uint32_t ulRetryTimestampLength;
-} AzureIoTHubClientADUWorkflow_t;
+} AzureIoTADUClientWorkflow_t;
 
-typedef struct AzureIoTHubClientADUStepResult
+typedef struct AzureIoTADUClientStepResult
 {
     uint32_t ulResultCode;
     uint32_t ulExtendedResultCode;
 
     const uint8_t * pucResultDetails;
     uint32_t ulResultDetailsLength;
-} AzureIoTHubClientADUStepResult_t;
+} AzureIoTADUClientStepResult_t;
 
-typedef struct AzureIoTHubClientADUInstallResult
+typedef struct AzureIoTADUClientInstallResult
 {
     int32_t lResultCode;
     int32_t lExtendedResultCode;
@@ -209,9 +208,9 @@ typedef struct AzureIoTHubClientADUInstallResult
     const uint8_t * pucResultDetails;
     uint32_t ulResultDetailsLength;
 
-    AzureIoTHubClientADUStepResult_t pxStepResults[ AZ_IOT_ADU_CLIENT_MAX_INSTRUCTIONS_STEPS ];
+    AzureIoTADUClientStepResult_t pxStepResults[ AZ_IOT_ADU_CLIENT_MAX_INSTRUCTIONS_STEPS ];
     uint32_t ulStepResultsCount;
-} AzureIoTHubClientADUInstallResult_t;
+} AzureIoTADUClientInstallResult_t;
 
 /**
  * @brief States of the ADU agent
@@ -328,7 +327,7 @@ typedef struct AzureIoTADUUpdateManifest
  */
 typedef struct AzureIoTADUUpdateRequest
 {
-    AzureIoTHubClientADUWorkflow_t xWorkflow;
+    AzureIoTADUClientWorkflow_t xWorkflow;
     uint8_t * pucUpdateManifest;
     uint32_t ulUpdateManifestLength;
     uint8_t * pucUpdateManifestSignature;
@@ -452,7 +451,7 @@ AzureIoTResult_t AzureIoTADUClient_SendResponse( AzureIoTADUClient_t * pxAzureIo
  * @param pxAduUpdateRequest The current #AzureIoTADUUpdateRequest_t. This can be `NULL` if there isn't currently
  * an update request.
  * @param xAgentState The current #AzureIoTADUAgentState_t.
- * @param pxUpdateResults The current #AzureIoTHubClientADUInstallResult_t. This can be `NULL` if there aren't any
+ * @param pxUpdateResults The current #AzureIoTADUClientInstallResult_t. This can be `NULL` if there aren't any
  * results from an update.
  * @param pucBuffer The buffer into which the generated payload will be placed.
  * @param ulBufferSize The length of \p pucBuffer.
@@ -461,10 +460,10 @@ AzureIoTResult_t AzureIoTADUClient_SendResponse( AzureIoTADUClient_t * pxAzureIo
  */
 AzureIoTResult_t AzureIoTADUClient_SendAgentState( AzureIoTADUClient_t * pxAzureIoTADUClient,
                                                    AzureIoTHubClient_t * pxAzureIoTHubClient,
-                                                   AzureIoTHubClientADUDeviceInformation_t * pxDeviceInformation,
+                                                   AzureIoTADUClientDeviceInformation_t * pxDeviceInformation,
                                                    AzureIoTADUUpdateRequest_t * pxAduUpdateRequest,
                                                    AzureIoTADUAgentState_t xAgentState,
-                                                   AzureIoTHubClientADUInstallResult_t * pxUpdateResults,
+                                                   AzureIoTADUClientInstallResult_t * pxUpdateResults,
                                                    uint8_t * pucBuffer,
                                                    uint32_t ulBufferSize,
                                                    uint32_t * pulRequestId );
