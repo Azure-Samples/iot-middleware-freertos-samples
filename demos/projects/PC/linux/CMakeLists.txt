@@ -45,11 +45,38 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 add_map_file(${PROJECT_NAME} ${PROJECT_NAME}.map)
 
 # ADU demo files and dependencies
-add_executable(${PROJECT_NAME}-adu
-  main.c
-  ${CMAKE_CURRENT_LIST_DIR}/port/azure_iot_flash_platform.c
-)
-target_link_libraries(${PROJECT_NAME}-adu PRIVATE
+# add_executable(${PROJECT_NAME}-adu
+#   main.c
+#   ${CMAKE_CURRENT_LIST_DIR}/port/azure_iot_flash_platform.c
+# )
+# target_link_libraries(${PROJECT_NAME}-adu PRIVATE
+#     FreeRTOS::Timers
+#     FreeRTOS::Heap::3
+#     FreeRTOS::EventGroups
+#     FreeRTOS::Posix
+#     FreeRTOSPlus::Utilities::backoff_algorithm
+#     FreeRTOSPlus::Utilities::logging
+#     FreeRTOSPlus::ThirdParty::mbedtls
+#     FreeRTOSPlus::TCPIP
+#     FreeRTOSPlus::TCPIP::PORT
+#     az::iot_middleware::freertos
+#     pthread
+#     pcap
+#     SAMPLE::AZUREIOTADU
+#     SAMPLE::TRANSPORT::MBEDTLS
+#     SAMPLE::TRANSPORT::SOCKET
+#     SAMPLE::SOCKET::FREERTOSTCPIP)
+
+# target_include_directories(${PROJECT_NAME}-adu
+#     PUBLIC
+#         ${CMAKE_CURRENT_LIST_DIR}/port
+# )
+
+# add_map_file(${PROJECT_NAME}-adu ${PROJECT_NAME}-adu.map)
+
+# Add demo files and dependencies for PnP Sample
+add_executable(${PROJECT_NAME}-pnp main.c)
+target_link_libraries(${PROJECT_NAME}-pnp PRIVATE
     FreeRTOS::Timers
     FreeRTOS::Heap::3
     FreeRTOS::EventGroups
@@ -63,21 +90,19 @@ target_link_libraries(${PROJECT_NAME}-adu PRIVATE
     az::iot_middleware::core_http
     pthread
     pcap
-    SAMPLE::AZUREIOTADU
+    SAMPLE::AZUREIOTPNP
     SAMPLE::TRANSPORT::MBEDTLS
-    SAMPLE::TRANSPORT::SOCKET
     SAMPLE::SOCKET::FREERTOSTCPIP)
 
-target_include_directories(${PROJECT_NAME}-adu
-    PUBLIC
-        ${CMAKE_CURRENT_LIST_DIR}/port
-)
-
-add_map_file(${PROJECT_NAME}-adu ${PROJECT_NAME}-adu.map)
+add_map_file(${PROJECT_NAME}-pnp ${PROJECT_NAME}-pnp.map)
 
 # Add demo files and dependencies for PnP Sample
-add_executable(${PROJECT_NAME}-pnp main.c)
-target_link_libraries(${PROJECT_NAME}-pnp PRIVATE
+add_executable(sample_adu_jws_mbedtls_int_test
+${CMAKE_CURRENT_LIST_DIR}/tests/main.c
+${CMAKE_CURRENT_LIST_DIR}/tests/mock_needed_functions.c
+${CMAKE_CURRENT_LIST_DIR}/../../../../demos/common/tests/sample_adu_jws_mbedtls_int_test.c
+)
+target_link_libraries(sample_adu_jws_mbedtls_int_test PRIVATE
     FreeRTOS::Timers
     FreeRTOS::Heap::3
     FreeRTOS::EventGroups
@@ -93,5 +118,3 @@ target_link_libraries(${PROJECT_NAME}-pnp PRIVATE
     SAMPLE::AZUREIOTPNP
     SAMPLE::TRANSPORT::MBEDTLS
     SAMPLE::SOCKET::FREERTOSTCPIP)
-
-add_map_file(${PROJECT_NAME}-pnp ${PROJECT_NAME}-pnp.map)

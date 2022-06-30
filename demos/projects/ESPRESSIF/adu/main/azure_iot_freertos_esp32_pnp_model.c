@@ -12,6 +12,8 @@
 #include "azure_iot_hub_client.h"
 #include "azure_iot_hub_client_properties.h"
 
+#include "sample_adu_jws.h"
+
 #include "sample_azure_iot_pnp_data_if.h"
 /*-----------------------------------------------------------*/
 
@@ -77,6 +79,8 @@ static const char *TAG = "sample_azureiotkit";
 #define sampleazureiotPROPERTY_STATUS_SUCCESS      200
 #define sampleazureiotPROPERTY_SUCCESS             "success"
 /*-----------------------------------------------------------*/
+
+static uint8_t ucADUScratchBuffer[jwsSCRATCH_BUFFER_SIZE];
 
 /**
  * @brief Command message callback handler
@@ -253,6 +257,19 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
                 LogError( ( "AzureIoTADUClient_ParseRequest failed: result 0x%08x", xAzIoTResult ) );
                 *pulWritablePropertyResponseBufferLength = 0;
                 return;
+            }
+
+            LogInfo( ( "Verifying JWS Manifest" ) );
+            xAzIoTResult = JWS_ManifestAuthenticate( xAzureIoTAduUpdateRequest.pucUpdateManifest,
+                                                       xAzureIoTAduUpdateRequest.ulUpdateManifestLength,
+                                                       xAzureIoTAduUpdateRequest.pucUpdateManifestSignature,
+                                                       xAzureIoTAduUpdateRequest.ulUpdateManifestSignatureLength,
+                                                       ucADUScratchBuffer,
+                                                       sizeof(ucADUScratchBuffer));
+            if (xAzIoTResult != eAzureIoTSuccess)
+            {
+              LogError( ( "JWS_ManifestAuthenticate failed: JWS was not validated successfully: result 0x%08x", xAzIoTResult ) );
+              return;
             }
 
             xRequestDecision = prvUserDecideShouldStartUpdate( &xAzureIoTAduUpdateRequest );

@@ -109,6 +109,11 @@
 #define azureiotaduUPDATE_NAME_SIZE                 24
 #define azureiotaduUPDATE_VERSION_SIZE              10
 
+/* ADU.200702.R: root production key from 7/2/2020  */
+extern const uint8_t AzureIoTADURootKeyId[13];
+extern const uint8_t AzureIoTADURootKeyN[385];
+extern const uint8_t AzureIoTADURootKeyE[3];
+
 /**
  * @brief ADU Update ID.
  *
@@ -324,6 +329,8 @@ typedef struct AzureIoTADUUpdateManifest
 typedef struct AzureIoTADUUpdateRequest
 {
     AzureIoTHubClientADUWorkflow_t xWorkflow;
+    uint8_t * pucUpdateManifest;
+    uint32_t ulUpdateManifestLength;
     uint8_t * pucUpdateManifestSignature;
     uint32_t ulUpdateManifestSignatureLength;
     uint32_t ulFileUrlCount;
