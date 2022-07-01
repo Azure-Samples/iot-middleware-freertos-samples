@@ -13,8 +13,8 @@
 #include <azure/iot/az_iot_adu_client.h>
 
 /* Code 406 is "Not Acceptable" */
-#define azureiotaduREQUEST_ACCEPTED_CODE 200
-#define azureiotaduREQUEST_REJECTED_CODE 406
+#define azureiotaduREQUEST_ACCEPTED_CODE    200
+#define azureiotaduREQUEST_REJECTED_CODE    406
 
 /*
  *
