@@ -493,6 +493,13 @@ AzureIoTResult_t AzureIoTADUClient_SendAgentState( AzureIoTADUClient_t * pxAzure
     az_json_writer jw;
     az_span xPropertiesPayload;
 
+    if( ( pxAzureIoTADUClient == NULL ) || ( pxAzureIoTHubClient == NULL ) ||
+        ( pxDeviceInformation == NULL ) || ( pucBuffer == NULL ) || ( ulBufferSize == 0 ) )
+    {
+        AZLogError( ( "AzureIoTADUClient_ParseRequest failed: invalid argument" ) );
+        return eAzureIoTErrorInvalidArgument;
+    }
+
     prvFillBaseDeviceInformation( pxDeviceInformation, &xBaseDeviceInformation );
     prvFillBaseAduWorkflow( pxAduUpdateRequest, &xBaseWorkflow );
     prvFillBaseAduInstallResults( pxUpdateResults, &xInstallResult );

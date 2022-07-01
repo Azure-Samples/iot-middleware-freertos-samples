@@ -150,8 +150,65 @@ static void testAzureIoTADUClient_SendResponse_Failure( void ** ppvState )
 static void testAzureIoTADUClient_SendAgentState_Failure( void ** ppvState )
 {
     AzureIoTADUClient_t xTestIoTADUClient;
+    AzureIoTHubClient_t xTestIoTHubClient;
+    AzureIoTADUClientDeviceInformation_t xDeviceInfo;
+    AzureIoTADUUpdateRequest_t xRequest;
+    AzureIoTADUAgentState_t xState;
+    AzureIoTADUClientInstallResult_t xInstallResult;
+    uint32_t ulPropertyVersion = 1;
+    uint32_t ulRequestId;
 
     assert_int_equal( AzureIoTADUClient_Init( &xTestIoTADUClient, NULL ), eAzureIoTSuccess );
+
+    assert_int_equal( AzureIoTADUClient_SendAgentState( NULL,
+                                                        &xTestIoTHubClient,
+                                                        &xDeviceInfo,
+                                                        &xRequest,
+                                                        xState,
+                                                        &xInstallResult,
+                                                        ucScratchBuffer,
+                                                        sizeof( ucScratchBuffer ),
+                                                        &ulRequestId ), eAzureIoTErrorInvalidArgument );
+
+    assert_int_equal( AzureIoTADUClient_SendAgentState( &xTestIoTADUClient,
+                                                        NULL,
+                                                        &xDeviceInfo,
+                                                        &xRequest,
+                                                        xState,
+                                                        &xInstallResult,
+                                                        ucScratchBuffer,
+                                                        sizeof( ucScratchBuffer ),
+                                                        &ulRequestId ), eAzureIoTErrorInvalidArgument );
+
+    assert_int_equal( AzureIoTADUClient_SendAgentState( &xTestIoTADUClient,
+                                                        &xTestIoTHubClient,
+                                                        NULL,
+                                                        &xRequest,
+                                                        xState,
+                                                        &xInstallResult,
+                                                        ucScratchBuffer,
+                                                        sizeof( ucScratchBuffer ),
+                                                        &ulRequestId ), eAzureIoTErrorInvalidArgument );
+
+    assert_int_equal( AzureIoTADUClient_SendAgentState( &xTestIoTADUClient,
+                                                        &xTestIoTHubClient,
+                                                        &xDeviceInfo,
+                                                        &xRequest,
+                                                        xState,
+                                                        &xInstallResult,
+                                                        NULL,
+                                                        sizeof( ucScratchBuffer ),
+                                                        &ulRequestId ), eAzureIoTErrorInvalidArgument );
+
+    assert_int_equal( AzureIoTADUClient_SendAgentState( &xTestIoTADUClient,
+                                                        &xTestIoTHubClient,
+                                                        &xDeviceInfo,
+                                                        &xRequest,
+                                                        xState,
+                                                        &xInstallResult,
+                                                        ucScratchBuffer,
+                                                        0,
+                                                        &ulRequestId ), eAzureIoTErrorInvalidArgument );
 }
 
 
