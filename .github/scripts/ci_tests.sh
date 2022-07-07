@@ -99,6 +99,7 @@ do
             sample_build "PC" "linux" "build_pc_linux"
             exit_if_binary_does_not_exist "build_pc_linux" "iot-middleware-sample"
             exit_if_binary_does_not_exist "build_pc_linux" "iot-middleware-sample-pnp"
+            exit_if_binary_does_not_exist "build_pc_linux" "iot_middleware_sample_adu"
 
             echo -e "::group::Running manifest verification tests"
             ./build_pc_linux/demos/projects/PC/linux/sample_adu_jws_mbedtls_int_test
