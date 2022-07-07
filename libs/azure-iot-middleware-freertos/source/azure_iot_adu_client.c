@@ -187,8 +187,8 @@ static void prvCastUpdateRequest( az_iot_adu_client_update_request * pxBaseUpdat
     pxUpdateRequest->xWorkflow.xAction = ( AzureIoTADUAction_t ) pxBaseUpdateRequest->workflow.action;
     pxUpdateRequest->xWorkflow.pucRetryTimestamp = az_span_ptr( pxBaseUpdateRequest->workflow.retry_timestamp );
     pxUpdateRequest->xWorkflow.ulRetryTimestampLength = ( uint32_t ) az_span_size( pxBaseUpdateRequest->workflow.retry_timestamp );
-    pxUpdateRequest->pucUpdateManifest = az_span_ptr(pxBaseUpdateRequest->update_manifest);
-    pxUpdateRequest->ulUpdateManifestLength = ( uint32_t ) az_span_size(pxBaseUpdateRequest->update_manifest);
+    pxUpdateRequest->pucUpdateManifest = az_span_ptr( pxBaseUpdateRequest->update_manifest );
+    pxUpdateRequest->ulUpdateManifestLength = ( uint32_t ) az_span_size( pxBaseUpdateRequest->update_manifest );
     pxUpdateRequest->pucUpdateManifestSignature = az_span_ptr( pxBaseUpdateRequest->update_manifest_signature );
     pxUpdateRequest->ulUpdateManifestSignatureLength = ( uint32_t ) az_span_size( pxBaseUpdateRequest->update_manifest_signature );
     pxUpdateRequest->ulFileUrlCount = pxBaseUpdateRequest->file_urls_count;
