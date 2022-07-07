@@ -173,7 +173,7 @@ static AzureADUImage_t xImage;
 static uint8_t ucScratchBuffer[ 512 ];
 
 /* Command buffers */
-static uint8_t ucCommandResponsePayloadBuffer[ 256 ];
+static uint8_t ucCommandResponsePayloadBuffer[ 128 ];
 
 /* Reported Properties buffers */
 static uint8_t ucReportedPropertiesUpdate[ 1500 ];
@@ -372,16 +372,36 @@ static void prvConnectHTTP( AzureIoTTransportInterface_t * pxHTTPTransport,
 }
 
 /**
- * @brief This is a hack. TODO: Replace with a proper url-parsing api.
+ * @brief Parses the full ADU file URL into a host (FQDN) and its path.
+ * 
+ * @param xFileUrl ADU file Url to be parsed.
+ * @param pucBuffer Buffer to be used for pxHost and pxPath.
+ * @param ulBufferSize Size of pucBuffer
+ * @param pxHost Where the host part of the url is stored, including a null terminator.
+ *               The size of this span is equal to the length of the host address plus the
+ *               size of the null-terminator char.
+ * @param pxPath Where the path part of the url is stored.
  */
-static void prvParseAduUrl( az_span xUrl,
-                            az_span * pxHost,
-                            az_span * pxPath )
+static void prvParseAduFileUrl(
+    AzureIoTADUUpdateManifestFileUrl_t xFileUrl,
+    uint8_t * pucBuffer, uint32_t ulBufferSize,
+    az_span * pxHost, az_span * pxPath )
 {
+    int32_t lPathPosition;
+    az_span remainder;
+    az_span xUrl = az_span_create( xFileUrl.pucUrl, xFileUrl.ulUrlLength );
     xUrl = az_span_slice_to_end( xUrl, sizeof( "http://" ) - 1 );
-    int32_t lPathPosition = az_span_find( xUrl, AZ_SPAN_FROM_STR( "/" ) );
-    *pxHost = az_span_slice( xUrl, 0, lPathPosition );
-    *pxPath = az_span_slice_to_end( xUrl, lPathPosition );
+    lPathPosition = az_span_find( xUrl, AZ_SPAN_FROM_STR( "/" ) );
+
+    *pxHost = az_span_create( pucBuffer, lPathPosition + 1 );
+    remainder = az_span_copy( *pxHost, az_span_slice( xUrl, 0, lPathPosition ) );
+    remainder = az_span_copy_u8( remainder, '\0' );
+
+    xUrl = az_span_slice_to_end( xUrl, lPathPosition );
+    *pxPath = az_span_create(
+        pucBuffer + az_span_size( *pxHost ) , az_span_size( xUrl ) );
+
+    remainder = az_span_copy( *pxPath, xUrl );
 }
 
 static AzureIoTResult_t prvDownloadUpdateImageIntoFlash()
@@ -391,6 +411,8 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash()
     AzureIoTHTTP_t xHTTP;
     char * pucHttpDataBufferPtr;
     uint32_t ulHttpDataBufferLength;
+    az_span xFileUrlHost;
+    az_span xFileUrlPath;
 
     /*HTTP Connection */
     AzureIoTTransportInterface_t xHTTPTransport;
@@ -422,29 +444,19 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash()
 
     LogInfo( ( "[ADU] Invoke HTTP Connect Callback.\r\n" ) );
 
-    /* TODO: remove this and use proper URL parsing API. */
-    /* TODO: cycle through all files of the update instead of hardcoding just the first one. */
-    az_span xUrlHost;
-    az_span xUrlPath;
-    prvParseAduUrl(
-        az_span_create(
-            xAzureIoTAduUpdateRequest.pxFileUrls[ 0 ].pucUrl,
-            xAzureIoTAduUpdateRequest.pxFileUrls[ 0 ].ulUrlLength ),
-        &xUrlHost, &xUrlPath );
+    prvParseAduFileUrl(
+        xAzureIoTAduUpdateRequest.pxFileUrls[ 0 ], 
+        ucScratchBuffer, sizeof( ucScratchBuffer ),
+        &xFileUrlHost, &xFileUrlPath);
 
-    /* TODO: remove this hack. */
-    char pcNullTerminatedHost[ 128 ];
-    ( void ) memcpy( pcNullTerminatedHost, az_span_ptr( xUrlHost ), az_span_size( xUrlHost ) );
-    pcNullTerminatedHost[ az_span_size( xUrlHost ) ] = '\0';
-
-    prvConnectHTTP( &xHTTPTransport, ( const char * ) pcNullTerminatedHost );
+    prvConnectHTTP( &xHTTPTransport, ( const char * ) az_span_ptr( xFileUrlHost ) );
 
     /* Range Check */
     xHttpResult = AzureIoTHTTP_RequestSizeInit( &xHTTP, &xHTTPTransport,
-                                                ( const char * ) az_span_ptr( xUrlHost ),
-                                                az_span_size( xUrlHost ),
-                                                ( const char * ) az_span_ptr( xUrlPath ),
-                                                az_span_size( xUrlPath ) );
+                                                ( const char * ) az_span_ptr( xFileUrlHost ),
+                                                az_span_size( xFileUrlHost ) - 1, // minus the null-terminator.
+                                                ( const char * ) az_span_ptr( xFileUrlPath ),
+                                                az_span_size( xFileUrlPath ) );
 
     if( xHttpResult != eAzureIoTHTTPSuccess )
     {
@@ -467,10 +479,10 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash()
     {
         LogInfo( ( "[ADU] Initialize HTTP client.\r\n" ) );
         AzureIoTHTTP_Init( &xHTTP, &xHTTPTransport,
-                           ( const char * ) az_span_ptr( xUrlHost ),
-                           az_span_size( xUrlHost ),
-                           ( const char * ) az_span_ptr( xUrlPath ),
-                           az_span_size( xUrlPath ) );
+                           ( const char * ) az_span_ptr( xFileUrlHost ),
+                           az_span_size( xFileUrlHost )  - 1, // minus the null-terminator.
+                           ( const char * ) az_span_ptr( xFileUrlPath ),
+                           az_span_size( xFileUrlPath ) );
 
         LogInfo( ( "[ADU] HTTP Requesting | %d:%d\r\n",
                    xImage.ulCurrentOffset,
@@ -499,7 +511,7 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash()
         {
             LogInfo( ( "[ADU] Reconnecting...\r\n" ) );
             LogInfo( ( "[ADU] Invoke HTTP Connect Callback.\r\n" ) );
-            prvConnectHTTP( &xHTTPTransport, ( const char * ) pcNullTerminatedHost );
+            prvConnectHTTP( &xHTTPTransport, ( const char * ) az_span_ptr( xFileUrlHost ) );
 
             if( xResult != eAzureIoTSuccess )
             {
