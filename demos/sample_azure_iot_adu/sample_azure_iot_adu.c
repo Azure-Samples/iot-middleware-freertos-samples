@@ -603,28 +603,28 @@ static AzureIoTResult_t prvEnableImageAndResetDevice()
         return eAzureIoTErrorFailed;
     }
 
-    // If a device resets, it will not get here.
-    // For linux devices, this will mark the device as updated and we will change the version as if
-    // it did update.
+    /* If a device resets, it will not get here. */
+    /* For linux devices, this will mark the device as updated and we will change the version as if */
+    /* it did update. */
     LogInfo( ( "[ADU] DEVICE HAS UPDATED\r\n" ) );
     xDidDeviceUpdate = true;
 
     return eAzureIoTSuccess;
 }
 
-static AzureIoTResult_t prvSpoofNewVersion(void)
+static AzureIoTResult_t prvSpoofNewVersion( void )
 {
-  memcpy(xADUDeviceInformation.xCurrentUpdateId.ucVersion, "1.1", strlen("1.1"));
-  xADUDeviceInformation.xCurrentUpdateId.ulVersionLength = strlen("1.1");
-  return AzureIoTADUClient_SendAgentState( &xAzureIoTADUClient,
-                                                            &xAzureIoTHubClient,
-                                                            &xADUDeviceInformation,
-                                                            NULL,
-                                                            eAzureIoTADUAgentStateIdle,
-                                                            NULL,
-                                                            ucScratchBuffer,
-                                                            sizeof( ucScratchBuffer ),
-                                                            NULL );
+    memcpy( xADUDeviceInformation.xCurrentUpdateId.ucVersion, "1.1", strlen( "1.1" ) );
+    xADUDeviceInformation.xCurrentUpdateId.ulVersionLength = strlen( "1.1" );
+    return AzureIoTADUClient_SendAgentState( &xAzureIoTADUClient,
+                                             &xAzureIoTHubClient,
+                                             &xADUDeviceInformation,
+                                             NULL,
+                                             eAzureIoTADUAgentStateIdle,
+                                             NULL,
+                                             ucScratchBuffer,
+                                             sizeof( ucScratchBuffer ),
+                                             NULL );
 }
 
 
