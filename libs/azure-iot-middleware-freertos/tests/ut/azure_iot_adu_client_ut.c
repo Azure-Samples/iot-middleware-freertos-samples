@@ -58,6 +58,16 @@ static void testAzureIoTADUClient_Init_InvalidArgFailure( void ** ppvState )
     assert_int_equal( AzureIoTADUClient_Init( NULL, &xADUClientOptions ), eAzureIoTErrorInvalidArgument );
 }
 
+static void testAzureIoTADUClient_Init_Success( void ** ppvState )
+{
+    AzureIoTADUClient_t xTestIoTADUClient;
+    AzureIoTADUClientOptions_t xADUClientOptions = { 0 };
+
+    ( void ) ppvState;
+
+    assert_int_equal( AzureIoTADUClient_Init( &xTestIoTADUClient, &xADUClientOptions ), eAzureIoTSuccess );
+}
+
 static void testAzureIoTADUClient_IsADUComponent_InvalidArgFailure( void ** ppvState )
 {
     const char * pucComponentName = testADU_COMPONENT_NAME;
@@ -224,9 +234,10 @@ uint32_t ulGetAllTests()
 {
     const struct CMUnitTest tests[] =
     {
-        cmocka_unit_test( testAzureIoTADUClient_Init_InvalidArgFailure ),
-        cmocka_unit_test( testAzureIoTADUClient_OptionsInit_Success ),
         cmocka_unit_test( testAzureIoTADUClient_OptionsInit_InvalidArgFailure ),
+        cmocka_unit_test( testAzureIoTADUClient_OptionsInit_Success ),
+        cmocka_unit_test( testAzureIoTADUClient_Init_InvalidArgFailure ),
+        cmocka_unit_test( testAzureIoTADUClient_Init_Success ),
         cmocka_unit_test( testAzureIoTADUClient_IsADUComponent_InvalidArgFailure ),
         cmocka_unit_test( testAzureIoTADUClient_ParseRequest_InvalidArgFailure ),
         cmocka_unit_test( testAzureIoTADUClient_SendResponse_InvalidArgFailure ),
