@@ -193,6 +193,11 @@ static AzureIoTHubClientComponent_t pnp_components[ sampleaduPNP_COMPONENTS_LIST
 /* as they will reboot before getting to the place where this is used. */
 bool xDidDeviceUpdate = false;
 
+#ifdef sampleazureiotMODEL_ID
+    #undef sampleazureiotMODEL_ID
+    #define sampleazureiotMODEL_ID    "dtmi:azure:iot:deviceUpdateModel;1"
+#endif
+
 /*-----------------------------------------------------------*/
 
 #ifdef democonfigENABLE_DPS_SAMPLE
