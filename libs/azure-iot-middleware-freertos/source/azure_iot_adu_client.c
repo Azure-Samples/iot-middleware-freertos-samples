@@ -349,7 +349,7 @@ AzureIoTResult_t AzureIoTADUClient_SendResponse( AzureIoTADUClient_t * pxAzureIo
     if( ( pxAzureIoTADUClient == NULL ) || ( pxAzureIoTHubClient == NULL ) ||
         ( pucWritablePropertyResponseBuffer == NULL ) || ( ulWritablePropertyResponseBufferSize == 0 ) )
     {
-        AZLogError( ( "AzureIoTADUClient_ParseRequest failed: invalid argument" ) );
+        AZLogError( ( "AzureIoTADUClient_SendResponse failed: invalid argument" ) );
         return eAzureIoTErrorInvalidArgument;
     }
 
@@ -496,7 +496,7 @@ AzureIoTResult_t AzureIoTADUClient_SendAgentState( AzureIoTADUClient_t * pxAzure
     if( ( pxAzureIoTADUClient == NULL ) || ( pxAzureIoTHubClient == NULL ) ||
         ( pxDeviceInformation == NULL ) || ( pucBuffer == NULL ) || ( ulBufferSize == 0 ) )
     {
-        AZLogError( ( "AzureIoTADUClient_ParseRequest failed: invalid argument" ) );
+        AZLogError( ( "AzureIoTADUClient_SendAgentState failed: invalid argument" ) );
         return eAzureIoTErrorInvalidArgument;
     }
 
