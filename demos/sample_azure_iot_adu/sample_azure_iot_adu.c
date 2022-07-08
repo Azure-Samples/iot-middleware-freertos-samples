@@ -152,17 +152,17 @@ bool xProcessUpdateRequest = false;
 
 AzureIoTADUClientDeviceInformation_t xADUDeviceInformation =
 {
-    .ucManufacturer       = democonfigADU_DEVICE_MANUFACTURER,
+    .ucManufacturer       = ( const uint8_t * ) democonfigADU_DEVICE_MANUFACTURER,
     .ulManufacturerLength = sizeof( democonfigADU_DEVICE_MANUFACTURER ) - 1,
-    .ucModel              = democonfigADU_DEVICE_MODEL,
+    .ucModel              = ( const uint8_t * ) democonfigADU_DEVICE_MODEL,
     .ulModelLength        = sizeof( democonfigADU_DEVICE_MODEL ) - 1,
     .xCurrentUpdateId     =
     {
-        .ucProvider       = democonfigADU_UPDATE_PROVIDER,
+        .ucProvider       = ( const uint8_t * ) democonfigADU_UPDATE_PROVIDER,
         .ulProviderLength = sizeof( democonfigADU_UPDATE_PROVIDER ) - 1,
-        .ucName           = democonfigADU_UPDATE_NAME,
+        .ucName           = ( const uint8_t * ) democonfigADU_UPDATE_NAME,
         .ulNameLength     = sizeof( democonfigADU_UPDATE_NAME ) - 1,
-        .ucVersion        = democonfigADU_UPDATE_VERSION,
+        .ucVersion        = ( const uint8_t * ) democonfigADU_UPDATE_VERSION,
         .ulVersionLength  = sizeof( democonfigADU_UPDATE_VERSION ) - 1
     }
 };
