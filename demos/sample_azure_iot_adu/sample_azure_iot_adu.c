@@ -377,33 +377,36 @@ static void prvConnectHTTP( AzureIoTTransportInterface_t * pxHTTPTransport,
  * @param xFileUrl ADU file Url to be parsed.
  * @param pucBuffer Buffer to be used for pxHost and pxPath.
  * @param ulBufferSize Size of pucBuffer
- * @param pxHost Where the host part of the url is stored, including a null terminator.
+ * @param pucHost Where the host part of the url is stored, including a null terminator.
  *               The size of this span is equal to the length of the host address plus the
  *               size of the null-terminator char.
- * @param pxPath Where the path part of the url is stored.
+ * @param pulHostLength The length of the content pointed by pucHost.
+ * @param pucPath Where the path part of the url is stored.
+ * @param pulPathLength The length of the content pointed by pucPath.
  */
 static void prvParseAduFileUrl( AzureIoTADUUpdateManifestFileUrl_t xFileUrl,
-                                uint8_t * pucBuffer,
-                                uint32_t ulBufferSize,
-                                az_span * pxHost,
-                                az_span * pxPath )
+                                uint8_t * pucBuffer, uint32_t ulBufferSize,
+                                uint8_t ** pucHost, uint32_t * pulHostLength,
+                                uint8_t ** pucPath, uint32_t * pulPathLength )
 {
-    int32_t lPathPosition;
-    az_span remainder;
-    az_span xUrl = az_span_create( xFileUrl.pucUrl, xFileUrl.ulUrlLength );
+    configASSERT( ulBufferSize >= xFileUrl.ulUrlLength );
 
-    xUrl = az_span_slice_to_end( xUrl, sizeof( "http://" ) - 1 );
-    lPathPosition = az_span_find( xUrl, AZ_SPAN_FROM_STR( "/" ) );
+    /* Skipping the http protocol prefix. */
+    uint8_t * pucUrl = xFileUrl.pucUrl + sizeof( "http://" ) - 1;
+    char * pcPathStart = strstr( ( const char * ) pucUrl, "/" );
+    configASSERT( pcPathStart != NULL );
 
-    *pxHost = az_span_create( pucBuffer, lPathPosition + 1 );
-    remainder = az_span_copy( *pxHost, az_span_slice( xUrl, 0, lPathPosition ) );
-    remainder = az_span_copy_u8( remainder, '\0' );
+    *pucHost = pucBuffer;
+    /* Adding an extra space for the null-terminator. */
+    *pulHostLength = pcPathStart - ( char * ) pucUrl + 1;
+    *pucPath = pucBuffer + *pulHostLength;
 
-    xUrl = az_span_slice_to_end( xUrl, lPathPosition );
-    *pxPath = az_span_create(
-        pucBuffer + az_span_size( *pxHost ), az_span_size( xUrl ) );
+    /* Discouting the size of host and http prefix from ulUrlLength */
+    *pulPathLength = xFileUrl.ulUrlLength - ( *pulHostLength - 1 ) - ( sizeof( "http://" ) - 1 );
 
-    remainder = az_span_copy( *pxPath, xUrl );
+    ( void ) memcpy( *pucHost, pucUrl, *pulHostLength - 1 );
+    ( void ) memset( *pucHost + *pulHostLength - 1, 0, 1 );
+    ( void ) memcpy( *pucPath, pcPathStart, *pulPathLength );
 }
 
 static AzureIoTResult_t prvDownloadUpdateImageIntoFlash()
@@ -413,8 +416,10 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash()
     AzureIoTHTTP_t xHTTP;
     char * pucHttpDataBufferPtr;
     uint32_t ulHttpDataBufferLength;
-    az_span xFileUrlHost;
-    az_span xFileUrlPath;
+    uint8_t * pucFileUrlHost;
+    uint32_t ulFileUrlHostLength;
+    uint8_t * pucFileUrlPath;
+    uint32_t ulFileUrlPathLength;
 
     /*HTTP Connection */
     AzureIoTTransportInterface_t xHTTPTransport;
@@ -449,16 +454,17 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash()
     prvParseAduFileUrl(
         xAzureIoTAduUpdateRequest.pxFileUrls[ 0 ],
         ucScratchBuffer, sizeof( ucScratchBuffer ),
-        &xFileUrlHost, &xFileUrlPath );
+        &pucFileUrlHost, &ulFileUrlHostLength,
+        &pucFileUrlPath, &ulFileUrlPathLength);
 
-    prvConnectHTTP( &xHTTPTransport, ( const char * ) az_span_ptr( xFileUrlHost ) );
+    prvConnectHTTP( &xHTTPTransport, ( const char * ) pucFileUrlHost );
 
     /* Range Check */
     xHttpResult = AzureIoTHTTP_RequestSizeInit( &xHTTP, &xHTTPTransport,
-                                                ( const char * ) az_span_ptr( xFileUrlHost ),
-                                                az_span_size( xFileUrlHost ) - 1, /* minus the null-terminator. */
-                                                ( const char * ) az_span_ptr( xFileUrlPath ),
-                                                az_span_size( xFileUrlPath ) );
+                                                ( const char * ) pucFileUrlHost,
+                                                ulFileUrlHostLength - 1, /* minus the null-terminator. */
+                                                ( const char * ) pucFileUrlPath,
+                                                ulFileUrlPathLength );
 
     if( xHttpResult != eAzureIoTHTTPSuccess )
     {
@@ -481,10 +487,10 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash()
     {
         LogInfo( ( "[ADU] Initialize HTTP client.\r\n" ) );
         AzureIoTHTTP_Init( &xHTTP, &xHTTPTransport,
-                           ( const char * ) az_span_ptr( xFileUrlHost ),
-                           az_span_size( xFileUrlHost ) - 1, /* minus the null-terminator. */
-                           ( const char * ) az_span_ptr( xFileUrlPath ),
-                           az_span_size( xFileUrlPath ) );
+                           ( const char * ) pucFileUrlHost,
+                           ulFileUrlHostLength - 1, /* minus the null-terminator. */
+                           ( const char * ) pucFileUrlPath,
+                           ulFileUrlPathLength );
 
         LogInfo( ( "[ADU] HTTP Requesting | %d:%d\r\n",
                    xImage.ulCurrentOffset,
@@ -513,7 +519,7 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash()
         {
             LogInfo( ( "[ADU] Reconnecting...\r\n" ) );
             LogInfo( ( "[ADU] Invoke HTTP Connect Callback.\r\n" ) );
-            prvConnectHTTP( &xHTTPTransport, ( const char * ) az_span_ptr( xFileUrlHost ) );
+            prvConnectHTTP( &xHTTPTransport, ( const char * ) pucFileUrlHost );
 
             if( xResult != eAzureIoTSuccess )
             {
