@@ -171,7 +171,7 @@ AzureIoTResult_t AzureIoTADUClient_Init( AzureIoTADUClient_t * pxAzureIoTADUClie
 }
 
 bool AzureIoTADUClient_IsADUComponent( AzureIoTADUClient_t * pxAzureIoTADUClient,
-                                       const char * pucComponentName,
+                                       const uint8_t * pucComponentName,
                                        uint32_t ulComponentNameLength )
 {
     return az_iot_adu_client_is_component_device_update( &pxAzureIoTADUClient->_internal.xADUClient,

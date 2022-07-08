@@ -366,7 +366,7 @@ AzureIoTResult_t AzureIoTADUClient_Init( AzureIoTADUClient_t * pxAzureIoTADUClie
  *         is from ADU service.
  */
 bool AzureIoTADUClient_IsADUComponent( AzureIoTADUClient_t * pxAzureIoTADUClient,
-                                       const char * pucComponentName,
+                                       const uint8_t * pucComponentName,
                                        uint32_t ulComponentNameLength );
 
 /**

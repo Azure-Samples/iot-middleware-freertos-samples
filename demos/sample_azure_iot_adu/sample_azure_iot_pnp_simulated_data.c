@@ -349,8 +349,7 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
     {
         LogInfo( ( "Properties component name: %.*s", ulComponentNameLength, pucComponentName ) );
 
-        /* TODO: fix sign of pucComponentName in AzureIoTADUClient_IsADUComponent (should be uint8_t*) */
-        if( AzureIoTADUClient_IsADUComponent( &xAzureIoTADUClient, ( const char * ) pucComponentName, ulComponentNameLength ) )
+        if( AzureIoTADUClient_IsADUComponent( &xAzureIoTADUClient, pucComponentName, ulComponentNameLength ) )
         {
             AzureIoTADURequestDecision_t xRequestDecision;
 
