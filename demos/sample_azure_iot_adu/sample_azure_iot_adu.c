@@ -614,8 +614,8 @@ static AzureIoTResult_t prvEnableImageAndResetDevice()
 
 static AzureIoTResult_t prvSpoofNewVersion( void )
 {
-    memcpy( xADUDeviceInformation.xCurrentUpdateId.ucVersion, "1.1", strlen( "1.1" ) );
-    xADUDeviceInformation.xCurrentUpdateId.ulVersionLength = strlen( "1.1" );
+  xADUDeviceInformation.xCurrentUpdateId.ucVersion = "1.1";
+  xADUDeviceInformation.xCurrentUpdateId.ulVersionLength = strlen( "1.1" );
     return AzureIoTADUClient_SendAgentState( &xAzureIoTADUClient,
                                              &xAzureIoTHubClient,
                                              &xADUDeviceInformation,
