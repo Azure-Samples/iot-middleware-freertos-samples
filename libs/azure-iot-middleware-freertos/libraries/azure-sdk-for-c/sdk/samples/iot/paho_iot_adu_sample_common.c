@@ -77,7 +77,7 @@ static bool did_update = false;
 static char adu_scratch_buffer[10000];
 
 #define AZ_IOT_ADU_AGENT_VERSION "DU;agent/0.8.0-rc1-public-preview"
-az_iot_adu_device_information adu_device_information
+az_iot_adu_client_device_information adu_device_information
     = { .manufacturer = AZ_SPAN_LITERAL_FROM_STR(ADU_DEVICE_MANUFACTURER),
         .model = AZ_SPAN_LITERAL_FROM_STR(ADU_DEVICE_MODEL),
         .adu_version = AZ_SPAN_LITERAL_FROM_STR(AZ_IOT_ADU_AGENT_VERSION),
