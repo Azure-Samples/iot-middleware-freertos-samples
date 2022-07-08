@@ -76,7 +76,18 @@ static void testAzureIoTADUClient_IsADUComponent_InvalidArgFailure( void ** ppvS
 
     assert_false( AzureIoTADUClient_IsADUComponent( NULL,
                                                     pucComponentName,
-                                                    sizeof(pucComponentName) ) );
+                                                    sizeof( pucComponentName ) - 1 ) );
+}
+
+static void testAzureIoTADUClient_IsADUComponent_Success( void ** ppvState )
+{
+    AzureIoTADUClient_t xTestIoTADUClient;
+
+    assert_int_equal( AzureIoTADUClient_Init( &xTestIoTADUClient, NULL ), eAzureIoTSuccess );
+
+    assert_true( AzureIoTADUClient_IsADUComponent( &xTestIoTADUClient,
+                                                   pucComponentName,
+                                                   sizeof( pucComponentName ) - 1 ) );
 }
 
 static void testAzureIoTADUClient_ParseRequest_InvalidArgFailure( void ** ppvState )
@@ -236,6 +247,7 @@ uint32_t ulGetAllTests()
         cmocka_unit_test( testAzureIoTADUClient_Init_InvalidArgFailure ),
         cmocka_unit_test( testAzureIoTADUClient_Init_Success ),
         cmocka_unit_test( testAzureIoTADUClient_IsADUComponent_InvalidArgFailure ),
+        cmocka_unit_test( testAzureIoTADUClient_IsADUComponent_Success ),
         cmocka_unit_test( testAzureIoTADUClient_ParseRequest_InvalidArgFailure ),
         cmocka_unit_test( testAzureIoTADUClient_SendResponse_InvalidArgFailure ),
         cmocka_unit_test( testAzureIoTADUClient_SendAgentState_InvalidArgFailure ),
