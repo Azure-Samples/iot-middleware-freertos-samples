@@ -13,7 +13,7 @@
 #include "azure_iot_adu_client.h"
 /*-----------------------------------------------------------*/
 
-#define testADU_COMPONENT_NAME    "deviceUpdate"
+static uint8_t pucComponentName[] = "deviceUpdate";
 
 static uint8_t ucScratchBuffer[ 4000 ];
 
@@ -70,16 +70,13 @@ static void testAzureIoTADUClient_Init_Success( void ** ppvState )
 
 static void testAzureIoTADUClient_IsADUComponent_InvalidArgFailure( void ** ppvState )
 {
-    const char * pucComponentName = testADU_COMPONENT_NAME;
-    uint32_t ulComponentNameLength = sizeof( testADU_COMPONENT_NAME ) - 1;
-
     AzureIoTADUClient_t xTestIoTADUClient;
 
     assert_int_equal( AzureIoTADUClient_Init( &xTestIoTADUClient, NULL ), eAzureIoTSuccess );
 
     assert_false( AzureIoTADUClient_IsADUComponent( NULL,
                                                     pucComponentName,
-                                                    ulComponentNameLength ) );
+                                                    sizeof(pucComponentName) ) );
 }
 
 static void testAzureIoTADUClient_ParseRequest_InvalidArgFailure( void ** ppvState )
