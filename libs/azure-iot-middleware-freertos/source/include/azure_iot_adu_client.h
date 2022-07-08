@@ -100,15 +100,6 @@
  *
  */
 
-/* TODO: repurpose these, setting them to the values from azure-sdk-for-c */
-#define azureiotaduSTEPS_MAX                        2
-#define azureiotaduAGENT_FILES_MAX                  2
-#define azureiotaduDEVICE_INFO_MANUFACTURER_SIZE    16
-#define azureiotaduDEVICE_INFO_MODEL_SIZE           24
-#define azureiotaduUPDATE_PROVIDER_SIZE             16
-#define azureiotaduUPDATE_NAME_SIZE                 24
-#define azureiotaduUPDATE_VERSION_SIZE              10
-
 /* ADU.200702.R: root production key from 7/2/2020  */
 extern const uint8_t AzureIoTADURootKeyId[ 13 ];
 extern const uint8_t AzureIoTADURootKeyN[ 385 ];
@@ -121,13 +112,13 @@ extern const uint8_t AzureIoTADURootKeyE[ 3 ];
  */
 typedef struct AzureIoTADUClientUpdateId
 {
-    const uint8_t ucProvider[ azureiotaduUPDATE_PROVIDER_SIZE ];
+    const uint8_t * ucProvider;
     uint32_t ulProviderLength;
 
-    const uint8_t ucName[ azureiotaduUPDATE_NAME_SIZE ];
+    const uint8_t * ucName;
     uint32_t ulNameLength;
 
-    const uint8_t ucVersion[ azureiotaduUPDATE_VERSION_SIZE ];
+    const uint8_t * ucVersion;
     uint32_t ulVersionLength;
 } AzureIoTADUClientUpdateId_t;
 
@@ -138,10 +129,10 @@ typedef struct AzureIoTADUClientUpdateId
  */
 typedef struct AzureIoTADUClientDeviceInformation
 {
-    const uint8_t ucManufacturer[ azureiotaduDEVICE_INFO_MANUFACTURER_SIZE ];
+    const uint8_t * ucManufacturer;
     uint32_t ulManufacturerLength;
 
-    const uint8_t ucModel[ azureiotaduDEVICE_INFO_MODEL_SIZE ];
+    const uint8_t * ucModel;
     uint32_t ulModelLength;
 
     AzureIoTADUClientUpdateId_t xCurrentUpdateId;
