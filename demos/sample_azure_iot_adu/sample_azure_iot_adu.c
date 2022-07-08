@@ -385,9 +385,12 @@ static void prvConnectHTTP( AzureIoTTransportInterface_t * pxHTTPTransport,
  * @param pulPathLength The length of the content pointed by pucPath.
  */
 static void prvParseAduFileUrl( AzureIoTADUUpdateManifestFileUrl_t xFileUrl,
-                                uint8_t * pucBuffer, uint32_t ulBufferSize,
-                                uint8_t ** pucHost, uint32_t * pulHostLength,
-                                uint8_t ** pucPath, uint32_t * pulPathLength )
+                                uint8_t * pucBuffer,
+                                uint32_t ulBufferSize,
+                                uint8_t ** pucHost,
+                                uint32_t * pulHostLength,
+                                uint8_t ** pucPath,
+                                uint32_t * pulPathLength )
 {
     configASSERT( ulBufferSize >= xFileUrl.ulUrlLength );
 
@@ -455,7 +458,7 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash()
         xAzureIoTAduUpdateRequest.pxFileUrls[ 0 ],
         ucScratchBuffer, sizeof( ucScratchBuffer ),
         &pucFileUrlHost, &ulFileUrlHostLength,
-        &pucFileUrlPath, &ulFileUrlPathLength);
+        &pucFileUrlPath, &ulFileUrlPathLength );
 
     prvConnectHTTP( &xHTTPTransport, ( const char * ) pucFileUrlHost );
 
