@@ -186,8 +186,8 @@ static void test_az_iot_adu_client_get_service_properties_response_NULL_client_f
 
   az_json_writer jw;
 
-  ASSERT_PRECONDITION_CHECKED(
-      az_iot_adu_client_get_service_properties_response(NULL, 1, AZ_IOT_ADU_CLIENT_REQUEST_ACCEPTED, &jw));
+  ASSERT_PRECONDITION_CHECKED(az_iot_adu_client_get_service_properties_response(
+      NULL, 1, AZ_IOT_ADU_CLIENT_REQUEST_ACCEPTED, &jw));
 }
 
 static void test_az_iot_adu_client_get_service_properties_response_NULL_json_writer_fail(
