@@ -192,15 +192,13 @@ static void test_az_iot_adu_client_get_service_properties_response_succeed(void*
 
   assert_int_equal(
       az_iot_adu_client_get_service_properties_response(
-          &adu_client,
-          1,
-          AZ_IOT_ADU_REQUEST_ACCEPTED,
-          &jw),
+          &adu_client, 1, AZ_IOT_ADU_REQUEST_ACCEPTED, &jw),
       AZ_OK);
 
   payload = az_json_writer_get_bytes_used_in_destination(&jw);
 
-  assert_memory_equal(az_span_ptr(payload), ucSendResponsePayload, sizeof(ucSendResponsePayload) - 1);
+  assert_memory_equal(
+      az_span_ptr(payload), ucSendResponsePayload, sizeof(ucSendResponsePayload) - 1);
   assert_int_equal(az_span_size(payload), sizeof(ucSendResponsePayload) - 1);
 }
 
