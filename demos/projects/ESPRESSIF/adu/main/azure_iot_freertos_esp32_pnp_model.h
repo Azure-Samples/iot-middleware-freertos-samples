@@ -74,7 +74,7 @@ uint32_t ulSampleCreateReportedPropertiesUpdate( uint8_t * pucPropertiesData,
 
 // Azure Device Update
 extern az_iot_adu_client_update_request xUpdateRequest;
-extern az_iot_adu_client_device_information xDeviceInformation;
+extern az_iot_adu_client_device_properties xDeviceInformation;
 extern az_iot_adu_client_workflow * pxLastWorkflow;
 extern double xLastInstalledVersion;
 extern az_span xGetLastInstalledVersion( );

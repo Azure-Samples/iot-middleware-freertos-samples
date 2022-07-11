@@ -164,20 +164,20 @@ static az_result generate_step_id(az_span buffer, uint32_t step_index, az_span* 
 
 AZ_NODISCARD az_result az_iot_adu_client_get_agent_state_payload(
     az_iot_adu_client* client,
-    az_iot_adu_client_device_information* device_information,
+    az_iot_adu_client_device_properties* device_properties,
     int32_t agent_state,
     az_iot_adu_client_workflow* workflow,
     az_iot_adu_client_install_result* last_install_result,
     az_json_writer* ref_json_writer)
 {
   _az_PRECONDITION_NOT_NULL(client);
-  _az_PRECONDITION_NOT_NULL(device_information);
-  _az_PRECONDITION_VALID_SPAN(device_information->manufacturer, 1, false);
-  _az_PRECONDITION_VALID_SPAN(device_information->model, 1, false);
-  _az_PRECONDITION_VALID_SPAN(device_information->update_id.provider, 1, false);
-  _az_PRECONDITION_VALID_SPAN(device_information->update_id.name, 1, false);
-  _az_PRECONDITION_VALID_SPAN(device_information->update_id.version, 1, false);
-  _az_PRECONDITION_VALID_SPAN(device_information->adu_version, 1, false);
+  _az_PRECONDITION_NOT_NULL(device_properties);
+  _az_PRECONDITION_VALID_SPAN(device_properties->manufacturer, 1, false);
+  _az_PRECONDITION_VALID_SPAN(device_properties->model, 1, false);
+  _az_PRECONDITION_VALID_SPAN(device_properties->update_id.provider, 1, false);
+  _az_PRECONDITION_VALID_SPAN(device_properties->update_id.name, 1, false);
+  _az_PRECONDITION_VALID_SPAN(device_properties->update_id.version, 1, false);
+  _az_PRECONDITION_VALID_SPAN(device_properties->adu_version, 1, false);
   _az_PRECONDITION_NOT_NULL(ref_json_writer);
 
   /* Update reported property */
@@ -200,11 +200,11 @@ AZ_NODISCARD az_result az_iot_adu_client_get_agent_state_payload(
   _az_RETURN_IF_FAILED(az_json_writer_append_property_name(
       ref_json_writer, AZ_SPAN_FROM_STR(AZ_IOT_ADU_CLIENT_AGENT_PROPERTY_NAME_MANUFACTURER)));
   _az_RETURN_IF_FAILED(
-      az_json_writer_append_string(ref_json_writer, device_information->manufacturer));
+      az_json_writer_append_string(ref_json_writer, device_properties->manufacturer));
 
   _az_RETURN_IF_FAILED(az_json_writer_append_property_name(
       ref_json_writer, AZ_SPAN_FROM_STR(AZ_IOT_ADU_CLIENT_AGENT_PROPERTY_NAME_MODEL)));
-  _az_RETURN_IF_FAILED(az_json_writer_append_string(ref_json_writer, device_information->model));
+  _az_RETURN_IF_FAILED(az_json_writer_append_string(ref_json_writer, device_properties->model));
 
   // TODO: verify if this needs to be exposed as an option.
   _az_RETURN_IF_FAILED(az_json_writer_append_property_name(
@@ -215,9 +215,9 @@ AZ_NODISCARD az_result az_iot_adu_client_get_agent_state_payload(
   _az_RETURN_IF_FAILED(az_json_writer_append_property_name(
       ref_json_writer, AZ_SPAN_FROM_STR(AZ_IOT_ADU_CLIENT_AGENT_PROPERTY_NAME_ADU_VERSION)));
   _az_RETURN_IF_FAILED(
-      az_json_writer_append_string(ref_json_writer, device_information->adu_version));
+      az_json_writer_append_string(ref_json_writer, device_properties->adu_version));
 
-  if (!az_span_is_content_equal(device_information->do_version, AZ_SPAN_EMPTY))
+  if (!az_span_is_content_equal(device_properties->do_version, AZ_SPAN_EMPTY))
   {
     // TODO: verify if 'doVer' is required.
     //       Ref:
@@ -225,7 +225,7 @@ AZ_NODISCARD az_result az_iot_adu_client_get_agent_state_payload(
     _az_RETURN_IF_FAILED(az_json_writer_append_property_name(
         ref_json_writer, AZ_SPAN_FROM_STR(AZ_IOT_ADU_CLIENT_AGENT_PROPERTY_NAME_DO_VERSION)));
     _az_RETURN_IF_FAILED(
-        az_json_writer_append_string(ref_json_writer, device_information->do_version));
+        az_json_writer_append_string(ref_json_writer, device_properties->do_version));
   }
 
   _az_RETURN_IF_FAILED(az_json_writer_append_end_object(ref_json_writer));
@@ -339,8 +339,6 @@ AZ_NODISCARD az_result az_iot_adu_client_get_agent_state_payload(
   }
 
   /* Fill installed update id.  */
-  // TODO: move last_installed_update_id out of this device_information structure.
-  // TODO: rename device_information var and struct to device_properties to match json prop name.
   // TODO: Find way to not use internal field
   az_span update_id_string = az_span_slice_to_end(
       ref_json_writer->_internal.destination_buffer,
@@ -356,7 +354,7 @@ AZ_NODISCARD az_result az_iot_adu_client_get_agent_state_payload(
       ref_json_writer,
       AZ_SPAN_FROM_STR(AZ_IOT_ADU_CLIENT_AGENT_PROPERTY_NAME_INSTALLED_UPDATE_ID)));
   _az_RETURN_IF_FAILED(az_json_writer_append_json_text(
-      ref_json_writer, generate_update_id_string(device_information->update_id, update_id_string)));
+      ref_json_writer, generate_update_id_string(device_properties->update_id, update_id_string)));
 
   _az_RETURN_IF_FAILED(az_json_writer_append_end_object(ref_json_writer));
 
@@ -366,7 +364,6 @@ AZ_NODISCARD az_result az_iot_adu_client_get_agent_state_payload(
   return AZ_OK;
 }
 
-// Reference: AzureRTOS/AZ_IOT_ADU_CLIENT_agent_service_properties_get(...)
 AZ_NODISCARD az_result az_iot_adu_client_parse_service_properties(
     az_iot_adu_client* client,
     az_json_reader* ref_json_reader,

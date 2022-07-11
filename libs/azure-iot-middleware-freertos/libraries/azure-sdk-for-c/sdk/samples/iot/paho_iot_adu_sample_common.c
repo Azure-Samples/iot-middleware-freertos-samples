@@ -77,7 +77,7 @@ static bool did_update = false;
 static char adu_scratch_buffer[10000];
 
 #define AZ_IOT_ADU_AGENT_VERSION "DU;agent/0.8.0-rc1-public-preview"
-az_iot_adu_device_information adu_device_information
+az_iot_adu_device_properties adu_device_properties
     = { .manufacturer = AZ_SPAN_LITERAL_FROM_STR(ADU_DEVICE_MANUFACTURER),
         .model = AZ_SPAN_LITERAL_FROM_STR(ADU_DEVICE_MODEL),
         .adu_version = AZ_SPAN_LITERAL_FROM_STR(AZ_IOT_ADU_AGENT_VERSION),
@@ -107,7 +107,7 @@ static void process_device_property_message(
 static void download_and_write_to_flash(az_span url);
 static void verify_image_and_reboot(void);
 static void spoof_new_image(void);
-static void send_adu_device_information_property(void);
+static void send_adu_device_properties_property(void);
 static void send_adu_accept_manifest_property(int32_t version_number);
 static void send_adu_in_progress_property(void);
 static void send_adu_completed_property(void);
@@ -130,7 +130,7 @@ void paho_iot_adu_sample_device_implement(void)
   subscribe_mqtt_client_to_iot_hub_topics();
   IOT_SAMPLE_LOG_SUCCESS("Client subscribed to IoT Hub topics.");
 
-  send_adu_device_information_property();
+  send_adu_device_properties_property();
   IOT_SAMPLE_LOG_SUCCESS("Publishing device information for ADU. Response will be "
                          "received asynchronously.");
 
@@ -212,7 +212,7 @@ static void send_adu_in_progress_property(void)
   char property_payload_buffer[SAMPLE_MQTT_PAYLOAD_LENGTH];
   az_span property_buffer = AZ_SPAN_FROM_BUFFER(property_payload_buffer);
   rc = az_iot_adu_get_properties_payload(
-      &adu_device_information,
+      &adu_device_properties,
       AZ_IOT_ADU_AGENT_STATE_DEPLOYMENT_IN_PROGRESS,
       NULL,
       NULL,
@@ -265,7 +265,7 @@ static void send_adu_completed_property(void)
   char property_payload_buffer[SAMPLE_MQTT_PAYLOAD_LENGTH];
   az_span property_buffer = AZ_SPAN_FROM_BUFFER(property_payload_buffer);
   rc = az_iot_adu_get_properties_payload(
-      &adu_device_information,
+      &adu_device_properties,
       AZ_IOT_ADU_AGENT_STATE_IDLE,
       NULL,
       NULL,
@@ -296,10 +296,10 @@ static void spoof_new_image(void)
   // Changing device version to new version.
   az_span new_version = az_span_create(adu_new_version, sizeof(adu_new_version));
   az_span_copy(new_version, xBaseUpdateManifest.update_id.version);
-  adu_device_information.update_id.version = new_version;
-  adu_device_information.update_id.version
+  adu_device_properties.update_id.version = new_version;
+  adu_device_properties.update_id.version
       = az_span_slice(new_version, 0, az_span_size(xBaseUpdateManifest.update_id.version));
-  IOT_SAMPLE_LOG_AZ_SPAN("New version ", adu_device_information.update_id.version);
+  IOT_SAMPLE_LOG_AZ_SPAN("New version ", adu_device_properties.update_id.version);
 }
 // receive_messages_and_send_telemetry_loop will loop to check if there are incoming MQTT
 // messages, waiting up to MQTT_TIMEOUT_RECEIVE_MS.  It will also send a telemetry message
@@ -574,7 +574,7 @@ static void process_device_property_message(
 
 // send_adu_device_reported_property writes a property payload reporting device state and then sends
 // it to Azure IoT Hub.
-static void send_adu_device_information_property(void)
+static void send_adu_device_properties_property(void)
 {
   az_result rc;
 
@@ -593,7 +593,7 @@ static void send_adu_device_information_property(void)
   az_span reported_property_payload = AZ_SPAN_FROM_BUFFER(reported_property_payload_buffer);
 
   rc = az_iot_adu_get_properties_payload(
-      &adu_device_information,
+      &adu_device_properties,
       AZ_IOT_ADU_AGENT_STATE_IDLE,
       NULL,
       NULL,
