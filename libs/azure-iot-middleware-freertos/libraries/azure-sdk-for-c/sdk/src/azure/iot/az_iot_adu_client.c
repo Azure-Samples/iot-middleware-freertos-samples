@@ -584,6 +584,7 @@ AZ_NODISCARD az_result az_iot_adu_client_get_service_properties_response(
     int32_t status,
     az_json_writer* ref_json_writer)
 {
+  _az_PRECONDITION_NOT_NULL(client);
   _az_PRECONDITION_NOT_NULL(ref_json_writer);
 
   (void)client;
@@ -618,6 +619,7 @@ AZ_NODISCARD az_result az_iot_adu_client_parse_update_manifest(
     az_json_reader* ref_json_reader,
     az_iot_adu_client_update_manifest* update_manifest)
 {
+  _az_PRECONDITION_NOT_NULL(client);
   _az_PRECONDITION_NOT_NULL(ref_json_reader);
   _az_PRECONDITION_NOT_NULL(update_manifest);
 
