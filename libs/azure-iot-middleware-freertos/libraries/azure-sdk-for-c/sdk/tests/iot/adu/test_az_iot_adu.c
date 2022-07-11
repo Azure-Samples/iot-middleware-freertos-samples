@@ -41,9 +41,9 @@ az_iot_adu_client_device_information adu_device_information
                        .name = AZ_SPAN_LITERAL_FROM_STR(TEST_ADU_DEVICE_MODEL),
                        .version = AZ_SPAN_LITERAL_FROM_STR(TEST_ADU_DEVICE_VERSION) } };
 
-static uint8_t ucSendResponsePayload[]
+static uint8_t send_response_valid_payload[]
     = "{\"deviceUpdate\":{\"__t\":\"c\",\"service\":{\"ac\":200,\"av\":1,\"value\":{}}}}";
-static uint8_t ucScratchBuffer[8000];
+static uint8_t scratch_buffer[8000];
 
 /*Request Values */
 static uint8_t adu_request_payload[]
@@ -97,22 +97,32 @@ static uint8_t adu_request_manifest[]
       "\"1.0\"}}]},\"files\":{\"f2f4a804ca17afbae\":{\"fileName\":\"iot-middleware-sample-adu-v1."
       "1\",\"sizeInBytes\":844976,\"hashes\":{\"sha256\":\"xsoCnYAMkZZ7m9RL9Vyg9jKfFehCNxyuPFaJVM/"
       "WBi0=\"}}},\"createdDateTime\":\"2022-07-07T03:02:48.8449038Z\"}";
-static uint32_t ulWorkflowAction = 3;
-static uint8_t ucWorkflowID[] = "51552a54-765e-419f-892a-c822549b6f38";
-static uint8_t ucManifestVersion[] = "4";
-static uint8_t ucUpdateIDProvider[] = "Contoso";
-static uint8_t ucUpdateIDName[] = "Foobar";
-static uint8_t ucUpdateIDVersion[] = "1.1";
-static uint8_t ucInstructionsStepsHandler[] = "microsoft/swupdate:1";
-static uint8_t ucInstructionsStepsFile[] = "f2f4a804ca17afbae";
-static uint8_t ucInstructionsStepsHandlerPropertiesInstallCriteria[] = "1.0";
-static uint8_t ucFilesID[] = "f2f4a804ca17afbae";
-static uint8_t ucFilesFilename[] = "iot-middleware-sample-adu-v1.1";
-static uint32_t ucFilesSizeInBytes = 844976;
-static uint8_t ucFilesHashID[] = "sha256";
-static uint8_t ucFilesHashesSHA[] = "xsoCnYAMkZZ7m9RL9Vyg9jKfFehCNxyuPFaJVM/WBi0=";
-static uint8_t ucCreateDateTime[] = "2022-07-07T03:02:48.8449038Z";
-static uint8_t ucSignature[]
+static uint8_t adu_request_manifest_reverse_order[]
+    = "{\"createdDateTime\":\"2022-07-07T03:02:48.8449038Z\",\"files\":{\"f2f4a804ca17afbae\":{"
+      "\"fileName\":\"iot-middleware-sample-adu-v1.1\",\"sizeInBytes\":844976,\"hashes\":{"
+      "\"sha256\":\"xsoCnYAMkZZ7m9RL9Vyg9jKfFehCNxyuPFaJVM/"
+      "WBi0=\"}}},\"instructions\":{\"steps\":[{\"handler\":\"microsoft/"
+      "swupdate:1\",\"files\":[\"f2f4a804ca17afbae\"],\"handlerProperties\":{\"installedCriteria\":"
+      "\"1.0\"}}]},\"compatibility\":[{\"deviceManufacturer\":\"Contoso\",\"deviceModel\":"
+      "\"Foobar\"}],\"updateId\":{\"provider\":\"Contoso\",\"name\":\"Foobar\",\"version\":\"1.1\"}"
+      ",\"manifestVersion\":\"4\"}";
+static uint32_t workflow_action = 3;
+    static uint8_t workflow_id[]
+    = "51552a54-765e-419f-892a-c822549b6f38";
+static uint8_t manifest_version[] = "4";
+static uint8_t update_id_provider[] = "Contoso";
+static uint8_t update_id_name[] = "Foobar";
+static uint8_t update_id_version[] = "1.1";
+static uint8_t instructions_steps_handler[] = "microsoft/swupdate:1";
+static uint8_t instructions_steps_file[] = "f2f4a804ca17afbae";
+static uint8_t instructions_steps_handler_properties_install_criteria[] = "1.0";
+static uint8_t files_id[] = "f2f4a804ca17afbae";
+static uint8_t files_filename[] = "iot-middleware-sample-adu-v1.1";
+static uint32_t files_size_in_bytes = 844976;
+static uint8_t files_hash_id[] = "sha256";
+static uint8_t files_hashes_sha[] = "xsoCnYAMkZZ7m9RL9Vyg9jKfFehCNxyuPFaJVM/WBi0=";
+static uint8_t created_date_time[] = "2022-07-07T03:02:48.8449038Z";
+static uint8_t valid_signature[]
     = "eyJhbGciOiJSUzI1NiIsInNqd2siOiJleUpoYkdjaU9pSlNVekkxTmlJc0ltdHBaQ0k2SWtGRVZTNHlNREEzTURJdVVp"
       "SjkuZXlKcmRIa2lPaUpTVTBFaUxDSnVJam9pYkV4bWMwdHZPRmwwWW1Oak1sRXpUalV3VlhSTVNXWlhVVXhXVTBGRllt"
       "Tm9LMFl2WTJVM1V6Rlpja3BvV0U5VGNucFRaa051VEhCVmFYRlFWSGMwZWxndmRHbEJja0ZGZFhrM1JFRmxWVzVGU0VW"
@@ -141,7 +151,7 @@ static uint8_t ucSignature[]
       "4Azup2K4apq9E1EfYBbXxOZ0N5jaSr-2xg8NVSow5NqNSaYYY43wy_NIUefRlbSYu5zOrSWtuIwRdsO-"
       "43Eo8b9vuJj1Qty9ee6xz1gdUNHnUdnM6dHEplZK0GZznsxRviFXt7yv8bVLd32Z7QDtFh3s17xlKulBZxWP-"
       "q96r92RoUTov2M3ynPZSDmc6Mz7-r8ioO5VHO5pAPCH-tF5zsqzipPJKmBMaf5gYk8wR";
-static uint8_t ucFileUrl[] = "http://contoso-adu-instance--contoso-adu.b.nlu.dl.adu.microsoft.com/"
+static uint8_t file_url[] = "http://contoso-adu-instance--contoso-adu.b.nlu.dl.adu.microsoft.com/"
                              "westus2/contoso-adu-instance--contoso-adu/"
                              "67c8d2ef5148403391bed74f51a28597/iot-middleware-sample-adu-v1.1";
 
@@ -212,7 +222,7 @@ static void test_az_iot_adu_client_parse_service_properties_NULL_client_fail(voi
   ASSERT_PRECONDITION_CHECKED(az_iot_adu_client_parse_service_properties(
       NULL,
       &reader,
-      az_span_create(ucScratchBuffer, sizeof(ucScratchBuffer)),
+      az_span_create(scratch_buffer, sizeof(scratch_buffer)),
       &request,
       &remainder));
 }
@@ -230,7 +240,7 @@ static void test_az_iot_adu_client_parse_service_properties_NULL_reader_fail(voi
   ASSERT_PRECONDITION_CHECKED(az_iot_adu_client_parse_service_properties(
       &adu_client,
       NULL,
-      az_span_create(ucScratchBuffer, sizeof(ucScratchBuffer)),
+      az_span_create(scratch_buffer, sizeof(scratch_buffer)),
       &request,
       &remainder));
 }
@@ -263,7 +273,7 @@ static void test_az_iot_adu_client_parse_service_properties_NULL_request_fail(vo
   ASSERT_PRECONDITION_CHECKED(az_iot_adu_client_parse_service_properties(
       &adu_client,
       &reader,
-      az_span_create(ucScratchBuffer, sizeof(ucScratchBuffer)),
+      az_span_create(scratch_buffer, sizeof(scratch_buffer)),
       NULL,
       &remainder));
 }
@@ -347,7 +357,7 @@ static void test_az_iot_adu_client_get_service_properties_response_succeed(void*
   az_iot_adu_client adu_client;
   az_json_writer jw;
 
-  az_span payload = az_span_create(ucScratchBuffer, sizeof(ucScratchBuffer));
+  az_span payload = az_span_create(scratch_buffer, sizeof(scratch_buffer));
 
   assert_int_equal(az_iot_adu_client_init(&adu_client, NULL), AZ_OK);
 
@@ -361,8 +371,8 @@ static void test_az_iot_adu_client_get_service_properties_response_succeed(void*
   payload = az_json_writer_get_bytes_used_in_destination(&jw);
 
   assert_memory_equal(
-      az_span_ptr(payload), ucSendResponsePayload, sizeof(ucSendResponsePayload) - 1);
-  assert_int_equal(az_span_size(payload), sizeof(ucSendResponsePayload) - 1);
+      az_span_ptr(payload), send_response_valid_payload, sizeof(send_response_valid_payload) - 1);
+  assert_int_equal(az_span_size(payload), sizeof(send_response_valid_payload) - 1);
 }
 
 static void test_az_iot_adu_client_parse_service_properties_succeed(void** state)
@@ -389,14 +399,14 @@ static void test_az_iot_adu_client_parse_service_properties_succeed(void** state
       az_iot_adu_client_parse_service_properties(
           &adu_client,
           &reader,
-          az_span_create(ucScratchBuffer, sizeof(ucScratchBuffer)),
+          az_span_create(scratch_buffer, sizeof(scratch_buffer)),
           &request,
           &remainder),
       AZ_OK);
 
   // Workflow
-  assert_int_equal(request.workflow.action, ulWorkflowAction);
-  assert_memory_equal(az_span_ptr(request.workflow.id), ucWorkflowID, sizeof(ucWorkflowID) - 1);
+  assert_int_equal(request.workflow.action, workflow_action);
+  assert_memory_equal(az_span_ptr(request.workflow.id), workflow_id, sizeof(workflow_id) - 1);
 
   // Update Manifest
   assert_memory_equal(
@@ -405,14 +415,14 @@ static void test_az_iot_adu_client_parse_service_properties_succeed(void** state
 
   // Signature
   assert_memory_equal(
-      az_span_ptr(request.update_manifest_signature), ucSignature, sizeof(ucSignature) - 1);
-  assert_int_equal(az_span_size(request.update_manifest_signature), sizeof(ucSignature) - 1);
+      az_span_ptr(request.update_manifest_signature), valid_signature, sizeof(valid_signature) - 1);
+  assert_int_equal(az_span_size(request.update_manifest_signature), sizeof(valid_signature) - 1);
 
   // File URLs
-  assert_memory_equal(az_span_ptr(request.file_urls[0].id), ucFilesID, sizeof(ucFilesID) - 1);
-  assert_int_equal(az_span_size(request.file_urls[0].id), sizeof(ucFilesID) - 1);
-  assert_memory_equal(az_span_ptr(request.file_urls[0].url), ucFileUrl, sizeof(ucFileUrl) - 1);
-  assert_int_equal(az_span_size(request.file_urls[0].url), sizeof(ucFileUrl) - 1);
+  assert_memory_equal(az_span_ptr(request.file_urls[0].id), files_id, sizeof(files_id) - 1);
+  assert_int_equal(az_span_size(request.file_urls[0].id), sizeof(files_id) - 1);
+  assert_memory_equal(az_span_ptr(request.file_urls[0].url), file_url, sizeof(file_url) - 1);
+  assert_int_equal(az_span_size(request.file_urls[0].url), sizeof(file_url) - 1);
 }
 
 static void test_az_iot_adu_client_parse_update_manifest_succeed(void** state)
@@ -435,69 +445,154 @@ static void test_az_iot_adu_client_parse_update_manifest_succeed(void** state)
 
   assert_memory_equal(
       az_span_ptr(update_manifest.manifest_version),
-      ucManifestVersion,
-      sizeof(ucManifestVersion) - 1);
-  assert_int_equal(az_span_size(update_manifest.manifest_version), sizeof(ucManifestVersion) - 1);
+      manifest_version,
+      sizeof(manifest_version) - 1);
+  assert_int_equal(az_span_size(update_manifest.manifest_version), sizeof(manifest_version) - 1);
   assert_memory_equal(
       az_span_ptr(update_manifest.update_id.provider),
-      ucUpdateIDProvider,
-      sizeof(ucUpdateIDProvider) - 1);
+      update_id_provider,
+      sizeof(update_id_provider) - 1);
   assert_int_equal(
-      az_span_size(update_manifest.update_id.provider), sizeof(ucUpdateIDProvider) - 1);
+      az_span_size(update_manifest.update_id.provider), sizeof(update_id_provider) - 1);
   assert_memory_equal(
-      az_span_ptr(update_manifest.update_id.name), ucUpdateIDName, sizeof(ucUpdateIDName) - 1);
-  assert_int_equal(az_span_size(update_manifest.update_id.name), sizeof(ucUpdateIDName) - 1);
+      az_span_ptr(update_manifest.update_id.name), update_id_name, sizeof(update_id_name) - 1);
+  assert_int_equal(az_span_size(update_manifest.update_id.name), sizeof(update_id_name) - 1);
   assert_memory_equal(
       az_span_ptr(update_manifest.update_id.version),
-      ucUpdateIDVersion,
-      sizeof(ucUpdateIDVersion) - 1);
-  assert_int_equal(az_span_size(update_manifest.update_id.version), sizeof(ucUpdateIDVersion) - 1);
+      update_id_version,
+      sizeof(update_id_version) - 1);
+  assert_int_equal(az_span_size(update_manifest.update_id.version), sizeof(update_id_version) - 1);
   assert_memory_equal(
       az_span_ptr(update_manifest.instructions.steps[0].handler),
-      ucInstructionsStepsHandler,
-      sizeof(ucInstructionsStepsHandler) - 1);
+      instructions_steps_handler,
+      sizeof(instructions_steps_handler) - 1);
   assert_int_equal(
       az_span_size(update_manifest.instructions.steps[0].handler),
-      sizeof(ucInstructionsStepsHandler) - 1);
+      sizeof(instructions_steps_handler) - 1);
   assert_memory_equal(
       az_span_ptr(update_manifest.instructions.steps[0].files[0]),
-      ucInstructionsStepsFile,
-      sizeof(ucInstructionsStepsFile) - 1);
+      instructions_steps_file,
+      sizeof(instructions_steps_file) - 1);
   assert_int_equal(
       az_span_size(update_manifest.instructions.steps[0].files[0]),
-      sizeof(ucInstructionsStepsFile) - 1);
+      sizeof(instructions_steps_file) - 1);
   assert_memory_equal(
       az_span_ptr(update_manifest.instructions.steps[0].handler_properties.installed_criteria),
-      ucInstructionsStepsHandlerPropertiesInstallCriteria,
-      sizeof(ucInstructionsStepsHandlerPropertiesInstallCriteria) - 1);
+      instructions_steps_handler_properties_install_criteria,
+      sizeof(instructions_steps_handler_properties_install_criteria) - 1);
   assert_int_equal(
       az_span_size(update_manifest.instructions.steps[0].handler_properties.installed_criteria),
-      sizeof(ucInstructionsStepsHandlerPropertiesInstallCriteria) - 1);
-  assert_memory_equal(az_span_ptr(update_manifest.files[0].id), ucFilesID, sizeof(ucFilesID) - 1);
-  assert_int_equal(az_span_size(update_manifest.files[0].id), sizeof(ucFilesID) - 1);
+      sizeof(instructions_steps_handler_properties_install_criteria) - 1);
+  assert_memory_equal(az_span_ptr(update_manifest.files[0].id), files_id, sizeof(files_id) - 1);
+  assert_int_equal(az_span_size(update_manifest.files[0].id), sizeof(files_id) - 1);
   assert_memory_equal(
       az_span_ptr(update_manifest.files[0].file_name),
-      ucFilesFilename,
-      sizeof(ucFilesFilename) - 1);
-  assert_int_equal(az_span_size(update_manifest.files[0].file_name), sizeof(ucFilesFilename) - 1);
-  assert_int_equal(update_manifest.files[0].size_in_bytes, ucFilesSizeInBytes);
+      files_filename,
+      sizeof(files_filename) - 1);
+  assert_int_equal(az_span_size(update_manifest.files[0].file_name), sizeof(files_filename) - 1);
+  assert_int_equal(update_manifest.files[0].size_in_bytes, files_size_in_bytes);
   assert_memory_equal(
       az_span_ptr(update_manifest.files[0].hashes[0].hash_type),
-      ucFilesHashID,
-      sizeof(ucFilesHashID) - 1);
+      files_hash_id,
+      sizeof(files_hash_id) - 1);
   assert_int_equal(
-      az_span_size(update_manifest.files[0].hashes[0].hash_type), sizeof(ucFilesHashID) - 1);
+      az_span_size(update_manifest.files[0].hashes[0].hash_type), sizeof(files_hash_id) - 1);
   assert_memory_equal(
       az_span_ptr(update_manifest.files[0].hashes[0].hash_value),
-      ucFilesHashesSHA,
-      sizeof(ucFilesHashesSHA) - 1);
+      files_hashes_sha,
+      sizeof(files_hashes_sha) - 1);
   assert_int_equal(
-      az_span_size(update_manifest.files[0].hashes[0].hash_value), sizeof(ucFilesHashesSHA) - 1);
+      az_span_size(update_manifest.files[0].hashes[0].hash_value), sizeof(files_hashes_sha) - 1);
   assert_memory_equal(
       az_span_ptr(update_manifest.create_date_time),
-      ucCreateDateTime,
-      sizeof(ucCreateDateTime) - 1);
-  assert_int_equal(az_span_size(update_manifest.create_date_time), sizeof(ucCreateDateTime) - 1);
+      created_date_time,
+      sizeof(created_date_time) - 1);
+  assert_int_equal(az_span_size(update_manifest.create_date_time), sizeof(created_date_time) - 1);
+}
+
+static void test_az_iot_adu_client_parse_update_manifest_payload_reverse_order_succeed(void** state)
+{
+  (void)state;
+
+  az_iot_adu_client adu_client;
+  az_json_reader reader;
+  az_iot_adu_client_update_manifest update_manifest;
+
+  assert_int_equal(az_iot_adu_client_init(&adu_client, NULL), AZ_OK);
+
+  assert_int_equal(
+      az_json_reader_init(
+          &reader, az_span_create(adu_request_manifest_reverse_order, sizeof(adu_request_manifest_reverse_order) - 1), NULL),
+      AZ_OK);
+
+  assert_int_equal(
+      az_iot_adu_client_parse_update_manifest(&adu_client, &reader, &update_manifest), AZ_OK);
+
+  assert_memory_equal(
+      az_span_ptr(update_manifest.manifest_version),
+      manifest_version,
+      sizeof(manifest_version) - 1);
+  assert_int_equal(az_span_size(update_manifest.manifest_version), sizeof(manifest_version) - 1);
+  assert_memory_equal(
+      az_span_ptr(update_manifest.update_id.provider),
+      update_id_provider,
+      sizeof(update_id_provider) - 1);
+  assert_int_equal(
+      az_span_size(update_manifest.update_id.provider), sizeof(update_id_provider) - 1);
+  assert_memory_equal(
+      az_span_ptr(update_manifest.update_id.name), update_id_name, sizeof(update_id_name) - 1);
+  assert_int_equal(az_span_size(update_manifest.update_id.name), sizeof(update_id_name) - 1);
+  assert_memory_equal(
+      az_span_ptr(update_manifest.update_id.version),
+      update_id_version,
+      sizeof(update_id_version) - 1);
+  assert_int_equal(az_span_size(update_manifest.update_id.version), sizeof(update_id_version) - 1);
+  assert_memory_equal(
+      az_span_ptr(update_manifest.instructions.steps[0].handler),
+      instructions_steps_handler,
+      sizeof(instructions_steps_handler) - 1);
+  assert_int_equal(
+      az_span_size(update_manifest.instructions.steps[0].handler),
+      sizeof(instructions_steps_handler) - 1);
+  assert_memory_equal(
+      az_span_ptr(update_manifest.instructions.steps[0].files[0]),
+      instructions_steps_file,
+      sizeof(instructions_steps_file) - 1);
+  assert_int_equal(
+      az_span_size(update_manifest.instructions.steps[0].files[0]),
+      sizeof(instructions_steps_file) - 1);
+  assert_memory_equal(
+      az_span_ptr(update_manifest.instructions.steps[0].handler_properties.installed_criteria),
+      instructions_steps_handler_properties_install_criteria,
+      sizeof(instructions_steps_handler_properties_install_criteria) - 1);
+  assert_int_equal(
+      az_span_size(update_manifest.instructions.steps[0].handler_properties.installed_criteria),
+      sizeof(instructions_steps_handler_properties_install_criteria) - 1);
+  assert_memory_equal(az_span_ptr(update_manifest.files[0].id), files_id, sizeof(files_id) - 1);
+  assert_int_equal(az_span_size(update_manifest.files[0].id), sizeof(files_id) - 1);
+  assert_memory_equal(
+      az_span_ptr(update_manifest.files[0].file_name),
+      files_filename,
+      sizeof(files_filename) - 1);
+  assert_int_equal(az_span_size(update_manifest.files[0].file_name), sizeof(files_filename) - 1);
+  assert_int_equal(update_manifest.files[0].size_in_bytes, files_size_in_bytes);
+  assert_memory_equal(
+      az_span_ptr(update_manifest.files[0].hashes[0].hash_type),
+      files_hash_id,
+      sizeof(files_hash_id) - 1);
+  assert_int_equal(
+      az_span_size(update_manifest.files[0].hashes[0].hash_type), sizeof(files_hash_id) - 1);
+  assert_memory_equal(
+      az_span_ptr(update_manifest.files[0].hashes[0].hash_value),
+      files_hashes_sha,
+      sizeof(files_hashes_sha) - 1);
+  assert_int_equal(
+      az_span_size(update_manifest.files[0].hashes[0].hash_value), sizeof(files_hashes_sha) - 1);
+  assert_memory_equal(
+      az_span_ptr(update_manifest.create_date_time),
+      created_date_time,
+      sizeof(created_date_time) - 1);
+  assert_int_equal(az_span_size(update_manifest.create_date_time), sizeof(created_date_time) - 1);
 }
 
 #ifdef _MSC_VER
@@ -532,6 +627,7 @@ int test_az_iot_adu()
     cmocka_unit_test(test_az_iot_adu_client_get_service_properties_response_succeed),
     cmocka_unit_test(test_az_iot_adu_client_parse_service_properties_succeed),
     cmocka_unit_test(test_az_iot_adu_client_parse_update_manifest_succeed),
+    cmocka_unit_test(test_az_iot_adu_client_parse_update_manifest_payload_reverse_order_succeed),
   };
   return cmocka_run_group_tests_name("az_iot_adu", tests, NULL, NULL);
 }
