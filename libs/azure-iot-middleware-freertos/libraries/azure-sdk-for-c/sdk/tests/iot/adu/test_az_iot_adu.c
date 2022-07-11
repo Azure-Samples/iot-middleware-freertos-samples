@@ -209,13 +209,12 @@ static void test_az_iot_adu_client_parse_service_properties_NULL_client_fail(voi
   az_iot_adu_client_update_request request;
   az_span remainder;
 
-  ASSERT_PRECONDITION_CHECKED(
-      az_iot_adu_client_parse_service_properties(
-          NULL,
-          &reader,
-          az_span_create(ucScratchBuffer, sizeof(ucScratchBuffer)),
-          &request,
-          &remainder));
+  ASSERT_PRECONDITION_CHECKED(az_iot_adu_client_parse_service_properties(
+      NULL,
+      &reader,
+      az_span_create(ucScratchBuffer, sizeof(ucScratchBuffer)),
+      &request,
+      &remainder));
 }
 
 static void test_az_iot_adu_client_parse_service_properties_NULL_reader_fail(void** state)
@@ -228,13 +227,12 @@ static void test_az_iot_adu_client_parse_service_properties_NULL_reader_fail(voi
 
   assert_int_equal(az_iot_adu_client_init(&adu_client, NULL), AZ_OK);
 
-  ASSERT_PRECONDITION_CHECKED(
-      az_iot_adu_client_parse_service_properties(
-          &adu_client,
-          NULL,
-          az_span_create(ucScratchBuffer, sizeof(ucScratchBuffer)),
-          &request,
-          &remainder));
+  ASSERT_PRECONDITION_CHECKED(az_iot_adu_client_parse_service_properties(
+      &adu_client,
+      NULL,
+      az_span_create(ucScratchBuffer, sizeof(ucScratchBuffer)),
+      &request,
+      &remainder));
 }
 
 static void test_az_iot_adu_client_parse_service_properties_empty_buffer_fail(void** state)
@@ -248,9 +246,8 @@ static void test_az_iot_adu_client_parse_service_properties_empty_buffer_fail(vo
 
   assert_int_equal(az_iot_adu_client_init(&adu_client, NULL), AZ_OK);
 
-  ASSERT_PRECONDITION_CHECKED(
-      az_iot_adu_client_parse_service_properties(
-          &adu_client, &reader, AZ_SPAN_EMPTY, &request, &remainder));
+  ASSERT_PRECONDITION_CHECKED(az_iot_adu_client_parse_service_properties(
+      &adu_client, &reader, AZ_SPAN_EMPTY, &request, &remainder));
 }
 
 static void test_az_iot_adu_client_parse_service_properties_NULL_request_fail(void** state)
@@ -263,13 +260,12 @@ static void test_az_iot_adu_client_parse_service_properties_NULL_request_fail(vo
 
   assert_int_equal(az_iot_adu_client_init(&adu_client, NULL), AZ_OK);
 
-  ASSERT_PRECONDITION_CHECKED(
-      az_iot_adu_client_parse_service_properties(
-          &adu_client,
-          &reader,
-          az_span_create(ucScratchBuffer, sizeof(ucScratchBuffer)),
-          NULL,
-          &remainder));
+  ASSERT_PRECONDITION_CHECKED(az_iot_adu_client_parse_service_properties(
+      &adu_client,
+      &reader,
+      az_span_create(ucScratchBuffer, sizeof(ucScratchBuffer)),
+      NULL,
+      &remainder));
 }
 
 static void test_az_iot_adu_client_parse_update_manifest_NULL_client_fail(void** state)
@@ -305,8 +301,7 @@ static void test_az_iot_adu_client_parse_update_manifest_NULL_update_manifest_fa
 
   assert_int_equal(az_iot_adu_client_init(&adu_client, NULL), AZ_OK);
 
-  ASSERT_PRECONDITION_CHECKED(
-      az_iot_adu_client_parse_update_manifest(&adu_client, &reader, NULL));
+  ASSERT_PRECONDITION_CHECKED(az_iot_adu_client_parse_update_manifest(&adu_client, &reader, NULL));
 }
 
 #endif // AZ_NO_PRECONDITION_CHECKING
@@ -528,9 +523,9 @@ int test_az_iot_adu()
     cmocka_unit_test(test_az_iot_adu_client_parse_service_properties_NULL_reader_fail),
     cmocka_unit_test(test_az_iot_adu_client_parse_service_properties_empty_buffer_fail),
     cmocka_unit_test(test_az_iot_adu_client_parse_service_properties_NULL_request_fail),
-cmocka_unit_test(test_az_iot_adu_client_parse_update_manifest_NULL_client_fail),
-cmocka_unit_test(test_az_iot_adu_client_parse_update_manifest_NULL_reader_fail),
-cmocka_unit_test(test_az_iot_adu_client_parse_update_manifest_NULL_update_manifest_fail),
+    cmocka_unit_test(test_az_iot_adu_client_parse_update_manifest_NULL_client_fail),
+    cmocka_unit_test(test_az_iot_adu_client_parse_update_manifest_NULL_reader_fail),
+    cmocka_unit_test(test_az_iot_adu_client_parse_update_manifest_NULL_update_manifest_fail),
 #endif // AZ_NO_PRECONDITION_CHECKING
     cmocka_unit_test(test_az_iot_adu_client_init_succeed),
     cmocka_unit_test(test_az_iot_adu_client_get_agent_state_payload_succeed),
