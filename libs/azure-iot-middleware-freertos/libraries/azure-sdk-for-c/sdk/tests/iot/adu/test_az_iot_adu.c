@@ -187,7 +187,7 @@ static void test_az_iot_adu_client_get_service_properties_response_NULL_client_f
   az_json_writer jw;
 
   ASSERT_PRECONDITION_CHECKED(
-      az_iot_adu_client_get_service_properties_response(NULL, 1, AZ_IOT_ADU_REQUEST_ACCEPTED, &jw));
+      az_iot_adu_client_get_service_properties_response(NULL, 1, AZ_IOT_ADU_CLIENT_REQUEST_ACCEPTED, &jw));
 }
 
 static void test_az_iot_adu_client_get_service_properties_response_NULL_json_writer_fail(
@@ -198,7 +198,7 @@ static void test_az_iot_adu_client_get_service_properties_response_NULL_json_wri
   az_iot_adu_client adu_client;
 
   ASSERT_PRECONDITION_CHECKED(az_iot_adu_client_get_service_properties_response(
-      &adu_client, 1, AZ_IOT_ADU_REQUEST_ACCEPTED, NULL));
+      &adu_client, 1, AZ_IOT_ADU_CLIENT_REQUEST_ACCEPTED, NULL));
 }
 
 static void test_az_iot_adu_client_parse_service_properties_NULL_client_fail(void** state)
@@ -355,7 +355,7 @@ static void test_az_iot_adu_client_get_service_properties_response_succeed(void*
 
   assert_int_equal(
       az_iot_adu_client_get_service_properties_response(
-          &adu_client, 1, AZ_IOT_ADU_REQUEST_ACCEPTED, &jw),
+          &adu_client, 1, AZ_IOT_ADU_CLIENT_REQUEST_ACCEPTED, &jw),
       AZ_OK);
 
   payload = az_json_writer_get_bytes_used_in_destination(&jw);
