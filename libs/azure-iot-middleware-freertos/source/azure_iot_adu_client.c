@@ -393,7 +393,7 @@ AzureIoTResult_t AzureIoTADUClient_SendResponse( AzureIoTADUClient_t * pxAzureIo
 }
 
 static void prvFillBaseAduDeviceProperties( AzureIoTADUClientDeviceProperties_t * pxDeviceProperties,
-                                          az_iot_adu_client_device_properties * pxBaseAduDeviceProperties )
+                                            az_iot_adu_client_device_properties * pxBaseAduDeviceProperties )
 {
     pxBaseAduDeviceProperties->manufacturer = az_span_create(
         ( uint8_t * ) pxDeviceProperties->ucManufacturer,
