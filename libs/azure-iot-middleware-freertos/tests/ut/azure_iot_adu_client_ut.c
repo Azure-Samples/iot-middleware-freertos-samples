@@ -20,6 +20,7 @@
 #define testUPDATE_PROVIDER         testDEVICE_MANUFACTURER
 #define testUPDATE_NAME             testDEVICE_MODEL
 #define testUPDATE_VERSION          "1.0"
+#define testDO_VERSION              "DU;lib/v0.6.0+20211001.174458.c8c4051,DU;agent/v0.6.0+20211001.174418.c8c4051"
 
 static const uint8_t ucHostname[] = "unittest.azure-devices.net";
 static const uint8_t ucDeviceId[] = "testiothub";
@@ -64,7 +65,9 @@ AzureIoTADUClientDeviceProperties_t xADUDeviceProperties =
         .ulNameLength     = sizeof( testUPDATE_NAME ) - 1,
         .ucVersion        = testUPDATE_VERSION,
         .ulVersionLength  = sizeof( testUPDATE_VERSION ) - 1
-    }
+    },
+    .ucDeliveryOptimizationAgentVersion = testDO_VERSION,
+    .ulDeliveryOptimizationAgentVersionLength = sizeof( testDO_VERSION ) - 1
 };
 
 static AzureIoTTransportInterface_t xTransportInterface =

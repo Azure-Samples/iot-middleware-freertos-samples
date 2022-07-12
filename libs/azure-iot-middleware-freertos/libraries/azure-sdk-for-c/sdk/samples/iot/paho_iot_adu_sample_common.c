@@ -81,7 +81,7 @@ az_iot_adu_device_properties adu_device_properties
     = { .manufacturer = AZ_SPAN_LITERAL_FROM_STR(ADU_DEVICE_MANUFACTURER),
         .model = AZ_SPAN_LITERAL_FROM_STR(ADU_DEVICE_MODEL),
         .adu_version = AZ_SPAN_LITERAL_FROM_STR(AZ_IOT_ADU_AGENT_VERSION),
-        .do_version = AZ_SPAN_EMPTY,
+        .delivery_optimization_agent_version = AZ_SPAN_EMPTY,
         .update_id = { .name = AZ_SPAN_LITERAL_FROM_STR(ADU_DEVICE_MODEL),
                        .provider = AZ_SPAN_LITERAL_FROM_STR(ADU_DEVICE_MANUFACTURER),
                        .version = AZ_SPAN_LITERAL_FROM_STR(ADU_DEVICE_VERSION) } };

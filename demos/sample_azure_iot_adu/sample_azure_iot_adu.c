@@ -164,7 +164,9 @@ AzureIoTADUClientDeviceProperties_t xADUDeviceProperties =
         .ulNameLength     = sizeof( democonfigADU_UPDATE_NAME ) - 1,
         .ucVersion        = ( const uint8_t * ) democonfigADU_UPDATE_VERSION,
         .ulVersionLength  = sizeof( democonfigADU_UPDATE_VERSION ) - 1
-    }
+    },
+    .ucDeliveryOptimizationAgentVersion = NULL,
+    .ulDeliveryOptimizationAgentVersionLength = 0
 };
 
 static AzureADUImage_t xImage;
