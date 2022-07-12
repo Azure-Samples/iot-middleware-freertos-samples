@@ -526,7 +526,7 @@ static void testAzureIoTADUClient_SendAgentState_WithAgentStateAndRequest_Succes
 
     assert_int_equal( AzureIoTADUClient_SendAgentState( &xTestIoTADUClient,
                                                         &xTestIoTHubClient,
-                                                        &xADUDeviceInformation,
+                                                        &xADUDeviceProperties,
                                                         &xUpdateRequest,
                                                         eAzureIoTADUAgentStateIdle,
                                                         &xInstallResult,
