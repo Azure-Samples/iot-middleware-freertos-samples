@@ -494,13 +494,13 @@ AzureIoTResult_t AzureIoTADUClient_SendAgentState( AzureIoTADUClient_t * pxAzure
     az_span xPropertiesPayload;
 
     if( ( pxAzureIoTADUClient == NULL ) || ( pxAzureIoTHubClient == NULL ) ||
-        ( pxDeviceInformation == NULL ) || ( pucBuffer == NULL ) || ( ulBufferSize == 0 ) )
+        ( pxDeviceProperties == NULL ) || ( pucBuffer == NULL ) || ( ulBufferSize == 0 ) )
     {
         AZLogError( ( "AzureIoTADUClient_SendAgentState failed: invalid argument" ) );
         return eAzureIoTErrorInvalidArgument;
     }
 
-    prvFillBaseAduDeviceProperties( pxDeviceInformation, &xBaseDeviceInformation );
+    prvFillBaseAduDeviceProperties( pxDeviceProperties, &xBaseDeviceInformation );
     prvFillBaseAduWorkflow( pxAduUpdateRequest, &xBaseWorkflow );
     prvFillBaseAduInstallResults( pxUpdateResults, &xInstallResult );
 
