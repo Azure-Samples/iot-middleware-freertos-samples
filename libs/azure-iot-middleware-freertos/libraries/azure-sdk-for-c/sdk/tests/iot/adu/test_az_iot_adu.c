@@ -216,7 +216,7 @@ static void test_az_iot_adu_client_get_agent_state_payload_NULL_client_fail(void
   az_json_writer jw;
 
   ASSERT_PRECONDITION_CHECKED(az_iot_adu_client_get_agent_state_payload(
-      NULL, &adu_device_information, AZ_IOT_ADU_CLIENT_AGENT_STATE_IDLE, NULL, NULL, &jw));
+      NULL, &adu_device_properties, AZ_IOT_ADU_CLIENT_AGENT_STATE_IDLE, NULL, NULL, &jw));
 }
 
 static void test_az_iot_adu_client_get_agent_state_payload_NULL_device_info_fail(void** state)
