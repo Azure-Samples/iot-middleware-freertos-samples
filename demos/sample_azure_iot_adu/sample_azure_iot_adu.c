@@ -181,7 +181,7 @@ static uint32_t ulReportedPropertiesUpdateLength;
 
 uint8_t ucAduContextBuffer[ ADU_CONTEXT_BUFFER_SIZE ];
 
-#define sampleaduDEFAULT_RESULT_DETAILS "Ok"
+const uint8_t sampleaduDEFAULT_RESULT_DETAILS[] = "Ok";
 
 #define sampleaduPNP_COMPONENTS_LIST_LENGTH    1
 static AzureIoTHubClientComponent_t pnp_components[ sampleaduPNP_COMPONENTS_LIST_LENGTH ] =
@@ -189,6 +189,10 @@ static AzureIoTHubClientComponent_t pnp_components[ sampleaduPNP_COMPONENTS_LIST
     azureiothubCREATE_COMPONENT( AZ_IOT_ADU_CLIENT_PROPERTIES_COMPONENT_NAME )
 };
 #define sampleaduPNP_COMPONENTS_LIST    pnp_components
+
+/* This is an user-defined code to be reported as the result of the */
+/* OTA update on the Azure Device Update portal. */
+#define sampleaduSAMPLE_EXTENDED_RESULT_CODE 1234
 
 /* TODO: REMOVE THIS BLOCKER ONCE ADU IS IMPLEMENTED */
 /* This does not affect devices that actually implement the ADU process */
@@ -579,8 +583,8 @@ static AzureIoTResult_t prvEnableImageAndResetDevice()
      * through pucResultDetails.
      */
     xUpdateResults.lResultCode = 0;
-    xUpdateResults.lExtendedResultCode = 1234;
-    xUpdateResults.pucResultDetails = ( const uint8_t * ) sampleaduDEFAULT_RESULT_DETAILS;
+    xUpdateResults.lExtendedResultCode = sampleaduSAMPLE_EXTENDED_RESULT_CODE;
+    xUpdateResults.pucResultDetails = sampleaduDEFAULT_RESULT_DETAILS;
     xUpdateResults.ulResultDetailsLength = sizeof( sampleaduDEFAULT_RESULT_DETAILS ) - 1;
     xUpdateResults.ulStepResultsCount =
         xAzureIoTAduUpdateRequest.xUpdateManifest.xInstructions.ulStepsCount;
@@ -592,8 +596,8 @@ static AzureIoTResult_t prvEnableImageAndResetDevice()
     for( int32_t ulStepIndex = 0; ulStepIndex < xUpdateResults.ulStepResultsCount; ulStepIndex++ )
     {
         xUpdateResults.pxStepResults[ ulStepIndex ].ulResultCode = 0;
-        xUpdateResults.pxStepResults[ ulStepIndex ].ulExtendedResultCode = 5678;
-        xUpdateResults.pxStepResults[ ulStepIndex ].pucResultDetails = ( const uint8_t * ) sampleaduDEFAULT_RESULT_DETAILS;
+        xUpdateResults.pxStepResults[ ulStepIndex ].ulExtendedResultCode = sampleaduSAMPLE_EXTENDED_RESULT_CODE;
+        xUpdateResults.pxStepResults[ ulStepIndex ].pucResultDetails = sampleaduDEFAULT_RESULT_DETAILS;
         xUpdateResults.pxStepResults[ ulStepIndex ].ulResultDetailsLength = sizeof( sampleaduDEFAULT_RESULT_DETAILS ) - 1;
     }
 
