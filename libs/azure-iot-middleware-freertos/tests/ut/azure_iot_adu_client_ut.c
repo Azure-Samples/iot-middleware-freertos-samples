@@ -25,10 +25,15 @@ static const uint8_t ucHostname[] = "unittest.azure-devices.net";
 static const uint8_t ucDeviceId[] = "testiothub";
 static uint8_t ucComponentName[] = "deviceUpdate";
 static uint8_t ucSendStatePayload[] = "{\"deviceUpdate\":{\"__t\":\"c\",\"agent\":{\"deviceProperties\":{\"manufacturer\":\"Contoso\",\"model\":\"Foobar\",\"interfaceId\":\"dtmi:azure:iot:deviceUpdate;1\",\"aduVer\":\"DU;agent/0.8.0-rc1-public-preview\"},\"compatPropertyNames\":\"manufacturer,model\",\"state\":0,\"installedUpdateId\":\"{\\\"provider\\\":\\\"Contoso\\\",\\\"name\\\":\\\"Foobar\\\",\\\"version\\\":\\\"1.0\\\"}\"}}}";
+static uint8_t ucSendStateLongPayload[] = "{\"deviceUpdate\":{\"__t\":\"c\",\"agent\":{\"deviceProperties\":{\"manufacturer\":\"Contoso\",\"model\":\"Foobar\",\"interfaceId\":\"dtmi:azure:iot:deviceUpdate;1\",\"aduVer\":\"DU;agent/0.8.0-rc1-public-preview\"},\"compatPropertyNames\":\"manufacturer,model\",\"lastInstallResult\":{\"resultCode\":0,\"extendedResultCode\":1234,\"resultDetails\":\"Ok\",\"step_0\":{\"resultCode\":0,\"extendedResultCode\":1234,\"resultDetails\":\"Ok\"}},\"state\":0,\"workflow\":{\"action\":3,\"id\":\"51552a54-765e-419f-892a-c822549b6f38\"},\"installedUpdateId\":\"{\\\"provider\\\":\\\"Contoso\\\",\\\"name\\\":\\\"Foobar\\\",\\\"version\\\":\\\"1.0\\\"}\"}}}";
 static uint8_t ucSendResponsePayload[] = "{\"deviceUpdate\":{\"__t\":\"c\",\"service\":{\"ac\":200,\"av\":1,\"value\":{}}}}";
 static uint8_t ucHubClientBuffer[ 512 ];
 static uint8_t ucScratchBuffer[ 8000 ];
+static uint8_t ucPayloadBuffer[ 8000 ];
 static uint32_t ulReceivedCallbackFunctionId;
+static uint32_t ulExtendedResultCode = 1234;
+static uint8_t ucResultDetails[] = "Ok";
+static uint8_t ulResultCode = 0;
 
 /*Request Values */
 static uint8_t ucADURequestPayload[] = "{\"service\":{\"workflow\":{\"action\":3,\"id\":\"51552a54-765e-419f-892a-c822549b6f38\"},\"updateManifest\":\"{\\\"manifestVersion\\\":\\\"4\\\",\\\"updateId\\\":{\\\"provider\\\":\\\"Contoso\\\",\\\"name\\\":\\\"Foobar\\\",\\\"version\\\":\\\"1.1\\\"},\\\"compatibility\\\":[{\\\"deviceManufacturer\\\":\\\"Contoso\\\",\\\"deviceModel\\\":\\\"Foobar\\\"}],\\\"instructions\\\":{\\\"steps\\\":[{\\\"handler\\\":\\\"microsoft/swupdate:1\\\",\\\"files\\\":[\\\"f2f4a804ca17afbae\\\"],\\\"handlerProperties\\\":{\\\"installedCriteria\\\":\\\"1.0\\\"}}]},\\\"files\\\":{\\\"f2f4a804ca17afbae\\\":{\\\"fileName\\\":\\\"iot-middleware-sample-adu-v1.1\\\",\\\"sizeInBytes\\\":844976,\\\"hashes\\\":{\\\"sha256\\\":\\\"xsoCnYAMkZZ7m9RL9Vyg9jKfFehCNxyuPFaJVM/WBi0=\\\"}}},\\\"createdDateTime\\\":\\\"2022-07-07T03:02:48.8449038Z\\\"}\",\"updateManifestSignature\":\"eyJhbGciOiJSUzI1NiIsInNqd2siOiJleUpoYkdjaU9pSlNVekkxTmlJc0ltdHBaQ0k2SWtGRVZTNHlNREEzTURJdVVpSjkuZXlKcmRIa2lPaUpTVTBFaUxDSnVJam9pYkV4bWMwdHZPRmwwWW1Oak1sRXpUalV3VlhSTVNXWlhVVXhXVTBGRlltTm9LMFl2WTJVM1V6Rlpja3BvV0U5VGNucFRaa051VEhCVmFYRlFWSGMwZWxndmRHbEJja0ZGZFhrM1JFRmxWVzVGU0VWamVEZE9hM2QzZVRVdk9IcExaV3AyWTBWWWNFRktMMlV6UWt0SE5FVTBiMjVtU0ZGRmNFOXplSGRQUzBWbFJ6QkhkamwzVjB3emVsUmpUblprUzFoUFJGaEdNMVZRWlVveGIwZGlVRkZ0Y3pKNmJVTktlRUppZEZOSldVbDBiWFpwWTNneVpXdGtWbnBYUm5jdmRrdFVUblZMYXpob2NVczNTRkptYWs5VlMzVkxXSGxqSzNsSVVVa3dZVVpDY2pKNmEyc3plR2d4ZEVWUFN6azRWMHBtZUdKamFsQnpSRTgyWjNwWmVtdFlla05OZW1Fd1R6QkhhV0pDWjB4QlZGUTVUV1k0V1ZCd1dVY3lhblpQWVVSVmIwTlJiakpWWTFWU1RtUnNPR2hLWW5scWJscHZNa3B5SzFVNE5IbDFjVTlyTjBZMFdubFRiMEoyTkdKWVNrZ3lXbEpTV2tab0wzVlRiSE5XT1hkU2JWbG9XWEoyT1RGRVdtbHhhemhJVWpaRVUyeHVabTVsZFRJNFJsUm9SVzF0YjNOVlRUTnJNbGxNYzBKak5FSnZkWEIwTTNsaFNEaFpia3BVTnpSMU16TjFlakU1TDAxNlZIVnFTMmMzVkdGcE1USXJXR0owYmxwRU9XcFVSMkY1U25Sc2FFWmxWeXRJUXpVM1FYUkJSbHBvY1ZsM2VVZHJXQ3M0TTBGaFVGaGFOR0V4VHpoMU1qTk9WVWQxTWtGd04yOU5NVTR3ZVVKS0swbHNUM29pTENKbElqb2lRVkZCUWlJc0ltRnNaeUk2SWxKVE1qVTJJaXdpYTJsa0lqb2lRVVJWTGpJeE1EWXdPUzVTTGxNaWZRLlJLS2VBZE02dGFjdWZpSVU3eTV2S3dsNFpQLURMNnEteHlrTndEdkljZFpIaTBIa2RIZ1V2WnoyZzZCTmpLS21WTU92dXp6TjhEczhybXo1dnMwT1RJN2tYUG1YeDZFLUYyUXVoUXNxT3J5LS1aN2J3TW5LYTNkZk1sbkthWU9PdURtV252RWMyR0hWdVVTSzREbmw0TE9vTTQxOVlMNThWTDAtSEthU18xYmNOUDhXYjVZR08xZXh1RmpiVGtIZkNIU0duVThJeUFjczlGTjhUT3JETHZpVEtwcWtvM3RiSUwxZE1TN3NhLWJkZExUVWp6TnVLTmFpNnpIWTdSanZGbjhjUDN6R2xjQnN1aVQ0XzVVaDZ0M05rZW1UdV9tZjdtZUFLLTBTMTAzMFpSNnNTR281azgtTE1sX0ZaUmh4djNFZFNtR2RBUTNlMDVMRzNnVVAyNzhTQWVzWHhNQUlHWmcxUFE3aEpoZGZHdmVGanJNdkdTSVFEM09wRnEtZHREcEFXbUo2Zm5sZFA1UWxYek5tQkJTMlZRQUtXZU9BYjh0Yjl5aVhsemhtT1dLRjF4SzlseHpYUG9GNmllOFRUWlJ4T0hxTjNiSkVISkVoQmVLclh6YkViV2tFNm4zTEoxbkd5M1htUlVFcER0Umdpa0tBUzZybFhFT0VneXNjIn0.eyJzaGEyNTYiOiJiUlkrcis0MzdsYTV5d2hIeDdqVHhlVVRkeDdJdXQyQkNlcVpoQys5bmFNPSJ9.eYoBoq9EOiCebTJAMhRh9DARC69F3C4Qsia86no9YbMJzwKt-rH88Va4dL59uNTlPNBQid4u0RlXSUTuma_v-Sf4hyw70tCskwru5Fp41k9Ve3YSkulUKzctEhaNUJ9tUSA11Tz9HwJHOAEA1-S_dXWR_yuxabk9G_BiucsuKhoI0Bas4e1ydQE2jXZNdVVibrFSqxvuVZrxHKVhwm-G9RYHjZcoSgmQ58vWyaC2l8K8ZqnlQWmuLur0CZFQlanUVxDocJUtu1MnB2ER6emMRD_4Azup2K4apq9E1EfYBbXxOZ0N5jaSr-2xg8NVSow5NqNSaYYY43wy_NIUefRlbSYu5zOrSWtuIwRdsO-43Eo8b9vuJj1Qty9ee6xz1gdUNHnUdnM6dHEplZK0GZznsxRviFXt7yv8bVLd32Z7QDtFh3s17xlKulBZxWP-q96r92RoUTov2M3ynPZSDmc6Mz7-r8ioO5VHO5pAPCH-tF5zsqzipPJKmBMaf5gYk8wR\",\"fileUrls\":{\"f2f4a804ca17afbae\":\"http://contoso-adu-instance--contoso-adu.b.nlu.dl.adu.microsoft.com/westus2/contoso-adu-instance--contoso-adu/67c8d2ef5148403391bed74f51a28597/iot-middleware-sample-adu-v1.1\"}}}";
@@ -304,16 +309,16 @@ static void testAzureIoTADUClient_SendResponse_InvalidArgFailure( void ** ppvSta
                                                       &xTestIoTHubClient,
                                                       xRequestDecision,
                                                       ulPropertyVersion,
-                                                      ucScratchBuffer,
-                                                      sizeof( ucScratchBuffer ),
+                                                      ucPayloadBuffer,
+                                                      sizeof( ucPayloadBuffer ),
                                                       &ulRequestId ), eAzureIoTErrorInvalidArgument );
 
     assert_int_equal( AzureIoTADUClient_SendResponse( &xTestIoTADUClient,
                                                       NULL,
                                                       xRequestDecision,
                                                       ulPropertyVersion,
-                                                      ucScratchBuffer,
-                                                      sizeof( ucScratchBuffer ),
+                                                      ucPayloadBuffer,
+                                                      sizeof( ucPayloadBuffer ),
                                                       &ulRequestId ), eAzureIoTErrorInvalidArgument );
 
     assert_int_equal( AzureIoTADUClient_SendResponse( &xTestIoTADUClient,
@@ -321,14 +326,14 @@ static void testAzureIoTADUClient_SendResponse_InvalidArgFailure( void ** ppvSta
                                                       xRequestDecision,
                                                       ulPropertyVersion,
                                                       NULL,
-                                                      sizeof( ucScratchBuffer ),
+                                                      sizeof( ucPayloadBuffer ),
                                                       &ulRequestId ), eAzureIoTErrorInvalidArgument );
 
     assert_int_equal( AzureIoTADUClient_SendResponse( &xTestIoTADUClient,
                                                       &xTestIoTHubClient,
                                                       xRequestDecision,
                                                       ulPropertyVersion,
-                                                      ucScratchBuffer,
+                                                      ucPayloadBuffer,
                                                       0,
                                                       &ulRequestId ), eAzureIoTErrorInvalidArgument );
 }
@@ -363,11 +368,11 @@ static void testAzureIoTADUClient_SendResponse_Success( void ** ppvState )
                                                       &xTestIoTHubClient,
                                                       xRequestDecision,
                                                       ulPropertyVersion,
-                                                      ucScratchBuffer,
-                                                      sizeof( ucScratchBuffer ),
+                                                      ucPayloadBuffer,
+                                                      sizeof( ucPayloadBuffer ),
                                                       &ulRequestId ), eAzureIoTSuccess );
 
-    assert_memory_equal( ucScratchBuffer, ucSendResponsePayload, sizeof( ucSendResponsePayload ) - 1 );
+    assert_memory_equal( ucPayloadBuffer, ucSendResponsePayload, sizeof( ucSendResponsePayload ) - 1 );
 }
 
 static void testAzureIoTADUClient_SendAgentState_InvalidArgFailure( void ** ppvState )
@@ -389,8 +394,8 @@ static void testAzureIoTADUClient_SendAgentState_InvalidArgFailure( void ** ppvS
                                                         &xRequest,
                                                         xState,
                                                         &xInstallResult,
-                                                        ucScratchBuffer,
-                                                        sizeof( ucScratchBuffer ),
+                                                        ucPayloadBuffer,
+                                                        sizeof( ucPayloadBuffer ),
                                                         &ulRequestId ), eAzureIoTErrorInvalidArgument );
 
     assert_int_equal( AzureIoTADUClient_SendAgentState( &xTestIoTADUClient,
@@ -399,8 +404,8 @@ static void testAzureIoTADUClient_SendAgentState_InvalidArgFailure( void ** ppvS
                                                         &xRequest,
                                                         xState,
                                                         &xInstallResult,
-                                                        ucScratchBuffer,
-                                                        sizeof( ucScratchBuffer ),
+                                                        ucPayloadBuffer,
+                                                        sizeof( ucPayloadBuffer ),
                                                         &ulRequestId ), eAzureIoTErrorInvalidArgument );
 
     assert_int_equal( AzureIoTADUClient_SendAgentState( &xTestIoTADUClient,
@@ -409,8 +414,8 @@ static void testAzureIoTADUClient_SendAgentState_InvalidArgFailure( void ** ppvS
                                                         &xRequest,
                                                         xState,
                                                         &xInstallResult,
-                                                        ucScratchBuffer,
-                                                        sizeof( ucScratchBuffer ),
+                                                        ucPayloadBuffer,
+                                                        sizeof( ucPayloadBuffer ),
                                                         &ulRequestId ), eAzureIoTErrorInvalidArgument );
 
     assert_int_equal( AzureIoTADUClient_SendAgentState( &xTestIoTADUClient,
@@ -420,7 +425,7 @@ static void testAzureIoTADUClient_SendAgentState_InvalidArgFailure( void ** ppvS
                                                         xState,
                                                         &xInstallResult,
                                                         NULL,
-                                                        sizeof( ucScratchBuffer ),
+                                                        sizeof( ucPayloadBuffer ),
                                                         &ulRequestId ), eAzureIoTErrorInvalidArgument );
 
     assert_int_equal( AzureIoTADUClient_SendAgentState( &xTestIoTADUClient,
@@ -429,7 +434,7 @@ static void testAzureIoTADUClient_SendAgentState_InvalidArgFailure( void ** ppvS
                                                         &xRequest,
                                                         xState,
                                                         &xInstallResult,
-                                                        ucScratchBuffer,
+                                                        ucPayloadBuffer,
                                                         0,
                                                         &ulRequestId ), eAzureIoTErrorInvalidArgument );
 }
@@ -464,12 +469,72 @@ static void testAzureIoTADUClient_SendAgentState_Success( void ** ppvState )
                                                         NULL,
                                                         eAzureIoTADUAgentStateIdle,
                                                         NULL,
-                                                        ucScratchBuffer,
-                                                        sizeof( ucScratchBuffer ),
+                                                        ucPayloadBuffer,
+                                                        sizeof( ucPayloadBuffer ),
                                                         &ulRequestId ), eAzureIoTSuccess );
-    assert_memory_equal( ucScratchBuffer, ucSendStatePayload, sizeof( ucSendStatePayload ) - 1 );
+    assert_memory_equal( ucPayloadBuffer, ucSendStatePayload, sizeof( ucSendStatePayload ) - 1 );
 }
 
+static void testAzureIoTADUClient_SendAgentState_WithAgentStateAndRequest_Success( void ** ppvState )
+{
+    AzureIoTADUClient_t xTestIoTADUClient;
+    AzureIoTHubClient_t xTestIoTHubClient;
+    AzureIoTJSONReader_t xReader;
+    AzureIoTADUUpdateRequest_t xUpdateRequest;
+    AzureIoTADUClientInstallResult_t xInstallResult;
+    uint32_t ulPropertyVersion = 1;
+    uint32_t ulRequestId;
+
+    xInstallResult.lResultCode = ulResultCode;
+    xInstallResult.lExtendedResultCode = ulExtendedResultCode;
+    xInstallResult.pucResultDetails = ucResultDetails;
+    xInstallResult.ulResultDetailsLength = sizeof( ucResultDetails ) - 1;
+    xInstallResult.ulStepResultsCount = 1;
+    xInstallResult.pxStepResults[ 0 ].pucResultDetails = ucResultDetails;
+    xInstallResult.pxStepResults[ 0 ].ulResultDetailsLength = sizeof( ucResultDetails ) - 1;
+    xInstallResult.pxStepResults[ 0 ].ulExtendedResultCode = ulExtendedResultCode;
+    xInstallResult.pxStepResults[ 0 ].ulResultCode = ulResultCode;
+
+    prvSetupTestIoTHubClient( &xTestIoTHubClient );
+
+    assert_int_equal( AzureIoTADUClient_Init( &xTestIoTADUClient, NULL ), eAzureIoTSuccess );
+
+    assert_int_equal( AzureIoTJSONReader_Init( &xReader, ucADURequestPayload, sizeof( ucADURequestPayload ) - 1 ), eAzureIoTSuccess );
+
+    /* ParseRequest requires that the reader be placed on the "service" prop name */
+    assert_int_equal( AzureIoTJSONReader_NextToken( &xReader ), eAzureIoTSuccess );
+    assert_int_equal( AzureIoTJSONReader_NextToken( &xReader ), eAzureIoTSuccess );
+
+    assert_int_equal( AzureIoTADUClient_ParseRequest( &xTestIoTADUClient,
+                                                      &xReader,
+                                                      &xUpdateRequest,
+                                                      ucScratchBuffer,
+                                                      sizeof( ucScratchBuffer ) ), eAzureIoTSuccess );
+
+    will_return( AzureIoTMQTT_Subscribe, eAzureIoTMQTTSuccess );
+    will_return( AzureIoTMQTT_ProcessLoop, eAzureIoTMQTTSuccess );
+    xPacketInfo.ucType = azureiotmqttPACKET_TYPE_SUBACK;
+    xDeserializedInfo.usPacketIdentifier = usTestPacketId;
+    ulDelayReceivePacket = 0;
+    assert_int_equal( AzureIoTHubClient_SubscribeProperties( &xTestIoTHubClient,
+                                                             prvTestProperties,
+                                                             NULL, ( uint32_t ) -1 ),
+                      eAzureIoTSuccess );
+
+
+    will_return( AzureIoTMQTT_Publish, eAzureIoTMQTTSuccess );
+
+    assert_int_equal( AzureIoTADUClient_SendAgentState( &xTestIoTADUClient,
+                                                        &xTestIoTHubClient,
+                                                        &xADUDeviceProperties,
+                                                        &xUpdateRequest,
+                                                        eAzureIoTADUAgentStateIdle,
+                                                        &xInstallResult,
+                                                        ucPayloadBuffer,
+                                                        sizeof( ucPayloadBuffer ),
+                                                        &ulRequestId ), eAzureIoTSuccess );
+    assert_memory_equal( ucPayloadBuffer, ucSendStateLongPayload, sizeof( ucSendStateLongPayload ) - 1 );
+}
 
 uint32_t ulGetAllTests()
 {
@@ -486,7 +551,8 @@ uint32_t ulGetAllTests()
         cmocka_unit_test( testAzureIoTADUClient_SendResponse_InvalidArgFailure ),
         cmocka_unit_test( testAzureIoTADUClient_SendResponse_Success ),
         cmocka_unit_test( testAzureIoTADUClient_SendAgentState_InvalidArgFailure ),
-        cmocka_unit_test( testAzureIoTADUClient_SendAgentState_Success )
+        cmocka_unit_test( testAzureIoTADUClient_SendAgentState_Success ),
+        cmocka_unit_test( testAzureIoTADUClient_SendAgentState_WithAgentStateAndRequest_Success )
     };
 
     return ( uint32_t ) cmocka_run_group_tests_name( "azure_iot_hub_client_ut", tests, NULL, NULL );
