@@ -174,6 +174,12 @@ bool AzureIoTADUClient_IsADUComponent( AzureIoTADUClient_t * pxAzureIoTADUClient
                                        const uint8_t * pucComponentName,
                                        uint32_t ulComponentNameLength )
 {
+    if( ( pxAzureIoTADUClient == NULL ) )
+    {
+        AZLogError( ( "AzureIoTADUClient_IsADUComponent failed: invalid argument" ) );
+        return false;
+    }
+
     return az_iot_adu_client_is_component_device_update( &pxAzureIoTADUClient->_internal.xADUClient,
                                                          az_span_create( ( uint8_t * ) pucComponentName, ( int32_t ) ulComponentNameLength ) );
 }
@@ -278,7 +284,16 @@ AzureIoTResult_t AzureIoTADUClient_ParseRequest( AzureIoTADUClient_t * pxAzureIo
     az_iot_adu_client_update_manifest xBaseUpdateManifest;
     az_result xAzResult;
     az_json_reader jr;
-    az_span xBufferSpan = az_span_create( pucBuffer, ( int32_t ) ulBufferSize );
+    az_span xBufferSpan;
+
+    if( ( pxAzureIoTADUClient == NULL ) || ( pxReader == NULL ) ||
+        ( pxAduUpdateRequest == NULL ) || ( pucBuffer == NULL ) || ( ulBufferSize == 0 ) )
+    {
+        AZLogError( ( "AzureIoTADUClient_ParseRequest failed: invalid argument" ) );
+        return eAzureIoTErrorInvalidArgument;
+    }
+
+    xBufferSpan = az_span_create( pucBuffer, ( int32_t ) ulBufferSize );
 
     xAzResult = az_iot_adu_client_parse_service_properties(
         &pxAzureIoTADUClient->_internal.xADUClient,
@@ -330,6 +345,13 @@ AzureIoTResult_t AzureIoTADUClient_SendResponse( AzureIoTADUClient_t * pxAzureIo
     az_result xAzResult;
     az_json_writer jw;
     az_span xPayload;
+
+    if( ( pxAzureIoTADUClient == NULL ) || ( pxAzureIoTHubClient == NULL ) ||
+        ( pucWritablePropertyResponseBuffer == NULL ) || ( ulWritablePropertyResponseBufferSize == 0 ) )
+    {
+        AZLogError( ( "AzureIoTADUClient_SendResponse failed: invalid argument" ) );
+        return eAzureIoTErrorInvalidArgument;
+    }
 
     xAzResult = az_json_writer_init( &jw, az_span_create(
                                          pucWritablePropertyResponseBuffer,
@@ -471,7 +493,14 @@ AzureIoTResult_t AzureIoTADUClient_SendAgentState( AzureIoTADUClient_t * pxAzure
     az_json_writer jw;
     az_span xPropertiesPayload;
 
-    prvFillBaseAduDeviceProperties( pxDeviceProperties, &xBaseDeviceInformation );
+    if( ( pxAzureIoTADUClient == NULL ) || ( pxAzureIoTHubClient == NULL ) ||
+        ( pxDeviceInformation == NULL ) || ( pucBuffer == NULL ) || ( ulBufferSize == 0 ) )
+    {
+        AZLogError( ( "AzureIoTADUClient_SendAgentState failed: invalid argument" ) );
+        return eAzureIoTErrorInvalidArgument;
+    }
+
+    prvFillBaseAduDeviceProperties( pxDeviceInformation, &xBaseDeviceInformation );
     prvFillBaseAduWorkflow( pxAduUpdateRequest, &xBaseWorkflow );
     prvFillBaseAduInstallResults( pxUpdateResults, &xInstallResult );
 
