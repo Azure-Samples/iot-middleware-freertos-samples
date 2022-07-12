@@ -29,7 +29,7 @@ static uint8_t ucSendStateLongPayload[] = "{\"deviceUpdate\":{\"__t\":\"c\",\"ag
 static uint8_t ucSendResponsePayload[] = "{\"deviceUpdate\":{\"__t\":\"c\",\"service\":{\"ac\":200,\"av\":1,\"value\":{}}}}";
 static uint8_t ucHubClientBuffer[ 512 ];
 static uint8_t ucScratchBuffer[ 8000 ];
-static uint8_t ucPayloadBuffer[8000];
+static uint8_t ucPayloadBuffer[ 8000 ];
 static uint32_t ulReceivedCallbackFunctionId;
 static uint32_t ulExtendedResultCode = 1234;
 static uint8_t ucResultDetails[] = "Ok";
@@ -481,18 +481,19 @@ static void testAzureIoTADUClient_SendAgentState_WithAgentStateAndRequest_Succes
     AzureIoTHubClient_t xTestIoTHubClient;
     AzureIoTJSONReader_t xReader;
     AzureIoTADUUpdateRequest_t xUpdateRequest;
-    AzureIoTADUClientInstallResult_t xInstallResult;    uint32_t ulPropertyVersion = 1;
+    AzureIoTADUClientInstallResult_t xInstallResult;
+    uint32_t ulPropertyVersion = 1;
     uint32_t ulRequestId;
 
     xInstallResult.lResultCode = ulResultCode;
     xInstallResult.lExtendedResultCode = ulExtendedResultCode;
     xInstallResult.pucResultDetails = ucResultDetails;
-    xInstallResult.ulResultDetailsLength = sizeof(ucResultDetails) - 1;
+    xInstallResult.ulResultDetailsLength = sizeof( ucResultDetails ) - 1;
     xInstallResult.ulStepResultsCount = 1;
-    xInstallResult.pxStepResults[0].pucResultDetails = ucResultDetails;
-    xInstallResult.pxStepResults[0].ulResultDetailsLength = sizeof(ucResultDetails) - 1;
-    xInstallResult.pxStepResults[0].ulExtendedResultCode = ulExtendedResultCode;
-    xInstallResult.pxStepResults[0].ulResultCode = ulResultCode;
+    xInstallResult.pxStepResults[ 0 ].pucResultDetails = ucResultDetails;
+    xInstallResult.pxStepResults[ 0 ].ulResultDetailsLength = sizeof( ucResultDetails ) - 1;
+    xInstallResult.pxStepResults[ 0 ].ulExtendedResultCode = ulExtendedResultCode;
+    xInstallResult.pxStepResults[ 0 ].ulResultCode = ulResultCode;
 
     prvSetupTestIoTHubClient( &xTestIoTHubClient );
 
