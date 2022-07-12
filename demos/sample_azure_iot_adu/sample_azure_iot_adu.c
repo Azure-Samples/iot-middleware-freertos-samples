@@ -192,7 +192,7 @@ static AzureIoTHubClientComponent_t pnp_components[ sampleaduPNP_COMPONENTS_LIST
 
 /* This is an user-defined code to be reported as the result of the */
 /* OTA update on the Azure Device Update portal. */
-#define sampleaduSAMPLE_EXTENDED_RESULT_CODE 1234
+#define sampleaduSAMPLE_EXTENDED_RESULT_CODE    1234
 
 /* TODO: REMOVE THIS BLOCKER ONCE ADU IS IMPLEMENTED */
 /* This does not affect devices that actually implement the ADU process */
