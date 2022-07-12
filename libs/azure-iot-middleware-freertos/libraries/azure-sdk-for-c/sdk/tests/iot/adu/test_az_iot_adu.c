@@ -446,7 +446,7 @@ static void test_az_iot_adu_client_get_agent_state_long_payload_succeed(void** s
 
   assert_int_equal(az_iot_adu_client_init(&client, NULL), AZ_OK);
 
-    assert_int_equal(
+  assert_int_equal(
       az_json_reader_init(
           &jr, az_span_create(adu_request_payload, sizeof(adu_request_payload) - 1), NULL),
       AZ_OK);
@@ -470,7 +470,12 @@ static void test_az_iot_adu_client_get_agent_state_long_payload_succeed(void** s
 
   assert_int_equal(
       az_iot_adu_client_get_agent_state_payload(
-          &client, &adu_device_properties, AZ_IOT_ADU_CLIENT_AGENT_STATE_IDLE, &request.workflow, &install_result, &jw),
+          &client,
+          &adu_device_properties,
+          AZ_IOT_ADU_CLIENT_AGENT_STATE_IDLE,
+          &request.workflow,
+          &install_result,
+          &jw),
       AZ_OK);
 
   assert_memory_equal(
