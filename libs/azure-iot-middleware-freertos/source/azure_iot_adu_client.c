@@ -487,7 +487,7 @@ AzureIoTResult_t AzureIoTADUClient_SendAgentState( AzureIoTADUClient_t * pxAzure
                                                    uint32_t * pulRequestId )
 {
     az_result xAzResult;
-    az_iot_adu_client_device_properties xBaseDeviceInformation;
+    az_iot_adu_client_device_properties xBaseADUDeviceProperties;
     az_iot_adu_client_workflow xBaseWorkflow;
     az_iot_adu_client_install_result xInstallResult;
     az_json_writer jw;
@@ -500,7 +500,7 @@ AzureIoTResult_t AzureIoTADUClient_SendAgentState( AzureIoTADUClient_t * pxAzure
         return eAzureIoTErrorInvalidArgument;
     }
 
-    prvFillBaseAduDeviceProperties( pxDeviceProperties, &xBaseDeviceInformation );
+    prvFillBaseAduDeviceProperties( pxDeviceProperties, &xBaseADUDeviceProperties );
     prvFillBaseAduWorkflow( pxAduUpdateRequest, &xBaseWorkflow );
     prvFillBaseAduInstallResults( pxUpdateResults, &xInstallResult );
 
@@ -514,7 +514,7 @@ AzureIoTResult_t AzureIoTADUClient_SendAgentState( AzureIoTADUClient_t * pxAzure
 
     xAzResult = az_iot_adu_client_get_agent_state_payload(
         &pxAzureIoTADUClient->_internal.xADUClient,
-        &xBaseDeviceInformation,
+        &xBaseADUDeviceProperties,
         ( int32_t ) xAgentState,
         pxAduUpdateRequest != NULL ? &xBaseWorkflow : NULL,
         pxUpdateResults != NULL ? &xInstallResult : NULL,
