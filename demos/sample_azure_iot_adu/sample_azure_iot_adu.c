@@ -150,7 +150,7 @@ AzureIoTADUClient_t xAzureIoTADUClient;
 AzureIoTADUUpdateRequest_t xAzureIoTAduUpdateRequest;
 bool xProcessUpdateRequest = false;
 
-AzureIoTADUClientDeviceInformation_t xADUDeviceInformation =
+AzureIoTADUClientDeviceProperties_t xADUDeviceProperties =
 {
     .ucManufacturer       = ( const uint8_t * ) democonfigADU_DEVICE_MANUFACTURER,
     .ulManufacturerLength = sizeof( democonfigADU_DEVICE_MANUFACTURER ) - 1,
@@ -170,7 +170,7 @@ AzureIoTADUClientDeviceInformation_t xADUDeviceInformation =
 static AzureADUImage_t xImage;
 
 /* Telemetry buffers */
-static uint8_t ucScratchBuffer[ 512 ];
+static uint8_t ucScratchBuffer[ 600 ];
 
 /* Command buffers */
 static uint8_t ucCommandResponsePayloadBuffer[ 128 ];
@@ -181,12 +181,18 @@ static uint32_t ulReportedPropertiesUpdateLength;
 
 uint8_t ucAduContextBuffer[ ADU_CONTEXT_BUFFER_SIZE ];
 
+const uint8_t sampleaduDEFAULT_RESULT_DETAILS[] = "Ok";
+
 #define sampleaduPNP_COMPONENTS_LIST_LENGTH    1
 static AzureIoTHubClientComponent_t pnp_components[ sampleaduPNP_COMPONENTS_LIST_LENGTH ] =
 {
     azureiothubCREATE_COMPONENT( AZ_IOT_ADU_CLIENT_PROPERTIES_COMPONENT_NAME )
 };
 #define sampleaduPNP_COMPONENTS_LIST    pnp_components
+
+/* This is an user-defined code to be reported as the result of the */
+/* OTA update on the Azure Device Update portal. */
+#define sampleaduSAMPLE_EXTENDED_RESULT_CODE    1234
 
 /* TODO: REMOVE THIS BLOCKER ONCE ADU IS IMPLEMENTED */
 /* This does not affect devices that actually implement the ADU process */
@@ -444,7 +450,7 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash()
 
     xResult = AzureIoTADUClient_SendAgentState( &xAzureIoTADUClient,
                                                 &xAzureIoTHubClient,
-                                                &xADUDeviceInformation,
+                                                &xADUDeviceProperties,
                                                 &xAzureIoTAduUpdateRequest,
                                                 eAzureIoTADUAgentStateDeploymentInProgress,
                                                 NULL,
@@ -577,9 +583,9 @@ static AzureIoTResult_t prvEnableImageAndResetDevice()
      * through pucResultDetails.
      */
     xUpdateResults.lResultCode = 0;
-    xUpdateResults.lExtendedResultCode = 0;
-    xUpdateResults.pucResultDetails = NULL;
-    xUpdateResults.ulResultDetailsLength = 0;
+    xUpdateResults.lExtendedResultCode = sampleaduSAMPLE_EXTENDED_RESULT_CODE;
+    xUpdateResults.pucResultDetails = sampleaduDEFAULT_RESULT_DETAILS;
+    xUpdateResults.ulResultDetailsLength = sizeof( sampleaduDEFAULT_RESULT_DETAILS ) - 1;
     xUpdateResults.ulStepResultsCount =
         xAzureIoTAduUpdateRequest.xUpdateManifest.xInstructions.ulStepsCount;
 
@@ -590,16 +596,16 @@ static AzureIoTResult_t prvEnableImageAndResetDevice()
     for( int32_t ulStepIndex = 0; ulStepIndex < xUpdateResults.ulStepResultsCount; ulStepIndex++ )
     {
         xUpdateResults.pxStepResults[ ulStepIndex ].ulResultCode = 0;
-        xUpdateResults.pxStepResults[ ulStepIndex ].ulExtendedResultCode = 0;
-        xUpdateResults.pxStepResults[ ulStepIndex ].pucResultDetails = NULL;
-        xUpdateResults.pxStepResults[ ulStepIndex ].ulResultDetailsLength = 0;
+        xUpdateResults.pxStepResults[ ulStepIndex ].ulExtendedResultCode = sampleaduSAMPLE_EXTENDED_RESULT_CODE;
+        xUpdateResults.pxStepResults[ ulStepIndex ].pucResultDetails = sampleaduDEFAULT_RESULT_DETAILS;
+        xUpdateResults.pxStepResults[ ulStepIndex ].ulResultDetailsLength = sizeof( sampleaduDEFAULT_RESULT_DETAILS ) - 1;
     }
 
     LogInfo( ( "[ADU] Send property update.\r\n" ) );
 
     xResult = AzureIoTADUClient_SendAgentState( &xAzureIoTADUClient,
                                                 &xAzureIoTHubClient,
-                                                &xADUDeviceInformation,
+                                                &xADUDeviceProperties,
                                                 &xAzureIoTAduUpdateRequest,
                                                 eAzureIoTADUAgentStateDeploymentInProgress,
                                                 &xUpdateResults,
@@ -766,7 +772,7 @@ static void prvAzureDemoTask( void * pvParameters )
 
         xResult = AzureIoTADUClient_SendAgentState( &xAzureIoTADUClient,
                                                     &xAzureIoTHubClient,
-                                                    &xADUDeviceInformation,
+                                                    &xADUDeviceProperties,
                                                     NULL,
                                                     eAzureIoTADUAgentStateIdle,
                                                     NULL,

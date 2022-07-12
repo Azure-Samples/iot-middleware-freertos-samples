@@ -32,7 +32,7 @@ static uint8_t expected_agent_state_payload[]
       "\"installedUpdateId\":\"{\\\"provider\\\":\\\"Contoso\\\",\\\"name\\\":\\\"FooBar\\\","
       "\\\"version\\\":\\\"1.0\\\"}\"}}}";
 
-az_iot_adu_client_device_information adu_device_information
+az_iot_adu_client_device_properties adu_device_properties
     = { .manufacturer = AZ_SPAN_LITERAL_FROM_STR(TEST_ADU_DEVICE_MANUFACTURER),
         .model = AZ_SPAN_LITERAL_FROM_STR(TEST_ADU_DEVICE_MODEL),
         .adu_version = AZ_SPAN_LITERAL_FROM_STR(TEST_AZ_IOT_ADU_CLIENT_AGENT_VERSION),
@@ -216,7 +216,7 @@ static void test_az_iot_adu_client_get_agent_state_payload_NULL_client_fail(void
   az_json_writer jw;
 
   ASSERT_PRECONDITION_CHECKED(az_iot_adu_client_get_agent_state_payload(
-      NULL, &adu_device_information, AZ_IOT_ADU_CLIENT_AGENT_STATE_IDLE, NULL, NULL, &jw));
+      NULL, &adu_device_properties, AZ_IOT_ADU_CLIENT_AGENT_STATE_IDLE, NULL, NULL, &jw));
 }
 
 static void test_az_iot_adu_client_get_agent_state_payload_NULL_device_info_fail(void** state)
@@ -379,7 +379,7 @@ static void test_az_iot_adu_client_get_agent_state_payload_succeed(void** state)
 
   assert_int_equal(
       az_iot_adu_client_get_agent_state_payload(
-          &client, &adu_device_information, AZ_IOT_ADU_CLIENT_AGENT_STATE_IDLE, NULL, NULL, &jw),
+          &client, &adu_device_properties, AZ_IOT_ADU_CLIENT_AGENT_STATE_IDLE, NULL, NULL, &jw),
       AZ_OK);
 
   printf("%.*s\n", (int)sizeof(expected_agent_state_payload), payload_buffer);

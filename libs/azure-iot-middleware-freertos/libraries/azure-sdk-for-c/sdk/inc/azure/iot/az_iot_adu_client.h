@@ -65,7 +65,7 @@ typedef struct
   az_span adu_version;
   az_span do_version;
   az_iot_adu_client_update_id update_id;
-} az_iot_adu_client_device_information;
+} az_iot_adu_client_device_properties;
 
 typedef struct
 {
@@ -213,7 +213,7 @@ AZ_NODISCARD bool az_iot_adu_client_is_component_device_update(
  *        with the state of the ADU agent.
  *
  * @param[in] client                The #az_iot_adu_client to use for this call.
- * @param[in] device_information    A pointer to a #az_iot_adu_client_device_information
+ * @param[in] device_properties     A pointer to a #az_iot_adu_client_device_properties
  *                                  structure with all the details of the device,
  *                                  as required by the ADU service.
  * @param[in] agent_state           An integer value indicating the current state of
@@ -235,7 +235,7 @@ AZ_NODISCARD bool az_iot_adu_client_is_component_device_update(
  */
 AZ_NODISCARD az_result az_iot_adu_client_get_agent_state_payload(
     az_iot_adu_client* client,
-    az_iot_adu_client_device_information* device_information,
+    az_iot_adu_client_device_properties* device_properties,
     int32_t agent_state,
     az_iot_adu_client_workflow* workflow,
     az_iot_adu_client_install_result* last_install_result,

@@ -123,11 +123,11 @@ typedef struct AzureIoTADUClientUpdateId
 } AzureIoTADUClientUpdateId_t;
 
 /**
- * @brief ADU Device Information.
+ * @brief ADU Device Properties.
  *
  *  https://docs.microsoft.com/en-us/azure/iot-hub-device-update/understand-device-update#device-update-agent
  */
-typedef struct AzureIoTADUClientDeviceInformation
+typedef struct AzureIoTADUClientDeviceProperties
 {
     const uint8_t * ucManufacturer;
     uint32_t ulManufacturerLength;
@@ -136,7 +136,7 @@ typedef struct AzureIoTADUClientDeviceInformation
     uint32_t ulModelLength;
 
     AzureIoTADUClientUpdateId_t xCurrentUpdateId;
-} AzureIoTADUClientDeviceInformation_t;
+} AzureIoTADUClientDeviceProperties_t;
 
 /**
  * @brief Actions requested by the ADU Service
@@ -429,7 +429,7 @@ AzureIoTResult_t AzureIoTADUClient_SendResponse( AzureIoTADUClient_t * pxAzureIo
  *
  * @param[in] pxAzureIoTADUClient The #AzureIoTADUClient_t * to use for this call.
  * @param[in] pxAzureIoTHubClient The #AzureIoTHubClient_t * to use for this call.
- * @param pxDeviceInformation The device information which will be used to generate the payload.
+ * @param pxDeviceProperties The device information which will be used to generate the payload.
  * @param pxAduUpdateRequest The current #AzureIoTADUUpdateRequest_t. This can be `NULL` if there isn't currently
  * an update request.
  * @param xAgentState The current #AzureIoTADUAgentState_t.
@@ -442,7 +442,7 @@ AzureIoTResult_t AzureIoTADUClient_SendResponse( AzureIoTADUClient_t * pxAzureIo
  */
 AzureIoTResult_t AzureIoTADUClient_SendAgentState( AzureIoTADUClient_t * pxAzureIoTADUClient,
                                                    AzureIoTHubClient_t * pxAzureIoTHubClient,
-                                                   AzureIoTADUClientDeviceInformation_t * pxDeviceInformation,
+                                                   AzureIoTADUClientDeviceProperties_t * pxDeviceProperties,
                                                    AzureIoTADUUpdateRequest_t * pxAduUpdateRequest,
                                                    AzureIoTADUAgentState_t xAgentState,
                                                    AzureIoTADUClientInstallResult_t * pxUpdateResults,
