@@ -72,11 +72,4 @@ void vSampleHandleWritablePropertiesUpdate( AzureIoTHubClientPropertiesResponse_
 uint32_t ulSampleCreateReportedPropertiesUpdate( uint8_t * pucPropertiesData,
                                                  uint32_t ulPropertiesDataSize );
 
-// Azure Device Update
-extern az_iot_adu_client_update_request xUpdateRequest;
-extern az_iot_adu_client_device_properties xDeviceInformation;
-extern az_iot_adu_client_workflow * pxLastWorkflow;
-extern double xLastInstalledVersion;
-extern az_span xGetLastInstalledVersion( );
-
 #endif // AZURE_IOT_FREERTOS_ESP32_PNP_MODEL_H

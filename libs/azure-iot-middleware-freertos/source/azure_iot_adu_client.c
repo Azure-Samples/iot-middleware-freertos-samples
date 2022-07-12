@@ -370,26 +370,26 @@ AzureIoTResult_t AzureIoTADUClient_SendResponse( AzureIoTADUClient_t * pxAzureIo
     return eAzureIoTSuccess;
 }
 
-static void prvFillBaseDeviceInformation( AzureIoTADUClientDeviceInformation_t * pxDeviceInformation,
-                                          az_iot_adu_client_device_properties * pxBaseDeviceInformation )
+static void prvFillBaseAduDeviceProperties( AzureIoTADUClientDeviceProperties_t * pxDeviceProperties,
+                                          az_iot_adu_client_device_properties * pxBaseAduDeviceProperties )
 {
-    pxBaseDeviceInformation->manufacturer = az_span_create(
-        ( uint8_t * ) pxDeviceInformation->ucManufacturer,
-        ( int32_t ) pxDeviceInformation->ulManufacturerLength );
-    pxBaseDeviceInformation->model = az_span_create(
-        ( uint8_t * ) pxDeviceInformation->ucModel,
-        ( int32_t ) pxDeviceInformation->ulModelLength );
-    pxBaseDeviceInformation->update_id.name = az_span_create(
-        ( uint8_t * ) pxDeviceInformation->xCurrentUpdateId.ucName,
-        ( int32_t ) pxDeviceInformation->xCurrentUpdateId.ulNameLength );
-    pxBaseDeviceInformation->update_id.provider = az_span_create(
-        ( uint8_t * ) pxDeviceInformation->xCurrentUpdateId.ucProvider,
-        ( int32_t ) pxDeviceInformation->xCurrentUpdateId.ulProviderLength );
-    pxBaseDeviceInformation->update_id.version = az_span_create(
-        ( uint8_t * ) pxDeviceInformation->xCurrentUpdateId.ucVersion,
-        ( int32_t ) pxDeviceInformation->xCurrentUpdateId.ulVersionLength );
-    pxBaseDeviceInformation->adu_version = AZ_SPAN_FROM_STR( AZ_IOT_ADU_CLIENT_AGENT_VERSION );
-    pxBaseDeviceInformation->do_version = AZ_SPAN_EMPTY;
+    pxBaseAduDeviceProperties->manufacturer = az_span_create(
+        ( uint8_t * ) pxDeviceProperties->ucManufacturer,
+        ( int32_t ) pxDeviceProperties->ulManufacturerLength );
+    pxBaseAduDeviceProperties->model = az_span_create(
+        ( uint8_t * ) pxDeviceProperties->ucModel,
+        ( int32_t ) pxDeviceProperties->ulModelLength );
+    pxBaseAduDeviceProperties->update_id.name = az_span_create(
+        ( uint8_t * ) pxDeviceProperties->xCurrentUpdateId.ucName,
+        ( int32_t ) pxDeviceProperties->xCurrentUpdateId.ulNameLength );
+    pxBaseAduDeviceProperties->update_id.provider = az_span_create(
+        ( uint8_t * ) pxDeviceProperties->xCurrentUpdateId.ucProvider,
+        ( int32_t ) pxDeviceProperties->xCurrentUpdateId.ulProviderLength );
+    pxBaseAduDeviceProperties->update_id.version = az_span_create(
+        ( uint8_t * ) pxDeviceProperties->xCurrentUpdateId.ucVersion,
+        ( int32_t ) pxDeviceProperties->xCurrentUpdateId.ulVersionLength );
+    pxBaseAduDeviceProperties->adu_version = AZ_SPAN_FROM_STR( AZ_IOT_ADU_CLIENT_AGENT_VERSION );
+    pxBaseAduDeviceProperties->do_version = AZ_SPAN_EMPTY;
 }
 
 static void prvFillBaseAduWorkflow( AzureIoTADUUpdateRequest_t * pxAduUpdateRequest,
@@ -456,7 +456,7 @@ static void prvFillBaseAduInstallResults( AzureIoTADUClientInstallResult_t * pxU
 
 AzureIoTResult_t AzureIoTADUClient_SendAgentState( AzureIoTADUClient_t * pxAzureIoTADUClient,
                                                    AzureIoTHubClient_t * pxAzureIoTHubClient,
-                                                   AzureIoTADUClientDeviceInformation_t * pxDeviceInformation,
+                                                   AzureIoTADUClientDeviceProperties_t * pxDeviceProperties,
                                                    AzureIoTADUUpdateRequest_t * pxAduUpdateRequest,
                                                    AzureIoTADUAgentState_t xAgentState,
                                                    AzureIoTADUClientInstallResult_t * pxUpdateResults,
@@ -471,7 +471,7 @@ AzureIoTResult_t AzureIoTADUClient_SendAgentState( AzureIoTADUClient_t * pxAzure
     az_json_writer jw;
     az_span xPropertiesPayload;
 
-    prvFillBaseDeviceInformation( pxDeviceInformation, &xBaseDeviceInformation );
+    prvFillBaseAduDeviceProperties( pxDeviceProperties, &xBaseDeviceInformation );
     prvFillBaseAduWorkflow( pxAduUpdateRequest, &xBaseWorkflow );
     prvFillBaseAduInstallResults( pxUpdateResults, &xInstallResult );
 

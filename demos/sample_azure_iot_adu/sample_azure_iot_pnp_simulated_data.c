@@ -239,20 +239,20 @@ static uint32_t prvGetNewMaxTemp( double xUpdatedTemperature,
 static bool prvIsUpdateAlreadyInstalled( const AzureIoTADUUpdateRequest_t * pxAduUpdateRequest )
 {
     if( ( pxAduUpdateRequest->xUpdateManifest.xUpdateId.ulNameLength ==
-          xADUDeviceInformation.xCurrentUpdateId.ulNameLength ) &&
+          xADUDeviceProperties.xCurrentUpdateId.ulNameLength ) &&
         ( strncmp( ( const char * ) pxAduUpdateRequest->xUpdateManifest.xUpdateId.pucName,
-                   ( const char * ) xADUDeviceInformation.xCurrentUpdateId.ucName,
-                   ( size_t ) xADUDeviceInformation.xCurrentUpdateId.ulNameLength ) == 0 ) &&
+                   ( const char * ) xADUDeviceProperties.xCurrentUpdateId.ucName,
+                   ( size_t ) xADUDeviceProperties.xCurrentUpdateId.ulNameLength ) == 0 ) &&
         ( pxAduUpdateRequest->xUpdateManifest.xUpdateId.ulProviderLength ==
-          xADUDeviceInformation.xCurrentUpdateId.ulProviderLength ) &&
+          xADUDeviceProperties.xCurrentUpdateId.ulProviderLength ) &&
         ( strncmp( ( const char * ) pxAduUpdateRequest->xUpdateManifest.xUpdateId.pucProvider,
-                   ( const char * ) xADUDeviceInformation.xCurrentUpdateId.ucProvider,
-                   ( size_t ) xADUDeviceInformation.xCurrentUpdateId.ulProviderLength ) == 0 ) &&
+                   ( const char * ) xADUDeviceProperties.xCurrentUpdateId.ucProvider,
+                   ( size_t ) xADUDeviceProperties.xCurrentUpdateId.ulProviderLength ) == 0 ) &&
         ( pxAduUpdateRequest->xUpdateManifest.xUpdateId.ulVersionLength ==
-          xADUDeviceInformation.xCurrentUpdateId.ulVersionLength ) &&
+          xADUDeviceProperties.xCurrentUpdateId.ulVersionLength ) &&
         ( strncmp( ( const char * ) pxAduUpdateRequest->xUpdateManifest.xUpdateId.pucVersion,
-                   ( const char * ) xADUDeviceInformation.xCurrentUpdateId.ucVersion,
-                   ( size_t ) xADUDeviceInformation.xCurrentUpdateId.ulVersionLength ) == 0 ) )
+                   ( const char * ) xADUDeviceProperties.xCurrentUpdateId.ucVersion,
+                   ( size_t ) xADUDeviceProperties.xCurrentUpdateId.ulVersionLength ) == 0 ) )
     {
         return true;
     }

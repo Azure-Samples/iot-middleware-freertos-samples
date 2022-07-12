@@ -150,7 +150,7 @@ AzureIoTADUClient_t xAzureIoTADUClient;
 AzureIoTADUUpdateRequest_t xAzureIoTAduUpdateRequest;
 bool xProcessUpdateRequest = false;
 
-AzureIoTADUClientDeviceInformation_t xADUDeviceInformation =
+AzureIoTADUClientDeviceProperties_t xADUDeviceProperties =
 {
     .ucManufacturer       = ( const uint8_t * ) democonfigADU_DEVICE_MANUFACTURER,
     .ulManufacturerLength = sizeof( democonfigADU_DEVICE_MANUFACTURER ) - 1,
@@ -446,7 +446,7 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash()
 
     xResult = AzureIoTADUClient_SendAgentState( &xAzureIoTADUClient,
                                                 &xAzureIoTHubClient,
-                                                &xADUDeviceInformation,
+                                                &xADUDeviceProperties,
                                                 &xAzureIoTAduUpdateRequest,
                                                 eAzureIoTADUAgentStateDeploymentInProgress,
                                                 NULL,
@@ -601,7 +601,7 @@ static AzureIoTResult_t prvEnableImageAndResetDevice()
 
     xResult = AzureIoTADUClient_SendAgentState( &xAzureIoTADUClient,
                                                 &xAzureIoTHubClient,
-                                                &xADUDeviceInformation,
+                                                &xADUDeviceProperties,
                                                 &xAzureIoTAduUpdateRequest,
                                                 eAzureIoTADUAgentStateDeploymentInProgress,
                                                 &xUpdateResults,
@@ -768,7 +768,7 @@ static void prvAzureDemoTask( void * pvParameters )
 
         xResult = AzureIoTADUClient_SendAgentState( &xAzureIoTADUClient,
                                                     &xAzureIoTHubClient,
-                                                    &xADUDeviceInformation,
+                                                    &xADUDeviceProperties,
                                                     NULL,
                                                     eAzureIoTADUAgentStateIdle,
                                                     NULL,
