@@ -18,18 +18,28 @@
 
 #include <cmocka.h>
 
-#define TEST_SPAN_BUFFER_SIZE 512
+#define TEST_SPAN_BUFFER_SIZE 1024
 #define TEST_ADU_DEVICE_MANUFACTURER "Contoso"
-#define TEST_ADU_DEVICE_MODEL "FooBar"
+#define TEST_ADU_DEVICE_MODEL "Foobar"
 #define TEST_AZ_IOT_ADU_CLIENT_AGENT_VERSION AZ_IOT_ADU_CLIENT_AGENT_VERSION
 #define TEST_ADU_DEVICE_VERSION "1.0"
 
 static uint8_t expected_agent_state_payload[]
     = "{\"deviceUpdate\":{\"__t\":\"c\",\"agent\":{\"deviceProperties\":{\"manufacturer\":"
-      "\"Contoso\",\"model\":\"FooBar\",\"interfaceId\":\"dtmi:azure:iot:deviceUpdate;1\","
+      "\"Contoso\",\"model\":\"Foobar\",\"interfaceId\":\"dtmi:azure:iot:deviceUpdate;1\","
       "\"aduVer\":\"DU;agent/"
       "0.8.0-rc1-public-preview\"},\"compatPropertyNames\":\"manufacturer,model\",\"state\":0,"
-      "\"installedUpdateId\":\"{\\\"provider\\\":\\\"Contoso\\\",\\\"name\\\":\\\"FooBar\\\","
+      "\"installedUpdateId\":\"{\\\"provider\\\":\\\"Contoso\\\",\\\"name\\\":\\\"Foobar\\\","
+      "\\\"version\\\":\\\"1.0\\\"}\"}}}";
+static uint8_t expected_agent_state_long_payload[]
+    = "{\"deviceUpdate\":{\"__t\":\"c\",\"agent\":{\"deviceProperties\":{\"manufacturer\":"
+      "\"Contoso\",\"model\":\"Foobar\",\"interfaceId\":\"dtmi:azure:iot:deviceUpdate;1\","
+      "\"aduVer\":\"DU;agent/"
+      "0.8.0-rc1-public-preview\"},\"compatPropertyNames\":\"manufacturer,model\","
+      "\"lastInstallResult\":{\"resultCode\":0,\"extendedResultCode\":1234,\"resultDetails\":"
+      "\"Ok\",\"step_0\":{\"resultCode\":0,\"extendedResultCode\":1234,\"resultDetails\":\"Ok\"}},"
+      "\"state\":0,\"workflow\":{\"action\":3,\"id\":\"51552a54-765e-419f-892a-c822549b6f38\"},"
+      "\"installedUpdateId\":\"{\\\"provider\\\":\\\"Contoso\\\",\\\"name\\\":\\\"Foobar\\\","
       "\\\"version\\\":\\\"1.0\\\"}\"}}}";
 
 az_iot_adu_client_device_properties adu_device_properties
@@ -44,6 +54,10 @@ az_iot_adu_client_device_properties adu_device_properties
 static uint8_t send_response_valid_payload[]
     = "{\"deviceUpdate\":{\"__t\":\"c\",\"service\":{\"ac\":200,\"av\":1,\"value\":{}}}}";
 static uint8_t scratch_buffer[8000];
+static uint8_t device_update_subcomponent_name[] = "deviceUpdate";
+static int32_t result_code = 0;
+static int32_t extended_result_code = 1234;
+static az_span result_details = AZ_SPAN_LITERAL_FROM_STR("Ok");
 
 /*Request Values */
 static uint8_t adu_request_payload[]
@@ -209,6 +223,16 @@ static void test_az_iot_adu_client_init_NULL_client_fail(void** state)
   ASSERT_PRECONDITION_CHECKED(az_iot_adu_client_init(NULL, NULL));
 }
 
+static void test_az_iot_adu_is_component_device_update_NULL_client_fail(void** state)
+{
+  (void)state;
+
+  ASSERT_PRECONDITION_CHECKED(az_iot_adu_client_is_component_device_update(
+      NULL,
+      az_span_create(
+          device_update_subcomponent_name, sizeof(device_update_subcomponent_name) - 1)));
+}
+
 static void test_az_iot_adu_client_get_agent_state_payload_NULL_client_fail(void** state)
 {
   (void)state;
@@ -363,6 +387,20 @@ static void test_az_iot_adu_client_init_succeed(void** state)
   assert_int_equal(az_iot_adu_client_init(&client, NULL), AZ_OK);
 }
 
+static void test_az_iot_adu_is_component_device_update_succeed(void** state)
+{
+  (void)state;
+
+  az_iot_adu_client client;
+
+  assert_int_equal(az_iot_adu_client_init(&client, NULL), AZ_OK);
+
+  assert_true(az_iot_adu_client_is_component_device_update(
+      &client,
+      az_span_create(
+          device_update_subcomponent_name, sizeof(device_update_subcomponent_name) - 1)));
+}
+
 static void test_az_iot_adu_client_get_agent_state_payload_succeed(void** state)
 {
   (void)state;
@@ -382,10 +420,61 @@ static void test_az_iot_adu_client_get_agent_state_payload_succeed(void** state)
           &client, &adu_device_properties, AZ_IOT_ADU_CLIENT_AGENT_STATE_IDLE, NULL, NULL, &jw),
       AZ_OK);
 
-  printf("%.*s\n", (int)sizeof(expected_agent_state_payload), payload_buffer);
-
   assert_memory_equal(
       payload_buffer, expected_agent_state_payload, sizeof(expected_agent_state_payload));
+}
+
+static void test_az_iot_adu_client_get_agent_state_long_payload_succeed(void** state)
+{
+  (void)state;
+
+  az_iot_adu_client client;
+  az_iot_adu_client_update_request request;
+  az_iot_adu_client_install_result install_result;
+  az_json_writer jw;
+  az_json_reader jr;
+  uint8_t payload_buffer[TEST_SPAN_BUFFER_SIZE];
+  az_span remainder;
+
+  install_result.extended_result_code = extended_result_code;
+  install_result.result_code = result_code;
+  install_result.result_details = result_details;
+  install_result.step_results_count = 1;
+  install_result.step_results[0].result_code = result_code;
+  install_result.step_results[0].extended_result_code = extended_result_code;
+  install_result.step_results[0].result_details = result_details;
+
+  assert_int_equal(az_iot_adu_client_init(&client, NULL), AZ_OK);
+
+    assert_int_equal(
+      az_json_reader_init(
+          &jr, az_span_create(adu_request_payload, sizeof(adu_request_payload) - 1), NULL),
+      AZ_OK);
+
+  // parse_service_properties requires that the reader be placed on the "service" prop name
+  assert_int_equal(az_json_reader_next_token(&jr), AZ_OK);
+  assert_int_equal(az_json_reader_next_token(&jr), AZ_OK);
+
+  assert_int_equal(
+      az_iot_adu_client_parse_service_properties(
+          &client,
+          &jr,
+          az_span_create(scratch_buffer, sizeof(scratch_buffer)),
+          &request,
+          &remainder),
+      AZ_OK);
+
+  assert_int_equal(
+      az_json_writer_init(&jw, az_span_create(payload_buffer, sizeof(payload_buffer)), NULL),
+      AZ_OK);
+
+  assert_int_equal(
+      az_iot_adu_client_get_agent_state_payload(
+          &client, &adu_device_properties, AZ_IOT_ADU_CLIENT_AGENT_STATE_IDLE, &request.workflow, &install_result, &jw),
+      AZ_OK);
+
+  assert_memory_equal(
+      payload_buffer, expected_agent_state_long_payload, sizeof(expected_agent_state_long_payload));
 }
 
 static void test_az_iot_adu_client_get_service_properties_response_succeed(void** state)
@@ -701,6 +790,7 @@ int test_az_iot_adu()
 #ifndef AZ_NO_PRECONDITION_CHECKING
     // Precondition Tests
     cmocka_unit_test(test_az_iot_adu_client_init_NULL_client_fail),
+    cmocka_unit_test(test_az_iot_adu_is_component_device_update_NULL_client_fail),
     cmocka_unit_test(test_az_iot_adu_client_get_agent_state_payload_NULL_client_fail),
     cmocka_unit_test(test_az_iot_adu_client_get_agent_state_payload_NULL_device_info_fail),
     cmocka_unit_test(test_az_iot_adu_client_get_service_properties_response_NULL_client_fail),
@@ -714,7 +804,9 @@ int test_az_iot_adu()
     cmocka_unit_test(test_az_iot_adu_client_parse_update_manifest_NULL_update_manifest_fail),
 #endif // AZ_NO_PRECONDITION_CHECKING
     cmocka_unit_test(test_az_iot_adu_client_init_succeed),
+    cmocka_unit_test(test_az_iot_adu_is_component_device_update_succeed),
     cmocka_unit_test(test_az_iot_adu_client_get_agent_state_payload_succeed),
+    cmocka_unit_test(test_az_iot_adu_client_get_agent_state_long_payload_succeed),
     cmocka_unit_test(test_az_iot_adu_client_get_service_properties_response_succeed),
     cmocka_unit_test(test_az_iot_adu_client_parse_service_properties_succeed),
     cmocka_unit_test(test_az_iot_adu_client_parse_service_properties_payload_reverse_order_succeed),
