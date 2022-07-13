@@ -216,12 +216,13 @@ AZ_NODISCARD az_result az_iot_adu_client_get_agent_state_payload(
   _az_RETURN_IF_FAILED(
       az_json_writer_append_string(ref_json_writer, device_properties->adu_version));
 
-  if (!az_span_is_content_equal(device_properties->delivery_optimization_agent_version, AZ_SPAN_EMPTY))
+  if (!az_span_is_content_equal(
+          device_properties->delivery_optimization_agent_version, AZ_SPAN_EMPTY))
   {
     _az_RETURN_IF_FAILED(az_json_writer_append_property_name(
         ref_json_writer, AZ_SPAN_FROM_STR(AZ_IOT_ADU_CLIENT_AGENT_PROPERTY_NAME_DO_VERSION)));
-    _az_RETURN_IF_FAILED(
-        az_json_writer_append_string(ref_json_writer, device_properties->delivery_optimization_agent_version));
+    _az_RETURN_IF_FAILED(az_json_writer_append_string(
+        ref_json_writer, device_properties->delivery_optimization_agent_version));
   }
 
   _az_RETURN_IF_FAILED(az_json_writer_append_end_object(ref_json_writer));
