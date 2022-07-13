@@ -152,19 +152,21 @@ bool xProcessUpdateRequest = false;
 
 AzureIoTADUClientDeviceProperties_t xADUDeviceProperties =
 {
-    .ucManufacturer       = ( const uint8_t * ) democonfigADU_DEVICE_MANUFACTURER,
-    .ulManufacturerLength = sizeof( democonfigADU_DEVICE_MANUFACTURER ) - 1,
-    .ucModel              = ( const uint8_t * ) democonfigADU_DEVICE_MODEL,
-    .ulModelLength        = sizeof( democonfigADU_DEVICE_MODEL ) - 1,
-    .xCurrentUpdateId     =
+    .ucManufacturer                           = ( const uint8_t * ) democonfigADU_DEVICE_MANUFACTURER,
+    .ulManufacturerLength                     = sizeof( democonfigADU_DEVICE_MANUFACTURER ) - 1,
+    .ucModel                                  = ( const uint8_t * ) democonfigADU_DEVICE_MODEL,
+    .ulModelLength                            = sizeof( democonfigADU_DEVICE_MODEL ) - 1,
+    .xCurrentUpdateId                         =
     {
-        .ucProvider       = ( const uint8_t * ) democonfigADU_UPDATE_PROVIDER,
-        .ulProviderLength = sizeof( democonfigADU_UPDATE_PROVIDER ) - 1,
-        .ucName           = ( const uint8_t * ) democonfigADU_UPDATE_NAME,
-        .ulNameLength     = sizeof( democonfigADU_UPDATE_NAME ) - 1,
-        .ucVersion        = ( const uint8_t * ) democonfigADU_UPDATE_VERSION,
-        .ulVersionLength  = sizeof( democonfigADU_UPDATE_VERSION ) - 1
-    }
+        .ucProvider                           = ( const uint8_t * ) democonfigADU_UPDATE_PROVIDER,
+        .ulProviderLength                     = sizeof( democonfigADU_UPDATE_PROVIDER ) - 1,
+        .ucName                               = ( const uint8_t * ) democonfigADU_UPDATE_NAME,
+        .ulNameLength                         = sizeof( democonfigADU_UPDATE_NAME ) - 1,
+        .ucVersion                            = ( const uint8_t * ) democonfigADU_UPDATE_VERSION,
+        .ulVersionLength                      = sizeof( democonfigADU_UPDATE_VERSION ) - 1
+    },
+    .ucDeliveryOptimizationAgentVersion       = NULL,
+    .ulDeliveryOptimizationAgentVersionLength = 0
 };
 
 static AzureADUImage_t xImage;

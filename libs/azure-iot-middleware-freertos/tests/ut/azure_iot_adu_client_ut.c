@@ -20,12 +20,13 @@
 #define testUPDATE_PROVIDER         testDEVICE_MANUFACTURER
 #define testUPDATE_NAME             testDEVICE_MODEL
 #define testUPDATE_VERSION          "1.0"
+#define testDO_VERSION              "DU;lib/v0.6.0+20211001.174458.c8c4051,DU;agent/v0.6.0+20211001.174418.c8c4051"
 
 static const uint8_t ucHostname[] = "unittest.azure-devices.net";
 static const uint8_t ucDeviceId[] = "testiothub";
 static uint8_t ucComponentName[] = "deviceUpdate";
-static uint8_t ucSendStatePayload[] = "{\"deviceUpdate\":{\"__t\":\"c\",\"agent\":{\"deviceProperties\":{\"manufacturer\":\"Contoso\",\"model\":\"Foobar\",\"interfaceId\":\"dtmi:azure:iot:deviceUpdate;1\",\"aduVer\":\"DU;agent/0.8.0-rc1-public-preview\"},\"compatPropertyNames\":\"manufacturer,model\",\"state\":0,\"installedUpdateId\":\"{\\\"provider\\\":\\\"Contoso\\\",\\\"name\\\":\\\"Foobar\\\",\\\"version\\\":\\\"1.0\\\"}\"}}}";
-static uint8_t ucSendStateLongPayload[] = "{\"deviceUpdate\":{\"__t\":\"c\",\"agent\":{\"deviceProperties\":{\"manufacturer\":\"Contoso\",\"model\":\"Foobar\",\"interfaceId\":\"dtmi:azure:iot:deviceUpdate;1\",\"aduVer\":\"DU;agent/0.8.0-rc1-public-preview\"},\"compatPropertyNames\":\"manufacturer,model\",\"lastInstallResult\":{\"resultCode\":0,\"extendedResultCode\":1234,\"resultDetails\":\"Ok\",\"step_0\":{\"resultCode\":0,\"extendedResultCode\":1234,\"resultDetails\":\"Ok\"}},\"state\":0,\"workflow\":{\"action\":3,\"id\":\"51552a54-765e-419f-892a-c822549b6f38\"},\"installedUpdateId\":\"{\\\"provider\\\":\\\"Contoso\\\",\\\"name\\\":\\\"Foobar\\\",\\\"version\\\":\\\"1.0\\\"}\"}}}";
+static uint8_t ucSendStatePayload[] = "{\"deviceUpdate\":{\"__t\":\"c\",\"agent\":{\"deviceProperties\":{\"manufacturer\":\"Contoso\",\"model\":\"Foobar\",\"interfaceId\":\"dtmi:azure:iot:deviceUpdate;1\",\"aduVer\":\"DU;agent/0.8.0-rc1-public-preview\",\"doVer\":\"" testDO_VERSION "\"},\"compatPropertyNames\":\"manufacturer,model\",\"state\":0,\"installedUpdateId\":\"{\\\"provider\\\":\\\"Contoso\\\",\\\"name\\\":\\\"Foobar\\\",\\\"version\\\":\\\"1.0\\\"}\"}}}";
+static uint8_t ucSendStateLongPayload[] = "{\"deviceUpdate\":{\"__t\":\"c\",\"agent\":{\"deviceProperties\":{\"manufacturer\":\"Contoso\",\"model\":\"Foobar\",\"interfaceId\":\"dtmi:azure:iot:deviceUpdate;1\",\"aduVer\":\"DU;agent/0.8.0-rc1-public-preview\",\"doVer\":\"" testDO_VERSION "\"},\"compatPropertyNames\":\"manufacturer,model\",\"lastInstallResult\":{\"resultCode\":0,\"extendedResultCode\":1234,\"resultDetails\":\"Ok\",\"step_0\":{\"resultCode\":0,\"extendedResultCode\":1234,\"resultDetails\":\"Ok\"}},\"state\":0,\"workflow\":{\"action\":3,\"id\":\"51552a54-765e-419f-892a-c822549b6f38\"},\"installedUpdateId\":\"{\\\"provider\\\":\\\"Contoso\\\",\\\"name\\\":\\\"Foobar\\\",\\\"version\\\":\\\"1.0\\\"}\"}}}";
 static uint8_t ucSendResponsePayload[] = "{\"deviceUpdate\":{\"__t\":\"c\",\"service\":{\"ac\":200,\"av\":1,\"value\":{}}}}";
 static uint8_t ucHubClientBuffer[ 512 ];
 static uint8_t ucScratchBuffer[ 8000 ];
@@ -57,19 +58,21 @@ static uint8_t ucFileUrl[] = "http://contoso-adu-instance--contoso-adu.b.nlu.dl.
 
 AzureIoTADUClientDeviceProperties_t xADUDeviceProperties =
 {
-    .ucManufacturer       = testDEVICE_MANUFACTURER,
-    .ulManufacturerLength = sizeof( testDEVICE_MANUFACTURER ) - 1,
-    .ucModel              = testDEVICE_MODEL,
-    .ulModelLength        = sizeof( testDEVICE_MODEL ) - 1,
-    .xCurrentUpdateId     =
+    .ucManufacturer                           = testDEVICE_MANUFACTURER,
+    .ulManufacturerLength                     = sizeof( testDEVICE_MANUFACTURER ) - 1,
+    .ucModel                                  = testDEVICE_MODEL,
+    .ulModelLength                            = sizeof( testDEVICE_MODEL ) - 1,
+    .xCurrentUpdateId                         =
     {
-        .ucProvider       = testUPDATE_PROVIDER,
-        .ulProviderLength = sizeof( testUPDATE_PROVIDER ) - 1,
-        .ucName           = testUPDATE_NAME,
-        .ulNameLength     = sizeof( testUPDATE_NAME ) - 1,
-        .ucVersion        = testUPDATE_VERSION,
-        .ulVersionLength  = sizeof( testUPDATE_VERSION ) - 1
-    }
+        .ucProvider                           = testUPDATE_PROVIDER,
+        .ulProviderLength                     = sizeof( testUPDATE_PROVIDER ) - 1,
+        .ucName                               = testUPDATE_NAME,
+        .ulNameLength                         = sizeof( testUPDATE_NAME ) - 1,
+        .ucVersion                            = testUPDATE_VERSION,
+        .ulVersionLength                      = sizeof( testUPDATE_VERSION ) - 1
+    },
+    .ucDeliveryOptimizationAgentVersion       = testDO_VERSION,
+    .ulDeliveryOptimizationAgentVersionLength = sizeof( testDO_VERSION ) - 1
 };
 
 static AzureIoTTransportInterface_t xTransportInterface =

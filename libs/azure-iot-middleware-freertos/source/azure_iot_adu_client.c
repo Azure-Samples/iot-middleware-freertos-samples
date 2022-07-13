@@ -411,7 +411,9 @@ static void prvFillBaseAduDeviceProperties( AzureIoTADUClientDeviceProperties_t 
         ( uint8_t * ) pxDeviceProperties->xCurrentUpdateId.ucVersion,
         ( int32_t ) pxDeviceProperties->xCurrentUpdateId.ulVersionLength );
     pxBaseAduDeviceProperties->adu_version = AZ_SPAN_FROM_STR( AZ_IOT_ADU_CLIENT_AGENT_VERSION );
-    pxBaseAduDeviceProperties->do_version = AZ_SPAN_EMPTY;
+    pxBaseAduDeviceProperties->delivery_optimization_agent_version = az_span_create(
+        ( uint8_t * ) pxDeviceProperties->ucDeliveryOptimizationAgentVersion,
+        ( int32_t ) pxDeviceProperties->ulDeliveryOptimizationAgentVersionLength );
 }
 
 static void prvFillBaseAduWorkflow( AzureIoTADUUpdateRequest_t * pxAduUpdateRequest,
