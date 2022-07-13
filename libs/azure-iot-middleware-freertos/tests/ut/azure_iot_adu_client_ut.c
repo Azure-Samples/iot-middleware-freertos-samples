@@ -53,20 +53,20 @@ static uint8_t ucFileUrl[] = "http://contoso-adu-instance--contoso-adu.b.nlu.dl.
 
 AzureIoTADUClientDeviceProperties_t xADUDeviceProperties =
 {
-    .ucManufacturer       = testDEVICE_MANUFACTURER,
-    .ulManufacturerLength = sizeof( testDEVICE_MANUFACTURER ) - 1,
-    .ucModel              = testDEVICE_MODEL,
-    .ulModelLength        = sizeof( testDEVICE_MODEL ) - 1,
-    .xCurrentUpdateId     =
+    .ucManufacturer                           = testDEVICE_MANUFACTURER,
+    .ulManufacturerLength                     = sizeof( testDEVICE_MANUFACTURER ) - 1,
+    .ucModel                                  = testDEVICE_MODEL,
+    .ulModelLength                            = sizeof( testDEVICE_MODEL ) - 1,
+    .xCurrentUpdateId                         =
     {
-        .ucProvider       = testUPDATE_PROVIDER,
-        .ulProviderLength = sizeof( testUPDATE_PROVIDER ) - 1,
-        .ucName           = testUPDATE_NAME,
-        .ulNameLength     = sizeof( testUPDATE_NAME ) - 1,
-        .ucVersion        = testUPDATE_VERSION,
-        .ulVersionLength  = sizeof( testUPDATE_VERSION ) - 1
+        .ucProvider                           = testUPDATE_PROVIDER,
+        .ulProviderLength                     = sizeof( testUPDATE_PROVIDER ) - 1,
+        .ucName                               = testUPDATE_NAME,
+        .ulNameLength                         = sizeof( testUPDATE_NAME ) - 1,
+        .ucVersion                            = testUPDATE_VERSION,
+        .ulVersionLength                      = sizeof( testUPDATE_VERSION ) - 1
     },
-    .ucDeliveryOptimizationAgentVersion = testDO_VERSION,
+    .ucDeliveryOptimizationAgentVersion       = testDO_VERSION,
     .ulDeliveryOptimizationAgentVersionLength = sizeof( testDO_VERSION ) - 1
 };
 
