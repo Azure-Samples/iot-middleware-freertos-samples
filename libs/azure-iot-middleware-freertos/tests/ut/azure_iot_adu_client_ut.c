@@ -25,7 +25,7 @@
 static const uint8_t ucHostname[] = "unittest.azure-devices.net";
 static const uint8_t ucDeviceId[] = "testiothub";
 static uint8_t ucComponentName[] = "deviceUpdate";
-static uint8_t ucSendStatePayload[] = "{\"deviceUpdate\":{\"__t\":\"c\",\"agent\":{\"deviceProperties\":{\"manufacturer\":\"Contoso\",\"model\":\"Foobar\",\"interfaceId\":\"dtmi:azure:iot:deviceUpdate;1\",\"aduVer\":\"DU;agent/0.8.0-rc1-public-preview\"},\"compatPropertyNames\":\"manufacturer,model\",\"state\":0,\"installedUpdateId\":\"{\\\"provider\\\":\\\"Contoso\\\",\\\"name\\\":\\\"Foobar\\\",\\\"version\\\":\\\"1.0\\\"}\"}}}";
+static uint8_t ucSendStatePayload[] = "{\"deviceUpdate\":{\"__t\":\"c\",\"agent\":{\"deviceProperties\":{\"manufacturer\":\"Contoso\",\"model\":\"Foobar\",\"interfaceId\":\"dtmi:azure:iot:deviceUpdate;1\",\"aduVer\":\"DU;agent/0.8.0-rc1-public-preview\",\"doVer\":\"" testDO_VERSION "\"},\"compatPropertyNames\":\"manufacturer,model\",\"state\":0,\"installedUpdateId\":\"{\\\"provider\\\":\\\"Contoso\\\",\\\"name\\\":\\\"Foobar\\\",\\\"version\\\":\\\"1.0\\\"}\"}}}";
 static uint8_t ucSendResponsePayload[] = "{\"deviceUpdate\":{\"__t\":\"c\",\"service\":{\"ac\":200,\"av\":1,\"value\":{}}}}";
 static uint8_t ucHubClientBuffer[ 512 ];
 static uint8_t ucScratchBuffer[ 8000 ];
