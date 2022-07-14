@@ -205,15 +205,15 @@ AZ_NODISCARD az_result az_iot_adu_client_get_agent_state_payload(
       ref_json_writer, AZ_SPAN_FROM_STR(AZ_IOT_ADU_CLIENT_AGENT_PROPERTY_NAME_MODEL)));
   _az_RETURN_IF_FAILED(az_json_writer_append_string(ref_json_writer, device_properties->model));
 
-    for (uint32_t customPropertyIndex = 0;
-         customPropertyIndex < device_properties->custom_properties.count;
-         customPropertyIndex++)
-    {
-      _az_RETURN_IF_FAILED(az_json_writer_append_property_name(
-          ref_json_writer, device_properties->custom_properties.names[customPropertyIndex]));
-      _az_RETURN_IF_FAILED(az_json_writer_append_string(
-          ref_json_writer, device_properties->custom_properties.values[customPropertyIndex]));
-    }
+  for (uint32_t customPropertyIndex = 0;
+       customPropertyIndex < device_properties->custom_properties.count;
+       customPropertyIndex++)
+  {
+    _az_RETURN_IF_FAILED(az_json_writer_append_property_name(
+        ref_json_writer, device_properties->custom_properties.names[customPropertyIndex]));
+    _az_RETURN_IF_FAILED(az_json_writer_append_string(
+        ref_json_writer, device_properties->custom_properties.values[customPropertyIndex]));
+  }
 
   // TODO: verify if this needs to be exposed as an option.
   _az_RETURN_IF_FAILED(az_json_writer_append_property_name(
