@@ -31,16 +31,17 @@ static const uint8_t ucHostname[] = "unittest.azure-devices.net";
 static const uint8_t ucDeviceId[] = "testiothub";
 static uint8_t ucComponentName[] = "deviceUpdate";
 static uint8_t ucSendStatePayload[] = "{\"deviceUpdate\":{\"__t\":\"c\",\"agent\":{\"deviceProperties\":{\"manufacturer\":\"Contoso\",\"model\":\"Foobar\",\"interfaceId\":\"dtmi:azure:iot:deviceUpdate;1\",\"aduVer\":\"DU;agent/0.8.0-rc1-public-preview\",\"doVer\":\"" testDO_VERSION "\"},\"compatPropertyNames\":\"manufacturer,model\",\"state\":0,\"installedUpdateId\":\"{\\\"provider\\\":\\\"Contoso\\\",\\\"name\\\":\\\"Foobar\\\",\\\"version\\\":\\\"1.0\\\"}\"}}}";
-static uint8_t ucSendStateLongPayload[] = "{\"deviceUpdate\":{\"__t\":\"c\",\"agent\":{ \
-    \"deviceProperties\":{\"manufacturer\":\"Contoso\",\"model\":\"Foobar\", \
-        \"" testDEVICE_CUSTOM_PROPERTY_NAME_1 "\":\"" testDEVICE_CUSTOM_PROPERTY_VALUE_1 "\", \
-        \"" testDEVICE_CUSTOM_PROPERTY_NAME_2 "\":\"" testDEVICE_CUSTOM_PROPERTY_VALUE_2 "\", \
-        \"interfaceId\":\"dtmi:azure:iot:deviceUpdate;1\",\"aduVer\":\"DU;agent/0.8.0-rc1-public-preview\",\"doVer\":\"" testDO_VERSION "\"}, \
-    \"compatPropertyNames\":\"manufacturer,model\", \
-    \"lastInstallResult\":{\"resultCode\":0,\"extendedResultCode\":1234,\"resultDetails\":\"Ok\",\"step_0\":{\"resultCode\":0,\"extendedResultCode\":1234,\"resultDetails\":\"Ok\"}}, \
-    \"state\":0, \
-    \"workflow\":{\"action\":3,\"id\":\"51552a54-765e-419f-892a-c822549b6f38\"}, \
-    \"installedUpdateId\":\"{\\\"provider\\\":\\\"Contoso\\\",\\\"name\\\":\\\"Foobar\\\",\\\"version\\\":\\\"1.0\\\"}\"}}}";
+static uint8_t ucSendStateLongPayload[] = "{\"deviceUpdate\":{\"__t\":\"c\",\"agent\":{\
+\"deviceProperties\":{\"manufacturer\":\"Contoso\",\"model\":\"Foobar\",\
+\"" testDEVICE_CUSTOM_PROPERTY_NAME_1 "\":\"" testDEVICE_CUSTOM_PROPERTY_VALUE_1 "\",\
+\"" testDEVICE_CUSTOM_PROPERTY_NAME_2 "\":\"" testDEVICE_CUSTOM_PROPERTY_VALUE_2 "\",\
+\"interfaceId\":\"dtmi:azure:iot:deviceUpdate;1\",\"aduVer\":\"DU;agent/0.8.0-rc1-public-preview\",\"doVer\":\"" testDO_VERSION "\"},\
+\"compatPropertyNames\":\"manufacturer,model\",\
+\"lastInstallResult\":{\"resultCode\":0,\"extendedResultCode\":1234,\"resultDetails\":\"Ok\",\"step_0\":{\"resultCode\":0,\"extendedResultCode\":1234,\"resultDetails\":\"Ok\"}},\
+\"state\":0,\
+\"workflow\":{\"action\":3,\"id\":\"51552a54-765e-419f-892a-c822549b6f38\"},\
+\"installedUpdateId\":\"{\\\"provider\\\":\\\"Contoso\\\",\\\"name\\\":\\\"Foobar\\\",\\\"version\\\":\\\"1.0\\\"}\"}}}";
+
 static uint8_t ucSendResponsePayload[] = "{\"deviceUpdate\":{\"__t\":\"c\",\"service\":{\"ac\":200,\"av\":1,\"value\":{}}}}";
 static uint8_t ucHubClientBuffer[ 512 ];
 static uint8_t ucScratchBuffer[ 8000 ];
@@ -563,6 +564,9 @@ static void testAzureIoTADUClient_SendAgentState_WithAgentStateAndRequest_Succes
                                                         ucPayloadBuffer,
                                                         sizeof( ucPayloadBuffer ),
                                                         &ulRequestId ), eAzureIoTSuccess );
+
+    printf("%.*s\r\n", sizeof( ucSendStateLongPayload ) - 1 , ucSendStateLongPayload );
+    printf("%.*s\r\n", sizeof( ucSendStateLongPayload ) - 1, ucPayloadBuffer  );
     assert_memory_equal( ucPayloadBuffer, ucSendStateLongPayload, sizeof( ucSendStateLongPayload ) - 1 );
 
     xADUDeviceProperties.pxCustomProperties = NULL;
