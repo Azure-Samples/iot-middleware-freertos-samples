@@ -402,7 +402,7 @@ static void prvFillBaseAduDeviceProperties( AzureIoTADUClientDeviceProperties_t 
         ( uint8_t * ) pxDeviceProperties->ucModel,
         ( int32_t ) pxDeviceProperties->ulModelLength );
 
-    if ( pxDeviceProperties->pxCustomProperties == NULL )
+    if( pxDeviceProperties->pxCustomProperties == NULL )
     {
         pxBaseAduDeviceProperties->custom_properties.count = 0;
     }
@@ -411,9 +411,9 @@ static void prvFillBaseAduDeviceProperties( AzureIoTADUClientDeviceProperties_t 
         pxBaseAduDeviceProperties->custom_properties.count =
             pxDeviceProperties->pxCustomProperties->ulPropertyCount;
 
-        for ( int32_t lPropertyIndex = 0;
-              lPropertyIndex < ( int32_t ) pxDeviceProperties->pxCustomProperties->ulPropertyCount;
-              lPropertyIndex++ )
+        for( int32_t lPropertyIndex = 0;
+             lPropertyIndex < ( int32_t ) pxDeviceProperties->pxCustomProperties->ulPropertyCount;
+             lPropertyIndex++ )
         {
             pxBaseAduDeviceProperties->custom_properties.names[ lPropertyIndex ] =
                 az_span_create(

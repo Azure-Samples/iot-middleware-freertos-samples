@@ -565,8 +565,8 @@ static void testAzureIoTADUClient_SendAgentState_WithAgentStateAndRequest_Succes
                                                         sizeof( ucPayloadBuffer ),
                                                         &ulRequestId ), eAzureIoTSuccess );
 
-    printf("%.*s\r\n", sizeof( ucSendStateLongPayload ) - 1 , ucSendStateLongPayload );
-    printf("%.*s\r\n", sizeof( ucSendStateLongPayload ) - 1, ucPayloadBuffer  );
+    printf( "%.*s\r\n", sizeof( ucSendStateLongPayload ) - 1, ucSendStateLongPayload );
+    printf( "%.*s\r\n", sizeof( ucSendStateLongPayload ) - 1, ucPayloadBuffer );
     assert_memory_equal( ucPayloadBuffer, ucSendStateLongPayload, sizeof( ucSendStateLongPayload ) - 1 );
 
     xADUDeviceProperties.pxCustomProperties = NULL;
