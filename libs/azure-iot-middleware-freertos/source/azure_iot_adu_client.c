@@ -409,7 +409,7 @@ static void prvFillBaseAduDeviceProperties( AzureIoTADUClientDeviceProperties_t 
     else
     {
         pxBaseAduDeviceProperties->custom_properties.count =
-            pxDeviceProperties->pxCustomProperties->ulPropertyCount;
+            ( int32_t ) pxDeviceProperties->pxCustomProperties->ulPropertyCount;
 
         for( int32_t lPropertyIndex = 0;
              lPropertyIndex < ( int32_t ) pxDeviceProperties->pxCustomProperties->ulPropertyCount;
