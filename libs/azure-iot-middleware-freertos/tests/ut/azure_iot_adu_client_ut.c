@@ -62,6 +62,7 @@ AzureIoTADUClientDeviceProperties_t xADUDeviceProperties =
     .ulManufacturerLength                     = sizeof( testDEVICE_MANUFACTURER ) - 1,
     .ucModel                                  = testDEVICE_MODEL,
     .ulModelLength                            = sizeof( testDEVICE_MODEL ) - 1,
+    .pxCustomProperties                       = NULL,
     .xCurrentUpdateId                         =
     {
         .ucProvider                           = testUPDATE_PROVIDER,

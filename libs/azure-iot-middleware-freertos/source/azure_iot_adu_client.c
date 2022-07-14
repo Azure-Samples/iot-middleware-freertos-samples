@@ -402,7 +402,11 @@ static void prvFillBaseAduDeviceProperties( AzureIoTADUClientDeviceProperties_t 
         ( uint8_t * ) pxDeviceProperties->ucModel,
         ( int32_t ) pxDeviceProperties->ulModelLength );
 
-    if ( pxDeviceProperties->pxCustomProperties != NULL )
+    if ( pxDeviceProperties->pxCustomProperties == NULL )
+    {
+        pxBaseAduDeviceProperties->custom_properties.count = 0;
+    }
+    else
     {
         pxBaseAduDeviceProperties->custom_properties.count =
             pxDeviceProperties->pxCustomProperties->ulPropertyCount;
@@ -414,11 +418,11 @@ static void prvFillBaseAduDeviceProperties( AzureIoTADUClientDeviceProperties_t 
             pxBaseAduDeviceProperties->custom_properties.names[ lPropertyIndex ] =
                 az_span_create(
                     pxDeviceProperties->pxCustomProperties->pucPropertyNames[ lPropertyIndex ],
-                    pxDeviceProperties->pxCustomProperties->ulPropertyNamesLengths[ lPropertyIndex ] );
+                    ( int32_t ) pxDeviceProperties->pxCustomProperties->ulPropertyNamesLengths[ lPropertyIndex ] );
             pxBaseAduDeviceProperties->custom_properties.values[ lPropertyIndex ] =
                 az_span_create(
                     pxDeviceProperties->pxCustomProperties->pucPropertyValues[ lPropertyIndex ],
-                    pxDeviceProperties->pxCustomProperties->ulPropertyValuesLengths[ lPropertyIndex ] );
+                    ( int32_t ) pxDeviceProperties->pxCustomProperties->ulPropertyValuesLengths[ lPropertyIndex ] );
         }
     }
 
