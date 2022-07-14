@@ -14,19 +14,33 @@
 #include "azure_iot_adu_client.h"
 /*-----------------------------------------------------------*/
 
-#define testPROPERTY_CALLBACK_ID    ( 3 )
-#define testDEVICE_MANUFACTURER     "Contoso"
-#define testDEVICE_MODEL            "Foobar"
-#define testUPDATE_PROVIDER         testDEVICE_MANUFACTURER
-#define testUPDATE_NAME             testDEVICE_MODEL
-#define testUPDATE_VERSION          "1.0"
-#define testDO_VERSION              "DU;lib/v0.6.0+20211001.174458.c8c4051,DU;agent/v0.6.0+20211001.174418.c8c4051"
+#define testPROPERTY_CALLBACK_ID              ( 3 )
+#define testDEVICE_MANUFACTURER               "Contoso"
+#define testDEVICE_MODEL                      "Foobar"
+#define testUPDATE_PROVIDER                   testDEVICE_MANUFACTURER
+#define testUPDATE_NAME                       testDEVICE_MODEL
+#define testUPDATE_VERSION                    "1.0"
+#define testDO_VERSION                        "DU;lib/v0.6.0+20211001.174458.c8c4051,DU;agent/v0.6.0+20211001.174418.c8c4051"
+#define testDEVICE_CUSTOM_PROPERTY_NAME_1     "abc"
+#define testDEVICE_CUSTOM_PROPERTY_VALUE_1    "123"
+#define testDEVICE_CUSTOM_PROPERTY_NAME_2     "def"
+#define testDEVICE_CUSTOM_PROPERTY_VALUE_2    "456"
+
 
 static const uint8_t ucHostname[] = "unittest.azure-devices.net";
 static const uint8_t ucDeviceId[] = "testiothub";
 static uint8_t ucComponentName[] = "deviceUpdate";
 static uint8_t ucSendStatePayload[] = "{\"deviceUpdate\":{\"__t\":\"c\",\"agent\":{\"deviceProperties\":{\"manufacturer\":\"Contoso\",\"model\":\"Foobar\",\"interfaceId\":\"dtmi:azure:iot:deviceUpdate;1\",\"aduVer\":\"DU;agent/0.8.0-rc1-public-preview\",\"doVer\":\"" testDO_VERSION "\"},\"compatPropertyNames\":\"manufacturer,model\",\"state\":0,\"installedUpdateId\":\"{\\\"provider\\\":\\\"Contoso\\\",\\\"name\\\":\\\"Foobar\\\",\\\"version\\\":\\\"1.0\\\"}\"}}}";
-static uint8_t ucSendStateLongPayload[] = "{\"deviceUpdate\":{\"__t\":\"c\",\"agent\":{\"deviceProperties\":{\"manufacturer\":\"Contoso\",\"model\":\"Foobar\",\"interfaceId\":\"dtmi:azure:iot:deviceUpdate;1\",\"aduVer\":\"DU;agent/0.8.0-rc1-public-preview\",\"doVer\":\"" testDO_VERSION "\"},\"compatPropertyNames\":\"manufacturer,model\",\"lastInstallResult\":{\"resultCode\":0,\"extendedResultCode\":1234,\"resultDetails\":\"Ok\",\"step_0\":{\"resultCode\":0,\"extendedResultCode\":1234,\"resultDetails\":\"Ok\"}},\"state\":0,\"workflow\":{\"action\":3,\"id\":\"51552a54-765e-419f-892a-c822549b6f38\"},\"installedUpdateId\":\"{\\\"provider\\\":\\\"Contoso\\\",\\\"name\\\":\\\"Foobar\\\",\\\"version\\\":\\\"1.0\\\"}\"}}}";
+static uint8_t ucSendStateLongPayload[] = "{\"deviceUpdate\":{\"__t\":\"c\",\"agent\":{ \
+    \"deviceProperties\":{\"manufacturer\":\"Contoso\",\"model\":\"Foobar\", \
+        \"" testDEVICE_CUSTOM_PROPERTY_NAME_1 "\":\"" testDEVICE_CUSTOM_PROPERTY_VALUE_1 "\", \
+        \"" testDEVICE_CUSTOM_PROPERTY_NAME_2 "\":\"" testDEVICE_CUSTOM_PROPERTY_VALUE_2 "\", \
+        \"interfaceId\":\"dtmi:azure:iot:deviceUpdate;1\",\"aduVer\":\"DU;agent/0.8.0-rc1-public-preview\",\"doVer\":\"" testDO_VERSION "\"}, \
+    \"compatPropertyNames\":\"manufacturer,model\", \
+    \"lastInstallResult\":{\"resultCode\":0,\"extendedResultCode\":1234,\"resultDetails\":\"Ok\",\"step_0\":{\"resultCode\":0,\"extendedResultCode\":1234,\"resultDetails\":\"Ok\"}}, \
+    \"state\":0, \
+    \"workflow\":{\"action\":3,\"id\":\"51552a54-765e-419f-892a-c822549b6f38\"}, \
+    \"installedUpdateId\":\"{\\\"provider\\\":\\\"Contoso\\\",\\\"name\\\":\\\"Foobar\\\",\\\"version\\\":\\\"1.0\\\"}\"}}}";
 static uint8_t ucSendResponsePayload[] = "{\"deviceUpdate\":{\"__t\":\"c\",\"service\":{\"ac\":200,\"av\":1,\"value\":{}}}}";
 static uint8_t ucHubClientBuffer[ 512 ];
 static uint8_t ucScratchBuffer[ 8000 ];
@@ -488,6 +502,18 @@ static void testAzureIoTADUClient_SendAgentState_WithAgentStateAndRequest_Succes
     AzureIoTADUClientInstallResult_t xInstallResult;
     uint32_t ulPropertyVersion = 1;
     uint32_t ulRequestId;
+    AzureIoTADUDeviceCustomProperties_t xDeviceCustomProperties;
+
+    xDeviceCustomProperties.ulPropertyCount = 2;
+    xDeviceCustomProperties.pucPropertyNames[ 0 ] = testDEVICE_CUSTOM_PROPERTY_NAME_1;
+    xDeviceCustomProperties.ulPropertyNamesLengths[ 0 ] = sizeof( testDEVICE_CUSTOM_PROPERTY_NAME_1 ) - 1;
+    xDeviceCustomProperties.pucPropertyValues[ 0 ] = testDEVICE_CUSTOM_PROPERTY_VALUE_1;
+    xDeviceCustomProperties.ulPropertyValuesLengths[ 0 ] = sizeof( testDEVICE_CUSTOM_PROPERTY_VALUE_1 ) - 1;
+    xDeviceCustomProperties.pucPropertyNames[ 1 ] = testDEVICE_CUSTOM_PROPERTY_NAME_2;
+    xDeviceCustomProperties.ulPropertyNamesLengths[ 1 ] = sizeof( testDEVICE_CUSTOM_PROPERTY_NAME_2 ) - 1;
+    xDeviceCustomProperties.pucPropertyValues[ 1 ] = testDEVICE_CUSTOM_PROPERTY_VALUE_2;
+    xDeviceCustomProperties.ulPropertyValuesLengths[ 1 ] = sizeof( testDEVICE_CUSTOM_PROPERTY_VALUE_2 ) - 1;
+    xADUDeviceProperties.pxCustomProperties = &xDeviceCustomProperties;
 
     xInstallResult.lResultCode = ulResultCode;
     xInstallResult.lExtendedResultCode = ulExtendedResultCode;
@@ -538,6 +564,8 @@ static void testAzureIoTADUClient_SendAgentState_WithAgentStateAndRequest_Succes
                                                         sizeof( ucPayloadBuffer ),
                                                         &ulRequestId ), eAzureIoTSuccess );
     assert_memory_equal( ucPayloadBuffer, ucSendStateLongPayload, sizeof( ucSendStateLongPayload ) - 1 );
+
+    xADUDeviceProperties.pxCustomProperties = NULL;
 }
 
 uint32_t ulGetAllTests()
