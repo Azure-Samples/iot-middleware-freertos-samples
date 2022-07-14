@@ -205,14 +205,17 @@ AZ_NODISCARD az_result az_iot_adu_client_get_agent_state_payload(
       ref_json_writer, AZ_SPAN_FROM_STR(AZ_IOT_ADU_CLIENT_AGENT_PROPERTY_NAME_MODEL)));
   _az_RETURN_IF_FAILED(az_json_writer_append_string(ref_json_writer, device_properties->model));
 
-  for (uint32_t custom_property_index = 0;
-       custom_property_index < device_properties->custom_properties.count;
-       custom_property_index++)
+  if (device_properties->custom_properties != NULL)
   {
-    _az_RETURN_IF_FAILED(az_json_writer_append_property_name(
-        ref_json_writer, device_properties->custom_properties.names[custom_property_index]));
-    _az_RETURN_IF_FAILED(az_json_writer_append_string(
-        ref_json_writer, device_properties->custom_properties.values[custom_property_index]));
+    for (uint32_t custom_property_index = 0;
+        custom_property_index < device_properties->custom_properties->count;
+        custom_property_index++)
+    {
+      _az_RETURN_IF_FAILED(az_json_writer_append_property_name(
+          ref_json_writer, device_properties->custom_properties->names[custom_property_index]));
+      _az_RETURN_IF_FAILED(az_json_writer_append_string(
+          ref_json_writer, device_properties->custom_properties->values[custom_property_index]));
+    }
   }
 
   // TODO: verify if this needs to be exposed as an option.

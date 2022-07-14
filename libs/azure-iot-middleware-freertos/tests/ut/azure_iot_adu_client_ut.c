@@ -491,6 +491,10 @@ static void testAzureIoTADUClient_SendAgentState_Success( void ** ppvState )
                                                         ucPayloadBuffer,
                                                         sizeof( ucPayloadBuffer ),
                                                         &ulRequestId ), eAzureIoTSuccess );
+
+    printf( "Expected: %.*s\r\n", sizeof( ucSendStateLongPayload ) - 1, ucSendStateLongPayload );
+    printf( "Actual: %.*s\r\n", sizeof( ucSendStateLongPayload ) - 1, ucPayloadBuffer );
+
     assert_memory_equal( ucPayloadBuffer, ucSendStatePayload, sizeof( ucSendStatePayload ) - 1 );
 }
 

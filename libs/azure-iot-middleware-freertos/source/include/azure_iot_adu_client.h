@@ -150,6 +150,11 @@ typedef struct AzureIoTADUClientDeviceProperties
 
     const uint8_t * ucDeliveryOptimizationAgentVersion;
     uint32_t ulDeliveryOptimizationAgentVersionLength;
+
+    struct
+    {
+        az_iot_adu_device_custom_properties xCustomProperties;
+    } _internal;
 } AzureIoTADUClientDeviceProperties_t;
 
 /**
