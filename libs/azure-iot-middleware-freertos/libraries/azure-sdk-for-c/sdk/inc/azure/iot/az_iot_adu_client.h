@@ -66,7 +66,7 @@ typedef struct
 {
   az_span names[AZ_IOT_ADU_CLIENT_MAX_DEVICE_CUSTOM_PROPERTIES];
   az_span values[AZ_IOT_ADU_CLIENT_MAX_DEVICE_CUSTOM_PROPERTIES];
-  uint32_t count;
+  int32_t count;
 } az_iot_adu_device_custom_properties;
 
 /*
