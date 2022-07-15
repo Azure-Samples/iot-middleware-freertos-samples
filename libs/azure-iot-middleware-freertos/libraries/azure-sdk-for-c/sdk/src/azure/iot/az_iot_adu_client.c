@@ -207,7 +207,7 @@ AZ_NODISCARD az_result az_iot_adu_client_get_agent_state_payload(
 
   if (device_properties->custom_properties != NULL)
   {
-    for (uint32_t custom_property_index = 0;
+    for (int32_t custom_property_index = 0;
          custom_property_index < device_properties->custom_properties->count;
          custom_property_index++)
     {
