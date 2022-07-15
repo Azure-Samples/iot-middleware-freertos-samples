@@ -238,10 +238,10 @@ static uint32_t prvGetNewMaxTemp( double xUpdatedTemperature,
 /**
  * @brief Verifies if the current image version matches the "installedCriteria" version in the
  *        installation step of the ADU Update Manifest.
- * 
+ *
  * @param pxAduUpdateRequest Parsed update request, with the ADU update manifest.
- * @return true If the current image version matches the installedCriteria. 
- * @return false If the current image version does not match the installedCriteria. 
+ * @return true If the current image version matches the installedCriteria.
+ * @return false If the current image version does not match the installedCriteria.
  */
 static bool prvDoesInstalledCriteriaMatchCurrentVersion( const AzureIoTADUUpdateRequest_t * pxAduUpdateRequest )
 {
@@ -249,12 +249,12 @@ static bool prvDoesInstalledCriteriaMatchCurrentVersion( const AzureIoTADUUpdate
      * In a production solution, each step should be validated against the version of
      * each component the update step applies to (matching through the `handler` name).
      */
-    if ( xADUDeviceProperties.xCurrentUpdateId.ulVersionLength ==
-         pxAduUpdateRequest->xUpdateManifest.xInstructions.pxSteps[ 0 ].ulInstalledCriteriaLength &&
-         ( strncmp(
-            ( const char * ) xADUDeviceProperties.xCurrentUpdateId.ucVersion,
-            ( const char * ) pxAduUpdateRequest->xUpdateManifest.xInstructions.pxSteps[ 0 ].pucInstalledCriteria,
-            ( size_t ) xADUDeviceProperties.xCurrentUpdateId.ulVersionLength ) == 0 ) )
+    if( ( xADUDeviceProperties.xCurrentUpdateId.ulVersionLength ==
+          pxAduUpdateRequest->xUpdateManifest.xInstructions.pxSteps[ 0 ].ulInstalledCriteriaLength ) &&
+        ( strncmp(
+              ( const char * ) xADUDeviceProperties.xCurrentUpdateId.ucVersion,
+              ( const char * ) pxAduUpdateRequest->xUpdateManifest.xInstructions.pxSteps[ 0 ].pucInstalledCriteria,
+              ( size_t ) xADUDeviceProperties.xCurrentUpdateId.ulVersionLength ) == 0 ) )
     {
         return true;
     }
