@@ -243,7 +243,7 @@ static uint32_t prvGetNewMaxTemp( double xUpdatedTemperature,
  * @return true If the current image version matches the installedCriteria. 
  * @return false If the current image version does not match the installedCriteria. 
  */
-static bool prvDoesInstallationCriteriaMatchCurrentVersion( const AzureIoTADUUpdateRequest_t * pxAduUpdateRequest )
+static bool prvDoesInstalledCriteriaMatchCurrentVersion( const AzureIoTADUUpdateRequest_t * pxAduUpdateRequest )
 {
     /*
      * In a production solution, each step should be validated against the version of
@@ -279,9 +279,9 @@ static bool prvDoesInstallationCriteriaMatchCurrentVersion( const AzureIoTADUUpd
  */
 static AzureIoTADURequestDecision_t prvUserDecideShouldStartUpdate( AzureIoTADUUpdateRequest_t * pxAduUpdateRequest )
 {
-    if( !prvDoesInstallationCriteriaMatchCurrentVersion( pxAduUpdateRequest ) )
+    if( !prvDoesInstalledCriteriaMatchCurrentVersion( pxAduUpdateRequest ) )
     {
-        LogInfo( ( "[ADU] Rejecting update request (current version is up-to-date)" ) );
+        LogInfo( ( "[ADU] Rejecting update request (installed criteria does not match current version)" ) );
         return eAzureIoTADURequestDecisionReject;
     }
     else
