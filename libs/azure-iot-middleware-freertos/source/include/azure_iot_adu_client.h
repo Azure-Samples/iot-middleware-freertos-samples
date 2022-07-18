@@ -122,6 +122,20 @@ typedef struct AzureIoTADUClientUpdateId
     uint32_t ulVersionLength;
 } AzureIoTADUClientUpdateId_t;
 
+typedef struct AzureIoTADUDeviceCustomProperties
+{
+    uint8_t * pucPropertyNames[ AZ_IOT_ADU_CLIENT_MAX_DEVICE_CUSTOM_PROPERTIES ];
+    uint32_t ulPropertyNamesLengths[ AZ_IOT_ADU_CLIENT_MAX_DEVICE_CUSTOM_PROPERTIES ];
+    uint8_t * pucPropertyValues[ AZ_IOT_ADU_CLIENT_MAX_DEVICE_CUSTOM_PROPERTIES ];
+    uint32_t ulPropertyValuesLengths[ AZ_IOT_ADU_CLIENT_MAX_DEVICE_CUSTOM_PROPERTIES ];
+    uint32_t ulPropertyCount;
+
+    struct
+    {
+        az_iot_adu_device_custom_properties xCustomProperties;
+    } _internal;
+} AzureIoTADUDeviceCustomProperties_t;
+
 /**
  * @brief ADU Device Properties.
  *
@@ -134,6 +148,8 @@ typedef struct AzureIoTADUClientDeviceProperties
 
     const uint8_t * ucModel;
     uint32_t ulModelLength;
+
+    AzureIoTADUDeviceCustomProperties_t * pxCustomProperties;
 
     AzureIoTADUClientUpdateId_t xCurrentUpdateId;
 

@@ -47,12 +47,27 @@
 #define AZ_IOT_ADU_CLIENT_MAX_INSTRUCTIONS_STEPS 10
 #define AZ_IOT_ADU_CLIENT_MAX_FILE_HASH_COUNT 2
 
+/* Maximum Number of Custom Device Properties */
+#define AZ_IOT_ADU_CLIENT_MAX_DEVICE_CUSTOM_PROPERTIES 5
+
 typedef struct
 {
   az_span provider;
   az_span name;
   az_span version;
 } az_iot_adu_client_update_id;
+
+/**
+ * @brief Holds any user-defined custom properties of the device.
+ * @remark Implementer can define other device properties to be used
+ *         for the compatibility check while targeting the update deployment.
+ */
+typedef struct
+{
+  az_span names[AZ_IOT_ADU_CLIENT_MAX_DEVICE_CUSTOM_PROPERTIES];
+  az_span values[AZ_IOT_ADU_CLIENT_MAX_DEVICE_CUSTOM_PROPERTIES];
+  int32_t count;
+} az_iot_adu_device_custom_properties;
 
 /*
  * For reference:
@@ -62,6 +77,7 @@ typedef struct
 {
   az_span manufacturer;
   az_span model;
+  az_iot_adu_device_custom_properties* custom_properties;
   az_span adu_version;
   /**
    * @brief  Version of the Delivery Optimization agent.

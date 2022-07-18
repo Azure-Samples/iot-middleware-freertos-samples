@@ -205,6 +205,19 @@ AZ_NODISCARD az_result az_iot_adu_client_get_agent_state_payload(
       ref_json_writer, AZ_SPAN_FROM_STR(AZ_IOT_ADU_CLIENT_AGENT_PROPERTY_NAME_MODEL)));
   _az_RETURN_IF_FAILED(az_json_writer_append_string(ref_json_writer, device_properties->model));
 
+  if (device_properties->custom_properties != NULL)
+  {
+    for (int32_t custom_property_index = 0;
+         custom_property_index < device_properties->custom_properties->count;
+         custom_property_index++)
+    {
+      _az_RETURN_IF_FAILED(az_json_writer_append_property_name(
+          ref_json_writer, device_properties->custom_properties->names[custom_property_index]));
+      _az_RETURN_IF_FAILED(az_json_writer_append_string(
+          ref_json_writer, device_properties->custom_properties->values[custom_property_index]));
+    }
+  }
+
   // TODO: verify if this needs to be exposed as an option.
   _az_RETURN_IF_FAILED(az_json_writer_append_property_name(
       ref_json_writer, AZ_SPAN_FROM_STR(AZ_IOT_ADU_CLIENT_AGENT_PROPERTY_NAME_INTERFACE_ID)));
@@ -714,7 +727,6 @@ AZ_NODISCARD az_result az_iot_adu_client_parse_update_manifest(
                          AZ_SPAN_FROM_STR(
                              AZ_IOT_ADU_CLIENT_AGENT_PROPERTY_NAME_HANDLER_PROPERTIES)))
             {
-              // TODO: properly save installed criteria as a map instead of fixed field.
               _az_RETURN_IF_FAILED(az_json_reader_next_token(ref_json_reader));
               RETURN_IF_JSON_TOKEN_NOT_TYPE((ref_json_reader), AZ_JSON_TOKEN_BEGIN_OBJECT);
               _az_RETURN_IF_FAILED(az_json_reader_next_token(ref_json_reader));

@@ -401,6 +401,34 @@ static void prvFillBaseAduDeviceProperties( AzureIoTADUClientDeviceProperties_t 
     pxBaseAduDeviceProperties->model = az_span_create(
         ( uint8_t * ) pxDeviceProperties->ucModel,
         ( int32_t ) pxDeviceProperties->ulModelLength );
+
+    if( pxDeviceProperties->pxCustomProperties == NULL )
+    {
+        pxBaseAduDeviceProperties->custom_properties = NULL;
+    }
+    else
+    {
+        pxDeviceProperties->pxCustomProperties->_internal.xCustomProperties.count =
+            ( int32_t ) pxDeviceProperties->pxCustomProperties->ulPropertyCount;
+
+        for( int32_t lPropertyIndex = 0;
+             lPropertyIndex < ( int32_t ) pxDeviceProperties->pxCustomProperties->ulPropertyCount;
+             lPropertyIndex++ )
+        {
+            pxDeviceProperties->pxCustomProperties->_internal.xCustomProperties.names[ lPropertyIndex ] =
+                az_span_create(
+                    pxDeviceProperties->pxCustomProperties->pucPropertyNames[ lPropertyIndex ],
+                    ( int32_t ) pxDeviceProperties->pxCustomProperties->ulPropertyNamesLengths[ lPropertyIndex ] );
+            pxDeviceProperties->pxCustomProperties->_internal.xCustomProperties.values[ lPropertyIndex ] =
+                az_span_create(
+                    pxDeviceProperties->pxCustomProperties->pucPropertyValues[ lPropertyIndex ],
+                    ( int32_t ) pxDeviceProperties->pxCustomProperties->ulPropertyValuesLengths[ lPropertyIndex ] );
+        }
+
+        pxBaseAduDeviceProperties->custom_properties =
+            &pxDeviceProperties->pxCustomProperties->_internal.xCustomProperties;
+    }
+
     pxBaseAduDeviceProperties->update_id.name = az_span_create(
         ( uint8_t * ) pxDeviceProperties->xCurrentUpdateId.ucName,
         ( int32_t ) pxDeviceProperties->xCurrentUpdateId.ulNameLength );
