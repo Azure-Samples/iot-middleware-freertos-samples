@@ -304,7 +304,7 @@ static void testAzureIoTADUClient_ParseRequest_NoDeployment_Success( void ** ppv
 {
     AzureIoTADUClient_t xTestIoTADUClient;
     AzureIoTJSONReader_t xReader;
-    AzureIoTADUUpdateRequest_t xRequest;
+    AzureIoTADUUpdateRequest_t xRequest = { 0 };
 
     assert_int_equal( AzureIoTADUClient_Init( &xTestIoTADUClient, NULL ), eAzureIoTSuccess );
 
@@ -323,6 +323,13 @@ static void testAzureIoTADUClient_ParseRequest_NoDeployment_Success( void ** ppv
     assert_int_equal( xRequest.xWorkflow.xAction, ulWorkflowActionNoDeployment );
     assert_memory_equal( xRequest.xWorkflow.pucID, ucWorkflowIDNoDeployment, sizeof( ucWorkflowIDNoDeployment ) - 1 );
     assert_int_equal( xRequest.xWorkflow.ulIDLength, sizeof( ucWorkflowIDNoDeployment ) - 1 );
+    assert_null( xRequest.xWorkflow.pucRetryTimestamp );
+    assert_int_equal( xRequest.xWorkflow.ulRetryTimestampLength, 0 );
+    assert_null( xRequest.pucUpdateManifest );
+    assert_int_equal( xRequest.ulUpdateManifestLength, 0 );
+    assert_null( xRequest.pucUpdateManifestSignature );
+    assert_int_equal( xRequest.ulUpdateManifestSignatureLength, 0 );
+    assert_int_equal( xRequest.ulFileUrlCount, 0 );
 }
 
 static void testAzureIoTADUClient_SendResponse_InvalidArgFailure( void ** ppvState )
