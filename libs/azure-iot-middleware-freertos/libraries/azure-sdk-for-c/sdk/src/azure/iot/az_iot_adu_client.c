@@ -241,16 +241,16 @@ AZ_NODISCARD az_result az_iot_adu_client_get_agent_state_payload(
   _az_RETURN_IF_FAILED(az_json_writer_append_property_name(
       ref_json_writer,
       AZ_SPAN_FROM_STR(AZ_IOT_ADU_CLIENT_AGENT_PROPERTY_NAME_COMPAT_PROPERTY_NAMES)));
-  if (az_span_is_content_equal(
-          device_properties->compatibility_properties, AZ_SPAN_EMPTY))
+  if (az_span_is_content_equal(device_properties->compatibility_properties, AZ_SPAN_EMPTY))
   {
     _az_RETURN_IF_FAILED(az_json_writer_append_string(
-        ref_json_writer, AZ_SPAN_FROM_STR(AZ_IOT_ADU_CLIENT_AGENT_DEFAULT_COMPATIBILITY_PROPERTIES)));
+        ref_json_writer,
+        AZ_SPAN_FROM_STR(AZ_IOT_ADU_CLIENT_AGENT_DEFAULT_COMPATIBILITY_PROPERTIES)));
   }
   else
   {
-    _az_RETURN_IF_FAILED(az_json_writer_append_string(
-        ref_json_writer, device_properties->compatibility_properties));
+    _az_RETURN_IF_FAILED(
+        az_json_writer_append_string(ref_json_writer, device_properties->compatibility_properties));
   }
 
   /* Add last installed update information */
