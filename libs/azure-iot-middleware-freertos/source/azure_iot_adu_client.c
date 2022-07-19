@@ -441,6 +441,9 @@ static void prvFillBaseAduDeviceProperties( AzureIoTADUClientDeviceProperties_t 
             &pxDeviceProperties->pxCustomProperties->_internal.xCustomProperties;
     }
 
+    pxBaseAduDeviceProperties->compatibility_properties = az_span_create(
+        ( uint8_t * ) pxDeviceProperties->ucCompatibilityProperties,
+        ( int32_t ) pxDeviceProperties->ulCompatibilityPropertiesLength );
     pxBaseAduDeviceProperties->update_id.name = az_span_create(
         ( uint8_t * ) pxDeviceProperties->xCurrentUpdateId.ucName,
         ( int32_t ) pxDeviceProperties->xCurrentUpdateId.ulNameLength );

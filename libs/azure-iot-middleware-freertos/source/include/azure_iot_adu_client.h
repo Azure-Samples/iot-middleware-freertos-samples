@@ -150,6 +150,8 @@ typedef struct AzureIoTADUClientDeviceProperties
     uint32_t ulModelLength;
 
     AzureIoTADUDeviceCustomProperties_t * pxCustomProperties;
+    const uint8_t * ucCompatibilityProperties;
+    uint32_t ulCompatibilityPropertiesLength;
 
     AzureIoTADUClientUpdateId_t xCurrentUpdateId;
 

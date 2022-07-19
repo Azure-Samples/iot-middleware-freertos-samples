@@ -50,6 +50,9 @@
 /* Maximum Number of Custom Device Properties */
 #define AZ_IOT_ADU_CLIENT_MAX_DEVICE_CUSTOM_PROPERTIES 5
 
+/* Default Agent Compatibility Properties */
+#define AZ_IOT_ADU_CLIENT_AGENT_DEFAULT_COMPATIBILITY_PROPERTIES "manufacturer,model"
+
 typedef struct
 {
   az_span provider;
@@ -78,6 +81,7 @@ typedef struct
   az_span manufacturer;
   az_span model;
   az_iot_adu_device_custom_properties* custom_properties;
+  az_span compatibility_properties;
   az_span adu_version;
   /**
    * @brief  Version of the Delivery Optimization agent.
