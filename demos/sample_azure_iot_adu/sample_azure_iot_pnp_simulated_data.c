@@ -281,7 +281,7 @@ static AzureIoTADURequestDecision_t prvUserDecideShouldStartUpdate( AzureIoTADUU
 {
     if( prvDoesInstalledCriteriaMatchCurrentVersion( pxAduUpdateRequest ) )
     {
-        LogInfo( ( "[ADU] Rejecting update request (installed criteria does not match current version)" ) );
+        LogInfo( ( "[ADU] Rejecting update request (installed criteria matches current version)" ) );
         return eAzureIoTADURequestDecisionReject;
     }
     else
