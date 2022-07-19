@@ -137,7 +137,7 @@ AzureIoTHTTPResult_t AzureIoTHTTP_Request( AzureIoTHTTPHandle_t xHTTPHandle,
 
     if( xHttpLibraryStatus != HTTPSuccess )
     {
-        AZLogError( ( "[HTTP] ERROR: %d\r\n", xHttpLibraryStatus ) );
+        AZLogError( ( "[HTTP] ERROR: %d", xHttpLibraryStatus ) );
         return prvTranslateToAzureIoTHTTPResult( xHttpLibraryStatus );
     }
 
@@ -151,7 +151,7 @@ AzureIoTHTTPResult_t AzureIoTHTTP_Request( AzureIoTHTTPHandle_t xHTTPHandle,
         else if( xHTTPHandle->xResponse.statusCode == 206 )
         {
             /* Handle a response Status-Code of 200 OK. */
-            AZLogInfo( ( "[HTTP] [Status 206] Received range %i to %i\r\n", ( int ) lRangeStart, ( int ) lRangeEnd ) );
+            AZLogInfo( ( "[HTTP] [Status 206] Received range %i to %i", ( int ) lRangeStart, ( int ) lRangeEnd ) );
 
             *ppucDataBuffer = ( char * ) xHTTPHandle->xResponse.pBody;
             *pulDataLength = ( uint32_t ) xHTTPHandle->xResponse.bodyLen;
@@ -159,7 +159,7 @@ AzureIoTHTTPResult_t AzureIoTHTTP_Request( AzureIoTHTTPHandle_t xHTTPHandle,
         else
         {
             /* Handle an error */
-            AZLogError( ( "[HTTP] Failed %d.\r\n", xHTTPHandle->xResponse.statusCode ) );
+            AZLogError( ( "[HTTP] Failed %d.", xHTTPHandle->xResponse.statusCode ) );
             xHttpLibraryStatus = 1;
         }
     }
@@ -222,13 +222,13 @@ int32_t AzureIoTHTTP_RequestSize( AzureIoTHTTPHandle_t xHTTPHandle )
         if( xHTTPHandle->xResponse.statusCode == 200 )
         {
             /* Handle a response Status-Code of 200 OK. */
-            AZLogDebug( ( "[HTTP] Size Request Success 200\r\n" ) );
+            AZLogDebug( ( "[HTTP] Size Request Success 200" ) );
             return ( int32_t ) xHTTPHandle->xResponse.contentLength;
         }
         else
         {
             /* Handle an error */
-            AZLogError( ( "[HTTP] Size Request Failed %d.\r\n", xHTTPHandle->xResponse.statusCode ) );
+            AZLogError( ( "[HTTP] Size Request Failed %d.", xHTTPHandle->xResponse.statusCode ) );
             return -1;
         }
     }
