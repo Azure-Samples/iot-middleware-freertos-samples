@@ -508,7 +508,6 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash()
                                                   &ulHttpDataBufferLength ) ) == eAzureIoTHTTPSuccess )
         {
             /* Write bytes to the flash */
-            LogInfo( ( "[ADU] Writing received bytes to flash" ) );
             xResult = AzureIoTPlatform_WriteBlock( &xImage,
                                                    ( uint32_t ) xImage.ulCurrentOffset,
                                                    ( uint8_t * ) pucHttpDataBufferPtr,
