@@ -279,7 +279,7 @@ static bool prvDoesInstalledCriteriaMatchCurrentVersion( const AzureIoTADUUpdate
  */
 static AzureIoTADURequestDecision_t prvUserDecideShouldStartUpdate( AzureIoTADUUpdateRequest_t * pxAduUpdateRequest )
 {
-    if( !prvDoesInstalledCriteriaMatchCurrentVersion( pxAduUpdateRequest ) )
+    if( prvDoesInstalledCriteriaMatchCurrentVersion( pxAduUpdateRequest ) )
     {
         LogInfo( ( "[ADU] Rejecting update request (installed criteria does not match current version)" ) );
         return eAzureIoTADURequestDecisionReject;
