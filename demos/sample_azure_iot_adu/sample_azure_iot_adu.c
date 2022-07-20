@@ -488,7 +488,7 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash()
     }
     else
     {
-        AZLogError( ( "[ADU] Error getting the headers. " ) );
+        LogError( ( "[ADU] Error getting the headers. " ) );
         return eAzureIoTErrorFailed;
     }
 
@@ -524,7 +524,7 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash()
 
             if( xResult != eAzureIoTSuccess )
             {
-                AZLogError( ( "[ADU] Failed to reconnect to HTTP server!" ) );
+                LogError( ( "[ADU] Failed to reconnect to HTTP server!" ) );
                 return eAzureIoTErrorFailed;
             }
         }
@@ -553,7 +553,7 @@ static AzureIoTResult_t prvEnableImageAndResetDevice()
             xAzureIoTAduUpdateRequest.xUpdateManifest.pxFiles[ 0 ].pxHashes[ 0 ].ulHashLength
             ) != eAzureIoTSuccess )
     {
-        AZLogError( ( "[ADU] File hash from ADU did not match calculated hash" ) );
+        LogError( ( "[ADU] File hash from ADU did not match calculated hash" ) );
         return eAzureIoTErrorFailed;
     }
 
@@ -561,7 +561,7 @@ static AzureIoTResult_t prvEnableImageAndResetDevice()
 
     if( AzureIoTPlatform_EnableImage( &xImage ) != eAzureIoTSuccess )
     {
-        AZLogError( ( "[ADU] File hash from ADU did not match calculated hash" ) );
+        LogError( ( "[ADU] File hash from ADU did not match calculated hash" ) );
         return eAzureIoTErrorFailed;
     }
 
@@ -607,7 +607,7 @@ static AzureIoTResult_t prvEnableImageAndResetDevice()
 
     if( xResult != eAzureIoTSuccess )
     {
-        AZLogError( ( "[ADU] Failed sending agent state." ) );
+        LogError( ( "[ADU] Failed sending agent state." ) );
         return xResult;
     }
 
@@ -615,7 +615,7 @@ static AzureIoTResult_t prvEnableImageAndResetDevice()
 
     if( AzureIoTPlatform_ResetDevice( &xImage ) != eAzureIoTSuccess )
     {
-        AZLogError( ( "[ADU] Failed resetting the device." ) );
+        LogError( ( "[ADU] Failed resetting the device." ) );
         return eAzureIoTErrorFailed;
     }
 
