@@ -66,10 +66,6 @@ AzureIoTResult_t AzureIoTPlatform_Init( AzureADUImage_t * const pxAduImage )
         return eAzureIoTErrorFailed;
     }
 
-    printf( "[Platform] Size: %d | Address: %d\r\n",
-            pxAduImage->xUpdatePartition->size,
-            pxAduImage->xUpdatePartition->address );
-
     esp_partition_erase_range( pxAduImage->xUpdatePartition, 0, pxAduImage->xUpdatePartition->size );
 
     return eAzureIoTSuccess;
