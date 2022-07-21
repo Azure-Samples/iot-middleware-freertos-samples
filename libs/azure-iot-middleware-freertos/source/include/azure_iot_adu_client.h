@@ -107,8 +107,7 @@ extern const uint8_t AzureIoTADURootKeyE[ 3 ];
 
 /**
  * @brief ADU Update ID.
- *
- *  https://docs.microsoft.com/en-us/azure/iot-hub-device-update/understand-device-update#device-update-agent
+ * @link https://docs.microsoft.com/en-us/azure/iot-hub-device-update/understand-device-update#device-update-agent
  */
 typedef struct AzureIoTADUClientUpdateId
 {
@@ -122,6 +121,11 @@ typedef struct AzureIoTADUClientUpdateId
     uint32_t ulVersionLength;
 } AzureIoTADUClientUpdateId_t;
 
+/**
+ * @brief Holds any user-defined custom properties of the device.
+ * @remark Implementer can define other device properties to be used
+ *         for the compatibility check while targeting the update deployment.
+ */
 typedef struct AzureIoTADUDeviceCustomProperties
 {
     uint8_t * pucPropertyNames[ AZ_IOT_ADU_CLIENT_MAX_DEVICE_CUSTOM_PROPERTIES ];
@@ -138,8 +142,7 @@ typedef struct AzureIoTADUDeviceCustomProperties
 
 /**
  * @brief ADU Device Properties.
- *
- *  https://docs.microsoft.com/en-us/azure/iot-hub-device-update/understand-device-update#device-update-agent
+ * @link https://docs.microsoft.com/en-us/azure/iot-hub-device-update/understand-device-update#device-update-agent
  */
 typedef struct AzureIoTADUClientDeviceProperties
 {
@@ -160,17 +163,6 @@ typedef struct AzureIoTADUClientDeviceProperties
 /**
  * @brief Actions requested by the ADU Service
  *
- * Used to have `Install` (1) and `Apply` (2)
- *
- * Previously in the public preview protocol, the cloud would push a separate UpdateAction for each
- * individual step (e.g. download, install, apply) and the agent would report to the cloud after
- * every workflow step completion.
- * Each of these steps is now a local workflow step in the agent's workflow processing state machine.
- *
- * https://github.com/danewalton/iot-hub-device-update/blob/main/docs/agent-reference/goal-state-support.md#agent-based-vs-cloud-based-orchestration
- *
- * https://docs.microsoft.com/en-us/azure/iot-hub-device-update/device-update-plug-and-play#action
- *
  */
 typedef enum AzureIoTADUAction
 {
@@ -181,14 +173,13 @@ typedef enum AzureIoTADUAction
 
 /**
  * @brief ADU workflow struct.
- * Format:
+ * @remark Format:
  *    {
  *      "action": 3,
  *      "id": "someguid",
  *      "retryTimestamp": "2020-04-22T12:12:12.0000000+00:00"
  *  }
- *
- *  https://docs.microsoft.com/en-us/azure/iot-hub-device-update/understand-device-update#device-update-agent
+ * @link https://docs.microsoft.com/en-us/azure/iot-hub-device-update/understand-device-update#device-update-agent
  */
 typedef struct AzureIoTADUClientWorkflow
 {
@@ -201,6 +192,10 @@ typedef struct AzureIoTADUClientWorkflow
     uint32_t ulRetryTimestampLength;
 } AzureIoTADUClientWorkflow_t;
 
+/**
+ * @brief The update step result reported by the agent.
+ * 
+ */
 typedef struct AzureIoTADUClientStepResult
 {
     uint32_t ulResultCode;
@@ -210,6 +205,10 @@ typedef struct AzureIoTADUClientStepResult
     uint32_t ulResultDetailsLength;
 } AzureIoTADUClientStepResult_t;
 
+/**
+ * @brief The update result reported by the agent.
+ * 
+ */
 typedef struct AzureIoTADUClientInstallResult
 {
     int32_t lResultCode;
@@ -224,16 +223,8 @@ typedef struct AzureIoTADUClientInstallResult
 
 /**
  * @brief States of the ADU agent
- *
- * State is reported in response to an Action
- *
- * Used to have `DownloadSucceeded` and `InstallSucceeded` but not anymore
- *
- * State:
- * https://docs.microsoft.com/en-us/azure/iot-hub-device-update/device-update-plug-and-play#state
- *
- * Action:
- * https://docs.microsoft.com/en-us/azure/iot-hub-device-update/device-update-plug-and-play#action
+ * @remark State is reported in response to an update request Action.
+ * @link https://docs.microsoft.com/en-us/azure/iot-hub-device-update/device-update-plug-and-play#state
  *
  */
 typedef enum AzureIoTADUAgentState
@@ -244,14 +235,20 @@ typedef enum AzureIoTADUAgentState
     eAzureIoTADUAgentStateError,
 } AzureIoTADUAgentState_t;
 
-/* TODO: clean everything that can be removed from this point above. */
-
+/**
+ * @brief Decision values for accepting an update request or not.
+ * 
+ */
 typedef enum AzureIoTADURequestDecision
 {
     eAzureIoTADURequestDecisionAccept,
     eAzureIoTADURequestDecisionReject
 } AzureIoTADURequestDecision_t;
 
+/**
+ * @brief A map of file ID to download url.
+ * 
+ */
 typedef struct AzureIoTADUUpdateManifestFileUrl
 {
     uint8_t * pucId;
@@ -260,6 +257,12 @@ typedef struct AzureIoTADUUpdateManifestFileUrl
     uint32_t ulUrlLength;
 } AzureIoTADUUpdateManifestFileUrl_t;
 
+/**
+ * @brief     Identity of the update request.
+ * @remark    This version refers to the update request itself.
+ *            For verifying if an update request is applicable to an
+ *            ADU agent, use the update manifest instructions steps installed criteria. 
+ */
 typedef struct AzureIoTADUUpdateId
 {
     uint8_t * pucProvider;
@@ -270,12 +273,20 @@ typedef struct AzureIoTADUUpdateId
     uint32_t ulVersionLength;
 } AzureIoTADUUpdateId_t;
 
+/**
+ * @brief The name of a file referenced in the update manifest. 
+ * 
+ */
 typedef struct AzureIoTADUInstructionStepFile
 {
     uint8_t * pucFileName;
     uint32_t ulFileNameLength;
 } AzureIoTADUUpdateManifestInstructionStepFile_t;
 
+/**
+ * @brief Hash value of a given file.
+ * 
+ */
 typedef struct AzureIoTADUUpdateManifestFileHash
 {
     uint8_t * pucId;
@@ -284,6 +295,10 @@ typedef struct AzureIoTADUUpdateManifestFileHash
     uint32_t ulHashLength;
 } AzureIoTADUUpdateManifestFileHash_t;
 
+/**
+ * @brief Details of a file referenced in the update request.
+ * 
+ */
 typedef struct AzureIoTADUUpdateManifestFile
 {
     uint8_t * pucId;
@@ -295,6 +310,10 @@ typedef struct AzureIoTADUUpdateManifestFile
     AzureIoTADUUpdateManifestFileHash_t pxHashes[ AZ_IOT_ADU_CLIENT_MAX_FILE_HASH_COUNT ];
 } AzureIoTADUUpdateManifestFile_t;
 
+/**
+ * @brief A step in the instructions of an ADU update manifest.
+ * 
+ */
 typedef struct AzureIoTADUInstructionStep
 {
     uint8_t * pucHandler;
@@ -305,12 +324,19 @@ typedef struct AzureIoTADUInstructionStep
     AzureIoTADUUpdateManifestInstructionStepFile_t pxFiles[ AZ_IOT_ADU_CLIENT_MAX_FILE_URL_COUNT ];
 } AzureIoTADUInstructionStep_t;
 
+/**
+ * @brief Instructions in the update manifest.
+ */
 typedef struct AzureIoTADUInstructions
 {
     uint32_t ulStepsCount;
     AzureIoTADUInstructionStep_t pxSteps[ AZ_IOT_ADU_CLIENT_MAX_INSTRUCTIONS_STEPS ];
 } AzureIoTADUInstructions_t;
 
+/**
+ * @brief Structure that holds the parsed contents of the update manifest
+ *        sent by the ADU service.
+ */
 typedef struct AzureIoTADUUpdateManifest
 {
     AzureIoTADUUpdateId_t xUpdateId;
@@ -324,7 +350,9 @@ typedef struct AzureIoTADUUpdateManifest
 } AzureIoTADUUpdateManifest_t;
 
 /**
- * @brief Azure IoT ADU Client (ADU agent) to handle stages of the ADU process.
+ * @brief Structure that holds the parsed contents of the ADU
+ *        request in the Plug and Play writable properties sent
+ *        by the ADU service.
  */
 typedef struct AzureIoTADUUpdateRequest
 {
@@ -338,12 +366,18 @@ typedef struct AzureIoTADUUpdateRequest
     AzureIoTADUUpdateManifest_t xUpdateManifest;
 } AzureIoTADUUpdateRequest_t;
 
+/**
+ * @brief User-defined options for the Azure IoT ADU client. 
+ */
 typedef struct AzureIoTADUClientOptions
 {
     void * xUnused;
 }
 AzureIoTADUClientOptions_t;
 
+/**
+ * @brief Azure IoT ADU Client (ADU agent) to handle stages of the ADU process.
+ */
 typedef struct AzureIoTADUClient
 {
     struct
