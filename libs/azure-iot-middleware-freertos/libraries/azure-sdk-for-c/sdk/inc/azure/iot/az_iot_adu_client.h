@@ -118,6 +118,8 @@ typedef struct
 
 /**
  * @brief The update step result reported by the agent.
+ * 
+ * This details results for a specific step of the update process.
  *
  */
 typedef struct
