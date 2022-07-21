@@ -99,7 +99,7 @@ typedef struct
   az_iot_adu_device_custom_properties* custom_properties;
   /**
    * @brief Version of the Device Update agent running on the device.
-   * @remark By default, must be set to AZ_IOT_ADU_CLIENT_AGENT_VERSION.
+   * @remark Must be set to AZ_IOT_ADU_CLIENT_AGENT_VERSION.
    */
   az_span adu_version;
   /**
