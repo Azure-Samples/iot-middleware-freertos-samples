@@ -54,7 +54,7 @@
  * @brief     Identity of the update request.
  * @remark    This version refers to the update request itself.
  *            For verifying if an update request is applicable to an
- *            ADU agent, use the update manifest instructions steps installed criteria. 
+ *            ADU agent, use the update manifest instructions steps installed criteria.
  */
 typedef struct
 {
@@ -80,7 +80,7 @@ typedef struct
  * @remarks    These properties are used by the ADU service for matching
  *             update groups and verifying the current update deployed.
  * @link
- * https://docs.microsoft.com/en-us/azure/iot-hub-device-update/device-update-plug-and-play 
+ * https://docs.microsoft.com/en-us/azure/iot-hub-device-update/device-update-plug-and-play
  */
 typedef struct
 {
@@ -118,7 +118,7 @@ typedef struct
 
 /**
  * @brief The update step result reported by the agent.
- * 
+ *
  */
 typedef struct
 {
@@ -140,7 +140,7 @@ typedef struct
 
 /**
  * @brief The update result reported by the agent.
- * 
+ *
  */
 typedef struct
 {
@@ -164,7 +164,7 @@ typedef struct
   int32_t step_results_count;
   /**
    * @brief The results for each step in the update manifest instructions.
-   * @remark The number of steps MUST match the number of steps in the 
+   * @remark The number of steps MUST match the number of steps in the
    *         update manifest for the resulting state to be property generated.
    */
   az_iot_adu_client_step_result step_results[AZ_IOT_ADU_CLIENT_MAX_INSTRUCTIONS_STEPS];
@@ -172,7 +172,7 @@ typedef struct
 
 /**
  * @brief A set of values that indicate which deployment the agent is currently working on.
- * 
+ *
  */
 typedef struct
 {
@@ -200,7 +200,7 @@ typedef struct
 typedef struct
 {
   /**
-   * @brief File ID, mapped in the updated manifest. 
+   * @brief File ID, mapped in the updated manifest.
    */
   az_span id;
   /**
@@ -229,7 +229,8 @@ typedef struct
    */
   az_span update_manifest_signature;
   /**
-   * @brief Tells the agent which files to download and the hash to use to verify that the files were downloaded correctly.
+   * @brief Tells the agent which files to download and the hash to use to verify that the files
+   * were downloaded correctly.
    */
   az_iot_adu_client_file_url file_urls[AZ_IOT_ADU_CLIENT_MAX_FILE_URL_COUNT];
   /**
@@ -240,7 +241,7 @@ typedef struct
 
 /**
  * @brief User-defined properties for handling an update request.
- * 
+ *
  */
 typedef struct
 {
@@ -249,7 +250,7 @@ typedef struct
 
 /**
  * @brief Step in the instructions of an update manifest.
- * 
+ *
  */
 typedef struct
 {
@@ -266,7 +267,7 @@ typedef struct
    */
   uint32_t files_count;
   /**
-   * @brief Additional user-defined properties for the update step handler. 
+   * @brief Additional user-defined properties for the update step handler.
    */
   az_iot_adu_client_update_manifest_instructions_step_handler_properties handler_properties;
 } az_iot_adu_client_update_manifest_instructions_step;
@@ -289,7 +290,7 @@ typedef struct
 
 /**
  * @brief Hash value for a given file.
- * 
+ *
  */
 typedef struct
 {
@@ -299,33 +300,33 @@ typedef struct
 
 /**
  * @brief Details of a file referenced in the update request.
- * 
+ *
  */
 typedef struct
 {
   /**
    * @brief Identity of a file, referenced in the update request.
-   * 
+   *
    */
   az_span id;
   /**
    * @brief Name of the file.
-   * 
+   *
    */
   az_span file_name;
   /**
    * @brief Size of a file, in bytes.
-   * 
+   *
    */
   uint32_t size_in_bytes;
   /**
    * @brief Hashes provided for a given file in the update request.
-   * 
+   *
    */
   az_iot_adu_client_update_manifest_file_hash hashes[AZ_IOT_ADU_CLIENT_MAX_FILE_HASH_COUNT];
   /**
    * @brief Number of items in \p hashes.
-   * 
+   *
    */
   uint32_t hashes_count;
 } az_iot_adu_client_update_manifest_file;
@@ -338,35 +339,35 @@ typedef struct
 {
   /**
    * @brief Version of the update manifest schema.
-   * 
+   *
    */
   az_span manifest_version;
   /**
    * @brief User-defined identity of the update manifest.
-   * 
+   *
    */
   az_iot_adu_client_update_id update_id;
   /**
    * @brief Instructions of the update manifest.
-   * 
+   *
    */
   az_iot_adu_client_update_manifest_instructions instructions;
   /**
    * @brief Download urls for the files referenced in the update manifest instructions.
-   * 
+   *
    */
   az_iot_adu_client_update_manifest_file files[AZ_IOT_ADU_CLIENT_MAX_FILE_URL_COUNT];
   /**
    * @brief Number of items in \p files.
-   * 
+   *
    */
   uint32_t files_count;
   az_span create_date_time;
 } az_iot_adu_client_update_manifest;
 
 /**
- * @brief User-defined options for the Azure IoT ADU client. 
- * 
+ * @brief User-defined options for the Azure IoT ADU client.
+ *
  */
 typedef struct
 {
@@ -375,7 +376,7 @@ typedef struct
 
 /**
  * @brief Structure that holds the state of the Azure IoT ADU client.
- * 
+ *
  */
 typedef struct
 {

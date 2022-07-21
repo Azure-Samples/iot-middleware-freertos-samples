@@ -194,7 +194,7 @@ typedef struct AzureIoTADUClientWorkflow
 
 /**
  * @brief The update step result reported by the agent.
- * 
+ *
  */
 typedef struct AzureIoTADUClientStepResult
 {
@@ -207,7 +207,7 @@ typedef struct AzureIoTADUClientStepResult
 
 /**
  * @brief The update result reported by the agent.
- * 
+ *
  */
 typedef struct AzureIoTADUClientInstallResult
 {
@@ -237,7 +237,7 @@ typedef enum AzureIoTADUAgentState
 
 /**
  * @brief Decision values for accepting an update request or not.
- * 
+ *
  */
 typedef enum AzureIoTADURequestDecision
 {
@@ -247,7 +247,7 @@ typedef enum AzureIoTADURequestDecision
 
 /**
  * @brief A map of file ID to download url.
- * 
+ *
  */
 typedef struct AzureIoTADUUpdateManifestFileUrl
 {
@@ -261,7 +261,7 @@ typedef struct AzureIoTADUUpdateManifestFileUrl
  * @brief     Identity of the update request.
  * @remark    This version refers to the update request itself.
  *            For verifying if an update request is applicable to an
- *            ADU agent, use the update manifest instructions steps installed criteria. 
+ *            ADU agent, use the update manifest instructions steps installed criteria.
  */
 typedef struct AzureIoTADUUpdateId
 {
@@ -274,8 +274,8 @@ typedef struct AzureIoTADUUpdateId
 } AzureIoTADUUpdateId_t;
 
 /**
- * @brief The name of a file referenced in the update manifest. 
- * 
+ * @brief The name of a file referenced in the update manifest.
+ *
  */
 typedef struct AzureIoTADUInstructionStepFile
 {
@@ -285,7 +285,7 @@ typedef struct AzureIoTADUInstructionStepFile
 
 /**
  * @brief Hash value of a given file.
- * 
+ *
  */
 typedef struct AzureIoTADUUpdateManifestFileHash
 {
@@ -297,7 +297,7 @@ typedef struct AzureIoTADUUpdateManifestFileHash
 
 /**
  * @brief Details of a file referenced in the update request.
- * 
+ *
  */
 typedef struct AzureIoTADUUpdateManifestFile
 {
@@ -312,7 +312,7 @@ typedef struct AzureIoTADUUpdateManifestFile
 
 /**
  * @brief A step in the instructions of an ADU update manifest.
- * 
+ *
  */
 typedef struct AzureIoTADUInstructionStep
 {
@@ -367,7 +367,7 @@ typedef struct AzureIoTADUUpdateRequest
 } AzureIoTADUUpdateRequest_t;
 
 /**
- * @brief User-defined options for the Azure IoT ADU client. 
+ * @brief User-defined options for the Azure IoT ADU client.
  */
 typedef struct AzureIoTADUClientOptions
 {
