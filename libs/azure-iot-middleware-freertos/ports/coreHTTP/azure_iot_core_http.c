@@ -105,17 +105,9 @@ AzureIoTHTTPResult_t AzureIoTHTTP_Init( AzureIoTHTTPHandle_t xHTTPHandle,
 
     xHTTPHandle->pxHTTPTransport = pxHTTPTransport;
 
-    printf( ( "[HTTP] Initialize Request Headers.\r\n" ) );
     HTTPClient_InitializeRequestHeaders( &xHTTPHandle->xRequestHeaders, &xHTTPHandle->xRequestInfo );
 
     return prvTranslateToAzureIoTHTTPResult( xHttpLibraryStatus );
-}
-
-static void prvLogHttpResponse( AzureIoTHTTPHandle_t xHTTPHandle )
-{
-    printf( "[HTTP] ----- Headers -----\r\n" );
-    printf( "%.*s\r\n", ( int ) xHTTPHandle->xResponse.headersLen, xHTTPHandle->xResponse.pHeaders );
-    printf( "\r\n" );
 }
 
 AzureIoTHTTPResult_t AzureIoTHTTP_Request( AzureIoTHTTPHandle_t xHTTPHandle,
@@ -131,13 +123,9 @@ AzureIoTHTTPResult_t AzureIoTHTTP_Request( AzureIoTHTTPHandle_t xHTTPHandle,
 
     if( !( ( lRangeStart == 0 ) && ( lRangeEnd == azureiothttpHttpRangeRequestEndOfFile ) ) )
     {
-        printf( "[HTTP] Adding range headers | Range %i to %i\r\n", ( int ) lRangeStart, ( int ) lRangeEnd );
         /* Add range headers if not the whole image. */
 
         xHttpLibraryStatus = HTTPClient_AddRangeHeader( &xHTTPHandle->xRequestHeaders, lRangeStart, lRangeEnd );
-
-        printf( "Total header buffer: %.*s\r\n",
-                ( int ) xHTTPHandle->xRequestHeaders.headersLen, xHTTPHandle->xRequestHeaders.pBuffer );
 
         if( xHttpLibraryStatus != HTTPSuccess )
         {
@@ -149,7 +137,7 @@ AzureIoTHTTPResult_t AzureIoTHTTP_Request( AzureIoTHTTPHandle_t xHTTPHandle,
 
     if( xHttpLibraryStatus != HTTPSuccess )
     {
-        printf( "[HTTP] ERROR: %d\r\n", xHttpLibraryStatus );
+        AZLogError( ( "[HTTP] ERROR: %d", xHttpLibraryStatus ) );
         return prvTranslateToAzureIoTHTTPResult( xHttpLibraryStatus );
     }
 
@@ -158,14 +146,12 @@ AzureIoTHTTPResult_t AzureIoTHTTP_Request( AzureIoTHTTPHandle_t xHTTPHandle,
         if( xHTTPHandle->xResponse.statusCode == 200 )
         {
             /* Handle a response Status-Code of 200 OK. */
-            printf( "[HTTP] Success 200" );
-            prvLogHttpResponse( xHTTPHandle );
+            AZLogInfo( ( "[HTTP] Success 200" ) );
         }
         else if( xHTTPHandle->xResponse.statusCode == 206 )
         {
             /* Handle a response Status-Code of 200 OK. */
-            printf( "[HTTP] Partial Content 206 | Range %i to %i\r\n", ( int ) lRangeStart, ( int ) lRangeEnd );
-            prvLogHttpResponse( xHTTPHandle );
+            AZLogInfo( ( "[HTTP] [Status 206] Received range %i to %i", ( int ) lRangeStart, ( int ) lRangeEnd ) );
 
             *ppucDataBuffer = ( char * ) xHTTPHandle->xResponse.pBody;
             *pulDataLength = ( uint32_t ) xHTTPHandle->xResponse.bodyLen;
@@ -173,7 +159,7 @@ AzureIoTHTTPResult_t AzureIoTHTTP_Request( AzureIoTHTTPHandle_t xHTTPHandle,
         else
         {
             /* Handle an error */
-            printf( "[HTTP] Failed %d.\r\n", xHTTPHandle->xResponse.statusCode );
+            AZLogError( ( "[HTTP] Failed %d.", xHTTPHandle->xResponse.statusCode ) );
             xHttpLibraryStatus = 1;
         }
     }
@@ -212,7 +198,6 @@ AzureIoTHTTPResult_t AzureIoTHTTP_RequestSizeInit( AzureIoTHTTPHandle_t xHTTPHan
 
     xHTTPHandle->pxHTTPTransport = pxHTTPTransport;
 
-    printf( ( "[HTTP] Initialize Request Headers.\r\n" ) );
     HTTPClient_InitializeRequestHeaders( &xHTTPHandle->xRequestHeaders, &xHTTPHandle->xRequestInfo );
 
     return prvTranslateToAzureIoTHTTPResult( xHttpLibraryStatus );
@@ -237,13 +222,13 @@ int32_t AzureIoTHTTP_RequestSize( AzureIoTHTTPHandle_t xHTTPHandle )
         if( xHTTPHandle->xResponse.statusCode == 200 )
         {
             /* Handle a response Status-Code of 200 OK. */
-            printf( "[HTTP] Size Request Success 200\r\n" );
+            AZLogDebug( ( "[HTTP] Size Request Success 200" ) );
             return ( int32_t ) xHTTPHandle->xResponse.contentLength;
         }
         else
         {
             /* Handle an error */
-            printf( "[HTTP] Size Request Failed %d.\r\n", xHTTPHandle->xResponse.statusCode );
+            AZLogError( ( "[HTTP] Size Request Failed %d.", xHTTPHandle->xResponse.statusCode ) );
             return -1;
         }
     }
