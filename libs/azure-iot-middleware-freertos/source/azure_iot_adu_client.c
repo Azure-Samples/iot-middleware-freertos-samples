@@ -158,7 +158,13 @@ AzureIoTResult_t AzureIoTADUClient_Init( AzureIoTADUClient_t * pxAzureIoTADUClie
 
     if( pxADUClientOptions )
     {
-        xADUOptions.unused = pxADUClientOptions->xUnused;
+        if ( pxADUClientOptions->ucCompatibilityProperties != NULL &&
+             pxADUClientOptions->ulCompatibilityPropertiesLength > 0 )
+        {
+            xADUOptions.device_compatibility_properties = az_span_create(
+                ( uint8_t * ) pxADUClientOptions->ucCompatibilityProperties,
+                ( int32_t ) pxADUClientOptions->ulCompatibilityPropertiesLength );
+        }
     }
 
     if( az_result_failed( xCoreResult = az_iot_adu_client_init( &pxAzureIoTADUClient->_internal.xADUClient, &xADUOptions ) ) )
@@ -441,9 +447,6 @@ static void prvFillBaseAduDeviceProperties( AzureIoTADUClientDeviceProperties_t 
             &pxDeviceProperties->pxCustomProperties->_internal.xCustomProperties;
     }
 
-    pxBaseAduDeviceProperties->compatibility_properties = az_span_create(
-        ( uint8_t * ) pxDeviceProperties->ucCompatibilityProperties,
-        ( int32_t ) pxDeviceProperties->ulCompatibilityPropertiesLength );
     pxBaseAduDeviceProperties->update_id.name = az_span_create(
         ( uint8_t * ) pxDeviceProperties->xCurrentUpdateId.ucName,
         ( int32_t ) pxDeviceProperties->xCurrentUpdateId.ulNameLength );

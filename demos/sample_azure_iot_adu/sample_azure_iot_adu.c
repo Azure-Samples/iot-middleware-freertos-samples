@@ -165,8 +165,6 @@ AzureIoTADUClientDeviceProperties_t xADUDeviceProperties =
         .ucVersion                            = ( const uint8_t * ) democonfigADU_UPDATE_VERSION,
         .ulVersionLength                      = sizeof( democonfigADU_UPDATE_VERSION ) - 1
     },
-    .ucCompatibilityProperties                = ( const uint8_t * ) AZ_IOT_ADU_CLIENT_AGENT_DEFAULT_COMPATIBILITY_PROPERTIES,
-    .ulCompatibilityPropertiesLength          = sizeof( AZ_IOT_ADU_CLIENT_AGENT_DEFAULT_COMPATIBILITY_PROPERTIES ) - 1,
     .ucDeliveryOptimizationAgentVersion       = NULL,
     .ulDeliveryOptimizationAgentVersionLength = 0
 };

@@ -88,9 +88,12 @@
 
 static az_span split_az_span(az_span span, int32_t size, az_span* remainder);
 
+const az_span default_compatibility_properties =
+  AZ_SPAN_LITERAL_FROM_STR(AZ_IOT_ADU_CLIENT_AGENT_DEFAULT_COMPATIBILITY_PROPERTIES);
+
 AZ_NODISCARD az_iot_adu_client_options az_iot_adu_client_options_default()
 {
-  return (az_iot_adu_client_options){ .unused = NULL };
+  return (az_iot_adu_client_options){ .device_compatibility_properties = default_compatibility_properties };
 }
 
 AZ_NODISCARD az_result
@@ -241,17 +244,8 @@ AZ_NODISCARD az_result az_iot_adu_client_get_agent_state_payload(
   _az_RETURN_IF_FAILED(az_json_writer_append_property_name(
       ref_json_writer,
       AZ_SPAN_FROM_STR(AZ_IOT_ADU_CLIENT_AGENT_PROPERTY_NAME_COMPAT_PROPERTY_NAMES)));
-  if (az_span_is_content_equal(device_properties->compatibility_properties, AZ_SPAN_EMPTY))
-  {
-    _az_RETURN_IF_FAILED(az_json_writer_append_string(
-        ref_json_writer,
-        AZ_SPAN_FROM_STR(AZ_IOT_ADU_CLIENT_AGENT_DEFAULT_COMPATIBILITY_PROPERTIES)));
-  }
-  else
-  {
-    _az_RETURN_IF_FAILED(
-        az_json_writer_append_string(ref_json_writer, device_properties->compatibility_properties));
-  }
+  _az_RETURN_IF_FAILED(
+      az_json_writer_append_string(ref_json_writer, client->_internal.options.device_compatibility_properties));
 
   /* Add last installed update information */
   if (last_install_result != NULL)

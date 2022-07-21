@@ -81,7 +81,6 @@ typedef struct
   az_span manufacturer;
   az_span model;
   az_iot_adu_device_custom_properties* custom_properties;
-  az_span compatibility_properties;
   az_span adu_version;
   /**
    * @brief  Version of the Delivery Optimization agent.
@@ -188,7 +187,7 @@ typedef struct
 
 typedef struct
 {
-  void* unused;
+  az_span device_compatibility_properties;
 } az_iot_adu_client_options;
 
 typedef struct
