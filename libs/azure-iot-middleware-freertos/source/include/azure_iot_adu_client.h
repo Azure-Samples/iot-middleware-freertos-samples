@@ -175,7 +175,7 @@ typedef struct AzureIoTADUUpdateManifestFileUrl
  * @brief     Identity of the update request.
  * @remark    This version refers to the update request itself.
  *            For verifying if an update request is applicable to an
- *            ADU agent, use the update manifest instructions steps installed criteria.
+ *            ADU agent, use the update manifest instructions steps "installed criteria".
  */
 typedef struct AzureIoTADUUpdateId
 {
