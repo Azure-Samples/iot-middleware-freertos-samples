@@ -158,8 +158,8 @@ AzureIoTResult_t AzureIoTADUClient_Init( AzureIoTADUClient_t * pxAzureIoTADUClie
 
     if( pxADUClientOptions )
     {
-        if ( pxADUClientOptions->ucCompatibilityProperties != NULL &&
-             pxADUClientOptions->ulCompatibilityPropertiesLength > 0 )
+        if( ( pxADUClientOptions->ucCompatibilityProperties != NULL ) &&
+            ( pxADUClientOptions->ulCompatibilityPropertiesLength > 0 ) )
         {
             xADUOptions.device_compatibility_properties = az_span_create(
                 ( uint8_t * ) pxADUClientOptions->ucCompatibilityProperties,
