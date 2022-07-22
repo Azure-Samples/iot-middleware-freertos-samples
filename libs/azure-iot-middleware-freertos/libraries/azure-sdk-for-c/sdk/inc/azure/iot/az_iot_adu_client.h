@@ -50,6 +50,9 @@
 /* Maximum Number of Custom Device Properties */
 #define AZ_IOT_ADU_CLIENT_MAX_DEVICE_CUSTOM_PROPERTIES 5
 
+/* Default Agent Compatibility Properties */
+#define AZ_IOT_ADU_CLIENT_AGENT_DEFAULT_COMPATIBILITY_PROPERTIES "manufacturer,model"
+
 /**
  * @brief     Identity of the update request.
  * @remark    This version refers to the update request itself.
@@ -374,7 +377,7 @@ typedef struct
  */
 typedef struct
 {
-  void* unused;
+  az_span device_compatibility_properties;
 } az_iot_adu_client_options;
 
 /**

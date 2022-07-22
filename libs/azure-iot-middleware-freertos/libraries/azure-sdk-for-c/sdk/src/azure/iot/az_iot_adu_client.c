@@ -14,9 +14,6 @@
 /* Define the ADU agent interface ID.  */
 #define AZ_IOT_ADU_CLIENT_AGENT_INTERFACE_ID "dtmi:azure:iot:deviceUpdate;1"
 
-/* Define the compatibility.  */
-#define AZ_IOT_ADU_CLIENT_AGENT_COMPATIBILITY "manufacturer,model"
-
 /* Define the ADU agent property name "agent" and sub property names.  */
 #define AZ_IOT_ADU_CLIENT_AGENT_PROPERTY_NAME_AGENT "agent"
 
@@ -91,9 +88,13 @@
 
 static az_span split_az_span(az_span span, int32_t size, az_span* remainder);
 
+const az_span default_compatibility_properties
+    = AZ_SPAN_LITERAL_FROM_STR(AZ_IOT_ADU_CLIENT_AGENT_DEFAULT_COMPATIBILITY_PROPERTIES);
+
 AZ_NODISCARD az_iot_adu_client_options az_iot_adu_client_options_default()
 {
-  return (az_iot_adu_client_options){ .unused = NULL };
+  return (az_iot_adu_client_options){ .device_compatibility_properties
+                                      = default_compatibility_properties };
 }
 
 AZ_NODISCARD az_result
@@ -240,12 +241,12 @@ AZ_NODISCARD az_result az_iot_adu_client_get_agent_state_payload(
 
   _az_RETURN_IF_FAILED(az_json_writer_append_end_object(ref_json_writer));
 
-  /* Fill the compatible property names. */
+  /* Fill the compatibility property names. */
   _az_RETURN_IF_FAILED(az_json_writer_append_property_name(
       ref_json_writer,
       AZ_SPAN_FROM_STR(AZ_IOT_ADU_CLIENT_AGENT_PROPERTY_NAME_COMPAT_PROPERTY_NAMES)));
   _az_RETURN_IF_FAILED(az_json_writer_append_string(
-      ref_json_writer, AZ_SPAN_FROM_STR(AZ_IOT_ADU_CLIENT_AGENT_COMPATIBILITY)));
+      ref_json_writer, client->_internal.options.device_compatibility_properties));
 
   /* Add last installed update information */
   if (last_install_result != NULL)
