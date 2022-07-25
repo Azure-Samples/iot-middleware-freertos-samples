@@ -285,7 +285,7 @@ typedef struct AzureIoTADUUpdateRequest
  */
 typedef struct AzureIoTADUClientOptions
 {
-    const uint8_t * ucCompatibilityProperties;
+    const uint8_t * pucCompatibilityProperties;
     uint32_t ulCompatibilityPropertiesLength;
 }
 AzureIoTADUClientOptions_t;
