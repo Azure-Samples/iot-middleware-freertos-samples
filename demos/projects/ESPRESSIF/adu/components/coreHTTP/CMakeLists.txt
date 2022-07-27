@@ -19,16 +19,22 @@ set(CORE_MQTT_CONFIG_PATH
 
 file(GLOB COMPONENT_SOURCES
     ${CORE_HTTP_PATH}/*.c
-    ${CORE_HTTP_PATH}/dependency/3rdparty/http-parser/http_parser.c
+    ${CORE_HTTP_PATH}/dependency/3rdparty/http_parser/http_parser.c
 )
 
 set(COMPONENT_INCLUDE_DIRS
     ${CORE_MQTT_CONFIG_PATH}
     ${CORE_HTTP_PATH}/include
     ${CORE_HTTP_PATH}/interface
-    ${CORE_HTTP_PATH}/dependency/3rdparty/http-parser
+    ${CORE_HTTP_PATH}/dependency/3rdparty/http_parser
 )
 
 idf_component_register(
     SRCS ${COMPONENT_SOURCES}
     INCLUDE_DIRS ${COMPONENT_INCLUDE_DIRS})
+
+set_source_files_properties(
+  ${CORE_HTTP_PATH}/core_http_client.c
+    PROPERTIES COMPILE_FLAGS
+      -Wno-stringop-truncation
+)
