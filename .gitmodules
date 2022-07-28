@@ -1,6 +1,4 @@
 [submodule "libs/azure-iot-middleware-freertos"]
 	path = libs/azure-iot-middleware-freertos
 	url = https://github.com/Azure/azure-iot-middleware-freertos.git
-[submodule "demos/projects/ESPRESSIF/esp32/components/esp-cryptoauthlib"]
-	path = demos/projects/ESPRESSIF/esp32/components/esp-cryptoauthlib
-	url = https://github.com/espressif/esp-cryptoauthlib
+
