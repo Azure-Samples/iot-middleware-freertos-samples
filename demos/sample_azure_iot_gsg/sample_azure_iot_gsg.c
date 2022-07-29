@@ -33,11 +33,6 @@
 /* Board specific implementation */
 #include "sample_gsg_device.h"
 
-/* For using the ATECC608 secure element if support is configured */
-#if CONFIG_ESP_TLS_USE_SECURE_ELEMENT && CONFIG_ATCA_MBEDTLS_ECDSA
-    #include "cryptoauthlib.h"
-#endif
-
 /*-----------------------------------------------------------*/
 
 /* Compile time error for undefined configs. */
@@ -133,20 +128,6 @@ struct NetworkContext
     TlsTransportParams_t * pParams;
 };
 /*-----------------------------------------------------------*/
-
-#if CONFIG_ESP_TLS_USE_SECURE_ELEMENT
-/**
- * @brief Generates the registration ID using the ATECC608 chip dynamically using 
- *          cryptoauthlib API
- *
- *
- * @param[out] pucSecureElementSerNum  An unsigned char buffer to hold the 9-byte serial number of the ATECC608 chip
- * @param[out] pcRegistrationID  The string that will hold the registration ID - should be 21 bytes or more
- */
-    static uint32_t prvPrepareRegistrationIdFromATECC608( uint8_t *sernum,
-                                                          char *registration_id_string );
-
-#endif /* CONFIG_ESP_TLS_USE_SECURE_ELEMENT */
 
 
 /* Define buffer for IoT Hub info.  */
@@ -624,39 +605,6 @@ static uint32_t prvConnectToServerWithBackoffRetries( const char * pcHostName,
 }
 /*-----------------------------------------------------------*/
 
-#if CONFIG_ESP_TLS_USE_SECURE_ELEMENT
-/**
- * @brief Get the serial number of the ATECC608 chip and the registration ID that will be used
- * by the DPS client
- * 
- */
-    static uint32_t prvPrepareRegistrationIdFromATECC608(uint8_t *sernum, char *registration_id_string) {
-        if(sernum == NULL || registration_id_string == NULL || (strlen(registration_id_string) < 21)) {
-            return -1; // improper parameters
-        }
-
-        ATCA_STATUS s;
-        s = atcab_read_serial_number(sernum);
-        if(s != ATCA_SUCCESS) {
-            return -3;
-        }
-        #ifndef CONFIG_ATECC608A_TCUSTOM
-            sprintf(registration_id_string,"sn%02X%02X%02X%02X%02X%02X%02X%02X%02X",sernum[0],sernum[1],\
-            sernum[2],sernum[3],sernum[4],sernum[5],sernum[6],sernum[7],sernum[8]);
-            registration_id_string[20] = '\0';
-        #else
-            sprintf(registration_id_string,"%02X%02X%02X%02X%02X%02X%02X%02X%02X",sernum[0],sernum[1],\
-            sernum[2],sernum[3],sernum[4],sernum[5],sernum[6],sernum[7],sernum[8]);
-            registration_id_string[18] = '\0';
-        #endif
-
-        return 0;
-
-    }
-
-#endif /* CONFIG_ESP_TLS_USE_SECURE_ELEMENT */
-
-
 #ifdef democonfigENABLE_DPS_SAMPLE
 
 /**
@@ -697,14 +645,18 @@ static uint32_t prvConnectToServerWithBackoffRetries( const char * pcHostName,
         xTransport.xSend = TLS_Socket_Send;
         xTransport.xRecv = TLS_Socket_Recv;
 
-#if CONFIG_ESP_TLS_USE_SECURE_ELEMENT
-        /* Redefine the democonfigREGISTRATION_ID macro dynamically */
-        #undef democonfigREGISTRATION_ID
-        char registration_id_string[21];
-        uint8_t sernum[9];
-        ulStatus = prvPrepareRegistrationIdFromATECC608(sernum,registration_id_string);
+#ifdef democonfigUSE_HSM
+        /* Redefine the democonfigREGISTRATION_ID macro using registration ID 
+        generated dynamically using the HSM */
+        
+        /* We use a pointer instead of a buffer so that the getRegistrationId
+         function can allocate the necessary memory depending on the HSM */
+        char *registration_id = NULL;
+        ulStatus = getRegistrationId( &registration_id );
         configASSERT( ulStatus == 0);
-        #define democonfigREGISTRATION_ID    registration_id_string
+        #undef democonfigREGISTRATION_ID
+        #define democonfigREGISTRATION_ID   registration_id
+             
 #endif
 
         xResult = AzureIoTProvisioningClient_Init( &xAzureIoTProvisioningClient,
@@ -713,7 +665,11 @@ static uint32_t prvConnectToServerWithBackoffRetries( const char * pcHostName,
                                                    ( const uint8_t * ) democonfigID_SCOPE,
                                                    sizeof( democonfigID_SCOPE ) - 1,
                                                    ( const uint8_t * ) democonfigREGISTRATION_ID,
-                                                   sizeof( democonfigREGISTRATION_ID ) - 1,
+#ifdef democonfigUSE_HSM
+                                                    strlen( democonfigREGISTRATION_ID ),
+#else
+                                                    sizeof( democonfigREGISTRATION_ID ) - 1,
+#endif 
                                                    NULL, ucMQTTMessageBuffer, sizeof( ucMQTTMessageBuffer ),
                                                    ullGetUnixTime,
                                                    &xTransport );

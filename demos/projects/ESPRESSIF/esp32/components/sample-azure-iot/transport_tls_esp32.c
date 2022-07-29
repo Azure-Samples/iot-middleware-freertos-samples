@@ -38,6 +38,181 @@
 /* TLS includes. */
 #include "esp_transport_ssl.h"
 
+#include "demo_config.h"
+
+/* For using the ATECC608 secure element if support is configured */
+#ifdef democonfigUSE_HSM
+    #include "cryptoauthlib.h"
+#endif
+
+static const char *TAG = "tls_freertos";
+
+#ifdef democonfigUSE_HSM
+
+#if defined(CONFIG_ATECC608A_TNG)
+/**
+ * @brief [Trust&GO] Dynamically generate and write the registration ID as a
+ *  string into the passed pointer
+ *
+ * @param[in,out] ppcRegistrationId Input: Pointer to a null pointer, 
+ *                      Output: Pointer to a null-terminated string
+ * @param[in]     pucHsmData Pointer to a buffer holding data to be passed
+ *                          (if any) to help generate the Registration ID
+ * @param[in]     ulHsmDataLength Length of the buffer passed in the 
+ *                          second parameter       
+ * 
+ * @return  0   if everything went through correctly 
+ */
+static uint32_t getRegistrationIdFromTNG( char **ppcRegistrationId,\
+                                            uint8_t *pucHsmData,\
+                                            uint32_t ulHsmDataLength ) {
+
+        /* We don't check for NULL-ness of the input or the 
+            ability to talk to the HSM - the getRegistrationId(...)
+            function does that already
+        */      
+        
+        *ppcRegistrationId = malloc(21);     
+        if(*ppcRegistrationId == NULL) {
+            return 3;
+        }
+        sprintf(*ppcRegistrationId,"sn%02X%02X%02X%02X%02X%02X%02X%02X%02X",pucHsmData[0],pucHsmData[1],\
+        pucHsmData[2],pucHsmData[3],pucHsmData[4],pucHsmData[5],pucHsmData[6],pucHsmData[7],pucHsmData[8]);
+        *(*ppcRegistrationId + 20) = '\0';
+
+        return 0;
+}
+
+#elif defined(CONFIG_ATECC608A_TFLEX)
+/**
+ * @brief [TrustFLEX] Dynamically generate and write the registration ID as a
+ *  string into the passed pointer
+ *
+ * @param[in,out] ppcRegistrationId Input: Pointer to a null pointer, 
+ *                      Output: Pointer to a null-terminated string
+ * @param[in]     pucHsmData Pointer to a buffer holding data to be passed
+ *                          (if any) to help generate the Registration ID
+ * @param[in]     ulHsmDataLength Length of the buffer passed in the 
+ *                          second parameter       
+ * 
+ * @return  0   if everything went through correctly 
+ */
+static uint32_t getRegistrationIdFromTFLX( char **ppcRegistrationId,\
+                                            uint8_t *pucHsmData,\
+                                            uint32_t ulHsmDataLength ) {
+
+        /* We don't check for NULL-ness of the input or the 
+            ability to talk to the HSM - the getRegistrationId(...)
+            function does that already
+        */      
+        /* TODO: Replace the below with your own implementation - the provided 
+            implementation is applicable to TFLX-PROTO devices only
+        */
+        *ppcRegistrationId = malloc(21);     
+        if(*ppcRegistrationId == NULL) {
+            return 3;
+        }
+        sprintf(*ppcRegistrationId,"sn%02X%02X%02X%02X%02X%02X%02X%02X%02X",pucHsmData[0],pucHsmData[1],\
+        pucHsmData[2],pucHsmData[3],pucHsmData[4],pucHsmData[5],pucHsmData[6],pucHsmData[7],pucHsmData[8]);
+        *(*ppcRegistrationId + 20) = '\0';
+
+        return 0;
+}
+
+#elif defined(CONFIG_ATECC608A_TCUSTOM)
+/**
+ * @brief [TrustCUSTOM] Dynamically generate and write the registration ID as a
+ *  string into the passed pointer
+ *
+ * @param[in,out] ppcRegistrationId Input: Pointer to a null pointer, 
+ *                      Output: Pointer to a null-terminated string
+ * @param[in]     pucHsmData Pointer to a buffer holding data to be passed
+ *                          (if any) to help generate the Registration ID
+ * @param[in]     ulHsmDataLength Length of the buffer passed in the 
+ *                          second parameter       
+ * 
+ * @return  0   if everything went through correctly 
+ */
+static uint32_t getRegistrationIdFromTCSM( char **ppcRegistrationId,\
+                                            uint8_t *pucHsmData,\
+                                            uint32_t ulHsmDataLength ) {
+
+        /* We don't check for NULL-ness of the input or the 
+            ability to talk to the HSM - the getRegistrationId(...)
+            function does that already
+        */      
+        /* TODO: Replace the below with your own implementation - the provided 
+            implementation is applicable to certs generated using esp-cryptoauth 
+            tool only
+        */
+        *ppcRegistrationId = malloc(19);     
+        if(*ppcRegistrationId == NULL) {
+            return 3;
+        }
+
+        sprintf(*ppcRegistrationId,"%02X%02X%02X%02X%02X%02X%02X%02X%02X",pucHsmData[0],pucHsmData[1],\
+        pucHsmData[2],pucHsmData[3],pucHsmData[4],pucHsmData[5],pucHsmData[6],pucHsmData[7],pucHsmData[8]);
+        *(*ppcRegistrationId + 18) = '\0';  
+        return 0;
+}
+#endif
+
+/**
+ * @brief Dynamically generate and write the registration ID as a
+ *  string into the passed pointer
+ *
+ * @param[in,out] ppcRegistrationId Input: Pointer to a null pointer, 
+ *                      Output: Pointer to a null-terminated string
+ * 
+ * @return  1  if the input is not a pointer to a NULL pointer,
+ *          2  if we are not able to talk to the HSM
+ *          3  if something else went wrong (eg: memory allocation failed)
+ *          0   if everything went through correctly 
+ */
+uint32_t getRegistrationId( char **ppcRegistrationId ) {
+
+        if(*ppcRegistrationId != NULL) {
+            return 1;
+        }
+        uint32_t ret = 0;
+        uint8_t sernum[9];
+        ATCA_STATUS s;
+        s = atcab_read_serial_number(sernum);
+        if(s != ATCA_SUCCESS) {
+            ESP_LOGE( TAG, "Failed to read serial number from ATECC608" );
+            return 2;
+        }
+
+        #if defined(CONFIG_ATECC608A_TNG)
+            ret = getRegistrationIdFromTNG(ppcRegistrationId,sernum,9);
+            if(ret != 0) {
+                ESP_LOGE(TAG, "[TNG] Registration ID Gen Error!");
+                return ret;
+            }
+
+        #elif defined(CONFIG_ATECC608A_TFLEX)
+            ret = getRegistrationIdFromTFLX(ppcRegistrationId,sernum,9);
+            if(ret != 0) {
+                ESP_LOGE(TAG, "[TFLX] Registration ID Gen Error!");
+                return ret;
+            }
+        
+        #elif defined(CONFIG_ATECC608A_TCUSTOM)
+            ret = getRegistrationIdFromTCSM(ppcRegistrationId,sernum,9);
+            if(ret != 0) {
+                ESP_LOGE(TAG, "[TCSM] Registration ID Gen Error!");
+                return ret;
+            }
+ 
+        #endif
+
+        ESP_LOGI( TAG, "Registration ID is %s", *ppcRegistrationId );  
+        return 0;
+    }
+
+#endif /* democonfigUSE_HSM */
+
+
 /**
  * @brief Definition of the network context for the transport interface
  * implementation that uses mbedTLS and FreeRTOS+TLS sockets.
@@ -49,7 +224,7 @@ struct NetworkContext
     uint32_t ulSendTimeoutMs;
 };
 
-static const char *TAG = "tls_freertos";
+
 /*-----------------------------------------------------------*/
 
 TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pNetworkContext,
@@ -90,12 +265,12 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pNetworkContext,
     {
         esp_transport_ssl_set_cert_data_der( pNetworkContext->xTransport, ( const char * ) pNetworkCredentials->pucRootCa, pNetworkCredentials->xRootCaSize );
     }
-#if CONFIG_ESP_TLS_USE_SECURE_ELEMENT
+#ifdef democonfigUSE_HSM
 
     esp_transport_ssl_use_secure_element( pNetworkContext->xTransport );
 
-    #ifdef CONFIG_ATECC608A_TCUSTOM
-        /*  This is TrustCUSTOM chip - the private key will be used from the ATECC608 device slot 0.
+    #if defined(CONFIG_ATECC608A_TCUSTOM) || defined(CONFIG_ATECC608A_TFLEX)
+        /*  This is TrustCUSTOM or TrustFLEX chip - the private key will be used from the ATECC608 device slot 0.
             We will plug in your custom device certificate here (should be in DER format).
         */
         if ( pNetworkCredentials->pucClientCert )
@@ -105,7 +280,7 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pNetworkContext,
 
        
     #else
-        /*  This is either the Trust&GO or the TrustFLEX chip - the private key will be used from ATECC608 device slot 0.
+        /*  This is the Trust&GO chip - the private key will be used from ATECC608 device slot 0.
             We don't need to add certs to the network context as the esp-tls does that for us using cryptoauthlib API.
         */
 
