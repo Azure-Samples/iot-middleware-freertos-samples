@@ -1,15 +1,15 @@
 # Perform an Over the Air Update with the ESP32
 
-This sample will allow you to update an ESP32 over the air using Azure Device Update. The following is an outline of the steps to run this sample
+This sample will allow you to update an ESP32 over the air (OTA) using Azure Device Update. The following is an outline of the steps to run this sample
 
 - [Prepare the Device](#prepare-the-device)
   - [Install prerequisites](#install-prerequisites)
   - [Tag Your Device](#tag-your-device)
-- [Prepare the ADU Service](#prepare-the-adu-service)
-- [Deploy the Over the Air Update](#deploy-the-over-the-air-update)
   - [Prepare the sample](#prepare-the-sample)
   - [Build the image](#build-the-image)
   - [Flash the image](#flash-the-image)
+- [Prepare the ADU Service](#prepare-the-adu-service)
+- [Deploy the Over the Air Update](#deploy-the-over-the-air-update)
   - [Build the Update Image](#build-the-update-image)
   - [Generate the ADU Update document](#generate-the-adu-update-document)
   - [Import the Update Manifest](#import-the-update-manifest)
@@ -65,19 +65,6 @@ Add the `"ADUGroup"` tag to the device's top-level twin document. This is used t
 On the portal, the "tag" section should look similar to the following:
 
 ![img](../../../../docs/resources/tagged-twin.png)
-
-## Prepare the ADU Service
-
-To create an Azure Device Update instance and connect it to your IoT Hub, please follow the directions linked here:
-
-- [Create an Azure Device Update Instance.](https://docs.microsoft.com/azure/iot-hub-device-update/create-device-update-account?tabs=portal)
-
-For other prerequisite help, please see the links below. If none of the links apply to your development environment, you may skip them.
-
-- [Create an Azure IoT Hub.](https://docs.microsoft.com/azure/iot-hub/iot-hub-create-through-portal)
-- [Create Device Provisioning Service Instance.](https://docs.microsoft.com/azure/iot-dps/quick-setup-auto-provision)
-
-## Deploy the Over the Air Update
 
 ### Prepare the sample
 
@@ -212,6 +199,19 @@ I (7165) AZ IOT: ---------------------------------------------------------------
 ```
 
 Note the `Version: 1.0` listed.
+
+## Prepare the ADU Service
+
+To create an Azure Device Update instance and connect it to your IoT Hub, please follow the directions linked here:
+
+- [Create an Azure Device Update Instance.](https://docs.microsoft.com/azure/iot-hub-device-update/create-device-update-account?tabs=portal)
+
+For other prerequisite help, please see the links below. If none of the links apply to your development environment, you may skip them.
+
+- [Create an Azure IoT Hub.](https://docs.microsoft.com/azure/iot-hub/iot-hub-create-through-portal)
+- [Create Device Provisioning Service Instance.](https://docs.microsoft.com/azure/iot-dps/quick-setup-auto-provision)
+
+## Deploy the Over the Air Update
 
 ### Build the Update Image
 
