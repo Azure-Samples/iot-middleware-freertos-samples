@@ -206,6 +206,8 @@ Note the `Version: 1.0` listed.
 
 ### Build the Update Image
 
+Open a new instance of the ESP-IDF and navigate to the adu sample directory.
+
 Modify the version of the image as below:
 
 On file `iot-middleware-freertos-samples\demos\projects\ESPRESSIF\adu\config\demo_config.h`
@@ -247,7 +249,24 @@ $compat = New-AduUpdateCompatibility -Properties @{ deviceManufacturer = 'ESPRES
 
 $installStep = New-AduInstallationStep -Handler 'microsoft/swupdate:1'-HandlerProperties @{ installedCriteria = '1.0' } -Files C:\ADU-update\azure_iot_freertos_esp32-v1.1.bin
 
-$update = New-AduImportManifest -UpdateId $updateId -Compatibility $compat   -InstallationSteps $installStep
+$update = New-AduImportManifest -UpdateId $updateId -Compatibility $compat -InstallationSteps $installStep
 
 $update | Out-File "./$($updateId.provider).$($updateId.name).$($updateId.version).importmanifest.json" -Encoding utf8
 ```
+
+Verify you have the following files in your ADU-update directory:
+
+- `azure_iot_freertos_esp32-v1.1.bin`
+- `ESPRESSIF.ESP32-Azure-IoT-Kit.1.1.importmanifest.json`
+
+### Import the Update Manifest
+
+To import the update (`azure_iot_freertos_esp32-v1.1.bin`) and manifest (`ESPRESSIF.ESP32-Azure-IoT-Kit.1.1.importmanifest.json`), follow the link below:
+
+- [Import Update and Manifest.](https://docs.microsoft.com/azure/iot-hub-device-update/import-update)
+
+### Deploy Update
+
+To deploy the update to your ESP32, follow the link below:
+
+- [Deploy Update](https://docs.microsoft.com/azure/iot-hub-device-update/deploy-update)
