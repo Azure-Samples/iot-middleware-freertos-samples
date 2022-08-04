@@ -2,9 +2,18 @@
 
 This sample will allow you to update an ESP32 over the air using Azure Device Update. The following is an outline of the steps to run this sample
 
-1. Prepare the Device
-1. Prepare the ADU Service
-1. Deploy the Over the Air Update
+- [Prepare the Device](#prepare-the-device)
+  - [Install prerequisites](#install-prerequisites)
+  - [Tag Your Device](#tag-your-device)
+- [Prepare the ADU Service](#prepare-the-adu-service)
+- [Deploy the Over the Air Update](#deploy-the-over-the-air-update)
+  - [Prepare the sample](#prepare-the-sample)
+  - [Build the image](#build-the-image)
+  - [Flash the image](#flash-the-image)
+  - [Build the Update Image](#build-the-update-image)
+  - [Generate the ADU Update document](#generate-the-adu-update-document)
+  - [Import the Update Manifest](#import-the-update-manifest)
+  - [Deploy Update](#deploy-update)
 
 ## Prepare the Device
 
@@ -270,3 +279,11 @@ To import the update (`azure_iot_freertos_esp32-v1.1.bin`) and manifest (`ESPRES
 To deploy the update to your ESP32, follow the link below:
 
 - [Deploy Update](https://docs.microsoft.com/azure/iot-hub-device-update/deploy-update)
+
+After you deploy the update, the device should receive the new writable properties payload (i.e., the ADU service “request”) and start processing it.
+
+Once the device reboots, you should see on the console output that looks like the following:
+
+![img](../../../../docs/resources/new-version-device-output.png)
+
+Note the section which states `Version 1.1`. Congratulations! Your ESP32 is now running new, updated software!
