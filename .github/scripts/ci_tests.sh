@@ -46,6 +46,8 @@ function sample_build() {
       cmake -G Ninja -DBOARD=$board -DVENDOR=$vendor -B$outdir -DFREERTOS_PATH=$TEST_FREERTOS_SRC -DCMAKE_BUILD_TYPE=$buildver .
       cmake --build $outdir | tee build.txt
 
+      rm -rf $outdir
+
       echo -e "::group::Build PC with Clang"
       cmake -DCMAKE_C_COMPILER=clang -G Ninja -DBOARD=$board -DVENDOR=$vendor -B$outdir -DFREERTOS_PATH=$TEST_FREERTOS_SRC -DCMAKE_BUILD_TYPE=$buildver .
       cmake --build $outdir | tee build.txt
