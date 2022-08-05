@@ -3,28 +3,28 @@
 This sample will allow you to update an ESP32 over the air (OTA) using Azure Device Update. The following is an outline of the steps to run this sample.
 
 - [Prepare the Device](#prepare-the-device)
-  - [Install prerequisites](#install-prerequisites)
+  - [Install Prerequisites](#install-prerequisites)
   - [Tag Your Device](#tag-your-device)
-  - [Prepare the sample](#prepare-the-sample)
-  - [Build the image](#build-the-image)
-  - [Flash the image](#flash-the-image)
+  - [Prepare the Sample](#prepare-the-sample)
+  - [Build the Image](#build-the-image)
+  - [Flash the Image](#flash-the-image)
 - [Prepare the ADU Service](#prepare-the-adu-service)
 - [Deploy the Over the Air Update](#deploy-the-over-the-air-update)
   - [Build the Update Image](#build-the-update-image)
-  - [Generate the ADU Update document](#generate-the-adu-update-document)
+  - [Generate the ADU Update Manifest](#generate-the-adu-update-manifest)
   - [Import the Update Manifest](#import-the-update-manifest)
   - [Deploy Update](#deploy-update)
 
 **Note** that this sample does not utilize non-volatile storage of device credentials. That means that the update image contains the credentials themselves and each update may only apply to one device. For information on how to store credentials in non-volatile storage, please see the following link:
 
-- [ESP32 NVS Documentation](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/storage/nvs_flash.html)
+- [ESP32 NVS API Documentation](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/storage/nvs_flash.html)
 - [ESP32 NVS Factory Flashing Tool](https://github.com/espressif/esp-idf/tree/master/tools/mass_mfg)
 
 ## Prepare the Device
 
-### Install prerequisites
+### Install Prerequisites
 
-1. GIT
+1. Git
 
     Install `git` following the [official website](https://git-scm.com/).
 
@@ -37,7 +37,7 @@ This sample will allow you to update an ESP32 over the air (OTA) using Azure Dev
 1. [Powershell](https://docs.microsoft.com/shows/it-ops-talk/how-to-install-powershell-7)
 1. Azure IoT Embedded middleware for FreeRTOS
 
-Clone the following repo to download all sample device code, setup scripts, and offline versions of the documentation.
+Clone this repo to download all sample device code, setup scripts, and offline versions of the documentation.
 
 **If you previously cloned this repo in another sample, you don't need to do it again.**
 
@@ -54,7 +54,7 @@ git submodule update --init --recursive
 
 You may also need to enable long path support for both Microsoft Windows and git:
 
-- Windows: <https://docs.microsoft.com/windows/win32/fileio/maximum-file-path-limitation?tabs=cmd#enable-long-paths-in-windows-10-version-1607-and-later>
+- [Windows long path support](https://docs.microsoft.com/windows/win32/fileio/maximum-file-path-limitation?tabs=cmd#enable-long-paths-in-windows-10-version-1607-and-later>
 - Git: as Administrator run `git config --system core.longpaths true`
 
 ### Tag Your Device
@@ -67,17 +67,19 @@ Add the `"ADUGroup"` tag to the device's top-level twin document. This is used t
 },
 ```
 
-On the portal, the "tag" section should look similar to the following:
+Viewing the device twin on the portal, the "tag" section should look similar to the following. Don't worry if you do or do not have a `"deviceUpdate"` section in the `"ADUGroup"` tag. ADU adds that as a default group.
 
 ![img](../../../../docs/resources/tagged-twin.png)
 
-### Prepare the sample
+
+
+### Prepare the Sample
 
 To connect the ESPRESSIF ESP32 to Azure, you will update the sample configuration, build the image, and flash the image to the device.
 
-The configuration of the ESPRESSIF ESP32 sample uses ESP-IDF' samples standard [kconfig](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/kconfig.html) configuration.
+The configuration of the ESPRESSIF ESP32 sample uses the ESP-IDF samples standard [kconfig](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/kconfig.html) configuration.
 
-On a [console with ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html#step-4-set-up-the-environment-variables), navigate to the ESP-Azure IoT Kit project directory: `demos\projects\ESPRESSIF\adu` and run the following commands:
+On a [console with ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html#step-4-set-up-the-environment-variables), navigate to the ESP ADU project directory: `demos\projects\ESPRESSIF\adu` and run the following commands:
 
 Set the environment variable to avoid long-path build issues:
 
@@ -98,7 +100,7 @@ Parameter | Value
  `WiFi SSID` | _{Your WiFi SSID}_
  `WiFi Password` | _{Your WiFi password}_
 
-**NOTE** that the The ESP32 MCU works with 2.4 GHz WiFi only. You can create a custom 2.4 GHz hotspot from your Windows machine if you do not want to use your own WiFi network. If you have an iPhone, you can also create a hotspot and turn on the “Maximize Compatibility” setting.
+**NOTE** that the ESP32 MCU works with 2.4 GHz WiFi only. You can create a custom 2.4 GHz hotspot from your Windows machine if you do not want to use your own WiFi network. If you have an iPhone, you can also create a hotspot and turn on the “Maximize Compatibility” setting.
 
 Under menu item `Azure IoT middleware for FreeRTOS Main Task Configuration`, update the following configuration values:
 
@@ -124,7 +126,7 @@ Parameter | Value
 Save the configuration (`Shift + S`) inside the sample folder in a file with name `sdkconfig`.
 After that, close the configuration utility (`Shift + Q`).
 
-### Build the image
+### Build the Image
 
 To build the device image, run the following command (the path `"C:\espbuild"` is only a suggestion, feel free to use a different one, as long as it is near your root directory, for a shorter path):
 
@@ -132,7 +134,7 @@ To build the device image, run the following command (the path `"C:\espbuild"` i
   idf.py --no-ccache -B "C:\espbuild" build
   ```
 
-### Flash the image
+### Flash the Image
 
 1. Connect the Micro USB cable to the Micro USB port on the ESPRESSIF ESP32 board, and then connect it to your computer.
 
@@ -220,11 +222,11 @@ For other prerequisite help, please see the links below. If none of the links ap
 
 ### Build the Update Image
 
-Open a new instance of the ESP-IDF and navigate to the adu sample directory.
+Open a new instance of the ESP-IDF console and navigate to the adu sample directory.
 
 Modify the version of the image as below:
 
-On file `iot-middleware-freertos-samples\demos\projects\ESPRESSIF\adu\config\demo_config.h`
+On file `iot-middleware-freertos-samples\demos\projects\ESPRESSIF\adu\config\demo_config.h` ([found here](https://github.com/Azure-Samples/iot-middleware-freertos-samples/blob/de7d6493cdac5f946cf966a9cabc2411a9bfaa29/demos/projects/ESPRESSIF/adu/config/demo_config.h#L495))
 
 Change
 
@@ -238,11 +240,11 @@ to
 #define democonfigADU_UPDATE_VERSION      "1.1"
 ```
 
-The resulting binary `azure_iot_freertos_esp32.bin` should be located in the build directory which is detailed in the build instructions from the link above. Save it into `C:\ADU-update`, renaming it to `azure_iot_freertos_esp32-v1.1.bin`.
+The resulting binary `azure_iot_freertos_esp32.bin` should be located in the build directory which is detailed in the build instructions from the link above (our example was `C:\espbuild`). Save it into `C:\ADU-update`, renaming it to `azure_iot_freertos_esp32-v1.1.bin`.
 
-### Generate the ADU Update document
+### Generate the ADU Update Manifest
 
-Navigate (on the new ESP-IDF cmd) to C:\ADU-update directory (created on step 9):
+Navigate (on the new ESP-IDF console) to `C:\ADU-update` directory (created on step 9):
 
 Clone the ADU toolset.
 
@@ -250,7 +252,7 @@ Clone the ADU toolset.
 git clone https://github.com/Azure/iot-hub-device-update
 ```
 
-Generate the update manifest using powershell.
+Generate the update manifest using **powershell**.
 
 ```powershell
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
@@ -275,7 +277,7 @@ Verify you have the following files in your ADU-update directory:
 
 ### Import the Update Manifest
 
-To import the update (`azure_iot_freertos_esp32-v1.1.bin`) and manifest (`ESPRESSIF.ESP32-Azure-IoT-Kit.1.1.importmanifest.json`), follow the link below:
+To import the update (`azure_iot_freertos_esp32-v1.1.bin`) and manifest (`ESPRESSIF.ESP32-Azure-IoT-Kit.1.1.importmanifest.json`), follow the instructions at the link below:
 
 - [Import Update and Manifest.](https://docs.microsoft.com/azure/iot-hub-device-update/import-update)
 
@@ -287,7 +289,7 @@ To deploy the update to your ESP32, follow the link below:
 
 After you deploy the update, the device should receive the new writable properties payload (i.e., the ADU service “request”) and start processing it.
 
-Once the device reboots, you should see on the console output that looks like the following:
+Once the device reboots, you should see on the console, output that looks like the following:
 
 ![img](../../../../docs/resources/new-version-device-output.png)
 
