@@ -40,6 +40,17 @@ function sample_build() {
       idf.py build -DCMAKE_BUILD_TYPE=$buildver -C ./demos/projects/ESPRESSIF/$board
       echo -e "::group::Print Size for $board $buildver"
       ninja -C ./demos/projects/ESPRESSIF/$board/build size-components
+    elif [ $vendor == "PC" ]
+    then
+      echo -e "::group::Build PC with GCC"
+      cmake -G Ninja -DBOARD=$board -DVENDOR=$vendor -B$outdir -DFREERTOS_PATH=$TEST_FREERTOS_SRC -DCMAKE_BUILD_TYPE=$buildver .
+      cmake --build $outdir | tee build.txt
+
+      rm -rf $outdir
+
+      echo -e "::group::Build PC with Clang"
+      cmake -DCMAKE_C_COMPILER=clang -G Ninja -DBOARD=$board -DVENDOR=$vendor -B$outdir -DFREERTOS_PATH=$TEST_FREERTOS_SRC -DCMAKE_BUILD_TYPE=$buildver .
+      cmake --build $outdir | tee build.txt
     else
       cmake -G Ninja -DBOARD=$board -DVENDOR=$vendor -B$outdir -DFREERTOS_PATH=$TEST_FREERTOS_SRC -DCMAKE_BUILD_TYPE=$buildver .
       cmake --build $outdir | tee build.txt
