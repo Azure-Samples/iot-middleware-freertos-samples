@@ -18,6 +18,7 @@ This sample will allow you to update an ESP32 over the air (OTA) using Azure Dev
 **Note** that this sample does not utilize non-volatile storage of device credentials. That means that the update image contains the credentials themselves and each update may only apply to one device. For information on how to store credentials in non-volatile storage, please see the following link:
 
 - [ESP32 NVS Documentation](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/storage/nvs_flash.html)
+- [ESP32 NVS Factory Flashing Tool](https://github.com/espressif/esp-idf/tree/master/tools/mass_mfg)
 
 ## Prepare the Device
 
