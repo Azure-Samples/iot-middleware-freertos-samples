@@ -259,40 +259,49 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
                 return;
             }
 
-            LogInfo( ( "Verifying JWS Manifest" ) );
-            xAzIoTResult = JWS_ManifestAuthenticate( xAzureIoTAduUpdateRequest.pucUpdateManifest,
-                                                     xAzureIoTAduUpdateRequest.ulUpdateManifestLength,
-                                                     xAzureIoTAduUpdateRequest.pucUpdateManifestSignature,
-                                                     xAzureIoTAduUpdateRequest.ulUpdateManifestSignatureLength,
-                                                     ucADUScratchBuffer,
-                                                     sizeof( ucADUScratchBuffer ) );
-
-            if( xAzIoTResult != eAzureIoTSuccess )
+            if( xAzureIoTAduUpdateRequest.xWorkflow.xAction == eAzureIoTADUActionApplyDownload )
             {
-                LogError( ( "JWS_ManifestAuthenticate failed: JWS was not validated successfully: result 0x%08x", xAzIoTResult ) );
-                return;
+                LogInfo( ( "Verifying JWS Manifest" ) );
+                xAzIoTResult = JWS_ManifestAuthenticate( xAzureIoTAduUpdateRequest.pucUpdateManifest,
+                                                         xAzureIoTAduUpdateRequest.ulUpdateManifestLength,
+                                                         xAzureIoTAduUpdateRequest.pucUpdateManifestSignature,
+                                                         xAzureIoTAduUpdateRequest.ulUpdateManifestSignatureLength,
+                                                         ucADUScratchBuffer,
+                                                         sizeof( ucADUScratchBuffer ) );
+
+                if( xAzIoTResult != eAzureIoTSuccess )
+                {
+                    LogError( ( "JWS_ManifestAuthenticate failed: JWS was not validated successfully: result 0x%08x", xAzIoTResult ) );
+                    return;
+                }
+
+                xRequestDecision = prvUserDecideShouldStartUpdate( &xAzureIoTAduUpdateRequest );
+
+                xAzIoTResult = AzureIoTADUClient_SendResponse(
+                    &xAzureIoTADUClient,
+                    &xAzureIoTHubClient,
+                    xRequestDecision,
+                    ulPropertyVersion,
+                    pucWritablePropertyResponseBuffer,
+                    ulWritablePropertyResponseBufferSize,
+                    NULL );
+
+                if( xAzIoTResult != eAzureIoTSuccess )
+                {
+                    LogError( ( "AzureIoTADUClient_GetResponse failed: result 0x%08x", xAzIoTResult ) );
+                    return;
+                }
+
+                if( xRequestDecision == eAzureIoTADURequestDecisionAccept )
+                {
+                    xProcessUpdateRequest = true;
+                }
             }
-
-            xRequestDecision = prvUserDecideShouldStartUpdate( &xAzureIoTAduUpdateRequest );
-
-            xAzIoTResult = AzureIoTADUClient_SendResponse(
-                &xAzureIoTADUClient,
-                &xAzureIoTHubClient,
-                xRequestDecision,
-                ulPropertyVersion,
-                pucWritablePropertyResponseBuffer,
-                ulWritablePropertyResponseBufferSize,
-                NULL );
-
-            if( xAzIoTResult != eAzureIoTSuccess )
+            else
             {
-                LogError( ( "AzureIoTADUClient_GetResponse failed: result 0x%08x", xAzIoTResult ) );
-                return;
-            }
-
-            if( xRequestDecision == eAzureIoTADURequestDecisionAccept )
-            {
-                xProcessUpdateRequest = true;
+                LogInfo( ( "ADU manifest received: action %s",
+                           xAzureIoTAduUpdateRequest.xWorkflow.xAction == eAzureIoTADUActionDownload ?
+                           "Download" : "Cancelled" ) )
             }
         }
         else
