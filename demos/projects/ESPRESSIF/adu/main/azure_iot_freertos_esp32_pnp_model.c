@@ -301,7 +301,7 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
             {
                 LogInfo( ( "ADU manifest received: action %s",
                            xAzureIoTAduUpdateRequest.xWorkflow.xAction == eAzureIoTADUActionDownload ?
-                           "Download" : "Cancelled" ) )
+                           "Download" : "Cancelled" ) );
             }
         }
         else
