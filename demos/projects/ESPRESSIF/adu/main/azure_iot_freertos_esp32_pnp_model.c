@@ -17,70 +17,70 @@
 #include "sample_azure_iot_pnp_data_if.h"
 /*-----------------------------------------------------------*/
 
-#define INDEFINITE_TIME                            ( ( time_t ) - 1 )
-#define lengthof( x )                              ( sizeof(x) - 1 )
-// This macro helps remove quotes around a string.
-// That is achieved by skipping the first char in the string, and reducing the length by 2 chars.
-#define UNQUOTE_STRING( x )                        ( x + 1)
-#define UNQUOTED_STRING_LENGTH( n )                ( n - 2 )
+#define INDEFINITE_TIME    ( ( time_t ) -1 )
+#define lengthof( x )                  ( sizeof( x ) - 1 )
+/* This macro helps remove quotes around a string. */
+/* That is achieved by skipping the first char in the string, and reducing the length by 2 chars. */
+#define UNQUOTE_STRING( x )            ( x + 1 )
+#define UNQUOTED_STRING_LENGTH( n )    ( n - 2 )
 /*-----------------------------------------------------------*/
 
-static const char *TAG = "sample_azureiotkit";
+static const char * TAG = "sample_azureiotkit";
 /*-----------------------------------------------------------*/
 
 /**
  * @brief Device Info Values
  */
-#define sampleazureiotkitDEVICE_INFORMATION_NAME                 ( "deviceInformation" )
-#define sampleazureiotkitMANUFACTURER_PROPERTY_NAME              ( "manufacturer" )
-#define sampleazureiotkitMODEL_PROPERTY_NAME                     ( "model" )
-#define sampleazureiotkitSOFTWARE_VERSION_PROPERTY_NAME          ( "swVersion" )
-#define sampleazureiotkitOS_NAME_PROPERTY_NAME                   ( "osName" )
-#define sampleazureiotkitPROCESSOR_ARCHITECTURE_PROPERTY_NAME    ( "processorArchitecture" )
-#define sampleazureiotkitPROCESSOR_MANUFACTURER_PROPERTY_NAME    ( "processorManufacturer" )
-#define sampleazureiotkitTOTAL_STORAGE_PROPERTY_NAME             ( "totalStorage" )
-#define sampleazureiotkitTOTAL_MEMORY_PROPERTY_NAME              ( "totalMemory" )
+#define sampleazureiotkitDEVICE_INFORMATION_NAME                  ( "deviceInformation" )
+#define sampleazureiotkitMANUFACTURER_PROPERTY_NAME               ( "manufacturer" )
+#define sampleazureiotkitMODEL_PROPERTY_NAME                      ( "model" )
+#define sampleazureiotkitSOFTWARE_VERSION_PROPERTY_NAME           ( "swVersion" )
+#define sampleazureiotkitOS_NAME_PROPERTY_NAME                    ( "osName" )
+#define sampleazureiotkitPROCESSOR_ARCHITECTURE_PROPERTY_NAME     ( "processorArchitecture" )
+#define sampleazureiotkitPROCESSOR_MANUFACTURER_PROPERTY_NAME     ( "processorManufacturer" )
+#define sampleazureiotkitTOTAL_STORAGE_PROPERTY_NAME              ( "totalStorage" )
+#define sampleazureiotkitTOTAL_MEMORY_PROPERTY_NAME               ( "totalMemory" )
 
-#define sampleazureiotkitMANUFACTURER_PROPERTY_VALUE             ( "ESPRESSIF" )
-#define sampleazureiotkitMODEL_PROPERTY_VALUE                    ( "ESP32-Azure-IoT-Kit" )
-#define sampleazureiotkitVERSION_PROPERTY_VALUE                  ( "1.0.0" )
-#define sampleazureiotkitOS_NAME_PROPERTY_VALUE                  ( "FreeRTOS" )
-#define sampleazureiotkitARCHITECTURE_PROPERTY_VALUE             ( "ESP32 WROVER-B" )
-#define sampleazureiotkitPROCESSOR_MANUFACTURER_PROPERTY_VALUE   ( "ESPRESSIF" )
-// The next couple properties are in KiloBytes.
-#define sampleazureiotkitTOTAL_STORAGE_PROPERTY_VALUE            4096
-#define sampleazureiotkitTOTAL_MEMORY_PROPERTY_VALUE             8192
+#define sampleazureiotkitMANUFACTURER_PROPERTY_VALUE              ( "ESPRESSIF" )
+#define sampleazureiotkitMODEL_PROPERTY_VALUE                     ( "ESP32-Azure-IoT-Kit" )
+#define sampleazureiotkitVERSION_PROPERTY_VALUE                   ( "1.0.0" )
+#define sampleazureiotkitOS_NAME_PROPERTY_VALUE                   ( "FreeRTOS" )
+#define sampleazureiotkitARCHITECTURE_PROPERTY_VALUE              ( "ESP32 WROVER-B" )
+#define sampleazureiotkitPROCESSOR_MANUFACTURER_PROPERTY_VALUE    ( "ESPRESSIF" )
+/* The next couple properties are in KiloBytes. */
+#define sampleazureiotkitTOTAL_STORAGE_PROPERTY_VALUE             4096
+#define sampleazureiotkitTOTAL_MEMORY_PROPERTY_VALUE              8192
 
 /**
  * @brief Telemetry Values
  */
-#define sampleazureiotTELEMETRY_TEMPERATURE        ( "temperature" )
-#define sampleazureiotTELEMETRY_HUMIDITY           ( "humidity" )
-#define sampleazureiotTELEMETRY_LIGHT              ( "light" )
-#define sampleazureiotTELEMETRY_PRESSURE           ( "pressure" )
-#define sampleazureiotTELEMETRY_ALTITUDE           ( "altitude" )
-#define sampleazureiotTELEMETRY_MAGNETOMETERX      ( "magnetometerX" )
-#define sampleazureiotTELEMETRY_MAGNETOMETERY      ( "magnetometerY" )
-#define sampleazureiotTELEMETRY_MAGNETOMETERZ      ( "magnetometerZ" )
-#define sampleazureiotTELEMETRY_PITCH              ( "pitch" )
-#define sampleazureiotTELEMETRY_ROLL               ( "roll" )
-#define sampleazureiotTELEMETRY_ACCELEROMETERX     ( "accelerometerX" )
-#define sampleazureiotTELEMETRY_ACCELEROMETERY     ( "accelerometerY" )
-#define sampleazureiotTELEMETRY_ACCELEROMETERZ     ( "accelerometerZ" )
+#define sampleazureiotTELEMETRY_TEMPERATURE                       ( "temperature" )
+#define sampleazureiotTELEMETRY_HUMIDITY                          ( "humidity" )
+#define sampleazureiotTELEMETRY_LIGHT                             ( "light" )
+#define sampleazureiotTELEMETRY_PRESSURE                          ( "pressure" )
+#define sampleazureiotTELEMETRY_ALTITUDE                          ( "altitude" )
+#define sampleazureiotTELEMETRY_MAGNETOMETERX                     ( "magnetometerX" )
+#define sampleazureiotTELEMETRY_MAGNETOMETERY                     ( "magnetometerY" )
+#define sampleazureiotTELEMETRY_MAGNETOMETERZ                     ( "magnetometerZ" )
+#define sampleazureiotTELEMETRY_PITCH                             ( "pitch" )
+#define sampleazureiotTELEMETRY_ROLL                              ( "roll" )
+#define sampleazureiotTELEMETRY_ACCELEROMETERX                    ( "accelerometerX" )
+#define sampleazureiotTELEMETRY_ACCELEROMETERY                    ( "accelerometerY" )
+#define sampleazureiotTELEMETRY_ACCELEROMETERZ                    ( "accelerometerZ" )
 
 /**
  * @brief Command Values
  */
-#define sampleazureiotCOMMAND_EMPTY_PAYLOAD        "{}"
+#define sampleazureiotCOMMAND_EMPTY_PAYLOAD                       "{}"
 
 /**
  * @brief Property Values
  */
-#define sampleazureiotPROPERTY_STATUS_SUCCESS      200
-#define sampleazureiotPROPERTY_SUCCESS             "success"
+#define sampleazureiotPROPERTY_STATUS_SUCCESS                     200
+#define sampleazureiotPROPERTY_SUCCESS                            "success"
 /*-----------------------------------------------------------*/
 
-static uint8_t ucADUScratchBuffer[jwsSCRATCH_BUFFER_SIZE];
+static uint8_t ucADUScratchBuffer[ jwsSCRATCH_BUFFER_SIZE ];
 
 /**
  * @brief Command message callback handler
@@ -88,7 +88,7 @@ static uint8_t ucADUScratchBuffer[jwsSCRATCH_BUFFER_SIZE];
 uint32_t ulSampleHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
                                 uint32_t * pulResponseStatus,
                                 uint8_t * pucCommandResponsePayloadBuffer,
-                                uint32_t ulCommandResponsePayloadBufferSize)
+                                uint32_t ulCommandResponsePayloadBufferSize )
 {
     ESP_LOGI( TAG, "Command payload : %.*s \r\n",
               pxMessage->ulPayloadLength,
@@ -106,8 +106,8 @@ uint32_t ulSampleHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
 uint32_t ulSampleCreateTelemetry( uint8_t * pucTelemetryData,
                                   uint32_t ulTelemetryDataLength )
 {
-    (void)pucTelemetryData;
-    (void)ulTelemetryDataLength;
+    ( void ) pucTelemetryData;
+    ( void ) ulTelemetryDataLength;
     int32_t lBytesWritten = 0;
     return lBytesWritten;
 }
@@ -128,24 +128,23 @@ static void prvSkipPropertyAndValue( AzureIoTJSONReader_t * pxReader )
 }
 /*-----------------------------------------------------------*/
 
-static bool prvIsUpdateAlreadyInstalled(
-    const AzureIoTADUUpdateRequest_t * pxAduUpdateRequest )
+static bool prvIsUpdateAlreadyInstalled( const AzureIoTADUUpdateRequest_t * pxAduUpdateRequest )
 {
-    if ( pxAduUpdateRequest->xUpdateManifest.xUpdateId.ulNameLength == 
-         xADUDeviceProperties.xCurrentUpdateId.ulNameLength &&
-         strncmp( ( const char * ) pxAduUpdateRequest->xUpdateManifest.xUpdateId.pucName,
-                  ( const char * ) xADUDeviceProperties.xCurrentUpdateId.ucName,
-                  ( size_t ) xADUDeviceProperties.xCurrentUpdateId.ulNameLength ) == 0 &&
-         pxAduUpdateRequest->xUpdateManifest.xUpdateId.ulProviderLength == 
-         xADUDeviceProperties.xCurrentUpdateId.ulProviderLength &&
-         strncmp( ( const char * ) pxAduUpdateRequest->xUpdateManifest.xUpdateId.pucProvider,
-                  ( const char * ) xADUDeviceProperties.xCurrentUpdateId.ucProvider,
-                  ( size_t ) xADUDeviceProperties.xCurrentUpdateId.ulProviderLength ) == 0 &&
-         pxAduUpdateRequest->xUpdateManifest.xUpdateId.ulVersionLength == 
-         xADUDeviceProperties.xCurrentUpdateId.ulVersionLength &&
-         strncmp( ( const char * ) pxAduUpdateRequest->xUpdateManifest.xUpdateId.pucVersion,
-                  ( const char * ) xADUDeviceProperties.xCurrentUpdateId.ucVersion,
-                  ( size_t ) xADUDeviceProperties.xCurrentUpdateId.ulVersionLength ) == 0 )
+    if( ( pxAduUpdateRequest->xUpdateManifest.xUpdateId.ulNameLength ==
+          xADUDeviceProperties.xCurrentUpdateId.ulNameLength ) &&
+        ( strncmp( ( const char * ) pxAduUpdateRequest->xUpdateManifest.xUpdateId.pucName,
+                   ( const char * ) xADUDeviceProperties.xCurrentUpdateId.ucName,
+                   ( size_t ) xADUDeviceProperties.xCurrentUpdateId.ulNameLength ) == 0 ) &&
+        ( pxAduUpdateRequest->xUpdateManifest.xUpdateId.ulProviderLength ==
+          xADUDeviceProperties.xCurrentUpdateId.ulProviderLength ) &&
+        ( strncmp( ( const char * ) pxAduUpdateRequest->xUpdateManifest.xUpdateId.pucProvider,
+                   ( const char * ) xADUDeviceProperties.xCurrentUpdateId.ucProvider,
+                   ( size_t ) xADUDeviceProperties.xCurrentUpdateId.ulProviderLength ) == 0 ) &&
+        ( pxAduUpdateRequest->xUpdateManifest.xUpdateId.ulVersionLength ==
+          xADUDeviceProperties.xCurrentUpdateId.ulVersionLength ) &&
+        ( strncmp( ( const char * ) pxAduUpdateRequest->xUpdateManifest.xUpdateId.pucVersion,
+                   ( const char * ) xADUDeviceProperties.xCurrentUpdateId.ucVersion,
+                   ( size_t ) xADUDeviceProperties.xCurrentUpdateId.ulVersionLength ) == 0 ) )
     {
         return true;
     }
@@ -158,20 +157,19 @@ static bool prvIsUpdateAlreadyInstalled(
 
 /**
  * @brief Sample function to decide if an update request should be accepted or rejected.
- * 
+ *
  * @remark The user application can implement any logic to decide if an update request
  *         should be accepted or not. Factors would be if the device is currently busy,
  *         if it is within business hours, or any other factor the user would like to
  *         take into account. Rejected update requests get redelivered upon reconnection
  *         with the Azure IoT Hub.
- * 
- * @param[in] pxAduUpdateRequest    The parsed update request. 
+ *
+ * @param[in] pxAduUpdateRequest    The parsed update request.
  * @return An #AzureIoTADURequestDecision_t with the decision to accept or reject the update.
- */ 
-static AzureIoTADURequestDecision_t prvUserDecideShouldStartUpdate(
-    AzureIoTADUUpdateRequest_t * pxAduUpdateRequest )
+ */
+static AzureIoTADURequestDecision_t prvUserDecideShouldStartUpdate( AzureIoTADUUpdateRequest_t * pxAduUpdateRequest )
 {
-    if ( prvIsUpdateAlreadyInstalled( pxAduUpdateRequest ) )
+    if( prvIsUpdateAlreadyInstalled( pxAduUpdateRequest ) )
     {
         LogInfo( ( "[ADU] Rejecting update request (current version is up-to-date)" ) );
         return eAzureIoTADURequestDecisionReject;
@@ -188,9 +186,9 @@ static AzureIoTADURequestDecision_t prvUserDecideShouldStartUpdate(
  * @brief Handler for writable properties updates.
  */
 void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessage,
-                                uint8_t * pucWritablePropertyResponseBuffer, 
+                                uint8_t * pucWritablePropertyResponseBuffer,
                                 uint32_t ulWritablePropertyResponseBufferSize,
-                                uint32_t *pulWritablePropertyResponseBufferLength )
+                                uint32_t * pulWritablePropertyResponseBufferLength )
 {
     AzureIoTResult_t xAzIoTResult;
     AzureIoTJSONReader_t xJsonReader;
@@ -199,10 +197,11 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
     uint32_t ulPropertyVersion;
 
     LogInfo( ( "Writable properties received: %.*s\r\n",
-        pxMessage->ulPayloadLength, ( char * ) pxMessage->pvMessagePayload ) );
+               pxMessage->ulPayloadLength, ( char * ) pxMessage->pvMessagePayload ) );
 
     xAzIoTResult = AzureIoTJSONReader_Init( &xJsonReader, pxMessage->pvMessagePayload, pxMessage->ulPayloadLength );
-    if ( xAzIoTResult != eAzureIoTSuccess )
+
+    if( xAzIoTResult != eAzureIoTSuccess )
     {
         LogError( ( "AzureIoTJSONReader_Init failed: result 0x%08x", xAzIoTResult ) );
         *pulWritablePropertyResponseBufferLength = 0;
@@ -210,7 +209,8 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
     }
 
     xAzIoTResult = AzureIoTHubClientProperties_GetPropertiesVersion( &xAzureIoTHubClient, &xJsonReader, pxMessage->xMessageType, &ulPropertyVersion );
-    if ( xAzIoTResult != eAzureIoTSuccess )
+
+    if( xAzIoTResult != eAzureIoTSuccess )
     {
         LogError( ( "AzureIoTHubClientProperties_GetPropertiesVersion failed: result 0x%08x", xAzIoTResult ) );
         *pulWritablePropertyResponseBufferLength = 0;
@@ -218,7 +218,8 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
     }
 
     xAzIoTResult = AzureIoTJSONReader_Init( &xJsonReader, pxMessage->pvMessagePayload, pxMessage->ulPayloadLength );
-    if ( xAzIoTResult != eAzureIoTSuccess )
+
+    if( xAzIoTResult != eAzureIoTSuccess )
     {
         LogError( ( "AzureIoTJSONReader_Init failed: result 0x%08x", xAzIoTResult ) );
         *pulWritablePropertyResponseBufferLength = 0;
@@ -227,7 +228,7 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
 
     /**
      * If the PnP component is for Azure Device Update, function
-     * AzureIoTADUClient_SendResponse shall be used to publish back the 
+     * AzureIoTADUClient_SendResponse shall be used to publish back the
      * response for the ADU writable properties.
      * Thus, to prevent this callback to publish a response in duplicate,
      * pulWritablePropertyResponseBufferLength must be set to zero.
@@ -240,18 +241,18 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
     {
         LogInfo( ( "Properties component name: %.*s", ulComponentNameLength, pucComponentName ) );
 
-        if ( AzureIoTADUClient_IsADUComponent( &xAzureIoTADUClient, pucComponentName, ulComponentNameLength ) )
+        if( AzureIoTADUClient_IsADUComponent( &xAzureIoTADUClient, pucComponentName, ulComponentNameLength ) )
         {
             AzureIoTADURequestDecision_t xRequestDecision;
 
             xAzIoTResult = AzureIoTADUClient_ParseRequest(
-                                &xAzureIoTADUClient,
-                                &xJsonReader,
-                                &xAzureIoTAduUpdateRequest,
-                                ucAduContextBuffer,
-                                ADU_CONTEXT_BUFFER_SIZE );
+                &xAzureIoTADUClient,
+                &xJsonReader,
+                &xAzureIoTAduUpdateRequest,
+                ucAduContextBuffer,
+                ADU_CONTEXT_BUFFER_SIZE );
 
-            if ( xAzIoTResult != eAzureIoTSuccess )
+            if( xAzIoTResult != eAzureIoTSuccess )
             {
                 LogError( ( "AzureIoTADUClient_ParseRequest failed: result 0x%08x", xAzIoTResult ) );
                 *pulWritablePropertyResponseBufferLength = 0;
@@ -260,35 +261,36 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
 
             LogInfo( ( "Verifying JWS Manifest" ) );
             xAzIoTResult = JWS_ManifestAuthenticate( xAzureIoTAduUpdateRequest.pucUpdateManifest,
-                                                       xAzureIoTAduUpdateRequest.ulUpdateManifestLength,
-                                                       xAzureIoTAduUpdateRequest.pucUpdateManifestSignature,
-                                                       xAzureIoTAduUpdateRequest.ulUpdateManifestSignatureLength,
-                                                       ucADUScratchBuffer,
-                                                       sizeof(ucADUScratchBuffer));
-            if (xAzIoTResult != eAzureIoTSuccess)
+                                                     xAzureIoTAduUpdateRequest.ulUpdateManifestLength,
+                                                     xAzureIoTAduUpdateRequest.pucUpdateManifestSignature,
+                                                     xAzureIoTAduUpdateRequest.ulUpdateManifestSignatureLength,
+                                                     ucADUScratchBuffer,
+                                                     sizeof( ucADUScratchBuffer ) );
+
+            if( xAzIoTResult != eAzureIoTSuccess )
             {
-              LogError( ( "JWS_ManifestAuthenticate failed: JWS was not validated successfully: result 0x%08x", xAzIoTResult ) );
-              return;
+                LogError( ( "JWS_ManifestAuthenticate failed: JWS was not validated successfully: result 0x%08x", xAzIoTResult ) );
+                return;
             }
 
             xRequestDecision = prvUserDecideShouldStartUpdate( &xAzureIoTAduUpdateRequest );
 
             xAzIoTResult = AzureIoTADUClient_SendResponse(
-                                &xAzureIoTADUClient,
-                                &xAzureIoTHubClient,
-                                xRequestDecision,
-                                ulPropertyVersion,
-                                pucWritablePropertyResponseBuffer,
-                                ulWritablePropertyResponseBufferSize,
-                                NULL );
+                &xAzureIoTADUClient,
+                &xAzureIoTHubClient,
+                xRequestDecision,
+                ulPropertyVersion,
+                pucWritablePropertyResponseBuffer,
+                ulWritablePropertyResponseBufferSize,
+                NULL );
 
-            if ( xAzIoTResult != eAzureIoTSuccess )
+            if( xAzIoTResult != eAzureIoTSuccess )
             {
                 LogError( ( "AzureIoTADUClient_GetResponse failed: result 0x%08x", xAzIoTResult ) );
                 return;
             }
 
-            if ( xRequestDecision == eAzureIoTADURequestDecisionAccept )
+            if( xRequestDecision == eAzureIoTADURequestDecisionAccept )
             {
                 xProcessUpdateRequest = true;
             }
@@ -307,6 +309,7 @@ uint32_t ulSampleCreateReportedPropertiesUpdate( uint8_t * pucPropertiesData,
 {
     /* No reported properties to send if length is zero. */
     uint32_t lBytesWritten = 0;
+
     return lBytesWritten;
 }
 /*-----------------------------------------------------------*/
