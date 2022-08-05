@@ -1,6 +1,6 @@
 # Perform an Over the Air Update with the ESP32
 
-This sample will allow you to update an ESP32 over the air (OTA) using Azure Device Update. The following is an outline of the steps to run this sample
+This sample will allow you to update an ESP32 over the air (OTA) using Azure Device Update. The following is an outline of the steps to run this sample.
 
 - [Prepare the Device](#prepare-the-device)
   - [Install prerequisites](#install-prerequisites)
@@ -14,6 +14,10 @@ This sample will allow you to update an ESP32 over the air (OTA) using Azure Dev
   - [Generate the ADU Update document](#generate-the-adu-update-document)
   - [Import the Update Manifest](#import-the-update-manifest)
   - [Deploy Update](#deploy-update)
+
+**Note** that this sample does not utilize non-volatile storage of device credentials. That means that the update image contains the credentials themselves and each update may only apply to one device. For information on how to store credentials in non-volatile storage, please see the following link:
+
+- [ESP32 NVS Documentation](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/storage/nvs_flash.html)
 
 ## Prepare the Device
 
