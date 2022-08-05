@@ -256,7 +256,7 @@ $updateId = New-AduUpdateId -Provider "ESPRESSIF" -Name "ESP32-Azure-IoT-Kit" -V
 
 $compat = New-AduUpdateCompatibility -Properties @{ deviceManufacturer = 'ESPRESSIF'; deviceModel = 'ESP32-Azure-IoT-Kit' }
 
-$installStep = New-AduInstallationStep -Handler 'microsoft/swupdate:1'-HandlerProperties @{ installedCriteria = '1.0' } -Files C:\ADU-update\azure_iot_freertos_esp32-v1.1.bin
+$installStep = New-AduInstallationStep -Handler 'microsoft/swupdate:1'-HandlerProperties @{ installedCriteria = '1.1' } -Files C:\ADU-update\azure_iot_freertos_esp32-v1.1.bin
 
 $update = New-AduImportManifest -UpdateId $updateId -Compatibility $compat -InstallationSteps $installStep
 
