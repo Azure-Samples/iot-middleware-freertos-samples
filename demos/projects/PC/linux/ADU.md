@@ -1,6 +1,6 @@
 # Use Linux to simulate an over the air update using Azure IoT Middleware for FreeRTOS
 
-This sample will allow you to run the Azure Device Update (ADU) flow, used to update devices over the air (OTA). The executable will not write the new update to the computer, only download and simulate applying it. The ADU flow is otherwise run as an updateable device would run. The following is an outline of the steps to run this sample.
+This sample will allow you to run the Azure Device Update (ADU) flow, used to update devices over the air (OTA). The executable will not write the new update to the computer, only download and simulate applying it. The ADU flow is otherwise run as an updatable device would run. The following is an outline of the steps to run this sample.
 
 - [Prerequisite Note](#prerequisite-note)
 - [Get the middleware](#get-the-middleware)
