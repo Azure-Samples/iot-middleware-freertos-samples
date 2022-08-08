@@ -100,7 +100,7 @@ Parameter | Value
  `WiFi SSID` | _{Your WiFi SSID}_
  `WiFi Password` | _{Your WiFi password}_
 
-**NOTE** that the ESP32 MCU works with 2.4 GHz WiFi only. You can create a custom 2.4 GHz hotspot from your Windows machine if you do not want to use your own WiFi network. If you have an iPhone, you can also create a hotspot and turn on the “Maximize Compatibility” setting.
+**NOTE** that the ESP32 MCU works with 2.4 GHz WiFi only. You can create a custom 2.4 GHz hotspot from your Windows machine if you do not want to use your own WiFi network. If you have an iPhone, you can also create a hotspot and turn on the “Maximize Compatibility” setting. For Android, the setting should be called "Extend Compatibility".
 
 Under menu item `Azure IoT middleware for FreeRTOS Main Task Configuration`, update the following configuration values:
 
@@ -211,12 +211,12 @@ Note the `Version: 1.0` listed.
 
 To create an Azure Device Update instance and connect it to your IoT Hub, please follow the directions linked here:
 
-- [Create an Azure Device Update Instance.](https://docs.microsoft.com/azure/iot-hub-device-update/create-device-update-account?tabs=portal)
+- [Create an Azure Device Update Instance](https://docs.microsoft.com/azure/iot-hub-device-update/create-device-update-account?tabs=portal)
 
 For other prerequisite help, please see the links below. If none of the links apply to your development environment, you may skip them.
 
-- [Create an Azure IoT Hub.](https://docs.microsoft.com/azure/iot-hub/iot-hub-create-through-portal)
-- [Create Device Provisioning Service Instance.](https://docs.microsoft.com/azure/iot-dps/quick-setup-auto-provision)
+- [Create an Azure IoT Hub](https://docs.microsoft.com/azure/iot-hub/iot-hub-create-through-portal)
+- [Create Device Provisioning Service Instance](https://docs.microsoft.com/azure/iot-dps/quick-setup-auto-provision)
 
 ## Deploy the Over the Air Update
 
@@ -244,7 +244,7 @@ The resulting binary `azure_iot_freertos_esp32.bin` should be located in the bui
 
 ### Generate the ADU Update Manifest
 
-Navigate (on the new ESP-IDF console) to `C:\ADU-update` directory (created on step 9):
+Navigate (on the new ESP-IDF console) to `C:\ADU-update` directory:
 
 Clone the ADU toolset.
 
@@ -279,7 +279,7 @@ Verify you have the following files in your ADU-update directory:
 
 To import the update (`azure_iot_freertos_esp32-v1.1.bin`) and manifest (`ESPRESSIF.ESP32-Azure-IoT-Kit.1.1.importmanifest.json`), follow the instructions at the link below:
 
-- [Import Update and Manifest.](https://docs.microsoft.com/azure/iot-hub-device-update/import-update)
+- [Import Update and Manifest](https://docs.microsoft.com/azure/iot-hub-device-update/import-update)
 
 ### Deploy Update
 
