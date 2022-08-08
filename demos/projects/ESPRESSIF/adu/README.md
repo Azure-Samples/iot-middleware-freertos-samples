@@ -34,7 +34,7 @@ This sample will allow you to update an ESP32 over the air (OTA) using Azure Dev
 
     For other Operating Systems or to update an existing installation, follow [Espressif official documentation](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html#get-started).
 
-1. [Powershell](https://docs.microsoft.com/shows/it-ops-talk/how-to-install-powershell-7)
+1. [Powershell](https://docs.microsoft.com/powershell/scripting/install/installing-powershell?view=powershell-7.2)
 1. Azure IoT Embedded middleware for FreeRTOS
 
 Clone this repo to download all sample device code, setup scripts, and offline versions of the documentation.
@@ -54,7 +54,7 @@ git submodule update --init --recursive
 
 You may also need to enable long path support for both Microsoft Windows and git:
 
-- [Windows long path support](https://docs.microsoft.com/windows/win32/fileio/maximum-file-path-limitation?tabs=cmd#enable-long-paths-in-windows-10-version-1607-and-later>
+- [Windows long path support](https://docs.microsoft.com/windows/win32/fileio/maximum-file-path-limitation?tabs=cmd#enable-long-paths-in-windows-10-version-1607-and-later>)
 - Git: as Administrator run `git config --system core.longpaths true`
 
 ### Tag Your Device
