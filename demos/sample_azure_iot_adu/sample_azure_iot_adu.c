@@ -201,6 +201,11 @@ static AzureIoTHubClientComponent_t pnp_components[ sampleaduPNP_COMPONENTS_LIST
 /* as they will reboot before getting to the place where this is used. */
 bool xDidDeviceUpdate = false;
 
+#ifdef sampleazureiotMODEL_ID
+    #undef sampleazureiotMODEL_ID
+    #define sampleazureiotMODEL_ID    "dtmi:azure:iot:deviceUpdateModel;1"
+#endif
+
 /*-----------------------------------------------------------*/
 
 #ifdef democonfigENABLE_DPS_SAMPLE
@@ -606,12 +611,29 @@ static AzureIoTResult_t prvEnableImageAndResetDevice()
         return eAzureIoTErrorFailed;
     }
 
+    /* If a device resets, it will not get here. */
+    /* For linux devices, this will mark the device as updated and we will change the version as if */
+    /* it did update. */
     LogInfo( ( "[ADU] DEVICE HAS UPDATED" ) );
     xDidDeviceUpdate = true;
 
     return eAzureIoTSuccess;
 }
 
+static AzureIoTResult_t prvSpoofNewVersion( void )
+{
+    xADUDeviceProperties.xCurrentUpdateId.ucVersion = ( const uint8_t * ) democonfigADU_UPDATE_NEW_VERSION;
+    xADUDeviceProperties.xCurrentUpdateId.ulVersionLength = strlen( democonfigADU_UPDATE_NEW_VERSION );
+    return AzureIoTADUClient_SendAgentState( &xAzureIoTADUClient,
+                                             &xAzureIoTHubClient,
+                                             &xADUDeviceProperties,
+                                             NULL,
+                                             eAzureIoTADUAgentStateIdle,
+                                             NULL,
+                                             ucScratchBuffer,
+                                             sizeof( ucScratchBuffer ),
+                                             NULL );
+}
 
 
 /*-----------------------------------------------------------*/
@@ -799,6 +821,9 @@ static void prvAzureDemoTask( void * pvParameters )
 
                 xResult = prvEnableImageAndResetDevice();
                 configASSERT( xResult == eAzureIoTSuccess );
+
+                xResult = prvSpoofNewVersion();
+                configASSERT( xResult = eAzureIoTSuccess );
             }
 
             /* Leave Connection Idle for some time. */

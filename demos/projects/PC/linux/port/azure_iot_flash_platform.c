@@ -21,12 +21,27 @@ AzureIoTResult_t AzureIoTPlatform_WriteBlock( AzureADUImage_t * const pxFileCont
   return eAzureIoTSuccess;
 }
 
+AzureIoTResult_t AzureIoTPlatform_VerifyImage( AzureADUImage_t * const pxAduImage,
+                                               uint8_t * pucSHA256Hash,
+                                               uint32_t ulSHA256HashLength )
+{
+    (void)pxAduImage;
+    (void)pucSHA256Hash;
+    (void)ulSHA256HashLength;
+
+    return eAzureIoTSuccess;
+}
+
 AzureIoTResult_t AzureIoTPlatform_EnableImage( AzureADUImage_t * const pxAduImage )
 {
+  (void)pxAduImage;
+
   return eAzureIoTSuccess;
 }
 
 AzureIoTResult_t AzureIoTPlatform_ResetDevice( AzureADUImage_t * const pxAduImage )
 {
+  (void)pxAduImage;
+
   return eAzureIoTSuccess;
 }

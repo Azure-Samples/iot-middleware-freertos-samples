@@ -13,6 +13,8 @@
 #include "azure_iot_json_reader.h"
 #include "azure_iot_json_writer.h"
 
+#include "sample_adu_jws.h"
+
 /* FreeRTOS */
 /* This task provides taskDISABLE_INTERRUPTS, used by configASSERT */
 #include "FreeRTOS.h"
@@ -63,6 +65,11 @@
  */
 #define sampleazureiotMESSAGE                             "{\"" sampleazureiotTELEMETRY_NAME "\":%0.2f}"
 
+/**
+ * @brief Buffer for ADU to copy values into.
+ *
+ */
+static uint8_t ucADUScratchBuffer[ jwsSCRATCH_BUFFER_SIZE ];
 
 /* Device values */
 static double xDeviceCurrentTemperature = sampleazureiotDEFAULT_START_TEMP_CELSIUS;
@@ -369,26 +376,49 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
                 return;
             }
 
-            xRequestDecision = prvUserDecideShouldStartUpdate( &xAzureIoTAduUpdateRequest );
-
-            xAzIoTResult = AzureIoTADUClient_SendResponse(
-                &xAzureIoTADUClient,
-                &xAzureIoTHubClient,
-                xRequestDecision,
-                ulPropertyVersion,
-                pucWritablePropertyResponseBuffer,
-                ulWritablePropertyResponseBufferSize,
-                NULL );
-
-            if( xAzIoTResult != eAzureIoTSuccess )
+            if( xAzureIoTAduUpdateRequest.xWorkflow.xAction == eAzureIoTADUActionApplyDownload )
             {
-                LogError( ( "AzureIoTADUClient_GetResponse failed: result 0x%08x", xAzIoTResult ) );
-                return;
+                LogInfo( ( "Verifying JWS Manifest" ) );
+                xAzIoTResult = JWS_ManifestAuthenticate( xAzureIoTAduUpdateRequest.pucUpdateManifest,
+                                                         xAzureIoTAduUpdateRequest.ulUpdateManifestLength,
+                                                         xAzureIoTAduUpdateRequest.pucUpdateManifestSignature,
+                                                         xAzureIoTAduUpdateRequest.ulUpdateManifestSignatureLength,
+                                                         ucADUScratchBuffer,
+                                                         sizeof( ucADUScratchBuffer ) );
+
+                if( xAzIoTResult != eAzureIoTSuccess )
+                {
+                    LogError( ( "JWS_ManifestAuthenticate failed: JWS was not validated successfully: result 0x%08x", xAzIoTResult ) );
+                    return;
+                }
+
+                xRequestDecision = prvUserDecideShouldStartUpdate( &xAzureIoTAduUpdateRequest );
+
+                xAzIoTResult = AzureIoTADUClient_SendResponse(
+                    &xAzureIoTADUClient,
+                    &xAzureIoTHubClient,
+                    xRequestDecision,
+                    ulPropertyVersion,
+                    pucWritablePropertyResponseBuffer,
+                    ulWritablePropertyResponseBufferSize,
+                    NULL );
+
+                if( xAzIoTResult != eAzureIoTSuccess )
+                {
+                    LogError( ( "AzureIoTADUClient_GetResponse failed: result 0x%08x", xAzIoTResult ) );
+                    return;
+                }
+
+                if( xRequestDecision == eAzureIoTADURequestDecisionAccept )
+                {
+                    xProcessUpdateRequest = true;
+                }
             }
-
-            if( xRequestDecision == eAzureIoTADURequestDecisionAccept )
+            else
             {
-                xProcessUpdateRequest = true;
+                LogInfo( ( "ADU manifest received: action %s",
+                           xAzureIoTAduUpdateRequest.xWorkflow.xAction == eAzureIoTADUActionDownload ?
+                           "Download" : "Cancelled" ) );
             }
         }
         else
