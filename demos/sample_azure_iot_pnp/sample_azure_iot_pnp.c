@@ -519,19 +519,18 @@ static void prvAzureDemoTask( void * pvParameters )
         xTransport.xSend = TLS_Socket_Send;
         xTransport.xRecv = TLS_Socket_Recv;
 
-#ifdef democonfigUSE_HSM
-        /* Redefine the democonfigREGISTRATION_ID macro using registration ID 
-        generated dynamically using the HSM */
-        
-        /* We use a pointer instead of a buffer so that the getRegistrationId
-         function can allocate the necessary memory depending on the HSM */
-        char *registration_id = NULL;
-        ulStatus = getRegistrationId( &registration_id );
-        configASSERT( ulStatus == 0);
-        #undef democonfigREGISTRATION_ID
-        #define democonfigREGISTRATION_ID   registration_id
-             
-#endif
+        #ifdef democonfigUSE_HSM
+            /* Redefine the democonfigREGISTRATION_ID macro using registration ID
+             * generated dynamically using the HSM */
+
+            /* We use a pointer instead of a buffer so that the getRegistrationId
+             * function can allocate the necessary memory depending on the HSM */
+            char * registration_id = NULL;
+            ulStatus = getRegistrationId( &registration_id );
+            configASSERT( ulStatus == 0 );
+#undef democonfigREGISTRATION_ID
+        #define democonfigREGISTRATION_ID    registration_id
+        #endif
 
         xResult = AzureIoTProvisioningClient_Init( &xAzureIoTProvisioningClient,
                                                    ( const uint8_t * ) democonfigENDPOINT,
@@ -539,11 +538,11 @@ static void prvAzureDemoTask( void * pvParameters )
                                                    ( const uint8_t * ) democonfigID_SCOPE,
                                                    sizeof( democonfigID_SCOPE ) - 1,
                                                    ( const uint8_t * ) democonfigREGISTRATION_ID,
-#ifdef democonfigUSE_HSM
-                                                    strlen( democonfigREGISTRATION_ID ),
-#else
-                                                    sizeof( democonfigREGISTRATION_ID ) - 1,
-#endif 
+                                                   #ifdef democonfigUSE_HSM
+                                                       strlen( democonfigREGISTRATION_ID ),
+                                                   #else
+                                                       sizeof( democonfigREGISTRATION_ID ) - 1,
+                                                   #endif
                                                    NULL, ucMQTTMessageBuffer, sizeof( ucMQTTMessageBuffer ),
                                                    ullGetUnixTime,
                                                    &xTransport );
