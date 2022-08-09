@@ -622,12 +622,12 @@ static AzureIoTResult_t prvEnableImageAndResetDevice()
 
 static AzureIoTResult_t prvSpoofNewVersion( void )
 {
-#ifdef democonfigADU_UPDATE_NEW_VERSION
-    xADUDeviceProperties.xCurrentUpdateId.ucVersion = ( const uint8_t * ) democonfigADU_UPDATE_NEW_VERSION;
-    xADUDeviceProperties.xCurrentUpdateId.ulVersionLength = strlen( democonfigADU_UPDATE_NEW_VERSION );
-#else
-    LogError( ( "[ADU] New ADU update version for simulator not given." ) );
-#endif
+    #ifdef democonfigADU_UPDATE_NEW_VERSION
+        xADUDeviceProperties.xCurrentUpdateId.ucVersion = ( const uint8_t * ) democonfigADU_UPDATE_NEW_VERSION;
+        xADUDeviceProperties.xCurrentUpdateId.ulVersionLength = strlen( democonfigADU_UPDATE_NEW_VERSION );
+    #else
+        LogError( ( "[ADU] New ADU update version for simulator not given." ) );
+    #endif
     return AzureIoTADUClient_SendAgentState( &xAzureIoTADUClient,
                                              &xAzureIoTHubClient,
                                              &xADUDeviceProperties,
