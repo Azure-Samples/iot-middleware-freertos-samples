@@ -138,11 +138,9 @@ For other prerequisite help, please see the links below. If none of the links ap
 
 ### Build the Update Image
 
-Open a new instance of the ESP-IDF console and navigate to the adu sample directory.
-
 Modify the version of the image as below:
 
-On file `iot-middleware-freertos-samples\demos\projects\PC\linux\config\demo_config.h` ([found here](https://github.com/Azure-Samples/iot-middleware-freertos-samples/blob/de7d6493cdac5f946cf966a9cabc2411a9bfaa29/demos/projects/ESPRESSIF/adu/config/demo_config.h#L495))
+On file `iot-middleware-freertos-samples\demos\projects\PC\linux\config\demo_config.h` ([found here](https://github.com/Azure-Samples/iot-middleware-freertos-samples/blob/7d9e2008a293f1786431afcc5328d39baa99dffd/demos/projects/PC/linux/config/demo_config.h#L485))
 
 Change
 
@@ -156,11 +154,11 @@ to
 #define democonfigADU_UPDATE_VERSION      "1.1"
 ```
 
-The resulting binary `azure_iot_freertos_esp32.bin` should be located in the build directory which is detailed in the build instructions from the link above (our example was `C:\espbuild`). Save it into `C:\ADU-update`, renaming it to `azure_iot_freertos_esp32-v1.1.bin`.
+The resulting executable `iot-middleware-sample-adu` should be located in the build directory in `build_linux/demos/projects/PC/linux/`. Save it into `C:\ADU-update`, renaming it to `iot-middleware-sample-adu-v1-1`.
 
 ### Generate the ADU Update Manifest
 
-Navigate (on the new ESP-IDF console) to `C:\ADU-update` directory (created on step 9):
+Navigate to the `C:\ADU-update` directory (created on step 9):
 
 Clone the ADU toolset.
 
@@ -175,11 +173,11 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
 
 Import-Module .\iot-hub-device-update\tools\AduCmdlets\AduUpdate.psm1
 
-$updateId = New-AduUpdateId -Provider "ESPRESSIF" -Name "ESP32-Azure-IoT-Kit" -Version 1.1
+$updateId = New-AduUpdateId -Provider "PC" -Name "Linux" -Version 1.1
 
-$compat = New-AduUpdateCompatibility -Properties @{ deviceManufacturer = 'ESPRESSIF'; deviceModel = 'ESP32-Azure-IoT-Kit' }
+$compat = New-AduUpdateCompatibility -Properties @{ deviceManufacturer = 'PC'; deviceModel = 'Linux' }
 
-$installStep = New-AduInstallationStep -Handler 'microsoft/swupdate:1'-HandlerProperties @{ installedCriteria = '1.1' } -Files C:\ADU-update\azure_iot_freertos_esp32-v1.1.bin
+$installStep = New-AduInstallationStep -Handler 'microsoft/swupdate:1'-HandlerProperties @{ installedCriteria = '1.1' } -Files C:\ADU-update\iot-middleware-sample-adu-v1-1
 
 $update = New-AduImportManifest -UpdateId $updateId -Compatibility $compat -InstallationSteps $installStep
 
@@ -188,18 +186,18 @@ $update | Out-File "./$($updateId.provider).$($updateId.name).$($updateId.versio
 
 Verify you have the following files in your ADU-update directory:
 
-- `azure_iot_freertos_esp32-v1.1.bin`
-- `ESPRESSIF.ESP32-Azure-IoT-Kit.1.1.importmanifest.json`
+- `iot-middleware-sample-adu-v1-1`
+- `PC.Linux.1.1.importmanifest.json`
 
 ### Import the Update Manifest
 
-To import the update (`azure_iot_freertos_esp32-v1.1.bin`) and manifest (`ESPRESSIF.ESP32-Azure-IoT-Kit.1.1.importmanifest.json`), follow the instructions at the link below:
+To import the update (`iot-middleware-sample-adu-v1-1`) and manifest (`PC.Linux.1.1.importmanifest.json`), follow the instructions at the link below:
 
 - [Import Update and Manifest.](https://docs.microsoft.com/azure/iot-hub-device-update/import-update)
 
 ### Deploy Update
 
-To deploy the update to your ESP32, follow the link below:
+To deploy the update to your linux machine, follow the link below:
 
 - [Deploy Update](https://docs.microsoft.com/azure/iot-hub-device-update/deploy-update)
 
@@ -209,4 +207,4 @@ Once the device reboots, you should see on the console, output that looks like t
 
 ![img](../../../../docs/resources/new-version-device-output.png)
 
-Note the section which states `Version 1.1`. Congratulations! Your ESP32 is now running new, updated software!
+Note the section which states `Version 1.1`. Congratulations! You were successfully able to run the Linux Azure Device Update simulator!
