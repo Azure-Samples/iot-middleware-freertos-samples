@@ -40,7 +40,7 @@ function sample_build() {
       idf.py build -DCMAKE_BUILD_TYPE=$buildver -C ./demos/projects/ESPRESSIF/$board
       echo -e "::group::Print Size for $board $buildver"
       ninja -C ./demos/projects/ESPRESSIF/$board/build size-components
-    if [ $vendor == "ESPRESSIF-ATECC" ]
+    elif [ $vendor == "ESPRESSIF-ATECC" ]
     then
       cp ./.github/scripts/atecc-sdkconfig.defaults ./demos/projects/ESPRESSIF/$board/sdkconfig.defaults
       # This step downlads esp-cryptoauthlib
