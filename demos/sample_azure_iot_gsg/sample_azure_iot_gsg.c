@@ -32,6 +32,7 @@
 
 /* Board specific implementation */
 #include "sample_gsg_device.h"
+
 /*-----------------------------------------------------------*/
 
 /* Compile time error for undefined configs. */
@@ -127,6 +128,7 @@ struct NetworkContext
     TlsTransportParams_t * pParams;
 };
 /*-----------------------------------------------------------*/
+
 
 /* Define buffer for IoT Hub info.  */
 #ifdef democonfigENABLE_DPS_SAMPLE
@@ -643,13 +645,31 @@ static uint32_t prvConnectToServerWithBackoffRetries( const char * pcHostName,
         xTransport.xSend = TLS_Socket_Send;
         xTransport.xRecv = TLS_Socket_Recv;
 
+        #ifdef democonfigUSE_HSM
+
+            /* Redefine the democonfigREGISTRATION_ID macro using registration ID
+             * generated dynamically using the HSM */
+
+            /* We use a pointer instead of a buffer so that the getRegistrationId
+             * function can allocate the necessary memory depending on the HSM */
+            char * registration_id = NULL;
+            ulStatus = getRegistrationId( &registration_id );
+            configASSERT( ulStatus == 0 );
+#undef democonfigREGISTRATION_ID
+        #define democonfigREGISTRATION_ID    registration_id
+        #endif
+
         xResult = AzureIoTProvisioningClient_Init( &xAzureIoTProvisioningClient,
                                                    ( const uint8_t * ) democonfigENDPOINT,
                                                    sizeof( democonfigENDPOINT ) - 1,
                                                    ( const uint8_t * ) democonfigID_SCOPE,
                                                    sizeof( democonfigID_SCOPE ) - 1,
                                                    ( const uint8_t * ) democonfigREGISTRATION_ID,
-                                                   sizeof( democonfigREGISTRATION_ID ) - 1,
+                                                   #ifdef democonfigUSE_HSM
+                                                       strlen( democonfigREGISTRATION_ID ),
+                                                   #else
+                                                       sizeof( democonfigREGISTRATION_ID ) - 1,
+                                                   #endif
                                                    NULL, ucMQTTMessageBuffer, sizeof( ucMQTTMessageBuffer ),
                                                    ullGetUnixTime,
                                                    &xTransport );
