@@ -520,6 +520,7 @@ static void prvAzureDemoTask( void * pvParameters )
         xTransport.xRecv = TLS_Socket_Recv;
 
         #ifdef democonfigUSE_HSM
+
             /* Redefine the democonfigREGISTRATION_ID macro using registration ID
              * generated dynamically using the HSM */
 

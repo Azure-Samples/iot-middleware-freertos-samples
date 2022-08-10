@@ -646,6 +646,7 @@ static uint32_t prvConnectToServerWithBackoffRetries( const char * pcHostName,
         xTransport.xRecv = TLS_Socket_Recv;
 
         #ifdef democonfigUSE_HSM
+
             /* Redefine the democonfigREGISTRATION_ID macro using registration ID
              * generated dynamically using the HSM */
 
