@@ -42,11 +42,14 @@ function sample_build() {
       ninja -C ./demos/projects/ESPRESSIF/$board/build size-components
     elif [ $vendor == "ESPRESSIF-ATECC" ]
     then
-      cp ./.github/scripts/atecc-sdkconfig.defaults ./demos/projects/ESPRESSIF/$board/sdkconfig.defaults
-      # This step downlads esp-cryptoauthlib
+      echo -e "::group::Configuring ESP32 with ATECC"
+      rm -f ./demos/projects/ESPRESSIF/$board/sdkconfig.defaults
+      cp -f ./.github/scripts/atecc-sdkconfig.defaults ./demos/projects/ESPRESSIF/$board/sdkconfig.defaults
+      echo -e "::group::IDF reconfigure - download ESP-CryptoauthLib"
       idf.py reconfigure -C ./demos/projects/ESPRESSIF/$board
-      # This step configures esp-cryptoauthlib
+      echo -e "::group::IDF reconfigure - configure ESP-CryptoauthLib"
       idf.py reconfigure -C ./demos/projects/ESPRESSIF/$board
+      echo -e "::group::IDF build"
       idf.py build -DCMAKE_BUILD_TYPE=$buildver -C ./demos/projects/ESPRESSIF/$board
       echo -e "::group::Print Size for $board $buildver"
       ninja -C ./demos/projects/ESPRESSIF/$board/build size-components
