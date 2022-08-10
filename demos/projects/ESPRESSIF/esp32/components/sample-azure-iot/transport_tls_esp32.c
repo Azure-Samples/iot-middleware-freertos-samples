@@ -49,6 +49,9 @@ static const char *TAG = "tls_freertos";
 
 #ifdef democonfigUSE_HSM
 
+#define tlsesp32SERIAL_NUMBER_SIZE 9
+#define tlsesp32REGISTRATION_ID_SIZE 21
+
 #if defined(CONFIG_ATECC608A_TNG)
 /**
  * @brief [Trust&GO] Dynamically generate and write the registration ID as a
@@ -72,13 +75,13 @@ static uint32_t getRegistrationIdFromTNG( char **ppcRegistrationId,\
             function does that already
         */      
         
-        *ppcRegistrationId = malloc(21);     
+        *ppcRegistrationId = malloc(tlsesp32REGISTRATION_ID_SIZE);     
         if(*ppcRegistrationId == NULL) {
             return 3;
         }
         sprintf(*ppcRegistrationId,"sn%02X%02X%02X%02X%02X%02X%02X%02X%02X",pucHsmData[0],pucHsmData[1],\
         pucHsmData[2],pucHsmData[3],pucHsmData[4],pucHsmData[5],pucHsmData[6],pucHsmData[7],pucHsmData[8]);
-        *(*ppcRegistrationId + 20) = '\0';
+        *(*ppcRegistrationId + tlsesp32REGISTRATION_ID_SIZE - 1) = '\0';
 
         return 0;
 }
@@ -108,13 +111,13 @@ static uint32_t getRegistrationIdFromTFLX( char **ppcRegistrationId,\
         /* TODO: Replace the below with your own implementation - the provided 
             implementation is applicable to TFLX-PROTO devices only
         */
-        *ppcRegistrationId = malloc(21);     
+        *ppcRegistrationId = malloc(tlsesp32REGISTRATION_ID_SIZE);     
         if(*ppcRegistrationId == NULL) {
             return 3;
         }
         sprintf(*ppcRegistrationId,"sn%02X%02X%02X%02X%02X%02X%02X%02X%02X",pucHsmData[0],pucHsmData[1],\
         pucHsmData[2],pucHsmData[3],pucHsmData[4],pucHsmData[5],pucHsmData[6],pucHsmData[7],pucHsmData[8]);
-        *(*ppcRegistrationId + 20) = '\0';
+        *(*ppcRegistrationId + tlsesp32REGISTRATION_ID_SIZE - 1) = '\0';
 
         return 0;
 }
@@ -145,14 +148,14 @@ static uint32_t getRegistrationIdFromTCSM( char **ppcRegistrationId,\
             implementation is applicable to certs generated using esp-cryptoauth 
             tool only
         */
-        *ppcRegistrationId = malloc(19);     
+        *ppcRegistrationId = malloc(tlsesp32REGISTRATION_ID_SIZE - 2);     
         if(*ppcRegistrationId == NULL) {
             return 3;
         }
 
         sprintf(*ppcRegistrationId,"%02X%02X%02X%02X%02X%02X%02X%02X%02X",pucHsmData[0],pucHsmData[1],\
         pucHsmData[2],pucHsmData[3],pucHsmData[4],pucHsmData[5],pucHsmData[6],pucHsmData[7],pucHsmData[8]);
-        *(*ppcRegistrationId + 18) = '\0';  
+        *(*ppcRegistrationId + tlsesp32REGISTRATION_ID_SIZE - 3) = '\0';  
         return 0;
 }
 #endif
@@ -175,7 +178,7 @@ uint32_t getRegistrationId( char **ppcRegistrationId ) {
             return 1;
         }
         uint32_t ret = 0;
-        uint8_t sernum[9];
+        uint8_t sernum[tlsesp32SERIAL_NUMBER_SIZE];
         ATCA_STATUS s;
         s = atcab_read_serial_number(sernum);
         if(s != ATCA_SUCCESS) {
@@ -184,21 +187,21 @@ uint32_t getRegistrationId( char **ppcRegistrationId ) {
         }
 
         #if defined(CONFIG_ATECC608A_TNG)
-            ret = getRegistrationIdFromTNG(ppcRegistrationId,sernum,9);
+            ret = getRegistrationIdFromTNG(ppcRegistrationId,sernum,tlsesp32SERIAL_NUMBER_SIZE);
             if(ret != 0) {
                 ESP_LOGE(TAG, "[TNG] Registration ID Gen Error!");
                 return ret;
             }
 
         #elif defined(CONFIG_ATECC608A_TFLEX)
-            ret = getRegistrationIdFromTFLX(ppcRegistrationId,sernum,9);
+            ret = getRegistrationIdFromTFLX(ppcRegistrationId,sernum,tlsesp32SERIAL_NUMBER_SIZE);
             if(ret != 0) {
                 ESP_LOGE(TAG, "[TFLX] Registration ID Gen Error!");
                 return ret;
             }
         
         #elif defined(CONFIG_ATECC608A_TCUSTOM)
-            ret = getRegistrationIdFromTCSM(ppcRegistrationId,sernum,9);
+            ret = getRegistrationIdFromTCSM(ppcRegistrationId,sernum,tlsesp32SERIAL_NUMBER_SIZE);
             if(ret != 0) {
                 ESP_LOGE(TAG, "[TCSM] Registration ID Gen Error!");
                 return ret;
