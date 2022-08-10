@@ -1,14 +1,14 @@
-# Support for Microchip ATECC608 Secure Element For ESP32 Plaforms
+# Support for Microchip ATECC608 Secure Element For ESP32 Platforms
 
 ## Pre-conditions
 
 - Ensure that the project is clean. Use `rm -rf build/` to ensure a clean slate.
 - Ensure that you are using the default sdkconfig. Use `rm sdkconfig` just to be sure.
-- Ensure internet connectivity to enable successful download of `esp-cryptoauthlib` component
+- Ensure internet connectivity to enable successful download of `esp-cryptoauthlib` component.
 
 ## Steps to add Microchip ATECC608 Secure Element support
 
-Perform the below steps **before doing any application level configuration like Wi-Fi settings, Azure Samples configuration, etc.**
+Perform the below steps **before doing any application-level configuration like Wi-Fi settings, Azure Samples configuration, etc.**
 
 ### Step 1 - Kconfig configuration
 
@@ -37,7 +37,7 @@ Perform the below steps **before doing any application level configuration like 
 
 - Try a build using `idf.py build` - observe the output, esp-cryptoauthlib should be built along with relevant mbedTLS support
 
-**If build is successful**, you are now ready to make application level configurations like Wi-Fi settings, Azure Samples settings, ATECC608 pin settings, etc.
+**If build is successful**, you are now ready to make application-level configurations like Wi-Fi settings, Azure Samples settings, ATECC608 pin settings, etc.
 
 **If build fails**, ensure that above steps are followed correctly. Before re-attempting the process,
 - delete the build directory using `rm -rf build/`
@@ -52,5 +52,5 @@ Perform the below steps **before doing any application level configuration like 
 
 **Q:** What is the right way to remove ATECC608 support?
 
-**A:** To completely remove ATECC608 support, it is best to start with a clean slate to avoid any dependency issues. Ddelete the build folder (`rm -rf build/`), delete the sdkconfig (`rm sdkconfig`) and delete the esp-cryptoauthlib from components/ folder.
+**A:** To completely remove ATECC608 support, it is best to start with a clean slate to avoid any dependency issues. Delete the build folder (`rm -rf build/`), delete the sdkconfig (`rm sdkconfig`) and delete the esp-cryptoauthlib from components/ folder.
 <br />
