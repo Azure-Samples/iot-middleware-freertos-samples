@@ -35,6 +35,9 @@ function sample_build() {
     local outdir=$3
     local buildver=$4
 
+    echo -e "::group::Cleaning Repo"
+    git clean -xdf
+
     if [ $vendor == "ESPRESSIF" ]
     then
       idf.py build -DCMAKE_BUILD_TYPE=$buildver -C ./demos/projects/ESPRESSIF/$board
@@ -42,8 +45,6 @@ function sample_build() {
       ninja -C ./demos/projects/ESPRESSIF/$board/build size-components
     elif [ $vendor == "ESPRESSIF-ATECC" ]
     then
-      echo -e "::group::Cleaning Repo"
-      git clean -xdf
       echo -e "::group::Configuring ESP32 with ATECC"
       rm -f ./demos/projects/ESPRESSIF/$board/sdkconfig.defaults
       cp -f ./.github/scripts/atecc-sdkconfig.defaults ./demos/projects/ESPRESSIF/$board/sdkconfig.defaults
