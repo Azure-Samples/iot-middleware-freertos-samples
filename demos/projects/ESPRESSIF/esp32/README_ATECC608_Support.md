@@ -32,7 +32,7 @@ The following connections are recommended for any of the boards mentioned above:
 
 This step uses the ATECC608 HSM's key-pair and serial number to generate an X.509 device certificate. One way to derive a certificate is by using the ESP32 board as an ATECC608 programmer using the [ESP-CryptoAuth-Utility](https://github.com/espressif/esp-cryptoauthlib/tree/master/esp_cryptoauth_utility#readme).
 
-The tool will generate an X509 certificate chain. You can choose between using Azure IoT Device Provisioning Group Enrollments by using your own certification authority, or an Individual Enrollment by using the (device) leaf certificate and configuring the `registrationID` as the ATECC608's serial number (e.g. `sn0123ABCDE000000001`).
+The tool will generate an X509 certificate chain. You can choose between using Azure IoT Device Provisioning Group Enrollments by using your own certification authority, or an Individual Enrollment by using the (device) leaf certificate and configuring the DPS `registrationID` as the ATECC608's serial number (e.g. `sn0123ABCDE000000001`).
 
 E.g. : `python secure_cert_mfg.py --port COM6 --i2c-sda-pin 21 --i2c-scl-pin 22`
 
