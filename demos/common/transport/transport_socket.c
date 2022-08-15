@@ -53,9 +53,6 @@ SocketTransportStatus_t Azure_Socket_Connect( NetworkContext_t * pxNetworkContex
     int32_t ulStatus;
     SocketTransportStatus_t xSocketStatus;
 
-    TickType_t xRecvTimeout = pdMS_TO_TICKS( ulReceiveTimeoutMs );
-    TickType_t xSendTimeout = pdMS_TO_TICKS( ulSendTimeoutMs );
-
     if( ( pxNetworkContext->pParams->xTCPSocket = Sockets_Open() ) == SOCKETS_INVALID_SOCKET )
     {
         LogError( ( "Failed to open socket." ) );
@@ -63,18 +60,18 @@ SocketTransportStatus_t Azure_Socket_Connect( NetworkContext_t * pxNetworkContex
     }
     else if( ( ulStatus = Sockets_SetSockOpt( pxNetworkContext->pParams->xTCPSocket,
                                               SOCKETS_SO_RCVTIMEO,
-                                              &xRecvTimeout,
-                                              sizeof( xRecvTimeout ) ) != 0 ) )
+                                              &ulReceiveTimeoutMs,
+                                              sizeof( ulReceiveTimeoutMs ) ) != 0 ) )
     {
-        LogError( ( "Failed to set receive timeout on socket %d.", xSocketStatus ) );
+        LogError( ( "Failed to set receive timeout on socket %d.", ulStatus ) );
         xSocketStatus = eSocketTransportInternalError;
     }
     else if( ( ulStatus = Sockets_SetSockOpt( pxNetworkContext->pParams->xTCPSocket,
                                               SOCKETS_SO_SNDTIMEO,
-                                              &xSendTimeout,
-                                              sizeof( xSendTimeout ) ) != 0 ) )
+                                              &ulSendTimeoutMs,
+                                              sizeof( ulSendTimeoutMs ) ) != 0 ) )
     {
-        LogError( ( "Failed to set send timeout on socket %d.", xSocketStatus ) );
+        LogError( ( "Failed to set send timeout on socket %d.", ulStatus ) );
         xSocketStatus = eSocketTransportInternalError;
     }
     else if( ( ulStatus = Sockets_Connect( pxNetworkContext->pParams->xTCPSocket,
@@ -83,7 +80,7 @@ SocketTransportStatus_t Azure_Socket_Connect( NetworkContext_t * pxNetworkContex
     {
         LogError( ( "Failed to connect to %s with error %d.",
                     pHostName,
-                    xSocketStatus ) );
+                    ulStatus ) );
         xSocketStatus = eSocketTransportConnectFailure;
     }
     else
