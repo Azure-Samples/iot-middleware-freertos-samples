@@ -61,24 +61,24 @@ SocketTransportStatus_t Azure_Socket_Connect( NetworkContext_t * pxNetworkContex
         xSocketStatus = eSocketTransportConnectFailure;
     }
     else if( ( xSocketStatus = Sockets_SetSockOpt( pxNetworkContext->pParams->xTCPSocket,
-                                              SOCKETS_SO_RCVTIMEO,
-                                              &xRecvTimeout,
-                                              sizeof( xRecvTimeout ) ) != 0 ) )
+                                                   SOCKETS_SO_RCVTIMEO,
+                                                   &xRecvTimeout,
+                                                   sizeof( xRecvTimeout ) ) != 0 ) )
     {
         LogError( ( "Failed to set receive timeout on socket %d.", xSocketStatus ) );
         xSocketStatus = eSocketTransportInternalError;
     }
     else if( ( xSocketStatus = Sockets_SetSockOpt( pxNetworkContext->pParams->xTCPSocket,
-                                              SOCKETS_SO_SNDTIMEO,
-                                              &xSendTimeout,
-                                              sizeof( xSendTimeout ) ) != 0 ) )
+                                                   SOCKETS_SO_SNDTIMEO,
+                                                   &xSendTimeout,
+                                                   sizeof( xSendTimeout ) ) != 0 ) )
     {
         LogError( ( "Failed to set send timeout on socket %d.", xSocketStatus ) );
         xSocketStatus = eSocketTransportInternalError;
     }
     else if( ( xSocketStatus = Sockets_Connect( pxNetworkContext->pParams->xTCPSocket,
-                                           pHostName,
-                                           usPort ) ) != 0 )
+                                                pHostName,
+                                                usPort ) ) != 0 )
     {
         LogError( ( "Failed to connect to %s with error %d.",
                     pHostName,
