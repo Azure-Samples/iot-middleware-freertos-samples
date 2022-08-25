@@ -13,7 +13,7 @@
  * This Model ID is tightly tied to the code implementation in `sample_azure_iot_pnp_simulated_device.c`
  * If you intend to test a different Model ID, please provide the implementation of the model on your application.
  */
-#define sampleazureiotMODEL_ID                                "dtmi:com:example:Thermostat;1"
+#define sampleazureiotMODEL_ID                                "dtmi:azure:iot:deviceUpdateModel;1"
 
 /**************************************************/
 /******* DO NOT CHANGE the following order ********/
@@ -505,5 +505,11 @@ static unsigned char root_cert_array[] = {
  *  WIFI_ECN_WPA_WPA2_PSK = 0x04 
  */
 #define WIFI_SECURITY_TYPE  WIFI_ECN_WPA2_PSK
+
+#define democonfigADU_DEVICE_MANUFACTURER "ST"
+#define democonfigADU_DEVICE_MODEL        "STM32L496"
+#define democonfigADU_UPDATE_PROVIDER     "ST"
+#define democonfigADU_UPDATE_NAME         "STM32L496"
+#define democonfigADU_UPDATE_VERSION      "1.1"
 
 #endif /* DEMO_CONFIG_H */
