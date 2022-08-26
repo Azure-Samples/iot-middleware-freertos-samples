@@ -13,6 +13,7 @@
  * This Model ID is tightly tied to the code implementation in `sample_azure_iot_pnp_simulated_device.c`
  * If you intend to test a different Model ID, please provide the implementation of the model on your application.
  */
+// TODO: change when Linux PR is in
 #define sampleazureiotMODEL_ID                                "dtmi:azure:iot:deviceUpdateModel;1"
 
 /**************************************************/
@@ -507,9 +508,9 @@ static unsigned char root_cert_array[] = {
 #define WIFI_SECURITY_TYPE  WIFI_ECN_WPA2_PSK
 
 #define democonfigADU_DEVICE_MANUFACTURER "ST"
-#define democonfigADU_DEVICE_MODEL        "STM32L496"
+#define democonfigADU_DEVICE_MODEL        "STM32L475"
 #define democonfigADU_UPDATE_PROVIDER     "ST"
-#define democonfigADU_UPDATE_NAME         "STM32L496"
-#define democonfigADU_UPDATE_VERSION      "1.1"
+#define democonfigADU_UPDATE_NAME         "STM32L475"
+#define democonfigADU_UPDATE_VERSION      "1.0"
 
 #endif /* DEMO_CONFIG_H */
