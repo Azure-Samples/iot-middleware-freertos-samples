@@ -483,6 +483,9 @@ static unsigned char root_cert_array[] = {
  */
 #define democonfigIOTHUB_PORT          ( 8883 )
 
+/* 2^16 */
+#define democonfigCHUNK_DOWNLOAD_SIZE           65536
+
 #define democonfigADU_DEVICE_MANUFACTURER "PC"
 #define democonfigADU_DEVICE_MODEL        "Linux"
 #define democonfigADU_UPDATE_PROVIDER     "PC"
