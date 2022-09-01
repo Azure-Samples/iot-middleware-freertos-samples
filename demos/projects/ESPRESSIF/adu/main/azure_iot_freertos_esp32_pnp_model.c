@@ -299,7 +299,7 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
             }
             else if( xAzureIoTAduUpdateRequest.xWorkflow.xAction == eAzureIoTADUActionCancel )
             {
-                /*Nothing to do here but mark to process where we will then send state as "Idle" */
+                /*Nothing to do here but set process to "true", where we will then send state as "Idle" */
                 xProcessUpdateRequest = true;
 
                 LogInfo( ( "ADU manifest received: action cancelled" ) );
