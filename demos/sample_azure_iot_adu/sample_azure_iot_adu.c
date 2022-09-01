@@ -476,7 +476,7 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash()
                                                 ulFileUrlHostLength - 1, /* minus the null-terminator. */
                                                 ( const char * ) pucFileUrlPath,
                                                 ulFileUrlPathLength,
-                                                ucAduDownloadHeaderBuffer,
+                                                ( char * ) ucAduDownloadHeaderBuffer,
                                                 sizeof( ucAduDownloadHeaderBuffer ) );
 
     if( xHttpResult != eAzureIoTHTTPSuccess )
@@ -484,7 +484,7 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash()
         return eAzureIoTErrorFailed;
     }
 
-    if( ( xImage.ulImageFileSize = AzureIoTHTTP_RequestSize( &xHTTP, ucAduDownloadBuffer,
+    if( ( xImage.ulImageFileSize = AzureIoTHTTP_RequestSize( &xHTTP, ( char * ) ucAduDownloadBuffer,
                                                              sizeof( ucAduDownloadBuffer ) ) ) != -1 )
     {
         LogInfo( ( "[ADU] HTTP Range Request was successful: size %d bytes", xImage.ulImageFileSize ) );
@@ -504,12 +504,12 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash()
                            ulFileUrlHostLength - 1, /* minus the null-terminator. */
                            ( const char * ) pucFileUrlPath,
                            ulFileUrlPathLength,
-                           ucAduDownloadHeaderBuffer,
+                           ( char * ) ucAduDownloadHeaderBuffer,
                            sizeof( ucAduDownloadHeaderBuffer ) );
 
         if( ( xHttpResult = AzureIoTHTTP_Request( &xHTTP, xImage.ulCurrentOffset,
                                                   xImage.ulCurrentOffset + democonfigCHUNK_DOWNLOAD_SIZE - 1,
-                                                  ucAduDownloadBuffer,
+                                                  ( char * ) ucAduDownloadBuffer,
                                                   sizeof( ucAduDownloadBuffer ),
                                                   &pucOutDataPtr,
                                                   &ulOutHttpDataBufferLength ) ) == eAzureIoTHTTPSuccess )
