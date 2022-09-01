@@ -135,6 +135,8 @@
 #define SINGLE_PARENTHESIS_LOGD( x, ... ) ESP_LOGD( LIBRARY_LOG_NAME, x, ##__VA_ARGS__ )
 #define LogDebug( message )               SINGLE_PARENTHESIS_LOGD message
 
+#define SdkLog( message )                 SINGLE_PARENTHESIS_LOGI message
+
 /* *INDENT-OFF* */
 #ifdef __cplusplus
     }

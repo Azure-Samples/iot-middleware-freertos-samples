@@ -50,7 +50,6 @@ SocketTransportStatus_t Azure_Socket_Connect( NetworkContext_t * pxNetworkContex
                                               uint32_t ulReceiveTimeoutMs,
                                               uint32_t ulSendTimeoutMs )
 {
-    int32_t ulStatus;
     SocketTransportStatus_t xSocketStatus;
 
     TickType_t xRecvTimeout = pdMS_TO_TICKS( ulReceiveTimeoutMs );
@@ -61,25 +60,25 @@ SocketTransportStatus_t Azure_Socket_Connect( NetworkContext_t * pxNetworkContex
         LogError( ( "Failed to open socket." ) );
         xSocketStatus = eSocketTransportConnectFailure;
     }
-    else if( ( ulStatus = Sockets_SetSockOpt( pxNetworkContext->pParams->xTCPSocket,
-                                              SOCKETS_SO_RCVTIMEO,
-                                              &xRecvTimeout,
-                                              sizeof( xRecvTimeout ) ) != 0 ) )
+    else if( ( xSocketStatus = Sockets_SetSockOpt( pxNetworkContext->pParams->xTCPSocket,
+                                                   SOCKETS_SO_RCVTIMEO,
+                                                   &xRecvTimeout,
+                                                   sizeof( xRecvTimeout ) ) != 0 ) )
     {
         LogError( ( "Failed to set receive timeout on socket %d.", xSocketStatus ) );
         xSocketStatus = eSocketTransportInternalError;
     }
-    else if( ( ulStatus = Sockets_SetSockOpt( pxNetworkContext->pParams->xTCPSocket,
-                                              SOCKETS_SO_SNDTIMEO,
-                                              &xSendTimeout,
-                                              sizeof( xSendTimeout ) ) != 0 ) )
+    else if( ( xSocketStatus = Sockets_SetSockOpt( pxNetworkContext->pParams->xTCPSocket,
+                                                   SOCKETS_SO_SNDTIMEO,
+                                                   &xSendTimeout,
+                                                   sizeof( xSendTimeout ) ) != 0 ) )
     {
         LogError( ( "Failed to set send timeout on socket %d.", xSocketStatus ) );
         xSocketStatus = eSocketTransportInternalError;
     }
-    else if( ( ulStatus = Sockets_Connect( pxNetworkContext->pParams->xTCPSocket,
-                                           pHostName,
-                                           80 ) ) != 0 )
+    else if( ( xSocketStatus = Sockets_Connect( pxNetworkContext->pParams->xTCPSocket,
+                                                pHostName,
+                                                usPort ) ) != 0 )
     {
         LogError( ( "Failed to connect to %s with error %d.",
                     pHostName,

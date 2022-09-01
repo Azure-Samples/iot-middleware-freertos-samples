@@ -122,6 +122,12 @@
  */
 #define sampleazureiotSUBSCRIBE_TIMEOUT                       ( 10 * 1000U )
 
+/**
+ * @brief Buffer size for ADU HTTP download headers
+ *
+ */
+#define ADU_HEADER_BUFFER_SIZE                                512
+
 /*-----------------------------------------------------------*/
 
 /**
@@ -182,6 +188,8 @@ static uint8_t ucReportedPropertiesUpdate[ 1500 ];
 static uint32_t ulReportedPropertiesUpdateLength;
 
 uint8_t ucAduContextBuffer[ ADU_CONTEXT_BUFFER_SIZE ];
+uint8_t ucAduDownloadBuffer[ democonfigCHUNK_DOWNLOAD_SIZE + 1024 ];
+uint8_t ucAduDownloadHeaderBuffer[ ADU_HEADER_BUFFER_SIZE ];
 
 const uint8_t sampleaduDEFAULT_RESULT_DETAILS[] = "Ok";
 
@@ -200,6 +208,11 @@ static AzureIoTHubClientComponent_t pnp_components[ sampleaduPNP_COMPONENTS_LIST
 /* This does not affect devices that actually implement the ADU process */
 /* as they will reboot before getting to the place where this is used. */
 bool xDidDeviceUpdate = false;
+
+#ifdef sampleazureiotMODEL_ID
+    #undef sampleazureiotMODEL_ID
+    #define sampleazureiotMODEL_ID    "dtmi:azure:iot:deviceUpdateModel;1"
+#endif
 
 /*-----------------------------------------------------------*/
 
@@ -412,8 +425,8 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash()
     AzureIoTResult_t xResult;
     AzureIoTHTTPResult_t xHttpResult;
     AzureIoTHTTP_t xHTTP;
-    char * pucHttpDataBufferPtr;
-    uint32_t ulHttpDataBufferLength;
+    char * pucOutDataPtr;
+    uint32_t ulOutHttpDataBufferLength;
     uint8_t * pucFileUrlHost;
     uint32_t ulFileUrlHostLength;
     uint8_t * pucFileUrlPath;
@@ -462,14 +475,17 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash()
                                                 ( const char * ) pucFileUrlHost,
                                                 ulFileUrlHostLength - 1, /* minus the null-terminator. */
                                                 ( const char * ) pucFileUrlPath,
-                                                ulFileUrlPathLength );
+                                                ulFileUrlPathLength,
+                                                ( char * ) ucAduDownloadHeaderBuffer,
+                                                sizeof( ucAduDownloadHeaderBuffer ) );
 
     if( xHttpResult != eAzureIoTHTTPSuccess )
     {
         return eAzureIoTErrorFailed;
     }
 
-    if( ( xImage.ulImageFileSize = AzureIoTHTTP_RequestSize( &xHTTP ) ) != -1 )
+    if( ( xImage.ulImageFileSize = AzureIoTHTTP_RequestSize( &xHTTP, ( char * ) ucAduDownloadBuffer,
+                                                             sizeof( ucAduDownloadBuffer ) ) ) != -1 )
     {
         LogInfo( ( "[ADU] HTTP Range Request was successful: size %d bytes", xImage.ulImageFileSize ) );
     }
@@ -487,21 +503,25 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash()
                            ( const char * ) pucFileUrlHost,
                            ulFileUrlHostLength - 1, /* minus the null-terminator. */
                            ( const char * ) pucFileUrlPath,
-                           ulFileUrlPathLength );
+                           ulFileUrlPathLength,
+                           ( char * ) ucAduDownloadHeaderBuffer,
+                           sizeof( ucAduDownloadHeaderBuffer ) );
 
         if( ( xHttpResult = AzureIoTHTTP_Request( &xHTTP, xImage.ulCurrentOffset,
-                                                  xImage.ulCurrentOffset + azureiothttpCHUNK_DOWNLOAD_SIZE - 1,
-                                                  &pucHttpDataBufferPtr,
-                                                  &ulHttpDataBufferLength ) ) == eAzureIoTHTTPSuccess )
+                                                  xImage.ulCurrentOffset + democonfigCHUNK_DOWNLOAD_SIZE - 1,
+                                                  ( char * ) ucAduDownloadBuffer,
+                                                  sizeof( ucAduDownloadBuffer ),
+                                                  &pucOutDataPtr,
+                                                  &ulOutHttpDataBufferLength ) ) == eAzureIoTHTTPSuccess )
         {
             /* Write bytes to the flash */
             xResult = AzureIoTPlatform_WriteBlock( &xImage,
                                                    ( uint32_t ) xImage.ulCurrentOffset,
-                                                   ( uint8_t * ) pucHttpDataBufferPtr,
-                                                   ulHttpDataBufferLength );
+                                                   ( uint8_t * ) pucOutDataPtr,
+                                                   ulOutHttpDataBufferLength );
 
             /* Advance the offset */
-            xImage.ulCurrentOffset += ( int32_t ) ulHttpDataBufferLength;
+            xImage.ulCurrentOffset += ( int32_t ) ulOutHttpDataBufferLength;
         }
         else if( xHttpResult == eAzureIoTHTTPNoResponse )
         {
@@ -606,12 +626,36 @@ static AzureIoTResult_t prvEnableImageAndResetDevice()
         return eAzureIoTErrorFailed;
     }
 
+    /* If a device resets, it will not get here. */
+    /* For linux devices, this will mark the device as updated and we will change the version as if */
+    /* it did update. */
     LogInfo( ( "[ADU] DEVICE HAS UPDATED" ) );
     xDidDeviceUpdate = true;
 
     return eAzureIoTSuccess;
 }
 
+/* This code is only run on the simulator. Devices will not reach this code since they reboot. */
+static AzureIoTResult_t prvSpoofNewVersion( void )
+{
+    #ifdef democonfigADU_UPDATE_NEW_VERSION
+        xADUDeviceProperties.xCurrentUpdateId.ucVersion = ( const uint8_t * ) democonfigADU_UPDATE_NEW_VERSION;
+        xADUDeviceProperties.xCurrentUpdateId.ulVersionLength = strlen( democonfigADU_UPDATE_NEW_VERSION );
+    #else
+        LogError( ( "[ADU] New ADU update version for simulator not given." ) );
+    #endif
+    LogInfo( ( "[ADU] Device Version %.*s",
+               xADUDeviceProperties.xCurrentUpdateId.ulVersionLength, xADUDeviceProperties.xCurrentUpdateId.ucVersion ) );
+    return AzureIoTADUClient_SendAgentState( &xAzureIoTADUClient,
+                                             &xAzureIoTHubClient,
+                                             &xADUDeviceProperties,
+                                             NULL,
+                                             eAzureIoTADUAgentStateIdle,
+                                             NULL,
+                                             ucScratchBuffer,
+                                             sizeof( ucScratchBuffer ),
+                                             NULL );
+}
 
 
 /*-----------------------------------------------------------*/
@@ -799,6 +843,9 @@ static void prvAzureDemoTask( void * pvParameters )
 
                 xResult = prvEnableImageAndResetDevice();
                 configASSERT( xResult == eAzureIoTSuccess );
+
+                xResult = prvSpoofNewVersion();
+                configASSERT( xResult = eAzureIoTSuccess );
             }
 
             /* Leave Connection Idle for some time. */
