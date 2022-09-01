@@ -299,10 +299,14 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
             }
             else if( xAzureIoTAduUpdateRequest.xWorkflow.xAction == eAzureIoTADUActionCancel )
             {
+                xProcessUpdateRequest = false;
+
                 LogInfo( ( "ADU manifest received: action cancelled" ) );
             }
             else
             {
+                xProcessUpdateRequest = false;
+
                 LogInfo( ( "ADU manifest received: action unknown" ) );
             }
         }
