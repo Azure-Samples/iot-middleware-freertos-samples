@@ -635,6 +635,7 @@ static AzureIoTResult_t prvEnableImageAndResetDevice()
     return eAzureIoTSuccess;
 }
 
+/* This code is only run on the simulator. Devices will not reach this code since they reboot. */
 static AzureIoTResult_t prvSpoofNewVersion( void )
 {
     #ifdef democonfigADU_UPDATE_NEW_VERSION
@@ -643,6 +644,8 @@ static AzureIoTResult_t prvSpoofNewVersion( void )
     #else
         LogError( ( "[ADU] New ADU update version for simulator not given." ) );
     #endif
+    LogInfo( ( "[ADU] Device Version %.*s",
+               xADUDeviceProperties.xCurrentUpdateId.ulVersionLength, xADUDeviceProperties.xCurrentUpdateId.ucVersion ) );
     return AzureIoTADUClient_SendAgentState( &xAzureIoTADUClient,
                                              &xAzureIoTHubClient,
                                              &xADUDeviceProperties,

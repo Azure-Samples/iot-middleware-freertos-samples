@@ -204,8 +204,8 @@ To deploy the update to your linux machine, follow the link below:
 
 After you deploy the update, the device should receive the new writable properties payload (i.e., the ADU service “request”) and start processing it.
 
-Once the device reboots, you should see on the console, output that looks like the following:
+After the sample finishes downloading the payload, you should see on the console, output that looks like the following:
 
-![img](../../../../docs/resources/new-version-device-output.png)
+![img](../../../../docs/resources/adu-sample-linux.png)
 
 Note the section which states `Version 1.1`. Congratulations! You were successfully able to run the Linux Azure Device Update simulator!
