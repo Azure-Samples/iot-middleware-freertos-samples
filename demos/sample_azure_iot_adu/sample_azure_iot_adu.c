@@ -835,17 +835,33 @@ static void prvAzureDemoTask( void * pvParameters )
                                                      sampleazureiotPROCESS_LOOP_TIMEOUT_MS );
             configASSERT( xResult == eAzureIoTSuccess );
 
-            /* TODO: REMOVE !xDidDeviceUpdate for NXP once properly implemented */
             if( xProcessUpdateRequest && !xDidDeviceUpdate )
             {
-                xResult = prvDownloadUpdateImageIntoFlash();
-                configASSERT( xResult == eAzureIoTSuccess );
+                if( xAzureIoTAduUpdateRequest.xWorkflow.xAction == eAzureIoTADUActionCancel )
+                {
+                    xResult = AzureIoTADUClient_SendAgentState( &xAzureIoTADUClient,
+                                                                &xAzureIoTHubClient,
+                                                                &xADUDeviceProperties,
+                                                                &xAzureIoTAduUpdateRequest,
+                                                                eAzureIoTADUAgentStateIdle,
+                                                                NULL,
+                                                                ucScratchBuffer,
+                                                                sizeof( ucScratchBuffer ),
+                                                                NULL );
 
-                xResult = prvEnableImageAndResetDevice();
-                configASSERT( xResult == eAzureIoTSuccess );
+                    xProcessUpdateRequest = false;
+                }
+                else
+                {
+                    xResult = prvDownloadUpdateImageIntoFlash();
+                    configASSERT( xResult == eAzureIoTSuccess );
 
-                xResult = prvSpoofNewVersion();
-                configASSERT( xResult = eAzureIoTSuccess );
+                    xResult = prvEnableImageAndResetDevice();
+                    configASSERT( xResult == eAzureIoTSuccess );
+
+                    xResult = prvSpoofNewVersion();
+                    configASSERT( xResult = eAzureIoTSuccess );
+                }
             }
 
             /* Leave Connection Idle for some time. */
