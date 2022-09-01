@@ -34,6 +34,7 @@ To initialize the repo, run the following command:
 
 ```bash
 cd iot-middleware-freertos-samples
+git checkout feature/iot-adu
 git submodule update --init --recursive
 ```
 

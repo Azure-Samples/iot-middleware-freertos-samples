@@ -122,6 +122,12 @@
  */
 #define sampleazureiotSUBSCRIBE_TIMEOUT                       ( 10 * 1000U )
 
+/**
+ * @brief Buffer size for ADU HTTP download headers
+ *
+ */
+#define ADU_HEADER_BUFFER_SIZE                                512
+
 /*-----------------------------------------------------------*/
 
 /**
@@ -182,6 +188,8 @@ static uint8_t ucReportedPropertiesUpdate[ 1500 ];
 static uint32_t ulReportedPropertiesUpdateLength;
 
 uint8_t ucAduContextBuffer[ ADU_CONTEXT_BUFFER_SIZE ];
+uint8_t ucAduDownloadBuffer[ democonfigCHUNK_DOWNLOAD_SIZE + 1024 ];
+uint8_t ucAduDownloadHeaderBuffer[ ADU_HEADER_BUFFER_SIZE ];
 
 const uint8_t sampleaduDEFAULT_RESULT_DETAILS[] = "Ok";
 
@@ -417,8 +425,8 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash()
     AzureIoTResult_t xResult;
     AzureIoTHTTPResult_t xHttpResult;
     AzureIoTHTTP_t xHTTP;
-    char * pucHttpDataBufferPtr;
-    uint32_t ulHttpDataBufferLength;
+    char * pucOutDataPtr;
+    uint32_t ulOutHttpDataBufferLength;
     uint8_t * pucFileUrlHost;
     uint32_t ulFileUrlHostLength;
     uint8_t * pucFileUrlPath;
@@ -467,14 +475,17 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash()
                                                 ( const char * ) pucFileUrlHost,
                                                 ulFileUrlHostLength - 1, /* minus the null-terminator. */
                                                 ( const char * ) pucFileUrlPath,
-                                                ulFileUrlPathLength );
+                                                ulFileUrlPathLength,
+                                                ucAduDownloadHeaderBuffer,
+                                                sizeof( ucAduDownloadHeaderBuffer ) );
 
     if( xHttpResult != eAzureIoTHTTPSuccess )
     {
         return eAzureIoTErrorFailed;
     }
 
-    if( ( xImage.ulImageFileSize = AzureIoTHTTP_RequestSize( &xHTTP ) ) != -1 )
+    if( ( xImage.ulImageFileSize = AzureIoTHTTP_RequestSize( &xHTTP, ucAduDownloadBuffer,
+                                                             sizeof( ucAduDownloadBuffer ) ) ) != -1 )
     {
         LogInfo( ( "[ADU] HTTP Range Request was successful: size %d bytes", xImage.ulImageFileSize ) );
     }
@@ -492,21 +503,25 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash()
                            ( const char * ) pucFileUrlHost,
                            ulFileUrlHostLength - 1, /* minus the null-terminator. */
                            ( const char * ) pucFileUrlPath,
-                           ulFileUrlPathLength );
+                           ulFileUrlPathLength,
+                           ucAduDownloadHeaderBuffer,
+                           sizeof( ucAduDownloadHeaderBuffer ) );
 
         if( ( xHttpResult = AzureIoTHTTP_Request( &xHTTP, xImage.ulCurrentOffset,
-                                                  xImage.ulCurrentOffset + azureiothttpCHUNK_DOWNLOAD_SIZE - 1,
-                                                  &pucHttpDataBufferPtr,
-                                                  &ulHttpDataBufferLength ) ) == eAzureIoTHTTPSuccess )
+                                                  xImage.ulCurrentOffset + democonfigCHUNK_DOWNLOAD_SIZE - 1,
+                                                  ucAduDownloadBuffer,
+                                                  sizeof( ucAduDownloadBuffer ),
+                                                  &pucOutDataPtr,
+                                                  &ulOutHttpDataBufferLength ) ) == eAzureIoTHTTPSuccess )
         {
             /* Write bytes to the flash */
             xResult = AzureIoTPlatform_WriteBlock( &xImage,
                                                    ( uint32_t ) xImage.ulCurrentOffset,
-                                                   ( uint8_t * ) pucHttpDataBufferPtr,
-                                                   ulHttpDataBufferLength );
+                                                   ( uint8_t * ) pucOutDataPtr,
+                                                   ulOutHttpDataBufferLength );
 
             /* Advance the offset */
-            xImage.ulCurrentOffset += ( int32_t ) ulHttpDataBufferLength;
+            xImage.ulCurrentOffset += ( int32_t ) ulOutHttpDataBufferLength;
         }
         else if( xHttpResult == eAzureIoTHTTPNoResponse )
         {
