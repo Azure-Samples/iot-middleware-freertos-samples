@@ -426,7 +426,7 @@ static void prvParseAduFileUrl( AzureIoTADUUpdateManifestFileUrl_t xFileUrl,
     ( void ) memcpy( *pucPath, pcPathStart, *pulPathLength );
 }
 
-static AzureIoTResult_t prvDownloadUpdateImageIntoFlash( int64_t ullTimeoutInSec )
+static AzureIoTResult_t prvDownloadUpdateImageIntoFlash( int32_t ullTimeoutInSec )
 {
     AzureIoTResult_t xResult;
     AzureIoTHTTPResult_t xHttpResult;
@@ -513,7 +513,7 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash( int64_t ullTimeoutInSec
 
         if( ullCurrentTime - ullPreviousTimeout > ullTimeoutInSec )
         {
-            LogInfo( ( "%li second timeout. Taking a break from downloading image.", ullTimeoutInSec ) );
+            LogInfo( ( "%i second timeout. Taking a break from downloading image.", ullTimeoutInSec ) );
             LogInfo( ( "Receiving messages from IoT Hub." ) );
             xResult = AzureIoTHubClient_ProcessLoop( &xAzureIoTHubClient,
                                                      sampleazureiotPROCESS_LOOP_TIMEOUT_MS );
