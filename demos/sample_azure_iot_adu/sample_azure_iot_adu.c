@@ -519,8 +519,10 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash( int32_t ullTimeoutInSec
                                                      sampleazureiotPROCESS_LOOP_TIMEOUT_MS );
 
             ullPreviousTimeout = ullGetUnixTime();
+
             if( xAzureIoTAduUpdateRequest.xWorkflow.xAction == eAzureIoTADUActionCancel )
             {
+                LogInfo( ( "Deployment was cancelled" ) );
                 return eAzureIoTSuccess;
             }
         }
@@ -889,6 +891,20 @@ static void prvAzureDemoTask( void * pvParameters )
 
                         xResult = prvSpoofNewVersion();
                         configASSERT( xResult = eAzureIoTSuccess );
+                    }
+                    else
+                    {
+                        xResult = AzureIoTADUClient_SendAgentState( &xAzureIoTADUClient,
+                                                                    &xAzureIoTHubClient,
+                                                                    &xADUDeviceProperties,
+                                                                    &xAzureIoTAduUpdateRequest,
+                                                                    eAzureIoTADUAgentStateIdle,
+                                                                    NULL,
+                                                                    ucScratchBuffer,
+                                                                    sizeof( ucScratchBuffer ),
+                                                                    NULL );
+
+                        xProcessUpdateRequest = false;
                     }
                 }
             }
