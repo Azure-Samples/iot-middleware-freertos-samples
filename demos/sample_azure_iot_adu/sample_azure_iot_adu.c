@@ -519,6 +519,10 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash( int32_t ullTimeoutInSec
                                                      sampleazureiotPROCESS_LOOP_TIMEOUT_MS );
 
             ullPreviousTimeout = ullGetUnixTime();
+            if( xAzureIoTAduUpdateRequest.xWorkflow.xAction == eAzureIoTADUActionCancel )
+            {
+                return eAzureIoTSuccess;
+            }
         }
 
         AzureIoTHTTP_Init( &xHTTP, &xHTTPTransport,
@@ -875,14 +879,17 @@ static void prvAzureDemoTask( void * pvParameters )
                 }
                 else
                 {
-                    xResult = prvDownloadUpdateImageIntoFlash(sampleazureiotADU_DOWNLOAD_TIMEOUT);
+                    xResult = prvDownloadUpdateImageIntoFlash( sampleazureiotADU_DOWNLOAD_TIMEOUT );
                     configASSERT( xResult == eAzureIoTSuccess );
 
-                    xResult = prvEnableImageAndResetDevice();
-                    configASSERT( xResult == eAzureIoTSuccess );
+                    if( xAzureIoTAduUpdateRequest.xWorkflow.xAction == eAzureIoTADUActionApplyDownload )
+                    {
+                        xResult = prvEnableImageAndResetDevice();
+                        configASSERT( xResult == eAzureIoTSuccess );
 
-                    xResult = prvSpoofNewVersion();
-                    configASSERT( xResult = eAzureIoTSuccess );
+                        xResult = prvSpoofNewVersion();
+                        configASSERT( xResult = eAzureIoTSuccess );
+                    }
                 }
             }
 
