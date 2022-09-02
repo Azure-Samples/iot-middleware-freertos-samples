@@ -523,7 +523,7 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash( int32_t ullTimeoutInSec
             if( xAzureIoTAduUpdateRequest.xWorkflow.xAction == eAzureIoTADUActionCancel )
             {
                 LogInfo( ( "Deployment was cancelled" ) );
-                return eAzureIoTSuccess;
+                break;
             }
         }
 
