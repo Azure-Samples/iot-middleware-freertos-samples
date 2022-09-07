@@ -500,6 +500,11 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash()
                                                    ( uint8_t * ) pucHttpDataBufferPtr,
                                                    ulHttpDataBufferLength );
 
+            if( xResult != eAzureIoTSuccess )
+            {
+                LogError( ( "[ADU] Error writing to flash. " ) );
+                return eAzureIoTErrorFailed;
+            }
             /* Advance the offset */
             xImage.ulCurrentOffset += ( int32_t ) ulHttpDataBufferLength;
         }
