@@ -14,9 +14,7 @@
 
 #include "sample_adu_jws.h"
 
-#include "demo_config.h"
 #include "sample_azure_iot_pnp_data_if.h"
-
 /*-----------------------------------------------------------*/
 
 #define INDEFINITE_TIME    ( ( time_t ) -1 )
@@ -130,26 +128,23 @@ static void prvSkipPropertyAndValue( AzureIoTJSONReader_t * pxReader )
 }
 /*-----------------------------------------------------------*/
 
-/**
- * @brief Verifies if the current image version matches the "installedCriteria" version in the
- *        installation step of the ADU Update Manifest.
- *
- * @param pxAduUpdateRequest Parsed update request, with the ADU update manifest.
- * @return true If the current image version matches the installedCriteria.
- * @return false If the current image version does not match the installedCriteria.
- */
-static bool prvDoesInstalledCriteriaMatchCurrentVersion( const AzureIoTADUUpdateRequest_t * pxAduUpdateRequest )
+static bool prvIsUpdateAlreadyInstalled( const AzureIoTADUUpdateRequest_t * pxAduUpdateRequest )
 {
-    /*
-     * In a production solution, each step should be validated against the version of
-     * each component the update step applies to (matching through the `handler` name).
-     */
-    if( ( ( sizeof(democonfigADU_UPDATE_VERSION) - 1 ) ==
-          pxAduUpdateRequest->xUpdateManifest.xInstructions.pxSteps[ 0 ].ulInstalledCriteriaLength ) &&
-        ( strncmp(
-              ( const char * ) democonfigADU_UPDATE_VERSION,
-              ( const char * ) pxAduUpdateRequest->xUpdateManifest.xInstructions.pxSteps[ 0 ].pucInstalledCriteria,
-              ( size_t ) pxAduUpdateRequest->xUpdateManifest.xInstructions.pxSteps[ 0 ].ulInstalledCriteriaLength ) == 0 ) )
+    if( ( pxAduUpdateRequest->xUpdateManifest.xUpdateId.ulNameLength ==
+          xADUDeviceProperties.xCurrentUpdateId.ulNameLength ) &&
+        ( strncmp( ( const char * ) pxAduUpdateRequest->xUpdateManifest.xUpdateId.pucName,
+                   ( const char * ) xADUDeviceProperties.xCurrentUpdateId.ucName,
+                   ( size_t ) xADUDeviceProperties.xCurrentUpdateId.ulNameLength ) == 0 ) &&
+        ( pxAduUpdateRequest->xUpdateManifest.xUpdateId.ulProviderLength ==
+          xADUDeviceProperties.xCurrentUpdateId.ulProviderLength ) &&
+        ( strncmp( ( const char * ) pxAduUpdateRequest->xUpdateManifest.xUpdateId.pucProvider,
+                   ( const char * ) xADUDeviceProperties.xCurrentUpdateId.ucProvider,
+                   ( size_t ) xADUDeviceProperties.xCurrentUpdateId.ulProviderLength ) == 0 ) &&
+        ( pxAduUpdateRequest->xUpdateManifest.xUpdateId.ulVersionLength ==
+          xADUDeviceProperties.xCurrentUpdateId.ulVersionLength ) &&
+        ( strncmp( ( const char * ) pxAduUpdateRequest->xUpdateManifest.xUpdateId.pucVersion,
+                   ( const char * ) xADUDeviceProperties.xCurrentUpdateId.ucVersion,
+                   ( size_t ) xADUDeviceProperties.xCurrentUpdateId.ulVersionLength ) == 0 ) )
     {
         return true;
     }
@@ -158,7 +153,6 @@ static bool prvDoesInstalledCriteriaMatchCurrentVersion( const AzureIoTADUUpdate
         return false;
     }
 }
-
 /*-----------------------------------------------------------*/
 
 /**
@@ -175,7 +169,7 @@ static bool prvDoesInstalledCriteriaMatchCurrentVersion( const AzureIoTADUUpdate
  */
 static AzureIoTADURequestDecision_t prvUserDecideShouldStartUpdate( AzureIoTADUUpdateRequest_t * pxAduUpdateRequest )
 {
-    if( prvDoesInstalledCriteriaMatchCurrentVersion( pxAduUpdateRequest ) )
+    if( prvIsUpdateAlreadyInstalled( pxAduUpdateRequest ) )
     {
         LogInfo( ( "[ADU] Rejecting update request (current version is up-to-date)" ) );
         return eAzureIoTADURequestDecisionReject;

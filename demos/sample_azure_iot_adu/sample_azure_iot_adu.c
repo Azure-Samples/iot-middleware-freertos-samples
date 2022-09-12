@@ -128,8 +128,6 @@
  */
 #define ADU_HEADER_BUFFER_SIZE                                512
 
-#define democonfigADU_UPDATE_ID                               "{\"provider\":\"" democonfigADU_UPDATE_PROVIDER "\",\"name\":\"" democonfigADU_UPDATE_NAME "\",\"version\":\"" democonfigADU_UPDATE_VERSION "\"}"
-
 /*-----------------------------------------------------------*/
 
 /**
@@ -164,8 +162,15 @@ AzureIoTADUClientDeviceProperties_t xADUDeviceProperties =
     .ulManufacturerLength                     = sizeof( democonfigADU_DEVICE_MANUFACTURER ) - 1,
     .ucModel                                  = ( const uint8_t * ) democonfigADU_DEVICE_MODEL,
     .ulModelLength                            = sizeof( democonfigADU_DEVICE_MODEL ) - 1,
-    .ucCurrentUpdateId                        = ( const uint8_t * ) democonfigADU_UPDATE_ID,
-    .ulCurrentUpdateIdLength                  = sizeof( democonfigADU_UPDATE_ID ) - 1,
+    .xCurrentUpdateId                         =
+    {
+        .ucProvider                           = ( const uint8_t * ) democonfigADU_UPDATE_PROVIDER,
+        .ulProviderLength                     = sizeof( democonfigADU_UPDATE_PROVIDER ) - 1,
+        .ucName                               = ( const uint8_t * ) democonfigADU_UPDATE_NAME,
+        .ulNameLength                         = sizeof( democonfigADU_UPDATE_NAME ) - 1,
+        .ucVersion                            = ( const uint8_t * ) democonfigADU_UPDATE_VERSION,
+        .ulVersionLength                      = sizeof( democonfigADU_UPDATE_VERSION ) - 1
+    },
     .ucDeliveryOptimizationAgentVersion       = NULL,
     .ulDeliveryOptimizationAgentVersionLength = 0
 };
@@ -640,7 +645,7 @@ static AzureIoTResult_t prvSpoofNewVersion( void )
         LogError( ( "[ADU] New ADU update version for simulator not given." ) );
     #endif
     LogInfo( ( "[ADU] Device Version %.*s",
-               xADUDeviceProperties.ulCurrentUpdateIdLength, xADUDeviceProperties.ucCurrentUpdateId ) );
+               xADUDeviceProperties.xCurrentUpdateId.ulVersionLength, xADUDeviceProperties.xCurrentUpdateId.ucVersion ) );
     return AzureIoTADUClient_SendAgentState( &xAzureIoTADUClient,
                                              &xAzureIoTHubClient,
                                              &xADUDeviceProperties,
