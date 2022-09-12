@@ -879,7 +879,7 @@ static void prvAzureDemoTask( void * pvParameters )
 
                     xProcessUpdateRequest = false;
                 }
-                else
+                else if( xAzureIoTAduUpdateRequest.xWorkflow.xAction == eAzureIoTADUActionApplyDownload )
                 {
                     xResult = prvDownloadUpdateImageIntoFlash( sampleazureiotADU_DOWNLOAD_TIMEOUT );
                     configASSERT( xResult == eAzureIoTSuccess );
@@ -906,6 +906,10 @@ static void prvAzureDemoTask( void * pvParameters )
 
                         xProcessUpdateRequest = false;
                     }
+                }
+                else
+                {
+                    LogInfo( ( "Unknown action received: %i", xAzureIoTAduUpdateRequest.xWorkflow.xAction ) );
                 }
             }
 
