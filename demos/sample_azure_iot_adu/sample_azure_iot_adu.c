@@ -130,6 +130,9 @@
 
 #define democonfigADU_UPDATE_ID                               "{\"provider\":\"" democonfigADU_UPDATE_PROVIDER "\",\"name\":\"" democonfigADU_UPDATE_NAME "\",\"version\":\"" democonfigADU_UPDATE_VERSION "\"}"
 
+#ifdef democonfigADU_UPDATE_NEW_VERSION
+#define democonfigADU_SPOOFED_UPDATE_ID                       "{\"provider\":\"" democonfigADU_UPDATE_PROVIDER "\",\"name\":\"" democonfigADU_UPDATE_NAME "\",\"version\":\"" democonfigADU_UPDATE_NEW_VERSION "\"}"
+#endif
 /*-----------------------------------------------------------*/
 
 /**
@@ -634,8 +637,8 @@ static AzureIoTResult_t prvEnableImageAndResetDevice()
 static AzureIoTResult_t prvSpoofNewVersion( void )
 {
     #ifdef democonfigADU_UPDATE_NEW_VERSION
-        xADUDeviceProperties.xCurrentUpdateId.ucVersion = ( const uint8_t * ) democonfigADU_UPDATE_NEW_VERSION;
-        xADUDeviceProperties.xCurrentUpdateId.ulVersionLength = strlen( democonfigADU_UPDATE_NEW_VERSION );
+        xADUDeviceProperties.ucCurrentUpdateId = ( const uint8_t * ) democonfigADU_SPOOFED_UPDATE_ID;
+        xADUDeviceProperties.ulCurrentUpdateIdLength = strlen( democonfigADU_SPOOFED_UPDATE_ID );
     #else
         LogError( ( "[ADU] New ADU update version for simulator not given." ) );
     #endif
