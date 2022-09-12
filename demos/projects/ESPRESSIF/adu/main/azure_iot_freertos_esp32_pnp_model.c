@@ -144,7 +144,7 @@ static bool prvDoesInstalledCriteriaMatchCurrentVersion( const AzureIoTADUUpdate
      * In a production solution, each step should be validated against the version of
      * each component the update step applies to (matching through the `handler` name).
      */
-    if( ( ( sizeof(democonfigADU_UPDATE_VERSION) - 1 ) ==
+    if( ( ( sizeof( democonfigADU_UPDATE_VERSION ) - 1 ) ==
           pxAduUpdateRequest->xUpdateManifest.xInstructions.pxSteps[ 0 ].ulInstalledCriteriaLength ) &&
         ( strncmp(
               ( const char * ) democonfigADU_UPDATE_VERSION,
