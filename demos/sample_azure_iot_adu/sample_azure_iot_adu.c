@@ -884,7 +884,9 @@ static void prvAzureDemoTask( void * pvParameters )
                     xResult = prvDownloadUpdateImageIntoFlash( sampleazureiotADU_DOWNLOAD_TIMEOUT );
                     configASSERT( xResult == eAzureIoTSuccess );
 
-                    /* Check xProcessUpdateRequest again in case a new version came in that was invalid. */
+                    /* In prvDownloadUpdateImageIntoFlash, we make a call to the _ProcessLoop() function */
+                    /* which could bring in a new or cancelled update. */
+                    /* Check xProcessUpdateRequest and the action again in case a new version came in that was invalid. */
                     if( xProcessUpdateRequest && ( xAzureIoTAduUpdateRequest.xWorkflow.xAction == eAzureIoTADUActionApplyDownload ) )
                     {
                         xResult = prvEnableImageAndResetDevice();
