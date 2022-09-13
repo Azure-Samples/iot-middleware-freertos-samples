@@ -20,12 +20,6 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-/*
- * TODO: In future improvement, compare sampleazureiotMODEL_ID macro definition
- *       and make sure that it is "dtmi:com:example:Thermostat;1",
- *       and fail compilation otherwise.
- */
-
 /*-----------------------------------------------------------*/
 
 /**
@@ -256,12 +250,12 @@ static bool prvDoesInstalledCriteriaMatchCurrentVersion( const AzureIoTADUUpdate
      * In a production solution, each step should be validated against the version of
      * each component the update step applies to (matching through the `handler` name).
      */
-    if( ( xADUDeviceProperties.xCurrentUpdateId.ulVersionLength ==
+    if( ( ( sizeof( democonfigADU_UPDATE_VERSION ) - 1 ) ==
           pxAduUpdateRequest->xUpdateManifest.xInstructions.pxSteps[ 0 ].ulInstalledCriteriaLength ) &&
         ( strncmp(
-              ( const char * ) xADUDeviceProperties.xCurrentUpdateId.ucVersion,
+              ( const char * ) democonfigADU_UPDATE_VERSION,
               ( const char * ) pxAduUpdateRequest->xUpdateManifest.xInstructions.pxSteps[ 0 ].pucInstalledCriteria,
-              ( size_t ) xADUDeviceProperties.xCurrentUpdateId.ulVersionLength ) == 0 ) )
+              ( size_t ) pxAduUpdateRequest->xUpdateManifest.xInstructions.pxSteps[ 0 ].ulInstalledCriteriaLength ) == 0 ) )
     {
         return true;
     }
