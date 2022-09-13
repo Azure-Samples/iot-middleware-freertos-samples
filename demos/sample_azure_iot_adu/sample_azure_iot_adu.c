@@ -124,9 +124,9 @@
 
 /**
  * @brief Timeout for downloading the update image and calling the
- * AzureIoTHubClient_ProcessLoop() function
+ * AzureIoTHubClient_ProcessLoop() function (in seconds)
  */
-#define sampleazureiotADU_DOWNLOAD_TIMEOUT                    ( 10 )
+#define sampleazureiotADU_DOWNLOAD_TIMEOUT_SEC                ( 10 )
 
 /**
  * @brief Buffer size for ADU HTTP download headers
@@ -881,7 +881,12 @@ static void prvAzureDemoTask( void * pvParameters )
                 }
                 else if( xAzureIoTAduUpdateRequest.xWorkflow.xAction == eAzureIoTADUActionApplyDownload )
                 {
-                    xResult = prvDownloadUpdateImageIntoFlash( sampleazureiotADU_DOWNLOAD_TIMEOUT );
+                    xResult = prvDownloadUpdateImageIntoFlash( sampleazureiotADU_DOWNLOAD_TIMEOUT_SEC );
+                    configASSERT( xResult == eAzureIoTSuccess );
+
+                    LogInfo( ( "Checking for ADU twin updates one more time before committing to update." ) );
+                    xResult = AzureIoTHubClient_ProcessLoop( &xAzureIoTHubClient,
+                                                             sampleazureiotPROCESS_LOOP_TIMEOUT_MS );
                     configASSERT( xResult == eAzureIoTSuccess );
 
                     /* In prvDownloadUpdateImageIntoFlash, we make a call to the _ProcessLoop() function */
