@@ -123,6 +123,12 @@
 #define sampleazureiotSUBSCRIBE_TIMEOUT                       ( 10 * 1000U )
 
 /**
+ * @brief Timeout for downloading the update image and calling the
+ * AzureIoTHubClient_ProcessLoop() function (in seconds)
+ */
+#define sampleazureiotADU_DOWNLOAD_TIMEOUT_SEC                ( 10 )
+
+/**
  * @brief Buffer size for ADU HTTP download headers
  *
  */
@@ -138,7 +144,7 @@
 /**
  * @brief Unix time.
  *
- * @return Time in milliseconds.
+ * @return Time in seconds.
  */
 uint64_t ullGetUnixTime( void );
 /*-----------------------------------------------------------*/
@@ -418,7 +424,7 @@ static void prvParseAduFileUrl( AzureIoTADUUpdateManifestFileUrl_t xFileUrl,
     ( void ) memcpy( *pucPath, pcPathStart, *pulPathLength );
 }
 
-static AzureIoTResult_t prvDownloadUpdateImageIntoFlash()
+static AzureIoTResult_t prvDownloadUpdateImageIntoFlash( int32_t ullTimeoutInSec )
 {
     AzureIoTResult_t xResult;
     AzureIoTHTTPResult_t xHttpResult;
@@ -429,6 +435,8 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash()
     uint32_t ulFileUrlHostLength;
     uint8_t * pucFileUrlPath;
     uint32_t ulFileUrlPathLength;
+    uint64_t ullPreviousTimeout;
+    uint64_t ullCurrentTime;
 
     /*HTTP Connection */
     AzureIoTTransportInterface_t xHTTPTransport;
@@ -495,8 +503,28 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash()
 
     LogInfo( ( "[ADU] Send HTTP request." ) );
 
+    ullPreviousTimeout = ullGetUnixTime();
+
     while( xImage.ulCurrentOffset < xImage.ulImageFileSize )
     {
+        ullCurrentTime = ullGetUnixTime();
+
+        if( ullCurrentTime - ullPreviousTimeout > ullTimeoutInSec )
+        {
+            LogInfo( ( "%i second timeout. Taking a break from downloading image.", ullTimeoutInSec ) );
+            LogInfo( ( "Receiving messages from IoT Hub." ) );
+            xResult = AzureIoTHubClient_ProcessLoop( &xAzureIoTHubClient,
+                                                     sampleazureiotPROCESS_LOOP_TIMEOUT_MS );
+
+            ullPreviousTimeout = ullGetUnixTime();
+
+            if( xAzureIoTAduUpdateRequest.xWorkflow.xAction == eAzureIoTADUActionCancel )
+            {
+                LogInfo( ( "Deployment was cancelled" ) );
+                break;
+            }
+        }
+
         AzureIoTHTTP_Init( &xHTTP, &xHTTPTransport,
                            ( const char * ) pucFileUrlHost,
                            ulFileUrlHostLength - 1, /* minus the null-terminator. */
@@ -833,17 +861,62 @@ static void prvAzureDemoTask( void * pvParameters )
                                                      sampleazureiotPROCESS_LOOP_TIMEOUT_MS );
             configASSERT( xResult == eAzureIoTSuccess );
 
-            /* TODO: REMOVE !xDidDeviceUpdate for NXP once properly implemented */
             if( xProcessUpdateRequest && !xDidDeviceUpdate )
             {
-                xResult = prvDownloadUpdateImageIntoFlash();
-                configASSERT( xResult == eAzureIoTSuccess );
+                if( xAzureIoTAduUpdateRequest.xWorkflow.xAction == eAzureIoTADUActionCancel )
+                {
+                    xResult = AzureIoTADUClient_SendAgentState( &xAzureIoTADUClient,
+                                                                &xAzureIoTHubClient,
+                                                                &xADUDeviceProperties,
+                                                                &xAzureIoTAduUpdateRequest,
+                                                                eAzureIoTADUAgentStateIdle,
+                                                                NULL,
+                                                                ucScratchBuffer,
+                                                                sizeof( ucScratchBuffer ),
+                                                                NULL );
 
-                xResult = prvEnableImageAndResetDevice();
-                configASSERT( xResult == eAzureIoTSuccess );
+                    xProcessUpdateRequest = false;
+                }
+                else if( xAzureIoTAduUpdateRequest.xWorkflow.xAction == eAzureIoTADUActionApplyDownload )
+                {
+                    xResult = prvDownloadUpdateImageIntoFlash( sampleazureiotADU_DOWNLOAD_TIMEOUT_SEC );
+                    configASSERT( xResult == eAzureIoTSuccess );
 
-                xResult = prvSpoofNewVersion();
-                configASSERT( xResult = eAzureIoTSuccess );
+                    LogInfo( ( "Checking for ADU twin updates one more time before committing to update." ) );
+                    xResult = AzureIoTHubClient_ProcessLoop( &xAzureIoTHubClient,
+                                                             sampleazureiotPROCESS_LOOP_TIMEOUT_MS );
+                    configASSERT( xResult == eAzureIoTSuccess );
+
+                    /* In prvDownloadUpdateImageIntoFlash, we make a call to the _ProcessLoop() function */
+                    /* which could bring in a new or cancelled update. */
+                    /* Check xProcessUpdateRequest and the action again in case a new version came in that was invalid. */
+                    if( xProcessUpdateRequest && ( xAzureIoTAduUpdateRequest.xWorkflow.xAction == eAzureIoTADUActionApplyDownload ) )
+                    {
+                        xResult = prvEnableImageAndResetDevice();
+                        configASSERT( xResult == eAzureIoTSuccess );
+
+                        xResult = prvSpoofNewVersion();
+                        configASSERT( xResult = eAzureIoTSuccess );
+                    }
+                    else
+                    {
+                        xResult = AzureIoTADUClient_SendAgentState( &xAzureIoTADUClient,
+                                                                    &xAzureIoTHubClient,
+                                                                    &xADUDeviceProperties,
+                                                                    &xAzureIoTAduUpdateRequest,
+                                                                    eAzureIoTADUAgentStateIdle,
+                                                                    NULL,
+                                                                    ucScratchBuffer,
+                                                                    sizeof( ucScratchBuffer ),
+                                                                    NULL );
+
+                        xProcessUpdateRequest = false;
+                    }
+                }
+                else
+                {
+                    LogInfo( ( "Unknown action received: %i", xAzureIoTAduUpdateRequest.xWorkflow.xAction ) );
+                }
             }
 
             /* Leave Connection Idle for some time. */
