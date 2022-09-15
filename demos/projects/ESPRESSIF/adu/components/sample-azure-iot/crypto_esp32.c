@@ -1,7 +1,7 @@
 /* Copyright (c) Microsoft Corporation.
    Licensed under the MIT License. */
 
-#include "crypto.h"
+#include "azure_sample_crypto.h"
 
 /* mbed TLS includes. */
 #include "mbedtls/md.h"

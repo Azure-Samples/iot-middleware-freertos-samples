@@ -13,7 +13,7 @@
 #include "azure_iot_json_reader.h"
 #include "azure_iot_json_writer.h"
 
-#include "sample_adu_jws.h"
+#include "azure_sample_adu_jws.h"
 
 /* FreeRTOS */
 /* This task provides taskDISABLE_INTERRUPTS, used by configASSERT */

@@ -29,7 +29,7 @@
 #include "transport_socket.h"
 
 /* Crypto helper header. */
-#include "crypto.h"
+#include "azure_sample_crypto.h"
 
 /* Demo Specific configs. */
 #include "demo_config.h"
