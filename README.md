@@ -16,6 +16,8 @@ We have two sets of samples:
 - **Azure IoT Central**: These samples leverage Azure IoT Central, Azure DPS (Device Provisioning Service) and, Plug and Play. Azure subscription is not required during the initial 7 days of the [IoT Central Free Trial](https://azure.microsoft.com/pricing/details/iot-central/#pricing).
 - **Azure IoT Hub**: These samples leverage Azure IoT Hub, DPS (Device Provisioning) and Plug and Play.
 
+There are several other alternatives to get MCU-based devices connected to Azure. See [Other Azure IoT SDKs](https://learn.microsoft.com/azure/iot-develop/concepts-using-c-sdk-and-embedded-c-sdk) to learn more.
+
 ### IoT Central Samples
 
 Below you will find samples for development kits showing how to use the Azure IoT middleware for FreeRTOS connected to Azure IoT Central. The following samples support these development kits:
