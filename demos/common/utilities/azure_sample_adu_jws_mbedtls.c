@@ -48,7 +48,7 @@ typedef struct prvJWSValidationContext
     uint8_t * ucJWKHeader;
     uint8_t * ucJWKPayload;
     uint8_t * ucJWKSignature;
-    uint8_t * ucScratchCalculatationBuffer;
+    uint8_t * ucScratchCalculationBuffer;
     uint8_t * ucJWSPayload;
     uint8_t * ucJWSSignature;
     uint8_t * ucSigningKeyN;
@@ -301,7 +301,7 @@ static AzureIoTResult_t prvJWS_RS256Verify( uint8_t * pucInput,
         xResult = eAzureIoTErrorFailed;
     }
 
-    return eAzureIoTSuccess;
+    return xResult;
 }
 
 static AzureIoTResult_t prvFindSJWKValue( AzureIoTJSONReader_t * pxPayload,
@@ -641,7 +641,7 @@ static AzureIoTResult_t prvValidateRootKey( prvJWSValidationContext_t * pxManife
         return eAzureIoTErrorFailed;
     }
 
-    if( !az_span_is_content_equal( az_span_create( ( uint8_t * ) AzureIoTADURootKeyId, sizeof( AzureIoTADURootKeyId ) - 1 ), pxManifestContext->kidSpan ) )
+    if( !az_span_is_content_equal( az_span_create( ( uint8_t * ) AzureIoTADURootKeyId, AzureIoTADURootKeyIdSize ), pxManifestContext->kidSpan ) )
     {
         LogError( ( "[JWS] Using the wrong root key" ) );
         return eAzureIoTErrorFailed;
@@ -817,13 +817,13 @@ AzureIoTResult_t JWS_ManifestAuthenticate( const uint8_t * pucManifest,
 
     /*------------------- Verify the signature ------------------------*/
 
-    xManifestContext.ucScratchCalculatationBuffer = ucReusableScratchSpaceHead;
+    xManifestContext.ucScratchCalculationBuffer = ucReusableScratchSpaceHead;
     ucReusableScratchSpaceHead += jwsSHA_CALCULATION_SCRATCH_SIZE;
     xResult = prvJWS_RS256Verify( xManifestContext.pucJWKBase64EncodedHeader, xManifestContext.ulJWKBase64EncodedHeaderLength + xManifestContext.ulJWKBase64EncodedPayloadLength + 1,
                                   xManifestContext.ucJWKSignature, xManifestContext.outJWKSignatureLength,
-                                  ( uint8_t * ) AzureIoTADURootKeyN, sizeof( AzureIoTADURootKeyN ),
-                                  ( uint8_t * ) AzureIoTADURootKeyE, sizeof( AzureIoTADURootKeyE ),
-                                  xManifestContext.ucScratchCalculatationBuffer, jwsSHA_CALCULATION_SCRATCH_SIZE );
+                                  ( uint8_t * ) AzureIoTADURootKeyN, AzureIoTADURootKeyNSize,
+                                  ( uint8_t * ) AzureIoTADURootKeyE, AzureIoTADURootKeyESize,
+                                  xManifestContext.ucScratchCalculationBuffer, jwsSHA_CALCULATION_SCRATCH_SIZE );
 
     if( xResult != eAzureIoTSuccess )
     {
@@ -880,7 +880,7 @@ AzureIoTResult_t JWS_ManifestAuthenticate( const uint8_t * pucManifest,
                                   xManifestContext.ucJWSSignature, xManifestContext.outJWSSignatureLength,
                                   xManifestContext.ucSigningKeyN, xManifestContext.outSigningKeyNLength,
                                   xManifestContext.ucSigningKeyE, xManifestContext.outSigningKeyELength,
-                                  xManifestContext.ucScratchCalculatationBuffer, jwsSHA_CALCULATION_SCRATCH_SIZE );
+                                  xManifestContext.ucScratchCalculationBuffer, jwsSHA_CALCULATION_SCRATCH_SIZE );
 
     if( xResult != eAzureIoTSuccess )
     {
