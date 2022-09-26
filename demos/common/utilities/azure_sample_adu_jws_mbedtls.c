@@ -278,7 +278,7 @@ static AzureIoTResult_t prvJWS_RS256Verify( uint8_t * pucInput,
     }
     else
     {
-      xResult = eAzureIoTSuccess;
+        xResult = eAzureIoTSuccess;
     }
 
     return xResult;
@@ -481,8 +481,8 @@ static AzureIoTResult_t prvBase64DecodeJWK( prvJWSValidationContext_t * pxManife
     az_result xCoreResult;
 
     xCoreResult = az_base64_url_decode( az_span_create( pxManifestContext->ucJWKHeader, jwsJWK_HEADER_SIZE ),
-                                    az_span_create( pxManifestContext->pucJWKBase64EncodedHeader, pxManifestContext->ulJWKBase64EncodedHeaderLength ),
-                                    &pxManifestContext->outJWKHeaderLength );
+                                        az_span_create( pxManifestContext->pucJWKBase64EncodedHeader, pxManifestContext->ulJWKBase64EncodedHeaderLength ),
+                                        &pxManifestContext->outJWKHeaderLength );
 
     if( az_result_failed( xCoreResult ) )
     {
@@ -497,8 +497,8 @@ static AzureIoTResult_t prvBase64DecodeJWK( prvJWSValidationContext_t * pxManife
     }
 
     xCoreResult = az_base64_url_decode( az_span_create( pxManifestContext->ucJWKPayload, jwsJWK_PAYLOAD_SIZE ),
-                                    az_span_create( pxManifestContext->pucJWKBase64EncodedPayload, pxManifestContext->ulJWKBase64EncodedPayloadLength ),
-                                    &pxManifestContext->outJWKPayloadLength );
+                                        az_span_create( pxManifestContext->pucJWKBase64EncodedPayload, pxManifestContext->ulJWKBase64EncodedPayloadLength ),
+                                        &pxManifestContext->outJWKPayloadLength );
 
     if( az_result_failed( xCoreResult ) )
     {
@@ -513,8 +513,8 @@ static AzureIoTResult_t prvBase64DecodeJWK( prvJWSValidationContext_t * pxManife
     }
 
     xCoreResult = az_base64_url_decode( az_span_create( pxManifestContext->ucJWKSignature, jwsSIGNATURE_SIZE ),
-                                    az_span_create( pxManifestContext->pucJWKBase64EncodedSignature, pxManifestContext->ulJWKBase64EncodedSignatureLength ),
-                                    &pxManifestContext->outJWKSignatureLength );
+                                        az_span_create( pxManifestContext->pucJWKBase64EncodedSignature, pxManifestContext->ulJWKBase64EncodedSignatureLength ),
+                                        &pxManifestContext->outJWKSignatureLength );
 
     if( az_result_failed( xCoreResult ) )
     {
@@ -575,8 +575,8 @@ static AzureIoTResult_t prvBase64DecodeJWSHeaderAndPayload( prvJWSValidationCont
     az_result xCoreResult;
 
     xCoreResult = az_base64_url_decode( az_span_create( pxManifestContext->ucJWSPayload, jwsJWS_PAYLOAD_SIZE ),
-                                    az_span_create( pxManifestContext->pucBase64EncodedPayload, pxManifestContext->ulBase64EncodedPayloadLength ),
-                                    &pxManifestContext->outJWSPayloadLength );
+                                        az_span_create( pxManifestContext->pucBase64EncodedPayload, pxManifestContext->ulBase64EncodedPayloadLength ),
+                                        &pxManifestContext->outJWSPayloadLength );
 
     if( az_result_failed( xCoreResult ) )
     {
@@ -591,8 +591,8 @@ static AzureIoTResult_t prvBase64DecodeJWSHeaderAndPayload( prvJWSValidationCont
     }
 
     xCoreResult = az_base64_url_decode( az_span_create( pxManifestContext->ucJWSSignature, jwsSIGNATURE_SIZE ),
-                                    az_span_create( pxManifestContext->pucBase64EncodedSignature, pxManifestContext->ulBase64SignatureLength ),
-                                    &pxManifestContext->outJWSSignatureLength );
+                                        az_span_create( pxManifestContext->pucBase64EncodedSignature, pxManifestContext->ulBase64SignatureLength ),
+                                        &pxManifestContext->outJWSSignatureLength );
 
     if( az_result_failed( xCoreResult ) )
     {
@@ -726,8 +726,8 @@ AzureIoTResult_t JWS_ManifestAuthenticate( const uint8_t * pucManifest,
     xManifestContext.ucJWSHeader = ucPersistentScratchSpaceHead;
     ucPersistentScratchSpaceHead += jwsJWS_HEADER_SIZE;
     xCoreResult = az_base64_url_decode( az_span_create( xManifestContext.ucJWSHeader, jwsJWS_HEADER_SIZE ),
-                                    az_span_create( xManifestContext.pucBase64EncodedHeader, xManifestContext.ulBase64EncodedHeaderLength ),
-                                    &xManifestContext.outJWSHeaderLength );
+                                        az_span_create( xManifestContext.pucBase64EncodedHeader, xManifestContext.ulBase64EncodedHeaderLength ),
+                                        &xManifestContext.outJWSHeaderLength );
 
     if( az_result_failed( xCoreResult ) )
     {
