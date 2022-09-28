@@ -486,7 +486,6 @@ static unsigned char root_cert_array[] = {
 
 #define democonfigCHUNK_DOWNLOAD_SIZE   4096
 
-// TODO: Fill in values for NXP versions
 #define democonfigADU_DEVICE_MANUFACTURER "NXP"
 #define democonfigADU_DEVICE_MODEL        "MIMXRT1060"
 #define democonfigADU_UPDATE_PROVIDER     "NXP"
