@@ -212,11 +212,6 @@ static AzureIoTHubClientComponent_t pnp_components[ sampleaduPNP_COMPONENTS_LIST
 /* as they will reboot before getting to the place where this is used. */
 bool xDidDeviceUpdate = false;
 
-#ifdef sampleazureiotMODEL_ID
-    #undef sampleazureiotMODEL_ID
-    #define sampleazureiotMODEL_ID    "dtmi:azure:iot:deviceUpdateModel;1"
-#endif
-
 /*-----------------------------------------------------------*/
 
 #ifdef democonfigENABLE_DPS_SAMPLE
@@ -767,8 +762,8 @@ static void prvAzureDemoTask( void * pvParameters )
 
         xHubOptions.pucModuleID = ( const uint8_t * ) democonfigMODULE_ID;
         xHubOptions.ulModuleIDLength = sizeof( democonfigMODULE_ID ) - 1;
-        xHubOptions.pucModelID = ( const uint8_t * ) sampleazureiotMODEL_ID;
-        xHubOptions.ulModelIDLength = sizeof( sampleazureiotMODEL_ID ) - 1;
+        xHubOptions.pucModelID = ( const uint8_t * ) AzureIoTADUModelID;
+        xHubOptions.ulModelIDLength = AzureIoTADUModelIDLength;
 
         #ifdef sampleaduPNP_COMPONENTS_LIST_LENGTH
             #if sampleaduPNP_COMPONENTS_LIST_LENGTH > 0
