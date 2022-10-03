@@ -11,7 +11,7 @@
 #include "mbedtls/ctr_drbg.h"
 #include "mbedtls/entropy.h"
 
-#include "sample_adu_jws.h"
+#include "azure_sample_adu_jws.h"
 #include "demo_config.h"
 #include "FreeRTOSConfig.h"
 

@@ -13,16 +13,12 @@
 #include "azure_iot_json_reader.h"
 #include "azure_iot_json_writer.h"
 
+#include "azure_sample_adu_jws.h"
+
 /* FreeRTOS */
 /* This task provides taskDISABLE_INTERRUPTS, used by configASSERT */
 #include "FreeRTOS.h"
 #include "task.h"
-
-/*
- * TODO: In future improvement, compare sampleazureiotMODEL_ID macro definition
- *       and make sure that it is "dtmi:com:example:Thermostat;1",
- *       and fail compilation otherwise.
- */
 
 /*-----------------------------------------------------------*/
 
@@ -63,6 +59,11 @@
  */
 #define sampleazureiotMESSAGE                             "{\"" sampleazureiotTELEMETRY_NAME "\":%0.2f}"
 
+/**
+ * @brief Buffer for ADU to copy values into.
+ *
+ */
+static uint8_t ucADUScratchBuffer[ jwsSCRATCH_BUFFER_SIZE ];
 
 /* Device values */
 static double xDeviceCurrentTemperature = sampleazureiotDEFAULT_START_TEMP_CELSIUS;
@@ -249,12 +250,12 @@ static bool prvDoesInstalledCriteriaMatchCurrentVersion( const AzureIoTADUUpdate
      * In a production solution, each step should be validated against the version of
      * each component the update step applies to (matching through the `handler` name).
      */
-    if( ( xADUDeviceProperties.xCurrentUpdateId.ulVersionLength ==
+    if( ( ( sizeof( democonfigADU_UPDATE_VERSION ) - 1 ) ==
           pxAduUpdateRequest->xUpdateManifest.xInstructions.pxSteps[ 0 ].ulInstalledCriteriaLength ) &&
         ( strncmp(
-              ( const char * ) xADUDeviceProperties.xCurrentUpdateId.ucVersion,
+              ( const char * ) democonfigADU_UPDATE_VERSION,
               ( const char * ) pxAduUpdateRequest->xUpdateManifest.xInstructions.pxSteps[ 0 ].pucInstalledCriteria,
-              ( size_t ) xADUDeviceProperties.xCurrentUpdateId.ulVersionLength ) == 0 ) )
+              ( size_t ) pxAduUpdateRequest->xUpdateManifest.xInstructions.pxSteps[ 0 ].ulInstalledCriteriaLength ) == 0 ) )
     {
         return true;
     }
@@ -369,26 +370,56 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
                 return;
             }
 
-            xRequestDecision = prvUserDecideShouldStartUpdate( &xAzureIoTAduUpdateRequest );
-
-            xAzIoTResult = AzureIoTADUClient_SendResponse(
-                &xAzureIoTADUClient,
-                &xAzureIoTHubClient,
-                xRequestDecision,
-                ulPropertyVersion,
-                pucWritablePropertyResponseBuffer,
-                ulWritablePropertyResponseBufferSize,
-                NULL );
-
-            if( xAzIoTResult != eAzureIoTSuccess )
+            if( xAzureIoTAduUpdateRequest.xWorkflow.xAction == eAzureIoTADUActionApplyDownload )
             {
-                LogError( ( "AzureIoTADUClient_GetResponse failed: result 0x%08x", xAzIoTResult ) );
-                return;
+                LogInfo( ( "Verifying JWS Manifest" ) );
+                xAzIoTResult = JWS_ManifestAuthenticate( xAzureIoTAduUpdateRequest.pucUpdateManifest,
+                                                         xAzureIoTAduUpdateRequest.ulUpdateManifestLength,
+                                                         xAzureIoTAduUpdateRequest.pucUpdateManifestSignature,
+                                                         xAzureIoTAduUpdateRequest.ulUpdateManifestSignatureLength,
+                                                         ucADUScratchBuffer,
+                                                         sizeof( ucADUScratchBuffer ) );
+
+                if( xAzIoTResult != eAzureIoTSuccess )
+                {
+                    LogError( ( "JWS_ManifestAuthenticate failed: JWS was not validated successfully: result 0x%08x", xAzIoTResult ) );
+                    return;
+                }
+
+                xRequestDecision = prvUserDecideShouldStartUpdate( &xAzureIoTAduUpdateRequest );
+
+                xAzIoTResult = AzureIoTADUClient_SendResponse(
+                    &xAzureIoTADUClient,
+                    &xAzureIoTHubClient,
+                    xRequestDecision,
+                    ulPropertyVersion,
+                    pucWritablePropertyResponseBuffer,
+                    ulWritablePropertyResponseBufferSize,
+                    NULL );
+
+                if( xAzIoTResult != eAzureIoTSuccess )
+                {
+                    LogError( ( "AzureIoTADUClient_GetResponse failed: result 0x%08x", xAzIoTResult ) );
+                    return;
+                }
+
+                if( xRequestDecision == eAzureIoTADURequestDecisionAccept )
+                {
+                    xProcessUpdateRequest = true;
+                }
             }
-
-            if( xRequestDecision == eAzureIoTADURequestDecisionAccept )
+            else if( xAzureIoTAduUpdateRequest.xWorkflow.xAction == eAzureIoTADUActionCancel )
             {
+                /*Nothing to do here but set process to "true", where we will then send state as "Idle" */
                 xProcessUpdateRequest = true;
+
+                LogInfo( ( "ADU manifest received: action cancelled" ) );
+            }
+            else
+            {
+                xProcessUpdateRequest = false;
+
+                LogInfo( ( "ADU manifest received: action unknown" ) );
             }
         }
         else

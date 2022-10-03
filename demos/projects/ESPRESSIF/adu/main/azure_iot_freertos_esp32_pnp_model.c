@@ -12,9 +12,11 @@
 #include "azure_iot_hub_client.h"
 #include "azure_iot_hub_client_properties.h"
 
-#include "sample_adu_jws.h"
+#include "azure_sample_adu_jws.h"
 
+#include "demo_config.h"
 #include "sample_azure_iot_pnp_data_if.h"
+
 /*-----------------------------------------------------------*/
 
 #define INDEFINITE_TIME    ( ( time_t ) -1 )
@@ -128,23 +130,26 @@ static void prvSkipPropertyAndValue( AzureIoTJSONReader_t * pxReader )
 }
 /*-----------------------------------------------------------*/
 
-static bool prvIsUpdateAlreadyInstalled( const AzureIoTADUUpdateRequest_t * pxAduUpdateRequest )
+/**
+ * @brief Verifies if the current image version matches the "installedCriteria" version in the
+ *        installation step of the ADU Update Manifest.
+ *
+ * @param pxAduUpdateRequest Parsed update request, with the ADU update manifest.
+ * @return true If the current image version matches the installedCriteria.
+ * @return false If the current image version does not match the installedCriteria.
+ */
+static bool prvDoesInstalledCriteriaMatchCurrentVersion( const AzureIoTADUUpdateRequest_t * pxAduUpdateRequest )
 {
-    if( ( pxAduUpdateRequest->xUpdateManifest.xUpdateId.ulNameLength ==
-          xADUDeviceProperties.xCurrentUpdateId.ulNameLength ) &&
-        ( strncmp( ( const char * ) pxAduUpdateRequest->xUpdateManifest.xUpdateId.pucName,
-                   ( const char * ) xADUDeviceProperties.xCurrentUpdateId.ucName,
-                   ( size_t ) xADUDeviceProperties.xCurrentUpdateId.ulNameLength ) == 0 ) &&
-        ( pxAduUpdateRequest->xUpdateManifest.xUpdateId.ulProviderLength ==
-          xADUDeviceProperties.xCurrentUpdateId.ulProviderLength ) &&
-        ( strncmp( ( const char * ) pxAduUpdateRequest->xUpdateManifest.xUpdateId.pucProvider,
-                   ( const char * ) xADUDeviceProperties.xCurrentUpdateId.ucProvider,
-                   ( size_t ) xADUDeviceProperties.xCurrentUpdateId.ulProviderLength ) == 0 ) &&
-        ( pxAduUpdateRequest->xUpdateManifest.xUpdateId.ulVersionLength ==
-          xADUDeviceProperties.xCurrentUpdateId.ulVersionLength ) &&
-        ( strncmp( ( const char * ) pxAduUpdateRequest->xUpdateManifest.xUpdateId.pucVersion,
-                   ( const char * ) xADUDeviceProperties.xCurrentUpdateId.ucVersion,
-                   ( size_t ) xADUDeviceProperties.xCurrentUpdateId.ulVersionLength ) == 0 ) )
+    /*
+     * In a production solution, each step should be validated against the version of
+     * each component the update step applies to (matching through the `handler` name).
+     */
+    if( ( ( sizeof( democonfigADU_UPDATE_VERSION ) - 1 ) ==
+          pxAduUpdateRequest->xUpdateManifest.xInstructions.pxSteps[ 0 ].ulInstalledCriteriaLength ) &&
+        ( strncmp(
+              ( const char * ) democonfigADU_UPDATE_VERSION,
+              ( const char * ) pxAduUpdateRequest->xUpdateManifest.xInstructions.pxSteps[ 0 ].pucInstalledCriteria,
+              ( size_t ) pxAduUpdateRequest->xUpdateManifest.xInstructions.pxSteps[ 0 ].ulInstalledCriteriaLength ) == 0 ) )
     {
         return true;
     }
@@ -153,6 +158,7 @@ static bool prvIsUpdateAlreadyInstalled( const AzureIoTADUUpdateRequest_t * pxAd
         return false;
     }
 }
+
 /*-----------------------------------------------------------*/
 
 /**
@@ -169,7 +175,7 @@ static bool prvIsUpdateAlreadyInstalled( const AzureIoTADUUpdateRequest_t * pxAd
  */
 static AzureIoTADURequestDecision_t prvUserDecideShouldStartUpdate( AzureIoTADUUpdateRequest_t * pxAduUpdateRequest )
 {
-    if( prvIsUpdateAlreadyInstalled( pxAduUpdateRequest ) )
+    if( prvDoesInstalledCriteriaMatchCurrentVersion( pxAduUpdateRequest ) )
     {
         LogInfo( ( "[ADU] Rejecting update request (current version is up-to-date)" ) );
         return eAzureIoTADURequestDecisionReject;
@@ -299,10 +305,15 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
             }
             else if( xAzureIoTAduUpdateRequest.xWorkflow.xAction == eAzureIoTADUActionCancel )
             {
+                /*Nothing to do here but set process to "true", where we will then send state as "Idle" */
+                xProcessUpdateRequest = true;
+
                 LogInfo( ( "ADU manifest received: action cancelled" ) );
             }
             else
             {
+                xProcessUpdateRequest = false;
+
                 LogInfo( ( "ADU manifest received: action unknown" ) );
             }
         }
