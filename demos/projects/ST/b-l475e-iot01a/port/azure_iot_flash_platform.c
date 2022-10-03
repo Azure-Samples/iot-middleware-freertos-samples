@@ -69,7 +69,7 @@ AzureIoTResult_t AzureIoTPlatform_Init( AzureADUImage_t * const pxAduImage )
     static FLASH_EraseInitTypeDef EraseInitStruct;
     uint32_t PAGEError;
     uint32_t FlashError = 0;
-    int sofar=0;
+    // int sofar=0;
 
     FLASH_OBProgramInitTypeDef  optionBytes;
 
@@ -80,28 +80,32 @@ AzureIoTResult_t AzureIoTPlatform_Init( AzureADUImage_t * const pxAduImage )
     EraseInitStruct.TypeErase   = FLASH_TYPEERASE_MASSERASE;
     // EraseInitStruct.Banks   = FLASH_BANK_2;
     
-
-    HAL_FLASH_Unlock();
-    HAL_FLASH_OB_Unlock();
-
-    LogInfo( ( "option bytes unlocked\r\n" ) );
+    /* Clear OPTVERR bit set on virgin samples. */
+    __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_OPTVERR);
     HAL_FLASHEx_OBGetConfig(&optionBytes); // Get current optionbytes configuration
     LogInfo( ( "get current option bytes\r\n" ) );
+
+    
+    // HAL_FLASH_OB_Unlock();
+
+    // LogInfo( ( "option bytes unlocked\r\n" ) );
+    
     // If BFB2 set, we will reset it
-    if ( optionBytes.USERConfig & OB_BFB2_ENABLE )
+    if ((optionBytes.USERConfig & OB_BFB2_ENABLE) == OB_BFB2_ENABLE)
     {
         EraseInitStruct.Banks   = FLASH_BANK_1;
-        pxAduImage->xUpdatePartition = 0x08000000;
+        pxAduImage->xUpdatePartition = (FLASH_BASE + FLASH_BANK_SIZE);
         LogInfo( ( "erasing bank 1\r\n" ) );
     }
     else
     {
         EraseInitStruct.Banks   = FLASH_BANK_2;
-        pxAduImage->xUpdatePartition = 0x08080000;
+        pxAduImage->xUpdatePartition = (FLASH_BASE + FLASH_BANK_SIZE);
         LogInfo( ( "erasing bank 2\r\n" ) );
     }
+    // HAL_FLASH_OB_Lock();
 
-
+    HAL_FLASH_Unlock();
     // erase non-boot bank
     if (HAL_FLASHEx_Erase(&EraseInitStruct, &PAGEError) == HAL_OK){
         LogInfo( ( "flash erased\r\n" ) );
@@ -110,10 +114,13 @@ AzureIoTResult_t AzureIoTPlatform_Init( AzureADUImage_t * const pxAduImage )
     {
         /*Error occurred while page erase.*/
         FlashError = HAL_FLASH_GetError();
+        HAL_FLASH_Lock();
         LogInfo( ( FlashError ) );
         LogInfo( ( "Error erasing ^^\r\n" ) );
         return FlashError;
     }
+
+    HAL_FLASH_Lock();
 
     // while (sofar<numberofwords)
     // {
@@ -204,6 +211,7 @@ AzureIoTResult_t AzureIoTPlatform_WriteBlock( AzureADUImage_t * const pxAduImage
     //     LogInfo( ( "AzureIoTPlatform_WriteBlock(): offset %i\r\n", ulOffset ) );
     //     return eAzureIoTSuccess;
     // }
+    HAL_FLASH_Unlock();
 
     // fast programming - for packets 1...n on blocks 1...(n-1) and packet 1...(n-1) on block n
     // write sections 1...n-1 of block
@@ -217,6 +225,8 @@ AzureIoTResult_t AzureIoTPlatform_WriteBlock( AzureADUImage_t * const pxAduImage
         {
             /* Error occurred while writing data in Flash memory*/
             LogInfo( ( "Error Writing regular %04x\r\n", HAL_FLASH_GetError() ) );
+            // LogInfo( ( "Error Writing regular %"PRIu32"\r\n", HAL_FLASH_GetError() ) );
+            HAL_FLASH_Lock();
             return HAL_FLASH_GetError();
             // LogInfo( ( "AzureIoTPlatform_WriteBlock(): wrote to addr %04x\r\n", nextWriteAddr ) );
             // LogInfo( ( "AzureIoTPlatform_WriteBlock(): read addr %04x\r\n", (pData + sofar) ) );
@@ -225,6 +235,7 @@ AzureIoTResult_t AzureIoTPlatform_WriteBlock( AzureADUImage_t * const pxAduImage
             // LogInfo( ( "AzureIoTPlatform_WriteBlock(): data %04x\r\n", data_to_send ) );
             // LogInfo( ( "we did it joe\r\n" ) );
         }
+        // LogInfo( ( "Wrote to %04x\r\n", nextWriteAddr ) );
         nextWriteAddr += 256;
         nextReadAddr += 256;
     }
@@ -235,6 +246,7 @@ AzureIoTResult_t AzureIoTPlatform_WriteBlock( AzureADUImage_t * const pxAduImage
         {
             /* Error occurred while writing data in Flash memory*/
             LogInfo( ( "Error Writing last last %i\r\n", HAL_FLASH_GetError() ) );
+            HAL_FLASH_Lock();
             return HAL_FLASH_GetError();
         }
         // LogInfo( ( "AzureIoTPlatform_WriteBlock(): offset %i\r\n", ulOffset ) );
@@ -245,6 +257,7 @@ AzureIoTResult_t AzureIoTPlatform_WriteBlock( AzureADUImage_t * const pxAduImage
         {
             /* Error occurred while writing data in Flash memory*/
             LogInfo( ( "Error Writing last of section %i\r\n", HAL_FLASH_GetError() ) );
+            HAL_FLASH_Lock();
             return HAL_FLASH_GetError();
         }
     }
@@ -254,7 +267,7 @@ AzureIoTResult_t AzureIoTPlatform_WriteBlock( AzureADUImage_t * const pxAduImage
     // LogInfo( ( "AzureIoTPlatform_WriteBlock(): write address %04x\r\n", pxAduImage->xUpdatePartition + ulOffset ) );
     // LogInfo( ( "AzureIoTPlatform_WriteBlock(): ulBlockSize %i\r\n", ulBlockSize ) );
     // 4096 bytes
-
+    HAL_FLASH_Lock();
     return eAzureIoTSuccess;
 }
 
@@ -287,7 +300,7 @@ AzureIoTResult_t AzureIoTPlatform_EnableImage( AzureADUImage_t * const pxAduImag
     FLASH_OBProgramInitTypeDef  optionBytes;
     // uint8_t setOrReset;
 
-
+    HAL_FLASH_Unlock();
     HAL_FLASH_OB_Unlock();
     LogInfo( ( "option bytes unlocked\r\n" ) );
     HAL_FLASHEx_OBGetConfig(&optionBytes); // Get current optionbytes configuration
@@ -295,7 +308,7 @@ AzureIoTResult_t AzureIoTPlatform_EnableImage( AzureADUImage_t * const pxAduImag
     optionBytes.OptionType = OPTIONBYTE_USER;
     optionBytes.USERType = OB_USER_BFB2;
     // If BFB2 set, we will reset it
-    if ( optionBytes.USERConfig & OB_BFB2_ENABLE )
+    if ((optionBytes.USERConfig & OB_BFB2_ENABLE) == OB_BFB2_ENABLE)
     {
         LogInfo( ( "bfb2 already enabled\r\n" ) );
         // setOrReset = 0;
@@ -342,9 +355,9 @@ AzureIoTResult_t AzureIoTPlatform_EnableImage( AzureADUImage_t * const pxAduImag
     
     LogInfo( ( "ob launch return value %02x\r\n", HAL_FLASH_OB_Launch() ) );
     LogInfo( ( "set obl launch bit\r\n" ) );
-    HAL_FLASH_OB_Lock();
-    LogInfo( ( "ob lock\r\n" ) );
-    HAL_FLASH_Lock();
+    // HAL_FLASH_OB_Lock();
+    // LogInfo( ( "ob lock\r\n" ) );
+    // HAL_FLASH_Lock();
     // HAL_NVIC_SystemReset();
     // __NVIC_SystemReset();
 
