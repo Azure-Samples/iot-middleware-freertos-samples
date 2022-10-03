@@ -29,7 +29,7 @@
 #include "transport_socket.h"
 
 /* Crypto helper header. */
-#include "crypto.h"
+#include "azure_sample_crypto.h"
 
 /* Demo Specific configs. */
 #include "demo_config.h"
@@ -122,12 +122,29 @@
  */
 #define sampleazureiotSUBSCRIBE_TIMEOUT                       ( 10 * 1000U )
 
+/**
+ * @brief Timeout for downloading the update image and calling the
+ * AzureIoTHubClient_ProcessLoop() function (in seconds)
+ */
+#define sampleazureiotADU_DOWNLOAD_TIMEOUT_SEC                ( 10 )
+
+/**
+ * @brief Buffer size for ADU HTTP download headers
+ *
+ */
+#define ADU_HEADER_BUFFER_SIZE                                512
+
+#define democonfigADU_UPDATE_ID                               "{\"provider\":\"" democonfigADU_UPDATE_PROVIDER "\",\"name\":\"" democonfigADU_UPDATE_NAME "\",\"version\":\"" democonfigADU_UPDATE_VERSION "\"}"
+
+#ifdef democonfigADU_UPDATE_NEW_VERSION
+    #define democonfigADU_SPOOFED_UPDATE_ID                   "{\"provider\":\"" democonfigADU_UPDATE_PROVIDER "\",\"name\":\"" democonfigADU_UPDATE_NAME "\",\"version\":\"" democonfigADU_UPDATE_NEW_VERSION "\"}"
+#endif
 /*-----------------------------------------------------------*/
 
 /**
  * @brief Unix time.
  *
- * @return Time in milliseconds.
+ * @return Time in seconds.
  */
 uint64_t ullGetUnixTime( void );
 /*-----------------------------------------------------------*/
@@ -156,15 +173,8 @@ AzureIoTADUClientDeviceProperties_t xADUDeviceProperties =
     .ulManufacturerLength                     = sizeof( democonfigADU_DEVICE_MANUFACTURER ) - 1,
     .ucModel                                  = ( const uint8_t * ) democonfigADU_DEVICE_MODEL,
     .ulModelLength                            = sizeof( democonfigADU_DEVICE_MODEL ) - 1,
-    .xCurrentUpdateId                         =
-    {
-        .ucProvider                           = ( const uint8_t * ) democonfigADU_UPDATE_PROVIDER,
-        .ulProviderLength                     = sizeof( democonfigADU_UPDATE_PROVIDER ) - 1,
-        .ucName                               = ( const uint8_t * ) democonfigADU_UPDATE_NAME,
-        .ulNameLength                         = sizeof( democonfigADU_UPDATE_NAME ) - 1,
-        .ucVersion                            = ( const uint8_t * ) democonfigADU_UPDATE_VERSION,
-        .ulVersionLength                      = sizeof( democonfigADU_UPDATE_VERSION ) - 1
-    },
+    .ucCurrentUpdateId                        = ( const uint8_t * ) democonfigADU_UPDATE_ID,
+    .ulCurrentUpdateIdLength                  = sizeof( democonfigADU_UPDATE_ID ) - 1,
     .ucDeliveryOptimizationAgentVersion       = NULL,
     .ulDeliveryOptimizationAgentVersionLength = 0
 };
@@ -182,6 +192,8 @@ static uint8_t ucReportedPropertiesUpdate[ 1500 ];
 static uint32_t ulReportedPropertiesUpdateLength;
 
 uint8_t ucAduContextBuffer[ ADU_CONTEXT_BUFFER_SIZE ];
+uint8_t ucAduDownloadBuffer[ democonfigCHUNK_DOWNLOAD_SIZE + 1024 ];
+uint8_t ucAduDownloadHeaderBuffer[ ADU_HEADER_BUFFER_SIZE ];
 
 const uint8_t sampleaduDEFAULT_RESULT_DETAILS[] = "Ok";
 
@@ -196,7 +208,6 @@ static AzureIoTHubClientComponent_t pnp_components[ sampleaduPNP_COMPONENTS_LIST
 /* OTA update on the Azure Device Update portal. */
 #define sampleaduSAMPLE_EXTENDED_RESULT_CODE    1234
 
-/* TODO: REMOVE THIS BLOCKER ONCE ADU IS IMPLEMENTED */
 /* This does not affect devices that actually implement the ADU process */
 /* as they will reboot before getting to the place where this is used. */
 bool xDidDeviceUpdate = false;
@@ -407,17 +418,19 @@ static void prvParseAduFileUrl( AzureIoTADUUpdateManifestFileUrl_t xFileUrl,
     ( void ) memcpy( *pucPath, pcPathStart, *pulPathLength );
 }
 
-static AzureIoTResult_t prvDownloadUpdateImageIntoFlash()
+static AzureIoTResult_t prvDownloadUpdateImageIntoFlash( int32_t ullTimeoutInSec )
 {
     AzureIoTResult_t xResult;
     AzureIoTHTTPResult_t xHttpResult;
     AzureIoTHTTP_t xHTTP;
-    char * pucHttpDataBufferPtr;
-    uint32_t ulHttpDataBufferLength;
+    char * pucOutDataPtr;
+    uint32_t ulOutHttpDataBufferLength;
     uint8_t * pucFileUrlHost;
     uint32_t ulFileUrlHostLength;
     uint8_t * pucFileUrlPath;
     uint32_t ulFileUrlPathLength;
+    uint64_t ullPreviousTimeout;
+    uint64_t ullCurrentTime;
 
     /*HTTP Connection */
     AzureIoTTransportInterface_t xHTTPTransport;
@@ -462,14 +475,17 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash()
                                                 ( const char * ) pucFileUrlHost,
                                                 ulFileUrlHostLength - 1, /* minus the null-terminator. */
                                                 ( const char * ) pucFileUrlPath,
-                                                ulFileUrlPathLength );
+                                                ulFileUrlPathLength,
+                                                ( char * ) ucAduDownloadHeaderBuffer,
+                                                sizeof( ucAduDownloadHeaderBuffer ) );
 
     if( xHttpResult != eAzureIoTHTTPSuccess )
     {
         return eAzureIoTErrorFailed;
     }
 
-    if( ( xImage.ulImageFileSize = AzureIoTHTTP_RequestSize( &xHTTP ) ) != -1 )
+    if( ( xImage.ulImageFileSize = AzureIoTHTTP_RequestSize( &xHTTP, ( char * ) ucAduDownloadBuffer,
+                                                             sizeof( ucAduDownloadBuffer ) ) ) != -1 )
     {
         LogInfo( ( "[ADU] HTTP Range Request was successful: size %d bytes", xImage.ulImageFileSize ) );
     }
@@ -481,24 +497,48 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash()
 
     LogInfo( ( "[ADU] Send HTTP request." ) );
 
+    ullPreviousTimeout = ullGetUnixTime();
+
     while( xImage.ulCurrentOffset < xImage.ulImageFileSize )
     {
+        ullCurrentTime = ullGetUnixTime();
+
+        if( ullCurrentTime - ullPreviousTimeout > ullTimeoutInSec )
+        {
+            LogInfo( ( "%i second timeout. Taking a break from downloading image.", ullTimeoutInSec ) );
+            LogInfo( ( "Receiving messages from IoT Hub." ) );
+            xResult = AzureIoTHubClient_ProcessLoop( &xAzureIoTHubClient,
+                                                     sampleazureiotPROCESS_LOOP_TIMEOUT_MS );
+
+            ullPreviousTimeout = ullGetUnixTime();
+
+            if( xAzureIoTAduUpdateRequest.xWorkflow.xAction == eAzureIoTADUActionCancel )
+            {
+                LogInfo( ( "Deployment was cancelled" ) );
+                break;
+            }
+        }
+
         AzureIoTHTTP_Init( &xHTTP, &xHTTPTransport,
                            ( const char * ) pucFileUrlHost,
                            ulFileUrlHostLength - 1, /* minus the null-terminator. */
                            ( const char * ) pucFileUrlPath,
-                           ulFileUrlPathLength );
+                           ulFileUrlPathLength,
+                           ( char * ) ucAduDownloadHeaderBuffer,
+                           sizeof( ucAduDownloadHeaderBuffer ) );
 
         if( ( xHttpResult = AzureIoTHTTP_Request( &xHTTP, xImage.ulCurrentOffset,
-                                                  xImage.ulCurrentOffset + azureiothttpCHUNK_DOWNLOAD_SIZE - 1,
-                                                  &pucHttpDataBufferPtr,
-                                                  &ulHttpDataBufferLength ) ) == eAzureIoTHTTPSuccess )
+                                                  xImage.ulCurrentOffset + democonfigCHUNK_DOWNLOAD_SIZE - 1,
+                                                  ( char * ) ucAduDownloadBuffer,
+                                                  sizeof( ucAduDownloadBuffer ),
+                                                  &pucOutDataPtr,
+                                                  &ulOutHttpDataBufferLength ) ) == eAzureIoTHTTPSuccess )
         {
             /* Write bytes to the flash */
             xResult = AzureIoTPlatform_WriteBlock( &xImage,
                                                    ( uint32_t ) xImage.ulCurrentOffset,
-                                                   ( uint8_t * ) pucHttpDataBufferPtr,
-                                                   ulHttpDataBufferLength );
+                                                   ( uint8_t * ) pucOutDataPtr,
+                                                   ulOutHttpDataBufferLength );
 
             if( xResult != eAzureIoTSuccess )
             {
@@ -506,7 +546,7 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash()
                 return eAzureIoTErrorFailed;
             }
             /* Advance the offset */
-            xImage.ulCurrentOffset += ( int32_t ) ulHttpDataBufferLength;
+            xImage.ulCurrentOffset += ( int32_t ) ulOutHttpDataBufferLength;
         }
         else if( xHttpResult == eAzureIoTHTTPNoResponse )
         {
@@ -611,12 +651,36 @@ static AzureIoTResult_t prvEnableImageAndResetDevice()
         return eAzureIoTErrorFailed;
     }
 
+    /* If a device resets, it will not get here. */
+    /* For linux devices, this will mark the device as updated and we will change the version as if */
+    /* it did update. */
     LogInfo( ( "[ADU] DEVICE HAS UPDATED" ) );
     xDidDeviceUpdate = true;
 
     return eAzureIoTSuccess;
 }
 
+/* This code is only run on the simulator. Devices will not reach this code since they reboot. */
+static AzureIoTResult_t prvSpoofNewVersion( void )
+{
+    #ifdef democonfigADU_UPDATE_NEW_VERSION
+        xADUDeviceProperties.ucCurrentUpdateId = ( const uint8_t * ) democonfigADU_SPOOFED_UPDATE_ID;
+        xADUDeviceProperties.ulCurrentUpdateIdLength = strlen( democonfigADU_SPOOFED_UPDATE_ID );
+    #else
+        LogError( ( "[ADU] New ADU update version for simulator not given." ) );
+    #endif
+    LogInfo( ( "[ADU] Device Version %.*s",
+               xADUDeviceProperties.ulCurrentUpdateIdLength, xADUDeviceProperties.ucCurrentUpdateId ) );
+    return AzureIoTADUClient_SendAgentState( &xAzureIoTADUClient,
+                                             &xAzureIoTHubClient,
+                                             &xADUDeviceProperties,
+                                             NULL,
+                                             eAzureIoTADUAgentStateIdle,
+                                             NULL,
+                                             ucScratchBuffer,
+                                             sizeof( ucScratchBuffer ),
+                                             NULL );
+}
 
 
 /*-----------------------------------------------------------*/
@@ -703,8 +767,8 @@ static void prvAzureDemoTask( void * pvParameters )
 
         xHubOptions.pucModuleID = ( const uint8_t * ) democonfigMODULE_ID;
         xHubOptions.ulModuleIDLength = sizeof( democonfigMODULE_ID ) - 1;
-        xHubOptions.pucModelID = ( const uint8_t * ) sampleazureiotMODEL_ID;
-        xHubOptions.ulModelIDLength = sizeof( sampleazureiotMODEL_ID ) - 1;
+        xHubOptions.pucModelID = ( const uint8_t * ) AzureIoTADUModelID;
+        xHubOptions.ulModelIDLength = AzureIoTADUModelIDLength;
 
         #ifdef sampleaduPNP_COMPONENTS_LIST_LENGTH
             #if sampleaduPNP_COMPONENTS_LIST_LENGTH > 0
@@ -796,14 +860,62 @@ static void prvAzureDemoTask( void * pvParameters )
                                                      sampleazureiotPROCESS_LOOP_TIMEOUT_MS );
             configASSERT( xResult == eAzureIoTSuccess );
 
-            /* TODO: REMOVE !xDidDeviceUpdate for NXP once properly implemented */
             if( xProcessUpdateRequest && !xDidDeviceUpdate )
             {
-                xResult = prvDownloadUpdateImageIntoFlash();
-                configASSERT( xResult == eAzureIoTSuccess );
+                if( xAzureIoTAduUpdateRequest.xWorkflow.xAction == eAzureIoTADUActionCancel )
+                {
+                    xResult = AzureIoTADUClient_SendAgentState( &xAzureIoTADUClient,
+                                                                &xAzureIoTHubClient,
+                                                                &xADUDeviceProperties,
+                                                                &xAzureIoTAduUpdateRequest,
+                                                                eAzureIoTADUAgentStateIdle,
+                                                                NULL,
+                                                                ucScratchBuffer,
+                                                                sizeof( ucScratchBuffer ),
+                                                                NULL );
 
-                xResult = prvEnableImageAndResetDevice();
-                configASSERT( xResult == eAzureIoTSuccess );
+                    xProcessUpdateRequest = false;
+                }
+                else if( xAzureIoTAduUpdateRequest.xWorkflow.xAction == eAzureIoTADUActionApplyDownload )
+                {
+                    xResult = prvDownloadUpdateImageIntoFlash( sampleazureiotADU_DOWNLOAD_TIMEOUT_SEC );
+                    configASSERT( xResult == eAzureIoTSuccess );
+
+                    LogInfo( ( "Checking for ADU twin updates one more time before committing to update." ) );
+                    xResult = AzureIoTHubClient_ProcessLoop( &xAzureIoTHubClient,
+                                                             sampleazureiotPROCESS_LOOP_TIMEOUT_MS );
+                    configASSERT( xResult == eAzureIoTSuccess );
+
+                    /* In prvDownloadUpdateImageIntoFlash, we make a call to the _ProcessLoop() function */
+                    /* which could bring in a new or cancelled update. */
+                    /* Check xProcessUpdateRequest and the action again in case a new version came in that was invalid. */
+                    if( xProcessUpdateRequest && ( xAzureIoTAduUpdateRequest.xWorkflow.xAction == eAzureIoTADUActionApplyDownload ) )
+                    {
+                        xResult = prvEnableImageAndResetDevice();
+                        configASSERT( xResult == eAzureIoTSuccess );
+
+                        xResult = prvSpoofNewVersion();
+                        configASSERT( xResult = eAzureIoTSuccess );
+                    }
+                    else
+                    {
+                        xResult = AzureIoTADUClient_SendAgentState( &xAzureIoTADUClient,
+                                                                    &xAzureIoTHubClient,
+                                                                    &xADUDeviceProperties,
+                                                                    &xAzureIoTAduUpdateRequest,
+                                                                    eAzureIoTADUAgentStateIdle,
+                                                                    NULL,
+                                                                    ucScratchBuffer,
+                                                                    sizeof( ucScratchBuffer ),
+                                                                    NULL );
+
+                        xProcessUpdateRequest = false;
+                    }
+                }
+                else
+                {
+                    LogInfo( ( "Unknown action received: %i", xAzureIoTAduUpdateRequest.xWorkflow.xAction ) );
+                }
             }
 
             /* Leave Connection Idle for some time. */

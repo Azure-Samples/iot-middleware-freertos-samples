@@ -65,7 +65,7 @@ extern void vLoggingPrintf( const char * pcFormatString,
  * call to FreeRTOS_gethostbyname() will return immediately, without even creating
  * a socket. */
 #define ipconfigUSE_DNS_CACHE                      ( 1 )
-#define ipconfigDNS_CACHE_NAME_LENGTH              ( 60 )
+#define ipconfigDNS_CACHE_NAME_LENGTH              ( 256 )
 #define ipconfigDNS_CACHE_ENTRIES                  ( 4 )
 #define ipconfigDNS_REQUEST_ATTEMPTS               ( 2 )
 
@@ -245,7 +245,7 @@ extern UBaseType_t uxRand();
 
 /* The Linux simulator cannot really simulate MAC interrupts, and needs to
  * block occasionally to allow other tasks to run. */
-#define configWINDOWS_MAC_INTERRUPT_SIMULATOR_DELAY    ( 20 / portTICK_PERIOD_MS )
+#define configWINDOWS_MAC_INTERRUPT_SIMULATOR_DELAY    ( 2 / portTICK_PERIOD_MS )
 
 /* Advanced only: in order to access 32-bit fields in the IP packets with
  * 32-bit memory instructions, all packets will be stored 32-bit-aligned, plus 16-bits.
@@ -261,10 +261,10 @@ extern UBaseType_t uxRand();
 
 /* Each TCP socket has a circular buffers for Rx and Tx, which have a fixed
  * maximum size.  Define the size of Rx buffer for TCP sockets. */
-#define ipconfigTCP_RX_BUFFER_LENGTH                   ( 1000 )
+#define ipconfigTCP_RX_BUFFER_LENGTH                   ( 10000 )
 
 /* Define the size of Tx buffer for TCP sockets. */
-#define ipconfigTCP_TX_BUFFER_LENGTH                   ( 1000 )
+#define ipconfigTCP_TX_BUFFER_LENGTH                   ( 10000 )
 
 /* When using call-back handlers, the driver may check if the handler points to
  * real program memory (RAM or flash) or just has a random non-zero value. */
