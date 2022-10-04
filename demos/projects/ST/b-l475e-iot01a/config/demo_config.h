@@ -507,6 +507,8 @@ static unsigned char root_cert_array[] = {
  */
 #define WIFI_SECURITY_TYPE  WIFI_ECN_WPA2_PSK
 
+#define democonfigCHUNK_DOWNLOAD_SIZE           1024
+
 #define democonfigADU_DEVICE_MANUFACTURER "ST"
 #define democonfigADU_DEVICE_MODEL        "STM32L475"
 #define democonfigADU_UPDATE_PROVIDER     "ST"
