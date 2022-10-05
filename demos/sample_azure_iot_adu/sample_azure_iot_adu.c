@@ -545,6 +545,7 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash( int32_t ullTimeoutInSec
                 LogError( ( "[ADU] Error writing to flash. " ) );
                 return eAzureIoTErrorFailed;
             }
+
             /* Advance the offset */
             xImage.ulCurrentOffset += ( int32_t ) ulOutHttpDataBufferLength;
         }
