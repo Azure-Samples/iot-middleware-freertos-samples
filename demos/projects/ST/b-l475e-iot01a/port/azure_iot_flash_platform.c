@@ -46,11 +46,10 @@ static AzureIoTResult_t prvBase64Decode( uint8_t * base64Encoded,
 
 AzureIoTResult_t AzureIoTPlatform_Init( AzureADUImage_t * const pxAduImage )
 {
-    pxAduImage->xUpdatePartition = (FLASH_BASE + FLASH_BANK_SIZE);
+    pxAduImage->xUpdatePartition = (uint8_t *)(FLASH_BASE + FLASH_BANK_SIZE);
 
     static FLASH_EraseInitTypeDef EraseInitStruct;
     uint32_t PAGEError;
-    uint32_t FlashError = 0;
     FLASH_OBProgramInitTypeDef  optionBytes;
 
     EraseInitStruct.TypeErase   = FLASH_TYPEERASE_MASSERASE;
@@ -98,7 +97,7 @@ AzureIoTResult_t AzureIoTPlatform_WriteBlock( AzureADUImage_t * const pxAduImage
 
     // write sections 1...n-1 of all blocks
     while (nextWriteAddr < pxAduImage->xUpdatePartition + ulOffset + ulBlockSize - 256) {
-        if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_FAST, nextWriteAddr, nextReadAddr) != HAL_OK)
+        if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_FAST, (uint32_t)nextWriteAddr, (uint32_t)nextReadAddr) != HAL_OK)
         {
             /* Error occurred while writing data in Flash memory*/
             LogInfo( ( "Error Writing %04x\r\n", HAL_FLASH_GetError() ) );
@@ -111,7 +110,7 @@ AzureIoTResult_t AzureIoTPlatform_WriteBlock( AzureADUImage_t * const pxAduImage
 
     // if last block and last section of that block
     if (pxAduImage->ulImageFileSize - ulOffset <= ulBlockSize) {
-        if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_FAST_AND_LAST, nextWriteAddr, nextReadAddr) != HAL_OK)
+        if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_FAST_AND_LAST, (uint32_t)nextWriteAddr, (uint32_t)nextReadAddr) != HAL_OK)
         {
             /* Error occurred while writing data in Flash memory*/
             LogInfo( ( "Error Writing last section of last block %i\r\n", HAL_FLASH_GetError() ) );
@@ -120,7 +119,7 @@ AzureIoTResult_t AzureIoTPlatform_WriteBlock( AzureADUImage_t * const pxAduImage
         }
     }
     else { // write last section of 1...n-1 blocks normally
-        if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_FAST, nextWriteAddr, nextReadAddr) != HAL_OK)
+        if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_FAST, (uint32_t)nextWriteAddr, (uint32_t)nextReadAddr) != HAL_OK)
         {
             /* Error occurred while writing data in Flash memory*/
             LogInfo( ( "Error Writing last of section %i\r\n", HAL_FLASH_GetError() ) );
@@ -136,28 +135,84 @@ AzureIoTResult_t AzureIoTPlatform_VerifyImage( AzureADUImage_t * const pxAduImag
                                                uint8_t * pucSHA256Hash,
                                                uint32_t ulSHA256HashLength )
 {
-    (void)pxAduImage;
-    (void)pucSHA256Hash;
-    (void)ulSHA256HashLength;
+    int xResult;
+    uint32_t ulOutputSize;
+    uint32_t ulReadSize;
 
-    // TODO: Fill in to verify bytes written to flash bank match the SHA256 given by pucSHA256Hash.
+    AZLogInfo( ( "Base64 Encoded Hash from ADU: %.*s", ulSHA256HashLength, pucSHA256Hash ) );
+    xResult = prvBase64Decode( pucSHA256Hash, ulSHA256HashLength, ucDecodedManifestHash, azureiotflashSHA_256_SIZE, ( size_t * ) &ulOutputSize );
 
-    LogInfo( ( "AzureIoTPlatform_VerifyImage()\r\n" ) );
+    if( xResult != eAzureIoTSuccess )
+    {
+        AZLogError( ( "Unable to decode base64 SHA256\r\n" ) );
+        return eAzureIoTErrorFailed;
+    }
 
-    return eAzureIoTSuccess;
+    mbedtls_md_context_t ctx;
+    mbedtls_md_type_t md_type = MBEDTLS_MD_SHA256;
+
+    mbedtls_md_init( &ctx );
+    mbedtls_md_setup( &ctx, mbedtls_md_info_from_type( md_type ), 0 );
+    mbedtls_md_starts( &ctx );
+
+    AZLogInfo( ( "Starting the mbedtls calculation: image size %d\r\n", pxAduImage->ulImageFileSize ) );
+
+    for( size_t ulOffset = 0; ulOffset < pxAduImage->ulImageFileSize; ulOffset += sizeof( ucPartitionReadBuffer ) )
+    {
+        ulReadSize = pxAduImage->ulImageFileSize - ulOffset < sizeof( ucPartitionReadBuffer ) ? pxAduImage->ulImageFileSize - ulOffset : sizeof( ucPartitionReadBuffer );
+
+        memcpy(ucPartitionReadBuffer, (pxAduImage->xUpdatePartition + ulOffset), ulReadSize);
+
+        mbedtls_md_update( &ctx, ( const unsigned char * ) ucPartitionReadBuffer, ulReadSize );
+
+        if( ( ulOffset % 65536 == 0 ) && ( ulOffset != 0 ) )
+        {
+            printf( "." );
+        }
+    }
+
+    printf( "\r\n" );
+
+    AZLogInfo( ( "Done\r\n" ) );
+
+    mbedtls_md_finish( &ctx, ucCalculatedHash );
+    mbedtls_md_free( &ctx );
+
+    if( memcmp( ucDecodedManifestHash, ucCalculatedHash, azureiotflashSHA_256_SIZE ) == 0 )
+    {
+        AZLogInfo( ( "SHAs match\r\n" ) );
+        xResult = eAzureIoTSuccess;
+    }
+    else
+    {
+        AZLogInfo( ( "SHAs do not match\r\n" ) );
+        AZLogInfo( ( "Wanted: " ) );
+
+        for( int i = 0; i < azureiotflashSHA_256_SIZE; ++i )
+        {
+            printf( "%x", ucDecodedManifestHash[ i ] );
+        }
+
+        printf( ( "\r\n" ) );
+        AZLogInfo( ( "Calculated: " ) );
+
+        for( int i = 0; i < azureiotflashSHA_256_SIZE; ++i )
+        {
+            printf( "%x", ucCalculatedHash[ i ] );
+        }
+
+        printf( ( "\r\n" ) );
+
+        xResult = eAzureIoTErrorFailed;
+    }
+
+    return xResult;
 }
 
 AzureIoTResult_t AzureIoTPlatform_EnableImage( AzureADUImage_t * const pxAduImage )
 {
     (void)pxAduImage;
 
-    // TODO: Fill in to program board to decide which memory bank to use on reboot.
-    
-    // 2) unlock option bytes
-    // 3) program option byte with toggled BFB2 state
-    // 4) set OBL_LAUNCH bit and wait for it to clear
-    // 5) reset
-   
     FLASH_OBProgramInitTypeDef  optionBytes;
 
     HAL_FLASH_Unlock();
@@ -182,7 +237,7 @@ AzureIoTResult_t AzureIoTPlatform_EnableImage( AzureADUImage_t * const pxAduImag
     // sets options bits and restarts device.
     // Also sets the book bank address to 0x08000000, which means we always write to 0x08080000
     HAL_FLASH_OB_Launch();
-    
+
     LogInfo( ( "AzureIoTPlatform_EnableImage()\r\n" ) );
 
     return eAzureIoTSuccess;
