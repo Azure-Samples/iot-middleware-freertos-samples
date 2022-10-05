@@ -1,12 +1,3 @@
-### Generate the ADU Update Manifest
-
-Navigate to the `C:\ADU-update` directory (created on step 9):
-
-Clone the ADU toolset.
-
-```bash
-git clone https://github.com/Azure/iot-hub-device-update
-```
 
 Generate the update manifest using **powershell**.
 
@@ -19,8 +10,3 @@ $installStep = New-AduInstallationStep -Handler 'microsoft/swupdate:1'-HandlerPr
 $update = New-AduImportManifest -UpdateId $updateId -Compatibility $compat -InstallationSteps $installStep
 $update | Out-File "./$($updateId.provider).$($updateId.name).$($updateId.version).importmanifest.json" -Encoding utf8
 ```
-
-Verify you have the following files in your ADU-update directory:
-
-- `iot-middleware-sample-adu-v1-1`
-- `PC.Linux.1.1.importmanifest.json`
