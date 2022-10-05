@@ -15,6 +15,9 @@
 
 #include "mbedtls/md.h"
 
+// advance addr by this amount to program the next 32 row double-word (64-bit) for fast programming
+#define L475_FLASH_ROW_SIZE          256
+
 #define azureiotflashSHA_256_SIZE    32
 
 static uint8_t ucPartitionReadBuffer[ 32 ];
@@ -39,7 +42,7 @@ static AzureIoTResult_t prvBase64Decode( uint8_t * base64Encoded,
         return eAzureIoTErrorFailed;
     }
 
-    LogInfo( ( "Unencoded the base64 encoding\r\n" ) );
+    AZLogInfo( ( "Unencoded the base64 encoding\r\n" ) );
 
     return eAzureIoTSuccess;
 }
@@ -47,12 +50,14 @@ static AzureIoTResult_t prvBase64Decode( uint8_t * base64Encoded,
 AzureIoTResult_t AzureIoTPlatform_Init( AzureADUImage_t * const pxAduImage )
 {
     pxAduImage->xUpdatePartition = (uint8_t *)(FLASH_BASE + FLASH_BANK_SIZE);
+    pxAduImage->pucBufferToWrite = NULL;
+    pxAduImage->ulBytesToWriteLength = 0;
+    pxAduImage->ulCurrentOffset = 0;
+    pxAduImage->ulImageFileSize = 0;
 
     static FLASH_EraseInitTypeDef EraseInitStruct;
     uint32_t PAGEError;
-    FLASH_OBProgramInitTypeDef  optionBytes;
-
-    EraseInitStruct.TypeErase   = FLASH_TYPEERASE_MASSERASE;
+    FLASH_OBProgramInitTypeDef optionBytes;
     
     /* Clear OPTVERR bit set on virgin samples. */
     __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_OPTVERR);
@@ -60,27 +65,18 @@ AzureIoTResult_t AzureIoTPlatform_Init( AzureADUImage_t * const pxAduImage )
     HAL_FLASHEx_OBGetConfig(&optionBytes);
     
     // If BFB2 (Boot From Bank 2) is set, erase bank 1, otherwise erase bank 2
-    if ((optionBytes.USERConfig & OB_BFB2_ENABLE) == OB_BFB2_ENABLE)
-    {
-        EraseInitStruct.Banks   = FLASH_BANK_1;
-        LogInfo( ( "Erasing bank 1\r\n" ) );
-    }
-    else
-    {
-        EraseInitStruct.Banks   = FLASH_BANK_2;
-        LogInfo( ( "Erasing bank 2\r\n" ) );
-    }
+    EraseInitStruct.Banks = ((optionBytes.USERConfig & OB_BFB2_ENABLE) == OB_BFB2_ENABLE) ? FLASH_BANK_1 : FLASH_BANK_2;
+    EraseInitStruct.TypeErase = FLASH_TYPEERASE_MASSERASE;
 
     HAL_FLASH_Unlock();
     // erase non-boot bank
     if (HAL_FLASHEx_Erase(&EraseInitStruct, &PAGEError) != HAL_OK){
         /*Error occurred during page erase.*/
         HAL_FLASH_Lock();
-        LogInfo( ( "Error erasing\r\n" ) );
+        AZLogError( ( "Error erasing flash bank\r\n" ) );
         return eAzureIoTErrorFailed;
     }
     HAL_FLASH_Lock();
-    LogInfo( ( "AzureIoTPlatform_Init()\r\n" ) );
 
     return eAzureIoTSuccess;
 }
@@ -92,37 +88,38 @@ AzureIoTResult_t AzureIoTPlatform_WriteBlock( AzureADUImage_t * const pxAduImage
 {
     uint8_t * nextWriteAddr = pxAduImage->xUpdatePartition + ulOffset;
     uint8_t * nextReadAddr = pData;
+    uint8_t * lastSectionAddr = pxAduImage->xUpdatePartition + ulOffset + ulBlockSize - L475_FLASH_ROW_SIZE;
     
     HAL_FLASH_Unlock();
 
     // write sections 1...n-1 of all blocks
-    while (nextWriteAddr < pxAduImage->xUpdatePartition + ulOffset + ulBlockSize - 256) {
+    while (nextWriteAddr < lastSectionAddr) {
         if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_FAST, (uint32_t)nextWriteAddr, (uint32_t)nextReadAddr) != HAL_OK)
         {
             /* Error occurred while writing data in Flash memory*/
-            LogInfo( ( "Error Writing %04x\r\n", HAL_FLASH_GetError() ) );
+            AZLogError( ( "Error writing to flash\r\n" ) );
             HAL_FLASH_Lock();
             return eAzureIoTErrorFailed;
         }
-        nextWriteAddr += 256;
-        nextReadAddr += 256;
+        nextWriteAddr += L475_FLASH_ROW_SIZE;
+        nextReadAddr += L475_FLASH_ROW_SIZE;
     }
 
-    // if last block and last section of that block
+    // if last block and last section of that block, use FLASH_TYPEPROGRAM_FAST_AND_LAST
     if (pxAduImage->ulImageFileSize - ulOffset <= ulBlockSize) {
         if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_FAST_AND_LAST, (uint32_t)nextWriteAddr, (uint32_t)nextReadAddr) != HAL_OK)
         {
             /* Error occurred while writing data in Flash memory*/
-            LogInfo( ( "Error Writing last section of last block %i\r\n", HAL_FLASH_GetError() ) );
+            AZLogError( ( "Error writing to flash\r\n" ) );
             HAL_FLASH_Lock();
             return eAzureIoTErrorFailed;
         }
     }
-    else { // write last section of 1...n-1 blocks normally
+    else { // write last section of blocks 1...n-1 normally
         if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_FAST, (uint32_t)nextWriteAddr, (uint32_t)nextReadAddr) != HAL_OK)
         {
             /* Error occurred while writing data in Flash memory*/
-            LogInfo( ( "Error Writing last of section %i\r\n", HAL_FLASH_GetError() ) );
+            AZLogError( ( "Error writing to flash\r\n" ) );
             HAL_FLASH_Lock();
             return eAzureIoTErrorFailed;
         }
@@ -211,8 +208,6 @@ AzureIoTResult_t AzureIoTPlatform_VerifyImage( AzureADUImage_t * const pxAduImag
 
 AzureIoTResult_t AzureIoTPlatform_EnableImage( AzureADUImage_t * const pxAduImage )
 {
-    (void)pxAduImage;
-
     FLASH_OBProgramInitTypeDef  optionBytes;
 
     HAL_FLASH_Unlock();
@@ -221,32 +216,18 @@ AzureIoTResult_t AzureIoTPlatform_EnableImage( AzureADUImage_t * const pxAduImag
     optionBytes.OptionType = OPTIONBYTE_USER;
     optionBytes.USERType = OB_USER_BFB2;
     // If BFB2 set, we will reset it
-    if ((optionBytes.USERConfig & OB_BFB2_ENABLE) == OB_BFB2_ENABLE)
-    {
-        optionBytes.USERConfig = OB_BFB2_DISABLE;
-        LogInfo( ( "disable bfb2\r\n" ) );
-    }
-    else
-    {
-        optionBytes.USERConfig = OB_BFB2_ENABLE;
-        LogInfo( ( "enable bfb2\r\n" ) );
-    }
+    optionBytes.USERConfig = ((optionBytes.USERConfig & OB_BFB2_ENABLE) == OB_BFB2_ENABLE) ? OB_BFB2_DISABLE : OB_BFB2_ENABLE;
 
     HAL_FLASHEx_OBProgram(&optionBytes);
 
     // sets options bits and restarts device.
     // Also sets the book bank address to 0x08000000, which means we always write to 0x08080000
     HAL_FLASH_OB_Launch();
-
-    LogInfo( ( "AzureIoTPlatform_EnableImage()\r\n" ) );
-
     return eAzureIoTSuccess;
 }
 
 AzureIoTResult_t AzureIoTPlatform_ResetDevice( AzureADUImage_t * const pxAduImage )
 {
-    LogInfo( ( "AzureIoTPlatform_ResetDevice()\r\n" ) );
-
     HAL_NVIC_SystemReset();
     return eAzureIoTSuccess;
 }
