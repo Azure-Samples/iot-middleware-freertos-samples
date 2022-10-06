@@ -17,9 +17,9 @@
 
 // advance addr by this amount to program the next 32 row double-word (64-bit)
 // for fast programming
-#define L475_FLASH_ROW_SIZE          256
+#define azureiotflashL475_FLASH_ROW_SIZE                    256
 
-#define azureiotflashSHA_256_SIZE    32
+#define azureiotflashSHA_256_SIZE                           32
 
 static uint8_t ucPartitionReadBuffer[ 32 ];
 static uint8_t ucDecodedManifestHash[ azureiotflashSHA_256_SIZE ];
@@ -51,8 +51,6 @@ static AzureIoTResult_t prvBase64Decode( uint8_t * base64Encoded,
 AzureIoTResult_t AzureIoTPlatform_Init( AzureADUImage_t * const pxAduImage )
 {
     pxAduImage->xUpdatePartition = (uint8_t *)(FLASH_BASE + FLASH_BANK_SIZE);
-    pxAduImage->pucBufferToWrite = NULL;
-    pxAduImage->ulBytesToWriteLength = 0;
     pxAduImage->ulCurrentOffset = 0;
     pxAduImage->ulImageFileSize = 0;
 
@@ -93,7 +91,7 @@ AzureIoTResult_t AzureIoTPlatform_WriteBlock( AzureADUImage_t * const pxAduImage
 {
     uint8_t * pucNextWriteAddr = pxAduImage->xUpdatePartition + ulOffset;
     uint8_t * pucNextReadAddr = pData;
-    uint8_t * pucLastSectionAddr = pxAduImage->xUpdatePartition + ulOffset + ulBlockSize - L475_FLASH_ROW_SIZE;
+    uint8_t * pucLastSectionAddr = pxAduImage->xUpdatePartition + ulOffset + ulBlockSize - azureiotflashL475_FLASH_ROW_SIZE;
     AzureIoTResult_t xResult = eAzureIoTSuccess;
 
     HAL_FLASH_Unlock();
@@ -107,8 +105,8 @@ AzureIoTResult_t AzureIoTPlatform_WriteBlock( AzureADUImage_t * const pxAduImage
             HAL_FLASH_Lock();
             return eAzureIoTErrorFailed;
         }
-        pucNextWriteAddr += L475_FLASH_ROW_SIZE;
-        pucNextReadAddr += L475_FLASH_ROW_SIZE;
+        pucNextWriteAddr += azureiotflashL475_FLASH_ROW_SIZE;
+        pucNextReadAddr += azureiotflashL475_FLASH_ROW_SIZE;
     }
 
     // if last block and last section of that block, use
@@ -122,7 +120,8 @@ AzureIoTResult_t AzureIoTPlatform_WriteBlock( AzureADUImage_t * const pxAduImage
         }
     }
     else
-    { // write last section of blocks 1...n-1 normally
+    {
+        // write last section of blocks 1...n-1 normally
         if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_FAST, (uint32_t)pucNextWriteAddr, (uint32_t)pucNextReadAddr) != HAL_OK)
         {
             // Error occurred while writing data in Flash memory
