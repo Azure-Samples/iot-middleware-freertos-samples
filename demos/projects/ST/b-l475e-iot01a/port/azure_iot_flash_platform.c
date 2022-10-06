@@ -56,33 +56,34 @@ AzureIoTResult_t AzureIoTPlatform_Init( AzureADUImage_t * const pxAduImage )
     pxAduImage->ulCurrentOffset = 0;
     pxAduImage->ulImageFileSize = 0;
 
-    static FLASH_EraseInitTypeDef EraseInitStruct;
-    uint32_t PAGEError;
-    FLASH_OBProgramInitTypeDef optionBytes;
+    static FLASH_EraseInitTypeDef xEraseInitStruct;
+    uint32_t ulPageError;
+    FLASH_OBProgramInitTypeDef xOptionBytes;
+    AzureIoTResult_t xResult = eAzureIoTSuccess;
     
-    /* Clear OPTVERR bit set on virgin samples. */
+    // Clear OPTVERR bit set on virgin samples.
     __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_OPTVERR);
     // Get current optionbytes configuration
-    HAL_FLASHEx_OBGetConfig(&optionBytes);
+    HAL_FLASHEx_OBGetConfig(&xOptionBytes);
     
     // If BFB2 (Boot From Bank 2) is set, erase bank 1, otherwise erase bank 2
-    EraseInitStruct.Banks =
-      ((optionBytes.USERConfig & OB_BFB2_ENABLE) == OB_BFB2_ENABLE)
+    xEraseInitStruct.Banks =
+      ((xOptionBytes.USERConfig & OB_BFB2_ENABLE) == OB_BFB2_ENABLE)
           ? FLASH_BANK_1
           : FLASH_BANK_2;
-    EraseInitStruct.TypeErase = FLASH_TYPEERASE_MASSERASE;
+    xEraseInitStruct.TypeErase = FLASH_TYPEERASE_MASSERASE;
 
     HAL_FLASH_Unlock();
-    // erase non-boot bank
-    if (HAL_FLASHEx_Erase(&EraseInitStruct, &PAGEError) != HAL_OK){
-        /*Error occurred during page erase.*/
-        HAL_FLASH_Lock();
+    // Erase non-boot bank
+    if (HAL_FLASHEx_Erase(&xEraseInitStruct, &ulPageError) != HAL_OK)
+    {
+        // Error occurred during page erase.
         AZLogError( ( "Error erasing flash bank\r\n" ) );
-        return eAzureIoTErrorFailed;
+        xResult = eAzureIoTErrorFailed;
     }
     HAL_FLASH_Lock();
 
-    return eAzureIoTSuccess;
+    return xResult;
 }
 
 AzureIoTResult_t AzureIoTPlatform_WriteBlock( AzureADUImage_t * const pxAduImage,
@@ -90,44 +91,46 @@ AzureIoTResult_t AzureIoTPlatform_WriteBlock( AzureADUImage_t * const pxAduImage
                                               uint8_t * const pData,
                                               uint32_t ulBlockSize )
 {
-    uint8_t * nextWriteAddr = pxAduImage->xUpdatePartition + ulOffset;
-    uint8_t * nextReadAddr = pData;
-    uint8_t * lastSectionAddr = pxAduImage->xUpdatePartition + ulOffset + ulBlockSize - L475_FLASH_ROW_SIZE;
-    
+    uint8_t * pucNextWriteAddr = pxAduImage->xUpdatePartition + ulOffset;
+    uint8_t * pucNextReadAddr = pData;
+    uint8_t * pucLastSectionAddr = pxAduImage->xUpdatePartition + ulOffset + ulBlockSize - L475_FLASH_ROW_SIZE;
+    AzureIoTResult_t xResult = eAzureIoTSuccess;
+
     HAL_FLASH_Unlock();
 
     // write sections 1...n-1 of all blocks
-    while (nextWriteAddr < lastSectionAddr) {
-        if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_FAST, (uint32_t)nextWriteAddr, (uint32_t)nextReadAddr) != HAL_OK)
+    while (pucNextWriteAddr < pucLastSectionAddr)
+    {
+        if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_FAST, (uint32_t)pucNextWriteAddr, (uint32_t)pucNextReadAddr) != HAL_OK)
         {
-            /* Error occurred while writing data in Flash memory*/
+            // Error occurred while writing data in Flash memory
             HAL_FLASH_Lock();
             return eAzureIoTErrorFailed;
         }
-        nextWriteAddr += L475_FLASH_ROW_SIZE;
-        nextReadAddr += L475_FLASH_ROW_SIZE;
+        pucNextWriteAddr += L475_FLASH_ROW_SIZE;
+        pucNextReadAddr += L475_FLASH_ROW_SIZE;
     }
 
     // if last block and last section of that block, use
     // FLASH_TYPEPROGRAM_FAST_AND_LAST
-    if (pxAduImage->ulImageFileSize - ulOffset <= ulBlockSize) {
-        if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_FAST_AND_LAST, (uint32_t)nextWriteAddr, (uint32_t)nextReadAddr) != HAL_OK)
+    if (pxAduImage->ulImageFileSize - ulOffset <= ulBlockSize)
+    {
+        if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_FAST_AND_LAST, (uint32_t)pucNextWriteAddr, (uint32_t)pucNextReadAddr) != HAL_OK)
         {
-            /* Error occurred while writing data in Flash memory*/
-            HAL_FLASH_Lock();
-            return eAzureIoTErrorFailed;
+            // Error occurred while writing data in Flash memory
+            xResult = eAzureIoTErrorFailed;
         }
     }
-    else { // write last section of blocks 1...n-1 normally
-        if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_FAST, (uint32_t)nextWriteAddr, (uint32_t)nextReadAddr) != HAL_OK)
+    else
+    { // write last section of blocks 1...n-1 normally
+        if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_FAST, (uint32_t)pucNextWriteAddr, (uint32_t)pucNextReadAddr) != HAL_OK)
         {
-            /* Error occurred while writing data in Flash memory*/
-            HAL_FLASH_Lock();
-            return eAzureIoTErrorFailed;
+            // Error occurred while writing data in Flash memory
+            xResult = eAzureIoTErrorFailed;
         }
     }
     HAL_FLASH_Lock();
-    return eAzureIoTSuccess;
+    return xResult;
 }
 
 AzureIoTResult_t AzureIoTPlatform_VerifyImage( AzureADUImage_t * const pxAduImage,
@@ -210,20 +213,20 @@ AzureIoTResult_t AzureIoTPlatform_VerifyImage( AzureADUImage_t * const pxAduImag
 
 AzureIoTResult_t AzureIoTPlatform_EnableImage( AzureADUImage_t * const pxAduImage )
 {
-    FLASH_OBProgramInitTypeDef  optionBytes;
+    FLASH_OBProgramInitTypeDef  xOptionBytes;
 
     HAL_FLASH_Unlock();
     HAL_FLASH_OB_Unlock();
-    HAL_FLASHEx_OBGetConfig(&optionBytes); // Get current optionbytes configuration
-    optionBytes.OptionType = OPTIONBYTE_USER;
-    optionBytes.USERType = OB_USER_BFB2;
+    HAL_FLASHEx_OBGetConfig(&xOptionBytes); // Get current optionbytes configuration
+    xOptionBytes.OptionType = OPTIONBYTE_USER;
+    xOptionBytes.USERType = OB_USER_BFB2;
     // If BFB2 set, we will reset it
-    optionBytes.USERConfig =
-        ((optionBytes.USERConfig & OB_BFB2_ENABLE) == OB_BFB2_ENABLE)
+    xOptionBytes.USERConfig =
+        ((xOptionBytes.USERConfig & OB_BFB2_ENABLE) == OB_BFB2_ENABLE)
             ? OB_BFB2_DISABLE
             : OB_BFB2_ENABLE;
 
-    HAL_FLASHEx_OBProgram(&optionBytes);
+    HAL_FLASHEx_OBProgram(&xOptionBytes);
 
     // sets options bits and restarts device.
     // Also sets the book bank address to 0x08000000, which means we always write

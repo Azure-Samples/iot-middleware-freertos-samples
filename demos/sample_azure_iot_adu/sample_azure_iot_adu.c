@@ -542,7 +542,7 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash( int32_t ullTimeoutInSec
 
             if( xResult != eAzureIoTSuccess )
             {
-                LogError( ( "[ADU] Error writing to flash. " ) );
+                LogError( ( "[ADU] Error writing to flash." ) );
                 return eAzureIoTErrorFailed;
             }
 
