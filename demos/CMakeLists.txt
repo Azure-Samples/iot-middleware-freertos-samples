@@ -22,7 +22,8 @@ if(NOT (TARGET SAMPLE::AZUREIOTADU))
 
     target_sources(SAMPLE::AZUREIOTADU INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}/sample_azure_iot_adu/sample_azure_iot_adu.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/sample_azure_iot_adu/sample_azure_iot_pnp_simulated_data.c)
+        ${CMAKE_CURRENT_SOURCE_DIR}/sample_azure_iot_adu/sample_azure_iot_pnp_simulated_data.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/../libs/azure-iot-middleware-freertos/ports/mbedTLS/azure_iot_jws_mbedtls.c)
 endif()
 
 # Target for pnp sample task
@@ -78,7 +79,6 @@ if(NOT (TARGET SAMPLE::TRANSPORT::MBEDTLS))
         ${CMAKE_CURRENT_SOURCE_DIR}/common/transport/transport_tls_socket_using_mbedtls.c
         ${CMAKE_CURRENT_SOURCE_DIR}/common/transport/transport_socket.c
         ${CMAKE_CURRENT_SOURCE_DIR}/common/utilities/azure_sample_crypto_mbedtls.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/common/utilities/azure_sample_adu_jws_mbedtls.c
         ${CMAKE_CURRENT_SOURCE_DIR}/common/utilities/mbedtls_freertos_port.c)
     target_include_directories(SAMPLE::TRANSPORT::MBEDTLS INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}/common/transport/
