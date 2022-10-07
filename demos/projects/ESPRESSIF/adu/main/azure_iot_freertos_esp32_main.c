@@ -24,7 +24,6 @@
 #include "azure_iot_hub_client_properties.h"
 
 #include "sample_azure_iot_pnp_data_if.h"
-#include "azure_iot_freertos_esp32_pnp_model.h"
 
 /* Azure Device Update */
 #include <azure/iot/az_iot_adu_client.h>
