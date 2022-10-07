@@ -374,11 +374,11 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
             {
                 LogInfo( ( "Verifying JWS Manifest" ) );
                 xAzIoTResult = AzureIoTJWS_ManifestAuthenticate( xAzureIoTAduUpdateRequest.pucUpdateManifest,
-                                                         xAzureIoTAduUpdateRequest.ulUpdateManifestLength,
-                                                         xAzureIoTAduUpdateRequest.pucUpdateManifestSignature,
-                                                         xAzureIoTAduUpdateRequest.ulUpdateManifestSignatureLength,
-                                                         ucADUScratchBuffer,
-                                                         sizeof( ucADUScratchBuffer ) );
+                                                                 xAzureIoTAduUpdateRequest.ulUpdateManifestLength,
+                                                                 xAzureIoTAduUpdateRequest.pucUpdateManifestSignature,
+                                                                 xAzureIoTAduUpdateRequest.ulUpdateManifestSignatureLength,
+                                                                 ucADUScratchBuffer,
+                                                                 sizeof( ucADUScratchBuffer ) );
 
                 if( xAzIoTResult != eAzureIoTSuccess )
                 {
