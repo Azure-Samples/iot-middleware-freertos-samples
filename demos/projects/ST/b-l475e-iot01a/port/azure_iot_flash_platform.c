@@ -15,7 +15,7 @@
 
 #include "mbedtls/md.h"
 
-/** advance addr by this amount to program the next 32 row double-word (64-bit)
+/* advance addr by this amount to program the next 32 row double-word (64-bit)
  * for fast programming
  */
 #define azureiotflashL475_FLASH_ROW_SIZE    256
@@ -94,44 +94,26 @@ AzureIoTResult_t AzureIoTPlatform_WriteBlock( AzureADUImage_t * const pxAduImage
 {
     uint8_t * pucNextWriteAddr = pxAduImage->xUpdatePartition + ulOffset;
     uint8_t * pucNextReadAddr = pData;
-    uint8_t * pucLastSectionAddr = pxAduImage->xUpdatePartition + ulOffset + ulBlockSize - azureiotflashL475_FLASH_ROW_SIZE;
+    uint8_t * pucBlockEndAddr = pxAduImage->xUpdatePartition + ulOffset + ulBlockSize;
+    bool xIsLastBlock = pxAduImage->ulImageFileSize - ulOffset <= ulBlockSize;
+
     AzureIoTResult_t xResult = eAzureIoTSuccess;
 
     HAL_FLASH_Unlock();
 
-    /* write sections 1...n-1 of all blocks */
-    while( pucNextWriteAddr < pucLastSectionAddr )
+    while( pucNextWriteAddr < pucBlockEndAddr )
     {
-        if( HAL_FLASH_Program( FLASH_TYPEPROGRAM_FAST, ( uint32_t ) pucNextWriteAddr, ( uint32_t ) pucNextReadAddr ) != HAL_OK )
+        /* for last section of last block written to the device, use FLASH_TYPEPROGRAM_FAST_AND_LAST */
+        if( HAL_FLASH_Program( ( xIsLastBlock && ( pucNextWriteAddr >= ( pucBlockEndAddr - azureiotflashL475_FLASH_ROW_SIZE ) ) ) ?
+                               FLASH_TYPEPROGRAM_FAST_AND_LAST : FLASH_TYPEPROGRAM_FAST, ( uint32_t ) pucNextWriteAddr, ( uint32_t ) pucNextReadAddr ) != HAL_OK )
         {
             /* Error occurred while writing data in Flash memory */
-            HAL_FLASH_Lock();
-            return eAzureIoTErrorFailed;
+            xResult = eAzureIoTErrorFailed;
+            break;
         }
 
         pucNextWriteAddr += azureiotflashL475_FLASH_ROW_SIZE;
         pucNextReadAddr += azureiotflashL475_FLASH_ROW_SIZE;
-    }
-
-    /** if last block and last section of that block, use
-     * FLASH_TYPEPROGRAM_FAST_AND_LAST
-     */
-    if( pxAduImage->ulImageFileSize - ulOffset <= ulBlockSize )
-    {
-        if( HAL_FLASH_Program( FLASH_TYPEPROGRAM_FAST_AND_LAST, ( uint32_t ) pucNextWriteAddr, ( uint32_t ) pucNextReadAddr ) != HAL_OK )
-        {
-            /* Error occurred while writing data in Flash memory */
-            xResult = eAzureIoTErrorFailed;
-        }
-    }
-    else
-    {
-        /* write last section of blocks 1...n-1 normally */
-        if( HAL_FLASH_Program( FLASH_TYPEPROGRAM_FAST, ( uint32_t ) pucNextWriteAddr, ( uint32_t ) pucNextReadAddr ) != HAL_OK )
-        {
-            /* Error occurred while writing data in Flash memory */
-            xResult = eAzureIoTErrorFailed;
-        }
     }
 
     HAL_FLASH_Lock();
@@ -233,7 +215,7 @@ AzureIoTResult_t AzureIoTPlatform_EnableImage( AzureADUImage_t * const pxAduImag
 
     HAL_FLASHEx_OBProgram( &xOptionBytes );
 
-    /**
+    /*
      *  sets options bits and restarts device.
      * Also sets the book bank address to 0x08000000, which means we always write
      * to 0x08080000
