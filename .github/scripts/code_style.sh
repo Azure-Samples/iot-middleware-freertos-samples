@@ -45,7 +45,6 @@ if [[ "$FIX" == "check" ]]; then
     ./demos/projects/ESPRESSIF/adu/port/*.c                   \
     ./demos/projects/ESPRESSIF/adu/port/*.h                   \
     ./demos/projects/ESPRESSIF/adu/main/*.c                   \
-    ./demos/projects/ESPRESSIF/adu/main/*.h                   \
     ./demos/projects/PC/linux/tests/*.c                       \
     ./demos/common/tests/*.c)
 
@@ -69,7 +68,6 @@ elif [[ "$FIX" == "fix" ]]; then
     ./demos/projects/ESPRESSIF/adu/port/*.c                   \
     ./demos/projects/ESPRESSIF/adu/port/*.h                   \
     ./demos/projects/ESPRESSIF/adu/main/*.c                   \
-    ./demos/projects/ESPRESSIF/adu/main/*.h                   \
     ./demos/projects/PC/linux/tests/*.c                       \
     ./demos/common/tests/*.c
 else
