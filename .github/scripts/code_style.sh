@@ -43,11 +43,10 @@ if [[ "$FIX" == "check" ]]; then
     ./demos/common/utilities/*.c                              \
     ./demos/common/utilities/*.h                              \
     ./demos/projects/ESPRESSIF/adu/port/*.c                   \
-    ./demos/projects/ESPRESSIF/adu/port/*.h                   \
     ./demos/projects/ESPRESSIF/adu/main/*.c                   \
-    ./demos/projects/ESPRESSIF/adu/main/*.h                   \
-    ./demos/projects/PC/linux/tests/*.c                       \
-    ./demos/common/tests/*.c)
+    ./demos/projects/ST/b-l475e-iot01a/port/*.c               \
+    ./demos/projects/ST/b-l475e-iot01a/config/*.h             \
+    ./demos/projects/PC/linux/tests/*.c)
 
     if [ $? -ne 0 ]; then
       echo $RESULT | grep "FAIL"
@@ -69,9 +68,9 @@ elif [[ "$FIX" == "fix" ]]; then
     ./demos/projects/ESPRESSIF/adu/port/*.c                   \
     ./demos/projects/ESPRESSIF/adu/port/*.h                   \
     ./demos/projects/ESPRESSIF/adu/main/*.c                   \
-    ./demos/projects/ESPRESSIF/adu/main/*.h                   \
-    ./demos/projects/PC/linux/tests/*.c                       \
-    ./demos/common/tests/*.c
+    ./demos/projects/ST/b-l475e-iot01a/port/*.c               \
+    ./demos/projects/ST/b-l475e-iot01a/config/*.h             \
+    ./demos/projects/PC/linux/tests/*.c
 else
     usage
 fi
