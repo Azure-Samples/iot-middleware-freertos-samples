@@ -96,26 +96,3 @@ target_link_libraries(${PROJECT_NAME}-pnp PRIVATE
     SAMPLE::SOCKET::FREERTOSTCPIP)
 
 add_map_file(${PROJECT_NAME}-pnp ${PROJECT_NAME}-pnp.map)
-
-# Add demo files and dependencies for PnP Sample
-add_executable(azure_sample_adu_jws_mbedtls_int_test
-${CMAKE_CURRENT_LIST_DIR}/tests/main.c
-${CMAKE_CURRENT_LIST_DIR}/tests/mock_needed_functions.c
-${CMAKE_CURRENT_LIST_DIR}/../../../../demos/common/tests/azure_sample_adu_jws_mbedtls_int_test.c
-)
-target_link_libraries(azure_sample_adu_jws_mbedtls_int_test PRIVATE
-    FreeRTOS::Timers
-    FreeRTOS::Heap::3
-    FreeRTOS::EventGroups
-    FreeRTOS::Posix
-    FreeRTOSPlus::Utilities::backoff_algorithm
-    FreeRTOSPlus::Utilities::logging
-    FreeRTOSPlus::ThirdParty::mbedtls
-    FreeRTOSPlus::TCPIP
-    FreeRTOSPlus::TCPIP::PORT
-    az::iot_middleware::freertos
-    pthread
-    pcap
-    SAMPLE::AZUREIOTPNP
-    SAMPLE::TRANSPORT::MBEDTLS
-    SAMPLE::SOCKET::FREERTOSTCPIP)

@@ -17,6 +17,7 @@ list(APPEND COMPONENT_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}../../../port/azure_iot_flash_platform.c
     ${AZURE_IOT_MIDDLEWARE_FREERTOS}/ports/coreMQTT/azure_iot_core_mqtt.c
     ${AZURE_IOT_MIDDLEWARE_FREERTOS}/ports/coreHTTP/azure_iot_core_http.c
+    ${AZURE_IOT_MIDDLEWARE_FREERTOS}/ports/mbedTLS/azure_iot_jws_mbedtls.c
 )
 
 idf_component_get_property(FREERTOS_DIR freertos COMPONENT_DIR)

@@ -24,7 +24,6 @@
 #include "azure_iot_hub_client_properties.h"
 
 #include "sample_azure_iot_pnp_data_if.h"
-#include "azure_iot_freertos_esp32_pnp_model.h"
 
 /* Azure Device Update */
 #include <azure/iot/az_iot_adu_client.h>
@@ -297,35 +296,6 @@ static void prvInitializeTime()
     {
         vTaskDelay( pdMS_TO_TICKS( 1000 ) );
     }
-}
-/*-----------------------------------------------------------*/
-
-/**
- * @brief Implements the sample interface for generating reported properties payload.
- */
-uint32_t ulCreateReportedPropertiesUpdate( uint8_t * pucPropertiesData,
-                                           uint32_t ulPropertiesDataSize )
-{
-    return ulSampleCreateReportedPropertiesUpdate( pucPropertiesData, ulPropertiesDataSize );
-}
-/*-----------------------------------------------------------*/
-
-uint32_t ulHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
-                          uint32_t * pulResponseStatus,
-                          uint8_t * pucCommandResponsePayloadBuffer,
-                          uint32_t ulCommandResponsePayloadBufferSize )
-{
-    return ulSampleHandleCommand( pxMessage, pulResponseStatus, pucCommandResponsePayloadBuffer, ulCommandResponsePayloadBufferSize );
-}
-/*-----------------------------------------------------------*/
-
-uint32_t ulCreateTelemetry( uint8_t * pucTelemetryData,
-                            uint32_t ulTelemetryDataSize,
-                            uint32_t * ulTelemetryDataLength )
-{
-    *ulTelemetryDataLength = ulSampleCreateTelemetry( pucTelemetryData, ulTelemetryDataSize );
-
-    return 0;
 }
 /*-----------------------------------------------------------*/
 
