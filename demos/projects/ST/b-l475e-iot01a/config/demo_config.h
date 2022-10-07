@@ -13,8 +13,8 @@
  * This Model ID is tightly tied to the code implementation in `sample_azure_iot_pnp_simulated_device.c`
  * If you intend to test a different Model ID, please provide the implementation of the model on your application.
  */
-// TODO: change when Linux PR is in
-#define sampleazureiotMODEL_ID                                "dtmi:azure:iot:deviceUpdateModel;1"
+/* TODO: change when Linux PR is in */
+#define sampleazureiotMODEL_ID    "dtmi:azure:iot:deviceUpdateModel;1"
 
 /**************************************************/
 /******* DO NOT CHANGE the following order ********/
@@ -467,35 +467,35 @@ static unsigned char root_cert_array[] = {
     0x44, 0x0F, 0x86, 0xB0, 0x2C, 0x91, 0xC6, 0x3D, 0xEA, 0xAE,
     0x0F, 0x84
 };
-#define democonfigROOT_CA_PEM            root_cert_array
+#define democonfigROOT_CA_PEM                root_cert_array
 
 /**
  * @brief Set the stack size of the main demo task.
  *
  */
-#define democonfigDEMO_STACKSIZE         ( 2 * 1024U )
+#define democonfigDEMO_STACKSIZE             ( 2 * 1024U )
 
 /**
  * @brief Size of the network buffer for MQTT packets.
  */
-#define democonfigNETWORK_BUFFER_SIZE    ( 5 * 1024U )
+#define democonfigNETWORK_BUFFER_SIZE        ( 5 * 1024U )
 
 /**
  * @brief IoTHub endpoint port.
  */
-#define democonfigIOTHUB_PORT            ( 8883 )
+#define democonfigIOTHUB_PORT                ( 8883 )
 
 /**
  * @brief Wifi SSID
  *
  */
-#define WIFI_SSID                        "<SSID>"
+#define WIFI_SSID                            "<SSID>"
 
 /**
  * @brief Wifi Password
  *
  */
-#define WIFI_PASSWORD                    "<Password>"
+#define WIFI_PASSWORD                        "<Password>"
 
 /**
  * @brief WIFI Security type, the security types are defined in wifi.h.
@@ -506,7 +506,7 @@ static unsigned char root_cert_array[] = {
  *  WIFI_ECN_WPA2_PSK = 0x03,
  *  WIFI_ECN_WPA_WPA2_PSK = 0x04
  */
-#define WIFI_SECURITY_TYPE               WIFI_ECN_WPA2_PSK
+#define WIFI_SECURITY_TYPE                   WIFI_ECN_WPA2_PSK
 
 #ifdef democonfigENABLE_DPS_SAMPLE
     #define democonfigCHUNK_DOWNLOAD_SIZE    256
