@@ -45,8 +45,7 @@ if [[ "$FIX" == "check" ]]; then
     ./demos/projects/ESPRESSIF/adu/port/*.c                   \
     ./demos/projects/ESPRESSIF/adu/port/*.h                   \
     ./demos/projects/ESPRESSIF/adu/main/*.c                   \
-    ./demos/projects/PC/linux/tests/*.c                       \
-    ./demos/common/tests/*.c)
+    ./demos/projects/PC/linux/tests/*.c)
 
     if [ $? -ne 0 ]; then
       echo $RESULT | grep "FAIL"
@@ -68,8 +67,7 @@ elif [[ "$FIX" == "fix" ]]; then
     ./demos/projects/ESPRESSIF/adu/port/*.c                   \
     ./demos/projects/ESPRESSIF/adu/port/*.h                   \
     ./demos/projects/ESPRESSIF/adu/main/*.c                   \
-    ./demos/projects/PC/linux/tests/*.c                       \
-    ./demos/common/tests/*.c
+    ./demos/projects/PC/linux/tests/*.c
 else
     usage
 fi
