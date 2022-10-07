@@ -45,7 +45,6 @@ if [[ "$FIX" == "check" ]]; then
     ./demos/projects/ESPRESSIF/adu/port/*.c                   \
     ./demos/projects/ESPRESSIF/adu/main/*.c                   \
     ./demos/projects/ST/b-l475e-iot01a/port/*.c               \
-    ./demos/projects/ST/b-l475e-iot01a/port/*.h               \
     ./demos/projects/ST/b-l475e-iot01a/config/*.h             \
     ./demos/projects/PC/linux/tests/*.c)
 
