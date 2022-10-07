@@ -299,35 +299,6 @@ static void prvInitializeTime()
 }
 /*-----------------------------------------------------------*/
 
-/**
- * @brief Implements the sample interface for generating reported properties payload.
- */
-uint32_t ulCreateReportedPropertiesUpdate( uint8_t * pucPropertiesData,
-                                           uint32_t ulPropertiesDataSize )
-{
-    return ulSampleCreateReportedPropertiesUpdate( pucPropertiesData, ulPropertiesDataSize );
-}
-/*-----------------------------------------------------------*/
-
-uint32_t ulHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
-                          uint32_t * pulResponseStatus,
-                          uint8_t * pucCommandResponsePayloadBuffer,
-                          uint32_t ulCommandResponsePayloadBufferSize )
-{
-    return ulSampleHandleCommand( pxMessage, pulResponseStatus, pucCommandResponsePayloadBuffer, ulCommandResponsePayloadBufferSize );
-}
-/*-----------------------------------------------------------*/
-
-uint32_t ulCreateTelemetry( uint8_t * pucTelemetryData,
-                            uint32_t ulTelemetryDataSize,
-                            uint32_t * ulTelemetryDataLength )
-{
-    *ulTelemetryDataLength = ulSampleCreateTelemetry( pucTelemetryData, ulTelemetryDataSize );
-
-    return 0;
-}
-/*-----------------------------------------------------------*/
-
 uint64_t ullGetUnixTime( void )
 {
     time_t now = time( NULL );
