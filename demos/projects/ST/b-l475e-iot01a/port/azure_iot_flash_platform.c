@@ -202,8 +202,6 @@ AzureIoTResult_t AzureIoTPlatform_EnableImage( AzureADUImage_t * const pxAduImag
 {
     FLASH_OBProgramInitTypeDef xOptionBytes;
 
-    HAL_FLASH_Unlock();
-    HAL_FLASH_OB_Unlock();
     HAL_FLASHEx_OBGetConfig( &xOptionBytes ); /* Get current optionbytes configuration */
     xOptionBytes.OptionType = OPTIONBYTE_USER;
     xOptionBytes.USERType = OB_USER_BFB2;
@@ -213,7 +211,18 @@ AzureIoTResult_t AzureIoTPlatform_EnableImage( AzureADUImage_t * const pxAduImag
         ? OB_BFB2_DISABLE
         : OB_BFB2_ENABLE;
 
-    HAL_FLASHEx_OBProgram( &xOptionBytes );
+    /* Save in struct for when we reboot the device */
+    pxAduImage->xOptionBytesForReboot = xOptionBytes;
+
+    return eAzureIoTSuccess;
+}
+
+AzureIoTResult_t AzureIoTPlatform_ResetDevice( AzureADUImage_t * const pxAduImage )
+{
+    HAL_FLASH_Unlock();
+    HAL_FLASH_OB_Unlock();
+
+    HAL_FLASHEx_OBProgram( &pxAduImage->xOptionBytesForReboot );
 
     /*
      *  sets options bits and restarts device.
@@ -221,11 +230,5 @@ AzureIoTResult_t AzureIoTPlatform_EnableImage( AzureADUImage_t * const pxAduImag
      * to 0x08080000
      */
     HAL_FLASH_OB_Launch();
-    return eAzureIoTSuccess;
-}
-
-AzureIoTResult_t AzureIoTPlatform_ResetDevice( AzureADUImage_t * const pxAduImage )
-{
-    HAL_NVIC_SystemReset();
     return eAzureIoTSuccess;
 }

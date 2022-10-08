@@ -514,9 +514,9 @@ static unsigned char root_cert_array[] = {
     #define democonfigCHUNK_DOWNLOAD_SIZE    1024
 #endif /* democonfigENABLE_DPS_SAMPLE */
 
-#define democonfigADU_DEVICE_MANUFACTURER    "ST"
+#define democonfigADU_DEVICE_MANUFACTURER    "STMicroelectronics"
 #define democonfigADU_DEVICE_MODEL           "STM32L475"
-#define democonfigADU_UPDATE_PROVIDER        "ST"
+#define democonfigADU_UPDATE_PROVIDER        "STMicroelectronics"
 #define democonfigADU_UPDATE_NAME            "STM32L475"
 #define democonfigADU_UPDATE_VERSION         "1.0"
 
