@@ -182,7 +182,7 @@ AzureIoTADUClientDeviceProperties_t xADUDeviceProperties =
 static AzureADUImage_t xImage;
 
 /* Telemetry buffers */
-static uint8_t ucScratchBuffer[ 620 ];
+static uint8_t ucScratchBuffer[ 700 ];
 
 /* Command buffers */
 static uint8_t ucCommandResponsePayloadBuffer[ 128 ];

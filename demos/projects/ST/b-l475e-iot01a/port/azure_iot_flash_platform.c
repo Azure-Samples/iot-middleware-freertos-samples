@@ -201,20 +201,28 @@ AzureIoTResult_t AzureIoTPlatform_VerifyImage( AzureADUImage_t * const pxAduImag
 AzureIoTResult_t AzureIoTPlatform_EnableImage( AzureADUImage_t * const pxAduImage )
 {
     FLASH_OBProgramInitTypeDef xOptionBytes;
+    int xResult = eAzureIoTSuccess;
 
+    HAL_FLASH_Unlock();
+    HAL_FLASH_OB_Unlock();
     HAL_FLASHEx_OBGetConfig( &xOptionBytes ); /* Get current optionbytes configuration */
     xOptionBytes.OptionType = OPTIONBYTE_USER;
     xOptionBytes.USERType = OB_USER_BFB2;
-    /* If BFB2 set, we will reset it */
+    /* If BFB2 set, we will reset it when we reboot the device */
     xOptionBytes.USERConfig =
         ( ( xOptionBytes.USERConfig & OB_BFB2_ENABLE ) == OB_BFB2_ENABLE )
         ? OB_BFB2_DISABLE
         : OB_BFB2_ENABLE;
 
-    /* Save in struct for when we reboot the device */
-    pxAduImage->xOptionBytesForReboot = xOptionBytes;
+    if( HAL_FLASHEx_OBProgram( &xOptionBytes ) != HAL_OK )
+    {
+        AZLogError( ( "Error setting option bytes\r\n" ) );
+        xResult = eAzureIoTErrorFailed;
+    }
 
-    return eAzureIoTSuccess;
+    HAL_FLASH_Lock();
+    HAL_FLASH_OB_Lock();
+    return xResult;
 }
 
 AzureIoTResult_t AzureIoTPlatform_ResetDevice( AzureADUImage_t * const pxAduImage )
@@ -222,11 +230,9 @@ AzureIoTResult_t AzureIoTPlatform_ResetDevice( AzureADUImage_t * const pxAduImag
     HAL_FLASH_Unlock();
     HAL_FLASH_OB_Unlock();
 
-    HAL_FLASHEx_OBProgram( &pxAduImage->xOptionBytesForReboot );
-
     /*
-     *  sets options bits and restarts device.
-     * Also sets the book bank address to 0x08000000, which means we always write
+     * Sets options bits and restarts device.
+     * Also sets the boot bank address to 0x08000000, which means we always write
      * to 0x08080000
      */
     HAL_FLASH_OB_Launch();
