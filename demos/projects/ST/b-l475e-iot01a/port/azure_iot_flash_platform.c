@@ -103,7 +103,18 @@ AzureIoTResult_t AzureIoTPlatform_WriteBlock( AzureADUImage_t * const pxAduImage
 
     while( pucNextWriteAddr < pucBlockEndAddr )
     {
-        /* for last section of last block written to the device, use FLASH_TYPEPROGRAM_FAST_AND_LAST */
+        /**
+         * An entire image will be broken into n blocks.
+         * AzureIoTPlatform_WriteBlock is called once for each block.
+         * xIsLastBlock is true for (every chunk in) block n.
+         *
+         * We write azureiotflashL475_FLASH_ROW_SIZE amount of data at once,
+         * so each block is written in m chunks of that size.
+         * Each chunk is one loop of this while loop.
+         * ( pucNextWriteAddr >= ( pucBlockEndAddr - azureiotflashL475_FLASH_ROW_SIZE ) ) is true for chunk m of every block.
+         *
+         * For the last chunk of the last block written to the device, use FLASH_TYPEPROGRAM_FAST_AND_LAST
+         */
         if( HAL_FLASH_Program( ( xIsLastBlock && ( pucNextWriteAddr >= ( pucBlockEndAddr - azureiotflashL475_FLASH_ROW_SIZE ) ) ) ?
                                FLASH_TYPEPROGRAM_FAST_AND_LAST : FLASH_TYPEPROGRAM_FAST, ( uint32_t ) pucNextWriteAddr, ( uint32_t ) pucNextReadAddr ) != HAL_OK )
         {
@@ -117,6 +128,7 @@ AzureIoTResult_t AzureIoTPlatform_WriteBlock( AzureADUImage_t * const pxAduImage
     }
 
     HAL_FLASH_Lock();
+
     return xResult;
 }
 
@@ -201,7 +213,7 @@ AzureIoTResult_t AzureIoTPlatform_VerifyImage( AzureADUImage_t * const pxAduImag
 AzureIoTResult_t AzureIoTPlatform_EnableImage( AzureADUImage_t * const pxAduImage )
 {
     FLASH_OBProgramInitTypeDef xOptionBytes;
-    int xResult = eAzureIoTSuccess;
+    AzureIoTResult_t xResult = eAzureIoTSuccess;
 
     HAL_FLASH_Unlock();
     HAL_FLASH_OB_Unlock();
@@ -222,6 +234,7 @@ AzureIoTResult_t AzureIoTPlatform_EnableImage( AzureADUImage_t * const pxAduImag
 
     HAL_FLASH_Lock();
     HAL_FLASH_OB_Lock();
+
     return xResult;
 }
 
@@ -236,5 +249,6 @@ AzureIoTResult_t AzureIoTPlatform_ResetDevice( AzureADUImage_t * const pxAduImag
      * to 0x08080000
      */
     HAL_FLASH_OB_Launch();
+
     return eAzureIoTSuccess;
 }
