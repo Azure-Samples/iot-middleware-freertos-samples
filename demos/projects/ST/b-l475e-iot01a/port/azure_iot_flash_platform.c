@@ -18,9 +18,11 @@
 /* advance addr by this amount to program the next 32 row double-word (64-bit)
  * for fast programming
  */
-#define azureiotflashL475_FLASH_ROW_SIZE    256
+#define azureiotflashL475_FLASH_ROW_SIZE      256
 
-#define azureiotflashSHA_256_SIZE           32
+#define azureiotflashL475_DOUBLE_WORD_SIZE    8
+
+#define azureiotflashSHA_256_SIZE             32
 
 static uint8_t ucPartitionReadBuffer[ 32 ];
 static uint8_t ucDecodedManifestHash[ azureiotflashSHA_256_SIZE ];
@@ -92,30 +94,41 @@ AzureIoTResult_t AzureIoTPlatform_WriteBlock( AzureADUImage_t * const pxAduImage
                                               uint8_t * const pData,
                                               uint32_t ulBlockSize )
 {
+    /**
+     * An entire image will be broken into n blocks.
+     * AzureIoTPlatform_WriteBlock is called once for each block.
+     * xIsLastBlock is true for (every chunk in) block n.
+     *
+     * We can quickly write azureiotflashL475_FLASH_ROW_SIZE of data at once,
+     * so each block is written in m full chunks of that size.
+     * Each chunk is one loop of the below while loop: ( pucNextWriteAddr < pucBlockEndAddr ).
+     * ( pucNextWriteAddr >= pucLastChunkWriteAddr ) is true for chunk m of every block.
+     * If there is only one partial chunk in the block, m is 0, and the while loop is skipped.
+     *
+     * If an image doesn't evenly divide into chunks of size azureiotflashL475_FLASH_ROW_SIZE,
+     * we write the leftovers by the double word. If the image evenly divides, we skip this.
+     *
+     */
     uint8_t * pucNextWriteAddr = pxAduImage->xUpdatePartition + ulOffset;
     uint8_t * pucNextReadAddr = pData;
-    uint8_t * pucBlockEndAddr = pxAduImage->xUpdatePartition + ulOffset + ulBlockSize;
+    AzureIoTResult_t xResult = eAzureIoTSuccess;
     bool xIsLastBlock = pxAduImage->ulImageFileSize - ulOffset <= ulBlockSize;
 
-    AzureIoTResult_t xResult = eAzureIoTSuccess;
+    /* no need to use double word programing at the end if the image fits evenly into chunks. */
+    bool xImageDividesEvenly = pxAduImage->ulImageFileSize % azureiotflashL475_FLASH_ROW_SIZE == 0;
+
+    /* starting address of last full sized chunk (of the whole image) - may not be in the last block */
+    uint8_t * pucLastChunkWriteAddr = pxAduImage->xUpdatePartition + pxAduImage->ulImageFileSize - ( ( xImageDividesEvenly ? 1 : 2 ) * azureiotflashL475_FLASH_ROW_SIZE );
+
+    /* ending address of the last full chunk in this block */
+    uint8_t * pucBlockEndAddr = pxAduImage->xUpdatePartition + ulOffset + ulBlockSize - ( ( xIsLastBlock && !xImageDividesEvenly ) ? azureiotflashL475_FLASH_ROW_SIZE : 0 );
 
     HAL_FLASH_Unlock();
 
     while( pucNextWriteAddr < pucBlockEndAddr )
     {
-        /**
-         * An entire image will be broken into n blocks.
-         * AzureIoTPlatform_WriteBlock is called once for each block.
-         * xIsLastBlock is true for (every chunk in) block n.
-         *
-         * We write azureiotflashL475_FLASH_ROW_SIZE amount of data at once,
-         * so each block is written in m chunks of that size.
-         * Each chunk is one loop of this while loop.
-         * ( pucNextWriteAddr >= ( pucBlockEndAddr - azureiotflashL475_FLASH_ROW_SIZE ) ) is true for chunk m of every block.
-         *
-         * For the last chunk of the last block written to the device, use FLASH_TYPEPROGRAM_FAST_AND_LAST
-         */
-        if( HAL_FLASH_Program( ( xIsLastBlock && ( pucNextWriteAddr >= ( pucBlockEndAddr - azureiotflashL475_FLASH_ROW_SIZE ) ) ) ?
+        /* For the last full chunk of the image written to the device (at address pucLastChunkWriteAddr), use FLASH_TYPEPROGRAM_FAST_AND_LAST */
+        if( HAL_FLASH_Program( ( pucNextWriteAddr >= pucLastChunkWriteAddr ) ?
                                FLASH_TYPEPROGRAM_FAST_AND_LAST : FLASH_TYPEPROGRAM_FAST, ( uint32_t ) pucNextWriteAddr, ( uint32_t ) pucNextReadAddr ) != HAL_OK )
         {
             /* Error occurred while writing data in Flash memory */
@@ -125,6 +138,24 @@ AzureIoTResult_t AzureIoTPlatform_WriteBlock( AzureADUImage_t * const pxAduImage
 
         pucNextWriteAddr += azureiotflashL475_FLASH_ROW_SIZE;
         pucNextReadAddr += azureiotflashL475_FLASH_ROW_SIZE;
+    }
+
+    /* Write any leftover data that didn't evenly fit into the chunks */
+    if( xIsLastBlock && ( pucNextWriteAddr > pucLastChunkWriteAddr + azureiotflashL475_FLASH_ROW_SIZE ) )
+    {
+        while( pucNextWriteAddr < pucBlockEndAddr + azureiotflashL475_FLASH_ROW_SIZE )
+        {
+            /* Program double words until the end of the file */
+            if( HAL_FLASH_Program( FLASH_TYPEPROGRAM_DOUBLEWORD, ( uint32_t ) pucNextWriteAddr, ( uint64_t ) *( uint32_t * ) pucNextReadAddr | ( ( uint64_t ) *( uint32_t * ) ( pucNextReadAddr + 4 ) ) << 32 ) != HAL_OK )
+            {
+                /* Error occurred while writing data in Flash memory */
+                xResult = eAzureIoTErrorFailed;
+                break;
+            }
+
+            pucNextWriteAddr += azureiotflashL475_DOUBLE_WORD_SIZE;
+            pucNextReadAddr += azureiotflashL475_DOUBLE_WORD_SIZE;
+        }
     }
 
     HAL_FLASH_Lock();
