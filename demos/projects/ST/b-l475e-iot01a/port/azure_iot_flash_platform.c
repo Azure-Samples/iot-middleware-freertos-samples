@@ -141,7 +141,7 @@ AzureIoTResult_t AzureIoTPlatform_WriteBlock( AzureADUImage_t * const pxAduImage
     }
 
     /* Write any leftover data that didn't evenly fit into the chunks */
-    if( xIsLastBlock && ( pucNextWriteAddr > pucLastChunkWriteAddr + azureiotflashL475_FLASH_ROW_SIZE ) )
+    if( ( xResult == eAzureIoTSuccess ) && xIsLastBlock && ( pucNextWriteAddr > pucLastChunkWriteAddr + azureiotflashL475_FLASH_ROW_SIZE ) )
     {
         while( pucNextWriteAddr < pucBlockEndAddr + azureiotflashL475_FLASH_ROW_SIZE )
         {
