@@ -182,7 +182,7 @@ AzureIoTADUClientDeviceProperties_t xADUDeviceProperties =
 static AzureADUImage_t xImage;
 
 /* Telemetry buffers */
-static uint8_t ucScratchBuffer[ 600 ];
+static uint8_t ucScratchBuffer[ 700 ];
 
 /* Command buffers */
 static uint8_t ucCommandResponsePayloadBuffer[ 128 ];
@@ -539,6 +539,12 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash( int32_t ullTimeoutInSec
                                                    ( uint32_t ) xImage.ulCurrentOffset,
                                                    ( uint8_t * ) pucOutDataPtr,
                                                    ulOutHttpDataBufferLength );
+
+            if( xResult != eAzureIoTSuccess )
+            {
+                LogError( ( "[ADU] Error writing to flash." ) );
+                return eAzureIoTErrorFailed;
+            }
 
             /* Advance the offset */
             xImage.ulCurrentOffset += ( int32_t ) ulOutHttpDataBufferLength;
