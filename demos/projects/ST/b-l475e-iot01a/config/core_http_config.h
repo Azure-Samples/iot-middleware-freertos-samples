@@ -118,7 +118,7 @@
 #endif
 
 #ifndef LIBRARY_LOG_NAME
-    #define LIBRARY_LOG_NAME    "MQTT"
+    #define LIBRARY_LOG_NAME    "HTTP"
 #endif
 
 #ifndef LIBRARY_LOG_LEVEL

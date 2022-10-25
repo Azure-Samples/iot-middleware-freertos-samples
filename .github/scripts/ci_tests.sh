@@ -81,6 +81,7 @@ do
             exit_if_binary_does_not_exist "build_st_b-l475e-iot01a" "iot-middleware-sample.elf"
             exit_if_binary_does_not_exist "build_st_b-l475e-iot01a" "iot-middleware-sample-pnp.elf"
             exit_if_binary_does_not_exist "build_st_b-l475e-iot01a" "iot-middleware-sample-gsg.elf"
+            exit_if_binary_does_not_exist "build_st_b-l475e-iot01a" "iot-middleware-sample-adu.elf"
 
             echo -e "::group::Building sample for ST stm32h745i-disco port"
             sample_build "ST" "stm32h745i-disco" "build_st_stm32h745i-disco"
