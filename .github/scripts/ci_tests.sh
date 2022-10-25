@@ -74,7 +74,7 @@ do
             exit_if_binary_does_not_exist "build_nxp_mimxrt1060" "iot-middleware-sample-adu.elf"
             ;;
         "-st")
-            # fetch_freertos
+            fetch_freertos
 
             echo -e "::group::Building sample for ST b-l475e-iot01a port"
             sample_build "ST" "b-l475e-iot01a" "build_st_b-l475e-iot01a"
