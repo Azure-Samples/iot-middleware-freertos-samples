@@ -2,25 +2,19 @@
  * Licensed under the MIT License. */
 
 #include <string.h>
-
 #include "azure_iot_flash_platform.h"
-
 #include "azure_iot_flash_platform_port.h"
-
 #include "stm32l4xx_hal.h"
 /* Logging */
 #include "azure_iot.h"
-
 #include "azure/core/az_base64.h"
-
 #include "mbedtls/md.h"
 
+#define azureiotflashL475_DOUBLE_WORD_SIZE    2 * sizeof(long)
 /* advance addr by this amount to program the next 32 row double-word (64-bit)
  * for fast programming
  */
-#define azureiotflashL475_FLASH_ROW_SIZE      256
-
-#define azureiotflashL475_DOUBLE_WORD_SIZE    8
+#define azureiotflashL475_FLASH_ROW_SIZE      32 * azureiotflashL475_DOUBLE_WORD_SIZE
 
 #define azureiotflashSHA_256_SIZE             32
 
@@ -217,7 +211,7 @@ AzureIoTResult_t AzureIoTPlatform_VerifyImage( AzureADUImage_t * const pxAduImag
     }
     else
     {
-        AZLogInfo( ( "SHAs do not match\r\n" ) );
+        AZLogError( ( "SHAs do not match\r\n" ) );
         AZLogInfo( ( "Wanted: " ) );
 
         for( int i = 0; i < azureiotflashSHA_256_SIZE; ++i )
