@@ -17,11 +17,6 @@ This sample will allow you to update an STMicroelectronics B-L475E-IOT01A Discov
   - [Deploy Update](#deploy-update)
 - [Tips and Tricks](#tips-and-tricks)
 
-<!-- **Note** that this sample does not utilize non-volatile storage of device credentials. That means that the update image contains the credentials themselves and each update may only apply to one device. For information on how to store credentials in non-volatile storage, please see the following link:
-
-- [ESP32 NVS API Documentation](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/storage/nvs_flash.html)
-- [ESP32 NVS Factory Flashing Tool](https://github.com/espressif/esp-idf/tree/master/tools/mass_mfg) -->
-
 ## Prepare the Device
 
 ### Install Prerequisites
@@ -34,15 +29,6 @@ This sample will allow you to update an STMicroelectronics B-L475E-IOT01A Discov
 1. [Ninja build system](https://github.com/ninja-build/ninja/releases) (Version 1.10 or higher)
 1. [GNU Arm Embedded Toolchain](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads) (Version 9 or higher)
 1. Serial terminal tool like [Termite](https://www.compuphase.com/software_termite.htm), Putty, Tera Term, etc.
-
-<!-- To run this sample you can use a device previously created on your Azure IoT Hub or you may have the Azure IoT middleware for FreeRTOS provision your device automatically using Azure Device Provisioning Services (DPS).
-
-IoT Hub | DPS
----------|----------
-Have an [Azure IoT Hub](https://docs.microsoft.com/azure/iot-hub/iot-hub-create-through-portal) created | Have an instance of [IoT Hub Device Provisioning Service](https://docs.microsoft.com/azure/iot-dps/quick-setup-auto-provision#create-a-new-iot-hub-device-provisioning-service)
-Have a [logical device](https://docs.microsoft.com/azure/iot-hub/iot-hub-create-through-portal#register-a-new-device-in-the-iot-hub) created in your Azure IoT Hub using your preferred authentication method* | Have an [individual enrollment](https://docs.microsoft.com/azure/iot-dps/how-to-manage-enrollments#create-a-device-enrollment) created in your instance of DPS using your preferred authentication method*
-
-**While this sample supports SAS keys and Certificates, this guide will refer only to SAS keys.** -->
 
 Ensure that cmake, ninja and the ARM toolset binaries are available in the `PATH` environment variable.
 
