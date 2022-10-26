@@ -10,7 +10,8 @@
 #include "azure/core/az_base64.h"
 #include "mbedtls/md.h"
 
-#define azureiotflashL475_DOUBLE_WORD_SIZE    2 * sizeof(long)
+#define azureiotflashL475_DOUBLE_WORD_SIZE    2 * sizeof( long )
+
 /* advance addr by this amount to program the next 32 row double-word (64-bit)
  * for fast programming
  */
