@@ -83,15 +83,15 @@ do
             exit_if_binary_does_not_exist "build_st_b-l475e-iot01a" "iot-middleware-sample-gsg.elf"
             exit_if_binary_does_not_exist "build_st_b-l475e-iot01a" "iot-middleware-sample-adu.elf"
 
-            echo -e "::group::Building sample for ST stm32h745i-disco port"
-            sample_build "ST" "stm32h745i-disco" "build_st_stm32h745i-disco"
-            exit_if_binary_does_not_exist "build_st_stm32h745i-disco" "iot-middleware-sample.elf"
-            exit_if_binary_does_not_exist "build_st_stm32h745i-disco" "iot-middleware-sample-pnp.elf"
+            # echo -e "::group::Building sample for ST stm32h745i-disco port"
+            # sample_build "ST" "stm32h745i-disco" "build_st_stm32h745i-disco"
+            # exit_if_binary_does_not_exist "build_st_stm32h745i-disco" "iot-middleware-sample.elf"
+            # exit_if_binary_does_not_exist "build_st_stm32h745i-disco" "iot-middleware-sample-pnp.elf"
 
-            echo -e "::group::Building sample for ST b-l4s5i-iot01a port"
-            sample_build "ST" "b-l4s5i-iot01a" "build_st_b-l4s5i-iot01a"
-            exit_if_binary_does_not_exist "build_st_b-l4s5i-iot01a" "iot-middleware-sample.elf"
-            exit_if_binary_does_not_exist "build_st_b-l4s5i-iot01a" "iot-middleware-sample-pnp.elf"
+            # echo -e "::group::Building sample for ST b-l4s5i-iot01a port"
+            # sample_build "ST" "b-l4s5i-iot01a" "build_st_b-l4s5i-iot01a"
+            # exit_if_binary_does_not_exist "build_st_b-l4s5i-iot01a" "iot-middleware-sample.elf"
+            # exit_if_binary_does_not_exist "build_st_b-l4s5i-iot01a" "iot-middleware-sample-pnp.elf"
             ;;
         "-pc")
             fetch_freertos
