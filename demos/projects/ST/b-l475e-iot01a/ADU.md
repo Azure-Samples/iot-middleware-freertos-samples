@@ -201,7 +201,7 @@ $updateId = New-AduUpdateId -Provider "STMicroelectronics" -Name "STM32L475" -Ve
 
 $compat = New-AduUpdateCompatibility -Properties @{ deviceManufacturer = 'STMicroelectronics'; deviceModel = 'STM32L475' }
 
-$installStep = New-AduInstallationStep -Handler 'microsoft/swupdate:1'-HandlerProperties @{ installedCriteria = "${updateId.version}" } -Files C:\ADU-update\iot-middleware-sample-adu-v${updateId.version}.bin
+$installStep = New-AduInstallationStep -Handler 'microsoft/swupdate:1'-HandlerProperties @{ installedCriteria = '1.1' } -Files C:\ADU-update\iot-middleware-sample-adu-v1.1.bin
 
 $update = New-AduImportManifest -UpdateId $updateId -Compatibility $compat -InstallationSteps $installStep
 
@@ -229,9 +229,9 @@ After you deploy the update, the device should receive the new writable properti
 
 Once the device reboots, you should see on the console, output that looks like the following:
 
-![img](../../../../docs/resources/new-version-device-output.png)
+![img](../../../../docs/resources/new-version-device-output-L475.png)
 
-Note the section which states `Version 1.1`. Congratulations! Your STML475 is now running new, updated software!
+Note the section which states `Version: 1.1`. Congratulations! Your STML475 is now running new, updated software!
 
 
 ## Tips and Tricks
