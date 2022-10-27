@@ -41,7 +41,6 @@ You may also need to enable long path support for both Microsoft Windows and git
   git config --system core.longpaths true
   ```
 
-
 Clone this repo to download all sample device code, setup scripts, and offline versions of the documentation.
 
 **If you previously cloned this repo in another sample, you don't need to do it again.**
@@ -71,8 +70,6 @@ Add the `"ADUGroup"` tag to the device's top-level twin document. This is used t
 Viewing the device twin on the portal, the "tag" section should look similar to the following. Don't worry if you do or do not have a `"deviceUpdate"` section in the `"ADUGroup"` tag. ADU adds that as a default group.
 
 ![img](../../../../docs/resources/tagged-twin.png)
-
-
 
 ### Prepare the Sample
 
@@ -232,7 +229,6 @@ Once the device reboots, you should see on the console, output that looks like t
 ![img](../../../../docs/resources/new-version-device-output-L475.png)
 
 Note the section which states `Version: 1.1`. Congratulations! Your STML475 is now running new, updated software!
-
 
 ## Tips and Tricks
 - The [ST-Link Utility](https://www.st.com/en/development-tools/stsw-link004.html) is very helpful for developing with the flash bank. You can read flash memory, erase banks, and set the boot bank with BFB2 in the Option Bytes. This can be helpful if you've received one update from ADU and want to flash new code over USB, but the board is set to boot from Bank 2 because of the update. Note that using this to read from the flash memory while you're writing will crash the device.
