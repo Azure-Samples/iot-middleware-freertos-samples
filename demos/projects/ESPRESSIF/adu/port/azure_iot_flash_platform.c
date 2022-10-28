@@ -131,6 +131,7 @@ AzureIoTResult_t AzureIoTPlatform_VerifyImage( AzureADUImage_t * const pxAduImag
         if( ( ulOffset % 65536 == 0 ) && ( ulOffset != 0 ) )
         {
             printf( "." );
+            fflush(stdout);
         }
     }
 
