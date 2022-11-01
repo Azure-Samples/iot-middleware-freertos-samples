@@ -48,21 +48,6 @@
             "preLaunchTask": "Build and Deploy b-l475e-iot01a"
         },
         {
-            "name": "STM L475E ADU: Local OpenOCD",
-            "type": "cortex-debug",
-            "request": "launch",
-            "servertype": "openocd",
-            "device": "STM32L475VG",
-            "runToMain": true,
-            "executable": "${workspaceFolder}/b-l475e-iot01a/demos/projects/ST/b-l475e-iot01a/iot-middleware-sample-adu.elf",
-            "svdFile": "${workspaceFolder}/.vscode/STM32L4x5.svd",
-            "cwd": "${workspaceRoot}",
-            "configFiles": [
-                "board/stm32l4discovery.cfg"
-            ],
-            "preLaunchTask": "Build and Deploy b-l475e-iot01a ADU Sample"
-        },
-        {
             "name": "NXP mimxrt1060: Local J-Link",
             "type": "cortex-debug",
             "request": "launch",

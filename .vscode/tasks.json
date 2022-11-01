@@ -17,25 +17,6 @@
             "dependsOn": [ "Build b-l475e-iot01a" ]
         },
         {
-            "label": "Build and Deploy b-l475e-iot01a ADU Sample",
-            "type": "shell",
-            "command": "openocd -f board/stm32l4discovery.cfg -c \"program b-l475e-iot01a/demos/projects/ST/b-l475e-iot01a/iot-middleware-sample-adu.elf verify\" -c \"reset halt\" -c shutdown",
-            "windows": {
-                "options": {
-                    "shell": {
-                        "executable": "cmd.exe",
-                        "args": [
-                            "/c"
-                        ]
-                    }
-                }
-            },
-            "problemMatcher": [],
-            "dependsOn": [
-                "Build b-l475e-iot01a"
-            ]
-        },
-        {
             "label": "Download FreeRTOS",
             "type": "shell",
             "isBackground": false,
