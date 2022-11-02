@@ -84,14 +84,9 @@ AzureIoTResult_t AzureIoTPlatform_Init( AzureADUImage_t * const pxAduImage )
     return xResult;
 }
 
-AzureIoTResult_t AzureIoTPlatform_VerifyImageSize(AzureADUImage_t * const pxAduImage)
+AzureIoTResult_t AzureIoTPlatform_GetFlashBankSize()
 {
-    if (pxAduImage->ulImageFileSize > FLASH_BANK_SIZE) {
-        return eAzureIoTErrorFailed;
-    }
-    else {
-        return eAzureIoTSuccess;
-    }
+    return FLASH_BANK_SIZE;
 }
 
 AzureIoTResult_t AzureIoTPlatform_WriteBlock( AzureADUImage_t * const pxAduImage,

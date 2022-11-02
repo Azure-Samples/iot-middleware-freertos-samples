@@ -488,13 +488,6 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash( int32_t ullTimeoutInSec
                                                              sizeof( ucAduDownloadBuffer ) ) ) != -1 )
     {
         LogInfo( ( "[ADU] HTTP Range Request was successful: size %d bytes", xImage.ulImageFileSize ) );
-        if (AzureIoTPlatform_VerifyImageSize(xImage) != eAzureIoTSuccess)
-        {
-            LogError(("[ADU] Update image too large for the flash bank."));
-
-            xProcessUpdateRequest = false;
-            return eAzureIoTSuccess; // device shouldn't crash here, just go back to waiting for updates
-        }
     }
     else
     {
