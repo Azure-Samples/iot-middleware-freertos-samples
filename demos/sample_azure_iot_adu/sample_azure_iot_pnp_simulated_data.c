@@ -2,6 +2,7 @@
  * Licensed under the MIT License. */
 
 #include "sample_azure_iot_pnp_data_if.h"
+#include "azure_iot_flash_platform.h"
 
 /* Standard includes. */
 #include <string.h>

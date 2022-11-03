@@ -8,6 +8,11 @@ AzureIoTResult_t AzureIoTPlatform_Init( AzureADUImage_t * const pxAduImage )
   return eAzureIoTSuccess;
 }
 
+uint32_t AzureIoTPlatform_GetFlashBankSize()
+{    
+  return UINT32_MAX;
+}
+
 AzureIoTResult_t AzureIoTPlatform_WriteBlock( AzureADUImage_t * const pxFileContext,
                                               uint32_t ulOffset,
                                               uint8_t * const pData,
