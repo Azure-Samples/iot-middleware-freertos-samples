@@ -286,7 +286,7 @@ static AzureIoTADURequestDecision_t prvUserDecideShouldStartUpdate( AzureIoTADUU
         LogInfo( ( "[ADU] Rejecting update request (installed criteria matches current version)" ) );
         return eAzureIoTADURequestDecisionReject;
     }
-    else if( AzureIoTPlatform_GetFlashBankSize() < pxAduUpdateRequest->xUpdateManifest.pxFiles[ 0 ].llSizeInBytes )
+    else if( AzureIoTPlatform_GetFlashBankSize() < pxAduUpdateRequest->xUpdateManifest.pxFiles[ 0 ].llSizeInBytes || pxAduUpdateRequest->xUpdateManifest.pxFiles[ 0 ].llSizeInBytes < 0 )
     {
         LogInfo( ( "[ADU] Rejecting update request (image size larger than flash bank size)" ) );
         return eAzureIoTADURequestDecisionReject;
