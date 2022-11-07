@@ -66,7 +66,7 @@ Additional instructions for using Azure IoT Explorer are available [here](https:
 
 ### Azure Device Update
 
-You can interact with the Azure Device Update, remotely updating your Azure IoT Hub devices through the samples below:
+You can interact with Azure Device Update, remotely updating your Azure IoT Hub devices through the samples below:
 
 - ESPRESSIF:
   - [ESP32](demos/projects/ESPRESSIF/adu/README.md)
