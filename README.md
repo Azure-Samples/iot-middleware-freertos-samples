@@ -71,6 +71,9 @@ You can interact with the Azure Device Update, remotely updating your Azure IoT 
 - ESPRESSIF:
   - [ESP32](demos/projects/ESPRESSIF/adu/README.md)
 
+- STMicroelectronics:
+  - [B-L475E-IOT01A](demos/projects/ST/b-l475e-iot01a/ADU.md)
+
 - PC Simulation:
   - [Linux](demos/projects/PC/linux/ADU.md)
 
