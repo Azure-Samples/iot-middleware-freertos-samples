@@ -146,7 +146,6 @@ static uint8_t ucAzureIoTADURootKeyE200703[ 3 ] = { 0x01, 0x00, 0x01 };
 
 static AzureIoTJWS_RootKey_t xADURootKeys[] =
 {
-    /*Put Root key 03 first since we know 02 is used in these ut (makes sure we cycle through the array) */
     {
         .pucRootKeyId = ucAzureIoTADURootKeyId200703,
         .ulRootKeyIdLength = sizeof( ucAzureIoTADURootKeyId200703 ) - 1,
