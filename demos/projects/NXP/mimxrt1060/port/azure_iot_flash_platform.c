@@ -53,13 +53,13 @@ AzureIoTResult_t AzureIoTPlatform_Init( AzureADUImage_t * const pxAduImage )
     return eAzureIoTSuccess;
 }
 
-uint32_t AzureIoTPlatform_GetFlashBankSize()
+int64_t AzureIoTPlatform_GetFlashBankSize()
 {
     // TODO: Fill in returning of flash bank size (to make sure we don't install an image larger than that)
     
     LogInfo( ( "AzureIoTPlatform_GetFlashBankSize()\r\n" ) );
 
-    return UINT32_MAX;
+    return INT64_MAX;
 }
 
 AzureIoTResult_t AzureIoTPlatform_WriteBlock( AzureADUImage_t * const pxAduImage,

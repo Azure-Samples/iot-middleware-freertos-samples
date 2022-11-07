@@ -71,7 +71,7 @@ AzureIoTResult_t AzureIoTPlatform_Init( AzureADUImage_t * const pxAduImage )
     return eAzureIoTSuccess;
 }
 
-uint32_t AzureIoTPlatform_GetFlashBankSize()
+int64_t AzureIoTPlatform_GetFlashBankSize()
 {
     /* value set in menuconfig (in bytes) */
     return spi_flash_get_chip_size();
