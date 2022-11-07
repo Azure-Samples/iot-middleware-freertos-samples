@@ -466,8 +466,8 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
                                                                  xAzureIoTAduUpdateRequest.ulUpdateManifestLength,
                                                                  xAzureIoTAduUpdateRequest.pucUpdateManifestSignature,
                                                                  xAzureIoTAduUpdateRequest.ulUpdateManifestSignatureLength,
-                                                                 &xADURootKeys[0],
-                                                                 sizeof(xADURootKeys) / sizeof(xADURootKeys[0]),
+                                                                 &xADURootKeys[ 0 ],
+                                                                 sizeof( xADURootKeys ) / sizeof( xADURootKeys[ 0 ] ),
                                                                  ucADUScratchBuffer,
                                                                  sizeof( ucADUScratchBuffer ) );
 
