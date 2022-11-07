@@ -71,10 +71,10 @@ AzureIoTResult_t AzureIoTPlatform_Init( AzureADUImage_t * const pxAduImage )
     return eAzureIoTSuccess;
 }
 
-int64_t AzureIoTPlatform_GetFlashBankSize()
-{
-    /* value set in menuconfig (in bytes) */
-    return spi_flash_get_chip_size();
+int64_t AzureIoTPlatform_GetSingleFlashBootBankSize()
+{    
+    // size of the next ota partition to be written to
+    return esp_ota_get_next_update_partition( esp_ota_get_running_partition() )->size;
 }
 
 AzureIoTResult_t AzureIoTPlatform_WriteBlock( AzureADUImage_t * const pxAduImage,
