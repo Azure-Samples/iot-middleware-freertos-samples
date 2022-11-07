@@ -72,8 +72,8 @@ AzureIoTResult_t AzureIoTPlatform_Init( AzureADUImage_t * const pxAduImage )
 }
 
 int64_t AzureIoTPlatform_GetSingleFlashBootBankSize()
-{    
-    // size of the next ota partition to be written to
+{
+    /* size of the next ota partition to be written to */
     return esp_ota_get_next_update_partition( esp_ota_get_running_partition() )->size;
 }
 
