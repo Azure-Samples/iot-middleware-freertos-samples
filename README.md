@@ -64,6 +64,19 @@ The easiest way to interact with the Plug and Play sample from the IoT service s
 
 Additional instructions for using Azure IoT Explorer are available [here](https://github.com/Azure/azure-iot-explorer/#plug-and-play).
 
+### Azure Device Update
+
+You can interact with Azure Device Update, remotely updating your Azure IoT Hub devices through the samples below:
+
+- ESPRESSIF:
+  - [ESP32](demos/projects/ESPRESSIF/adu/README.md)
+
+- STMicroelectronics:
+  - [B-L475E-IOT01A](demos/projects/ST/b-l475e-iot01a/ADU.md)
+
+- PC Simulation:
+  - [Linux](demos/projects/PC/linux/ADU.md)
+
 ## Support
 
 If you need support, please see our [SUPPORT.md](./SUPPORT.md) file.
