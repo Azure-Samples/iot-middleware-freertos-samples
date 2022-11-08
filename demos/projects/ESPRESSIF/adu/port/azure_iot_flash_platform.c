@@ -71,6 +71,28 @@ AzureIoTResult_t AzureIoTPlatform_Init( AzureADUImage_t * const pxAduImage )
     return eAzureIoTSuccess;
 }
 
+int64_t AzureIoTPlatform_GetSingleFlashBootBankSize()
+{
+    const esp_partition_t * pxCurrentPartition = esp_ota_get_running_partition();
+
+    if( pxCurrentPartition == NULL )
+    {
+        AZLogError( ( "esp_ota_get_running_partition failed" ) );
+        return -1;
+    }
+
+    const esp_partition_t * pxNextPartition = esp_ota_get_next_update_partition( pxCurrentPartition );
+
+    if( pxNextPartition == NULL )
+    {
+        AZLogError( ( "esp_ota_get_next_update_partition failed" ) );
+        return -1;
+    }
+
+    /* size of the next ota partition to be written to */
+    return pxNextPartition->size;
+}
+
 AzureIoTResult_t AzureIoTPlatform_WriteBlock( AzureADUImage_t * const pxAduImage,
                                               uint32_t ulOffset,
                                               uint8_t * const pData,

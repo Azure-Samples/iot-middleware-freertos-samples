@@ -2,6 +2,7 @@
  * Licensed under the MIT License. */
 
 #include "sample_azure_iot_pnp_data_if.h"
+#include "azure_iot_flash_platform.h"
 
 /* Standard includes. */
 #include <string.h>
@@ -372,6 +373,11 @@ static AzureIoTADURequestDecision_t prvUserDecideShouldStartUpdate( AzureIoTADUU
     if( prvDoesInstalledCriteriaMatchCurrentVersion( pxAduUpdateRequest ) )
     {
         LogInfo( ( "[ADU] Rejecting update request (installed criteria matches current version)" ) );
+        return eAzureIoTADURequestDecisionReject;
+    }
+    else if( ( AzureIoTPlatform_GetSingleFlashBootBankSize() < pxAduUpdateRequest->xUpdateManifest.pxFiles[ 0 ].llSizeInBytes ) || ( pxAduUpdateRequest->xUpdateManifest.pxFiles[ 0 ].llSizeInBytes < 0 ) )
+    {
+        LogInfo( ( "[ADU] Rejecting update request (image size larger than flash bank size)" ) );
         return eAzureIoTADURequestDecisionReject;
     }
     else

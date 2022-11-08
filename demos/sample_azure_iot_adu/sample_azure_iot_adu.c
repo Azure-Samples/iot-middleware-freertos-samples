@@ -594,7 +594,7 @@ static AzureIoTResult_t prvEnableImageAndResetDevice()
 
     if( AzureIoTPlatform_EnableImage( &xImage ) != eAzureIoTSuccess )
     {
-        LogError( ( "[ADU] File hash from ADU did not match calculated hash" ) );
+        LogError( ( "[ADU] Image could not be enabled" ) );
         return eAzureIoTErrorFailed;
     }
 
