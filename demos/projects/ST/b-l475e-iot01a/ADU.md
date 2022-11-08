@@ -153,6 +153,7 @@ To create an Azure Device Update instance and connect it to your IoT Hub, please
 For other prerequisite help, please see the links below. If none of the links apply to your development environment, you may skip them.
 
 - [Create an Azure IoT Hub](https://docs.microsoft.com/azure/iot-hub/iot-hub-create-through-portal)
+  > Important: To use Azure Device Update you must have an Azure IoT Hub with [scale unit](https://learn.microsoft.com/azure/iot-hub/iot-hub-scaling) S1, S2, S3 or a free/standard hub. This sample will not work with a Basic Azure IoT Hub scale unit.
 - [Create Device Provisioning Service Instance](https://docs.microsoft.com/azure/iot-dps/quick-setup-auto-provision)
 
 ## Deploy the Over the Air Update
