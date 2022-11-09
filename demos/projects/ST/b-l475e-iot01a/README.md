@@ -153,5 +153,5 @@ This sample can include IoT Hub only, or IoT Hub plus DPS services and/or ADU se
     - .bss
     - ._user_heap_stack
   - Middleware values were calculated by filtering the map file by any entries with `libaz` in the file path.
-  - map file was parsed using [Amap](https://www.sikorskiy.net/info/prj/amap/). This tool counts memory actually used in a section, and does not count any padding. With this tool, flash/RAM can be counted either by Section (sections listed above) or by Memory Configuration
+  - Total values were calculated from the map file found at the root of the build directory by summing all values within the above specified sections.
 </details>
