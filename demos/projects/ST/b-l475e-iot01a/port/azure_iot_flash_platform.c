@@ -215,7 +215,7 @@ AzureIoTResult_t AzureIoTPlatform_VerifyImage( AzureADUImage_t * const pxAduImag
 
         for( int i = 0; i < azureiotflashSHA_256_SIZE; ++i )
         {
-            AZLogInfo( "%x", ucDecodedManifestHash[ i ] );
+            AZLogInfo( ( "%x", ucDecodedManifestHash[ i ] ) );
         }
 
         AZLogInfo( ( "\r\n" ) );
@@ -223,7 +223,7 @@ AzureIoTResult_t AzureIoTPlatform_VerifyImage( AzureADUImage_t * const pxAduImag
 
         for( int i = 0; i < azureiotflashSHA_256_SIZE; ++i )
         {
-            AZLogInfo( "%x", ucCalculatedHash[ i ] );
+            AZLogInfo( ( "%x", ucCalculatedHash[ i ] ) );
         }
 
         AZLogInfo( ( "\r\n" ) );
