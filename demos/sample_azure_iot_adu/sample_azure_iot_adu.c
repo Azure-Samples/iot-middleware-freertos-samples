@@ -159,7 +159,7 @@ uint64_t ullGetUnixTime( void );
 /* Each compilation unit must define the NetworkContext struct. */
 struct NetworkContext
 {
-    TlsTransportParams_t * pParams;
+    void * pParams;
 };
 
 AzureIoTHubClient_t xAzureIoTHubClient;

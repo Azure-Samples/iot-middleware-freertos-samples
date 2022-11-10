@@ -39,15 +39,20 @@
 #include "esp_transport.h"
 #include "esp_transport_tcp.h"
 
+typedef TlsTransportParams
+{
+    esp_transport_handle_t xTransport;
+    uint32_t ulReceiveTimeoutMs;
+    uint32_t ulSendTimeoutMs;
+} TlsTransportParams_t
+
 /**
  * @brief Definition of the network context for the transport interface
  * implementation that uses ESP sockets.
  */
 struct NetworkContext
 {
-    esp_transport_handle_t xTransport;
-    uint32_t ulReceiveTimeoutMs;
-    uint32_t ulSendTimeoutMs;
+    void * pParams;
 };
 
 static const char *TAG = "esp_sockets";

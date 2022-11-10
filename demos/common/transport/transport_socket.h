@@ -15,6 +15,12 @@
 
 #include "transport_abstraction.h"
 
+typedef struct SocketTransportParams
+{
+    SocketHandle xTCPSocket;
+    SSLContextHandle xSSLContext;
+} SocketTransportParams_t;
+
 /**
  * @brief Socket Connect / Disconnect return status.
  */

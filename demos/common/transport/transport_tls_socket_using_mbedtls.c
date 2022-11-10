@@ -57,6 +57,13 @@ extern void vLoggingPrintf( const char * pcFormatString,
 
 /*-----------------------------------------------------------*/
 
+/* Each compilation unit must define the NetworkContext struct. */
+struct NetworkContext
+{
+    /* TlsTransportParams_t */
+    void * pParams;
+};
+
 /**
  * @brief Secured connection context.
  */
@@ -71,12 +78,6 @@ typedef struct MbedSSLContext
     mbedtls_entropy_context entropyContext;  /**< @brief Entropy context for random number generation. */
     mbedtls_ctr_drbg_context ctrDrgbContext; /**< @brief CTR DRBG context for random number generation. */
 } MbedSSLContext_t;
-
-/* Each compilation unit must define the NetworkContext struct. */
-struct NetworkContext
-{
-    TlsTransportParams_t * pParams;
-};
 
 /*-----------------------------------------------------------*/
 
@@ -763,32 +764,19 @@ void TLS_Socket_Disconnect( NetworkContext_t * pxNetworkContext )
     int32_t lMbedtlsError = 0;
     MbedSSLContext_t * pxSSLContext;
 
-    if( ( pxNetworkContext != NULL ) && ( pxNetworkContext->pParams != NULL ) &&
-        ( pxNetworkContext->pParams->xSSLContext != NULL ) )
+    if( ( pxNetworkContext == NULL ) || ( pxNetworkContext->pParams != NULL ) )
     {
-        pxTlsTransportParams = pxNetworkContext->pParams;
-        pxSSLContext = ( MbedSSLContext_t * ) pxNetworkContext->pParams->xSSLContext;
-        /* Attempting to terminate TLS connection. */
-        lMbedtlsError = mbedtls_ssl_close_notify( &( pxSSLContext->context ) );
+        /* WANT_READ and WANT_WRITE can be ignored. Logging for debugging purposes. */
+        LogInfo( ( "(Network connection %p) TLS close-notify sent; ",
+                   "received %s as the TLS status can be ignored for close-notify."
+                   ( lMbedtlsError == MBEDTLS_ERR_SSL_WANT_READ ) ? "WANT_READ" : "WANT_WRITE",
+                   pxNetworkContext ) );
+    }
 
-        /* Ignore the WANT_READ and WANT_WRITE return values. */
-        if( ( lMbedtlsError != MBEDTLS_ERR_SSL_WANT_READ ) &&
-            ( lMbedtlsError != MBEDTLS_ERR_SSL_WANT_WRITE ) )
-        {
-            if( lMbedtlsError == 0 )
-            {
-                LogInfo( ( "(Network connection %p) TLS close-notify sent.",
-                           pxNetworkContext ) );
-            }
-            else
-            {
-                LogError( ( "(Network connection %p) Failed to send TLS close-notify: mbedTLSError[%d]= %s : %s.",
-                            pxNetworkContext, lMbedtlsError,
-                            mbedtlsHighLevelCodeOrDefault( lMbedtlsError ),
-                            mbedtlsLowLevelCodeOrDefault( lMbedtlsError ) ) );
-            }
-        }
-        else
+    pxTlsTransportParams = ( TlsTransportParams_t * ) pxNetworkContext->pParams;
+
+    if( pxTlsTransportParams->xSSLContext == NULL )
+    {
         {
             /* WANT_READ and WANT_WRITE can be ignored. Logging for debugging purposes. */
             LogInfo( ( "(Network connection %p) TLS close-notify sent; ",
@@ -796,15 +784,46 @@ void TLS_Socket_Disconnect( NetworkContext_t * pxNetworkContext )
                        ( lMbedtlsError == MBEDTLS_ERR_SSL_WANT_READ ) ? "WANT_READ" : "WANT_WRITE",
                        pxNetworkContext ) );
         }
-
-        /* Call socket shutdown function to close connection. */
-        Sockets_Disconnect( pxTlsTransportParams->xTCPSocket );
-        Sockets_Close( pxTlsTransportParams->xTCPSocket );
-
-        /* Free mbed TLS contexts. */
-        sslContextFree( pxSSLContext );
-        vPortFree( pxSSLContext );
     }
+
+    pxSSLContext = ( MbedSSLContext_t * ) pxTlsTransportParams->xSSLContext;
+
+    /* Attempting to terminate TLS connection. */
+    lMbedtlsError = mbedtls_ssl_close_notify( &( pxSSLContext->context ) );
+
+    /* Ignore the WANT_READ and WANT_WRITE return values. */
+    if( ( lMbedtlsError != MBEDTLS_ERR_SSL_WANT_READ ) &&
+        ( lMbedtlsError != MBEDTLS_ERR_SSL_WANT_WRITE ) )
+    {
+        if( lMbedtlsError == 0 )
+        {
+            LogInfo( ( "(Network connection %p) TLS close-notify sent.",
+                       pxNetworkContext ) );
+        }
+        else
+        {
+            LogError( ( "(Network connection %p) Failed to send TLS close-notify: mbedTLSError[%d]= %s : %s.",
+                        pxNetworkContext, lMbedtlsError,
+                        mbedtlsHighLevelCodeOrDefault( lMbedtlsError ),
+                        mbedtlsLowLevelCodeOrDefault( lMbedtlsError ) ) );
+        }
+    }
+    else
+    {
+        /* WANT_READ and WANT_WRITE can be ignored. Logging for debugging purposes. */
+        LogInfo( ( "(Network connection %p) TLS close-notify sent; ",
+                   "received %s as the TLS status can be ignored for close-notify."
+                   ( lMbedtlsError == MBEDTLS_ERR_SSL_WANT_READ ) ? "WANT_READ" : "WANT_WRITE",
+                   pxNetworkContext ) );
+    }
+
+    /* Call socket shutdown function to close connection. */
+    Sockets_Disconnect( pxTlsTransportParams->xTCPSocket );
+    Sockets_Close( pxTlsTransportParams->xTCPSocket );
+
+    /* Free mbed TLS contexts. */
+    sslContextFree( pxSSLContext );
+    vPortFree( pxSSLContext );
 
     /* Clear the mutex functions for mbed TLS thread safety. */
     mbedtls_threading_free_alt();
@@ -817,12 +836,15 @@ int32_t TLS_Socket_Recv( NetworkContext_t * pxNetworkContext,
 {
     int32_t lMbedtlsError = 0;
     MbedSSLContext_t * pxSSLContext;
+    TlsTransportParams_t * pxTlsTransportParams = NULL;
 
     configASSERT( ( pxNetworkContext != NULL ) &&
                   ( pxNetworkContext->pParams != NULL ) &&
                   ( pxNetworkContext->pParams->xSSLContext != NULL ) );
 
-    pxSSLContext = ( MbedSSLContext_t * ) pxNetworkContext->pParams->xSSLContext;
+                  pxTlsTransportParams = ( TlsTransportParams_t * ) pxNetworkContext->pParams;
+
+    pxSSLContext = ( MbedSSLContext_t * ) pxTlsTransportParams->xSSLContext;
     lMbedtlsError = ( int32_t ) mbedtls_ssl_read( &( pxSSLContext->context ),
                                                   pvBuffer,
                                                   xBytesToRecv );
@@ -861,12 +883,15 @@ int32_t TLS_Socket_Send( NetworkContext_t * pxNetworkContext,
 {
     int32_t lMbedtlsError = 0;
     MbedSSLContext_t * pxSSLContext;
+    TlsTransportParams_t * pxTlsTransportParams = NULL;
 
     configASSERT( ( pxNetworkContext != NULL ) &&
                   ( pxNetworkContext->pParams != NULL ) &&
                   ( pxNetworkContext->pParams->xSSLContext != NULL ) );
 
-    pxSSLContext = ( MbedSSLContext_t * ) pxNetworkContext->pParams->xSSLContext;
+                  pxTlsTransportParams = ( TlsTransportParams_t * ) pxNetworkContext->pParams;
+
+    pxSSLContext = ( MbedSSLContext_t * ) pxTlsTransportParams->xSSLContext;
     lMbedtlsError = ( int32_t ) mbedtls_ssl_write( &( pxSSLContext->context ),
                                                    pvBuffer,
                                                    xBytesToSend );
