@@ -96,7 +96,7 @@ SocketTransportStatus_t Azure_Socket_Connect( NetworkContext_t * pNetworkContext
     pxEspSocketTransport->ulReceiveTimeoutMs = ulReceiveTimeoutMs;
     pxEspSocketTransport->ulSendTimeoutMs = ulSendTimeoutMs;
 
-    pxSocketTransport->xSocketContext = (void*)pxSocketTransport;
+    pxSocketTransport->xSocketContext = (void*)pxEspSocketTransport;
 
     if ( esp_transport_connect( pxEspSocketTransport->xTransport, pHostName, usPort, ulReceiveTimeoutMs ) < 0 )
     {

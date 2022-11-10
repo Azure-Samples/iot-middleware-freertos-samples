@@ -81,6 +81,14 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pNetworkContext,
         return eTLSTransportInvalidParameter;
     }
 
+    TlsTransportParams_t * pxTlsParams = (TlsTransportParams_t*)pNetworkContext->pParams;
+
+    if (( pxTlsParams == NULL ))
+    {
+        ESP_LOGE( TAG, "Invalid input parameter(s): Arguments cannot be NULL. pxTlsParams=%p.", pxTlsParams );
+        return eTLSTransportInvalidParameter;
+    }
+
     EspTlsTransportParams_t * pxEspTlsTransport = (EspTlsTransportParams_t*) pvPortMalloc(sizeof(EspTlsTransportParams_t));
 
     if(pxEspTlsTransport == NULL)
@@ -91,6 +99,8 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pNetworkContext,
     pxEspTlsTransport->xTransport = esp_transport_ssl_init( );
     pxEspTlsTransport->ulReceiveTimeoutMs = ulReceiveTimeoutMs;
     pxEspTlsTransport->ulSendTimeoutMs = ulSendTimeoutMs;
+
+    pxTlsParams->xSSLContext = (void*)pxEspTlsTransport;
 
     if ( pNetworkCredentials->ppcAlpnProtos )
     {
