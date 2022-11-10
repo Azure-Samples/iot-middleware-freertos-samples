@@ -464,14 +464,17 @@ static TlsTransportStatus_t tlsSetup( NetworkContext_t * pxNetworkContext,
     int32_t lMbedtlsError = 0;
     MbedSSLContext_t * pxSSLContext = NULL;
 
+
+
     configASSERT( pxNetworkContext != NULL );
     configASSERT( pxNetworkContext->pParams != NULL );
-    configASSERT( pxNetworkContext->pParams->xSSLContext != NULL );
     configASSERT( pcHostName != NULL );
     configASSERT( pxNetworkCredentials != NULL );
     configASSERT( pxNetworkCredentials->pucRootCa != NULL );
 
-    pxTlsTransportParams = pxNetworkContext->pParams;
+    pxTlsTransportParams = ( TlsTransportParams_t * ) pxNetworkContext->pParams;
+    configASSERT( pxTlsTransportParams->xSSLContext != NULL );
+
     pxSSLContext = ( MbedSSLContext_t * ) pxTlsTransportParams->xSSLContext;
 
     /* Initialize the mbed TLS context structures. */
@@ -524,10 +527,12 @@ static TlsTransportStatus_t tlsHandshake( NetworkContext_t * pxNetworkContext,
 
     configASSERT( pxNetworkContext != NULL );
     configASSERT( pxNetworkContext->pParams != NULL );
-    configASSERT( pxNetworkContext->pParams->xSSLContext != NULL );
     configASSERT( pxNetworkCredentials != NULL );
 
-    pxTlsTransportParams = pxNetworkContext->pParams;
+    pxTlsTransportParams = ( TlsTransportParams_t * ) pxNetworkContext->pParams;
+
+    configASSERT( pxTlsTransportParams->xSSLContext != NULL );
+
     pxSSLContext = ( MbedSSLContext_t * ) pxTlsTransportParams->xSSLContext;
 
     /* Initialize the mbed TLS secured connection context. */
@@ -839,10 +844,11 @@ int32_t TLS_Socket_Recv( NetworkContext_t * pxNetworkContext,
     TlsTransportParams_t * pxTlsTransportParams = NULL;
 
     configASSERT( ( pxNetworkContext != NULL ) &&
-                  ( pxNetworkContext->pParams != NULL ) &&
-                  ( pxNetworkContext->pParams->xSSLContext != NULL ) );
+                  ( pxNetworkContext->pParams != NULL ) );
 
     pxTlsTransportParams = ( TlsTransportParams_t * ) pxNetworkContext->pParams;
+
+    configASSERT( pxTlsTransportParams->xSSLContext != NULL );
 
     pxSSLContext = ( MbedSSLContext_t * ) pxTlsTransportParams->xSSLContext;
     lMbedtlsError = ( int32_t ) mbedtls_ssl_read( &( pxSSLContext->context ),
@@ -886,10 +892,11 @@ int32_t TLS_Socket_Send( NetworkContext_t * pxNetworkContext,
     TlsTransportParams_t * pxTlsTransportParams = NULL;
 
     configASSERT( ( pxNetworkContext != NULL ) &&
-                  ( pxNetworkContext->pParams != NULL ) &&
-                  ( pxNetworkContext->pParams->xSSLContext != NULL ) );
+                  ( pxNetworkContext->pParams != NULL ) );
 
     pxTlsTransportParams = ( TlsTransportParams_t * ) pxNetworkContext->pParams;
+
+    configASSERT( pxTlsTransportParams->xSSLContext != NULL );
 
     pxSSLContext = ( MbedSSLContext_t * ) pxTlsTransportParams->xSSLContext;
     lMbedtlsError = ( int32_t ) mbedtls_ssl_write( &( pxSSLContext->context ),
