@@ -488,7 +488,7 @@ static unsigned char root_cert_array[] = {
 
 #define democonfigADU_DEVICE_MANUFACTURER "PC"
 #define democonfigADU_DEVICE_MODEL        "Linux"
-#define democonfigADU_UPDATE_PROVIDER     "PC"
+#define democonfigADU_UPDATE_PROVIDER     "Contoso"
 #define democonfigADU_UPDATE_NAME         "Linux"
 #define democonfigADU_UPDATE_VERSION      "1.0"
 #define democonfigADU_UPDATE_NEW_VERSION  "1.1"

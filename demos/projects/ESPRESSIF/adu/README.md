@@ -260,7 +260,7 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
 
 Import-Module .\iot-hub-device-update\tools\AduCmdlets\AduUpdate.psm1
 
-$updateId = New-AduUpdateId -Provider "ESPRESSIF" -Name "ESP32-Azure-IoT-Kit" -Version 1.1
+$updateId = New-AduUpdateId -Provider "Contoso" -Name "ESP32-Azure-IoT-Kit" -Version 1.1
 
 $compat = New-AduUpdateCompatibility -Properties @{ deviceManufacturer = 'ESPRESSIF'; deviceModel = 'ESP32-Azure-IoT-Kit' }
 
@@ -274,11 +274,11 @@ $update | Out-File "./$($updateId.provider).$($updateId.name).$($updateId.versio
 Verify you have the following files in your ADU-update directory:
 
 - `azure_iot_freertos_esp32-v1.1.bin`
-- `ESPRESSIF.ESP32-Azure-IoT-Kit.1.1.importmanifest.json`
+- `Contoso.ESP32-Azure-IoT-Kit.1.1.importmanifest.json`
 
 ### Import the Update Manifest
 
-To import the update (`azure_iot_freertos_esp32-v1.1.bin`) and manifest (`ESPRESSIF.ESP32-Azure-IoT-Kit.1.1.importmanifest.json`), follow the instructions at the link below:
+To import the update (`azure_iot_freertos_esp32-v1.1.bin`) and manifest (`Contoso.ESP32-Azure-IoT-Kit.1.1.importmanifest.json`), follow the instructions at the link below:
 
 - [Import Update and Manifest](https://docs.microsoft.com/azure/iot-hub-device-update/import-update)
 
