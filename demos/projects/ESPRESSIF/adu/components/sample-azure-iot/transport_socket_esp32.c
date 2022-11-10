@@ -39,12 +39,13 @@
 #include "esp_transport.h"
 #include "esp_transport_tcp.h"
 
-typedef TlsTransportParams
+// We will malloc this and put it in SocketTransportParams_t.xSocketContext
+typedef EspSocketTransportParams
 {
     esp_transport_handle_t xTransport;
     uint32_t ulReceiveTimeoutMs;
     uint32_t ulSendTimeoutMs;
-} TlsTransportParams_t
+} EspSocketTransportParams_t
 
 /**
  * @brief Definition of the network context for the transport interface
@@ -52,6 +53,7 @@ typedef TlsTransportParams
  */
 struct NetworkContext
 {
+   // SocketTransportParams_t
     void * pParams;
 };
 
@@ -76,11 +78,27 @@ SocketTransportStatus_t Azure_Socket_Connect( NetworkContext_t * pNetworkContext
         return eSocketTransportInvalidParameter;
     }
 
-    pNetworkContext->xTransport = esp_transport_tcp_init( );
-    pNetworkContext->ulReceiveTimeoutMs = ulReceiveTimeoutMs;
-    pNetworkContext->ulSendTimeoutMs = ulSendTimeoutMs;
+    SocketTransportParams_t * pxSocketTransport = (SocketTransportParams_t *)pNetworkContext->pParams;
 
-    if ( esp_transport_connect( pNetworkContext->xTransport, pHostName, usPort, ulReceiveTimeoutMs ) < 0 )
+    if((pxSocketTransport == NULL))
+    {
+        ESP_LOGE( TAG, "Invalid input parameter(s): Arguments cannot be NULL. pNetworkContext->pParams=%p.", pxSocketTransport );
+        return eSocketTransportInvalidParameter;
+    }
+
+    EspSocketTransportParams_t * pxEspSocketTransport = (EspSocketTransportParams_t*) pvPortMalloc(sizeof(EspSocketTransportParams_t));
+    if(pxEspSocketTransport == NULL)
+    {
+      return eSocketTransportInSufficientMemory;
+    }
+
+    pxEspSocketTransport->xTransport = esp_transport_tcp_init( );
+    pxEspSocketTransport->ulReceiveTimeoutMs = ulReceiveTimeoutMs;
+    pxEspSocketTransport->ulSendTimeoutMs = ulSendTimeoutMs;
+
+    pxSocketTransport->xSocketContext = (void*)pxSocketTransport;
+
+    if ( esp_transport_connect( pxEspSocketTransport->xTransport, pHostName, usPort, ulReceiveTimeoutMs ) < 0 )
     {
         ESP_LOGE( TAG, "Failed establishing socket connection (esp_transport_connect failed)" );
         xReturnStatus = eSocketTransportConnectFailure;
@@ -95,8 +113,8 @@ SocketTransportStatus_t Azure_Socket_Connect( NetworkContext_t * pNetworkContext
     {
         if( pNetworkContext != NULL )
         {
-            esp_transport_close( pNetworkContext->xTransport );
-            esp_transport_destroy( pNetworkContext->xTransport );
+            esp_transport_close( pxEspSocketTransport );
+            esp_transport_destroy( pxEspSocketTransport );
         }
     }
     else
@@ -118,11 +136,23 @@ void Azure_Socket_Close( NetworkContext_t * pNetworkContext )
         return;
     }
 
+    SocketTransportParams_t * pxSocketTransport = (SocketTransportParams_t *)pNetworkContext->pParams;
+
+    if((pxSocketTransport == NULL))
+    {
+        ESP_LOGE( TAG, "Invalid input parameter(s): Arguments cannot be NULL. pNetworkContext->pParams=%p.", pxSocketTransport );
+        return;
+    }
+
+    EspSocketTransportParams_t * pxEspSocketTransport = (EspSocketTransportParams_t*)pxSocketTransport->xSocketContext;
+
     /* Attempting to terminate socket connection. */
-    esp_transport_close( pNetworkContext->xTransport );
+    esp_transport_close( pxEspSocketTransport->xTransport );
 
     /* Free socket contexts. */
-    esp_transport_destroy( pNetworkContext->xTransport );
+    esp_transport_destroy( pxEspSocketTransport->xTransport );
+
+    vPortFree( pxEspSocketTransport );
 }
 /*-----------------------------------------------------------*/
 
@@ -141,7 +171,17 @@ int32_t Azure_Socket_Recv( NetworkContext_t * pNetworkContext,
         return eSocketTransportInvalidParameter;
     }
 
-    lsocketStatus = esp_transport_read( pNetworkContext->xTransport, pBuffer, xBytesToRecv, pNetworkContext->ulReceiveTimeoutMs );
+    SocketTransportParams_t * pxSocketTransport = (SocketTransportParams_t *)pNetworkContext->pParams;
+
+    if((pxSocketTransport == NULL))
+    {
+        ESP_LOGE( TAG, "Invalid input parameter(s): Arguments cannot be NULL. pNetworkContext->pParams=%p.", pxSocketTransport );
+        return;
+    }
+
+    EspSocketTransportParams_t * pxEspSocketTransport = (EspSocketTransportParams_t*)pxSocketTransport->xSocketContext;
+
+    lsocketStatus = esp_transport_read( pxEspSocketTransport->xTransport, pBuffer, xBytesToRecv, pxEspSocketTransport->ulReceiveTimeoutMs );
     if ( lsocketStatus < 0 )
     {
         ESP_LOGE( TAG, "Reading failed, errno= %d", errno );
@@ -167,7 +207,17 @@ int32_t Azure_Socket_Send( NetworkContext_t * pNetworkContext,
         return eSocketTransportInvalidParameter;
     }
 
-    lsocketStatus = esp_transport_write( pNetworkContext->xTransport, pBuffer, xBytesToSend, pNetworkContext->ulSendTimeoutMs );
+    SocketTransportParams_t * pxSocketTransport = (SocketTransportParams_t *)pNetworkContext->pParams;
+
+    if((pxSocketTransport == NULL))
+    {
+        ESP_LOGE( TAG, "Invalid input parameter(s): Arguments cannot be NULL. pNetworkContext->pParams=%p.", pxSocketTransport );
+        return;
+    }
+
+    EspSocketTransportParams_t * pxEspSocketTransport = (EspSocketTransportParams_t*)pxSocketTransport->xSocketContext;
+
+    lsocketStatus = esp_transport_write( pxEspSocketTransport->xTransport, pBuffer, xBytesToSend, pxEspSocketTransport->ulSendTimeoutMs );
     if ( lsocketStatus < 0 )
     {
         ESP_LOGE( TAG, "Writing failed, errno= %d", errno );

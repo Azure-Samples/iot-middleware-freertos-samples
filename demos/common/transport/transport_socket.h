@@ -15,10 +15,13 @@
 
 #include "transport_abstraction.h"
 
+/* Socket Context Handle */
+typedef void * SocketContextHandle;
+
 typedef struct SocketTransportParams
 {
     SocketHandle xTCPSocket;
-    SSLContextHandle xSSLContext;
+    SocketContextHandle xSocketContext;
 } SocketTransportParams_t;
 
 /**

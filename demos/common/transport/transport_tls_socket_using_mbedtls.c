@@ -842,7 +842,7 @@ int32_t TLS_Socket_Recv( NetworkContext_t * pxNetworkContext,
                   ( pxNetworkContext->pParams != NULL ) &&
                   ( pxNetworkContext->pParams->xSSLContext != NULL ) );
 
-                  pxTlsTransportParams = ( TlsTransportParams_t * ) pxNetworkContext->pParams;
+    pxTlsTransportParams = ( TlsTransportParams_t * ) pxNetworkContext->pParams;
 
     pxSSLContext = ( MbedSSLContext_t * ) pxTlsTransportParams->xSSLContext;
     lMbedtlsError = ( int32_t ) mbedtls_ssl_read( &( pxSSLContext->context ),
@@ -889,7 +889,7 @@ int32_t TLS_Socket_Send( NetworkContext_t * pxNetworkContext,
                   ( pxNetworkContext->pParams != NULL ) &&
                   ( pxNetworkContext->pParams->xSSLContext != NULL ) );
 
-                  pxTlsTransportParams = ( TlsTransportParams_t * ) pxNetworkContext->pParams;
+    pxTlsTransportParams = ( TlsTransportParams_t * ) pxNetworkContext->pParams;
 
     pxSSLContext = ( MbedSSLContext_t * ) pxTlsTransportParams->xSSLContext;
     lMbedtlsError = ( int32_t ) mbedtls_ssl_write( &( pxSSLContext->context ),

@@ -38,15 +38,23 @@
 /* TLS includes. */
 #include "esp_transport_ssl.h"
 
-/**
- * @brief Definition of the network context for the transport interface
- * implementation that uses mbedTLS and FreeRTOS+TLS sockets.
- */
-struct NetworkContext
+
+// We will malloc this and put it in TlsTransportParams_t.xSSLContext
+typedef EspTlsTransportParams
 {
     esp_transport_handle_t xTransport;
     uint32_t ulReceiveTimeoutMs;
     uint32_t ulSendTimeoutMs;
+} EspTlsTransportParams_t
+
+/**
+ * @brief Definition of the network context for the transport interface
+ * implementation that uses ESP tls sockets.
+ */
+struct NetworkContext
+{
+   // TlsTransportParams_t
+    void * pParams;
 };
 
 static const char *TAG = "tls_freertos";
@@ -73,35 +81,42 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pNetworkContext,
         return eTLSTransportInvalidParameter;
     }
 
-    pNetworkContext->xTransport = esp_transport_ssl_init( );
-    pNetworkContext->ulReceiveTimeoutMs = ulReceiveTimeoutMs;
-    pNetworkContext->ulSendTimeoutMs = ulSendTimeoutMs;
+    EspTlsTransportParams_t * pxEspTlsTransport = (EspTlsTransportParams_t*) pvPortMalloc(sizeof(EspTlsTransportParams_t));
+    if(pxEspTlsTransport == NULL)
+    {
+      return eSocketTransportInSufficientMemory;
+    }
+
+    pxEspTlsTransport->xTransport = esp_transport_ssl_init( );
+    pxEspTlsTransport->ulReceiveTimeoutMs = ulReceiveTimeoutMs;
+    pxEspTlsTransport->ulSendTimeoutMs = ulSendTimeoutMs;
+
     if ( pNetworkCredentials->ppcAlpnProtos )
     {
-        esp_transport_ssl_set_alpn_protocol( pNetworkContext->xTransport, pNetworkCredentials->ppcAlpnProtos );
+        esp_transport_ssl_set_alpn_protocol( pxEspTlsTransport->xTransport, pNetworkCredentials->ppcAlpnProtos );
     }
 
     if ( pNetworkCredentials->xDisableSni )
     {
-        esp_transport_ssl_skip_common_name_check( pNetworkContext->xTransport );
+        esp_transport_ssl_skip_common_name_check( pxEspTlsTransport->xTransport );
     }
 
     if ( pNetworkCredentials->pucRootCa )
     {
-        esp_transport_ssl_set_cert_data_der( pNetworkContext->xTransport, ( const char * ) pNetworkCredentials->pucRootCa, pNetworkCredentials->xRootCaSize );
+        esp_transport_ssl_set_cert_data_der( pxEspTlsTransport->xTransport, ( const char * ) pNetworkCredentials->pucRootCa, pNetworkCredentials->xRootCaSize );
     }
 
     if ( pNetworkCredentials->pucClientCert )
     {
-        esp_transport_ssl_set_client_cert_data_der( pNetworkContext->xTransport, ( const char *) pNetworkCredentials->pucClientCert, pNetworkCredentials->xClientCertSize );
+        esp_transport_ssl_set_client_cert_data_der( pxEspTlsTransport->xTransport, ( const char *) pNetworkCredentials->pucClientCert, pNetworkCredentials->xClientCertSize );
     }
 
     if ( pNetworkCredentials->pucPrivateKey )
     {
-        esp_transport_ssl_set_client_key_data_der( pNetworkContext->xTransport, (const char *) pNetworkCredentials->pucPrivateKey, pNetworkCredentials->xPrivateKeySize );
+        esp_transport_ssl_set_client_key_data_der( pxEspTlsTransport->xTransport, (const char *) pNetworkCredentials->pucPrivateKey, pNetworkCredentials->xPrivateKeySize );
     }
 
-    if ( esp_transport_connect( pNetworkContext->xTransport, pHostName, usPort, ulReceiveTimeoutMs ) < 0 )
+    if ( esp_transport_connect( pxEspTlsTransport->xTransport, pHostName, usPort, ulReceiveTimeoutMs ) < 0 )
     {
         ESP_LOGE( TAG, "Failed establishing TLS connection (esp_transport_connect failed)" );
         xReturnStatus = eTLSTransportConnectFailure;
@@ -114,10 +129,10 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pNetworkContext,
     /* Clean up on failure. */
     if( xReturnStatus != eTLSTransportSuccess )
     {
-        if( pNetworkContext != NULL )
+        if( pxEspTlsTransport != NULL )
         {
-            esp_transport_close( pNetworkContext->xTransport );
-            esp_transport_destroy( pNetworkContext->xTransport );
+            esp_transport_close( pxEspTlsTransport->xTransport );
+            esp_transport_destroy( pxEspTlsTransport->xTransport );
         }
     }
     else
@@ -138,6 +153,16 @@ void TLS_Socket_Disconnect( NetworkContext_t * pNetworkContext )
         ESP_LOGE( TAG, "Invalid input parameter(s): Arguments cannot be NULL. pNetworkContext=%p.", pNetworkContext );
         return;
     }
+
+    TlsTransportParams_t pxTlsParams = (TlsTransportParams_t*)pNetworkContext->pParams;
+
+    if (( pxTlsParams == NULL ))
+    {
+        ESP_LOGE( TAG, "Invalid input parameter(s): Arguments cannot be NULL. pxTlsParams=%p.", pxTlsParams );
+        return;
+    }
+
+    EspTlsTransportParams_t * pxEspTlsTransport = (EspTlsTransportParams_t *)pxTlsParams.xSSLContext;
 
     /* Attempting to terminate TLS connection. */
     esp_transport_close( pNetworkContext->xTransport );
