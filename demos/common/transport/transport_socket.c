@@ -33,8 +33,9 @@ extern void vLoggingPrintf( const char * pcFormatString,
 
 #include "sockets_wrapper.h"
 
-/* Each transport defines the NetworkContext. The pParams is then defined for each */
-/* transport (here it's SocketTransportParams_t) */
+/* Each transport defines the same NetworkContext. The user then passes their respective transport */
+/* as pParams for the transport which is defined in the transport header file */
+/* (here it's SocketTransportParams_t) */
 struct NetworkContext
 {
     /* SocketTransportParams_t */

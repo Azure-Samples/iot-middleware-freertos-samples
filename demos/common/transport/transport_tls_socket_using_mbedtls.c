@@ -57,7 +57,9 @@ extern void vLoggingPrintf( const char * pcFormatString,
 
 /*-----------------------------------------------------------*/
 
-/* Each compilation unit must define the NetworkContext struct. */
+/* Each transport defines the same NetworkContext. The user then passes their respective transport */
+/* as pParams for the transport which is defined in the transport header file */
+/* (here it's TlsTransportParams_t) */
 struct NetworkContext
 {
     /* TlsTransportParams_t */

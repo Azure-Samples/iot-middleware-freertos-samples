@@ -47,10 +47,9 @@ typedef struct EspSocketTransportParams
     uint32_t ulSendTimeoutMs;
 } EspSocketTransportParams_t;
 
-/**
- * @brief Definition of the network context for the transport interface
- * implementation that uses ESP sockets.
- */
+/* Each transport defines the same NetworkContext. The user then passes their respective transport */
+/* as pParams for the transport which is defined in the transport header file */
+/* (here it's SocketTransportParams_t) */
 struct NetworkContext
 {
    // SocketTransportParams_t

@@ -47,10 +47,9 @@ typedef struct EspTlsTransportParams
     uint32_t ulSendTimeoutMs;
 } EspTlsTransportParams_t;
 
-/**
- * @brief Definition of the network context for the transport interface
- * implementation that uses ESP tls sockets.
- */
+/* Each transport defines the same NetworkContext. The user then passes their respective transport */
+/* as pParams for the transport which is defined in the transport header file */
+/* (here it's TlsTransportParams_t) */
 struct NetworkContext
 {
    // TlsTransportParams_t
