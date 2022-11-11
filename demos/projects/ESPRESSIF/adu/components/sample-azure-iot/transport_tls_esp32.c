@@ -143,6 +143,7 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pNetworkContext,
         {
             esp_transport_close( pxEspTlsTransport->xTransport );
             esp_transport_destroy( pxEspTlsTransport->xTransport );
+            vPortFree(pxEspTlsTransport);
         }
     }
     else
@@ -179,6 +180,7 @@ void TLS_Socket_Disconnect( NetworkContext_t * pNetworkContext )
 
     /* Free TLS contexts. */
     esp_transport_destroy( pxEspTlsTransport->xTransport );
+    vPortFree(pxEspTlsTransport);
 }
 /*-----------------------------------------------------------*/
 
