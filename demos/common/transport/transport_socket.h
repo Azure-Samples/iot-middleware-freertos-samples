@@ -31,7 +31,7 @@ typedef enum SocketTransportStatus
 {
     eSocketTransportSuccess = 0,        /**< Function successfully completed. */
     eSocketTransportInvalidParameter,   /**< At least one parameter was invalid. */
-    eSocketTransportInSufficientMemory, /**< Insufficient memory required to establish connection. */
+    eSocketTransportInsufficientMemory, /**< Insufficient memory required to establish connection. */
     eSocketTransportHandshakeFailed,    /**< Performing Socket handshake with server failed. */
     eSocketTransportInternalError,      /**< A call to a system API resulted in an internal error. */
     eSocketTransportConnectFailure      /**< Initial connection to the server failed. */
