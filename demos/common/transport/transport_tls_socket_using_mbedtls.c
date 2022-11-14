@@ -466,8 +466,6 @@ static TlsTransportStatus_t tlsSetup( NetworkContext_t * pxNetworkContext,
     int32_t lMbedtlsError = 0;
     MbedSSLContext_t * pxSSLContext = NULL;
 
-
-
     configASSERT( pxNetworkContext != NULL );
     configASSERT( pxNetworkContext->pParams != NULL );
     configASSERT( pcHostName != NULL );
@@ -532,7 +530,6 @@ static TlsTransportStatus_t tlsHandshake( NetworkContext_t * pxNetworkContext,
     configASSERT( pxNetworkCredentials != NULL );
 
     pxTlsTransportParams = ( TlsTransportParams_t * ) pxNetworkContext->pParams;
-
     configASSERT( pxTlsTransportParams->xSSLContext != NULL );
 
     pxSSLContext = ( MbedSSLContext_t * ) pxTlsTransportParams->xSSLContext;
