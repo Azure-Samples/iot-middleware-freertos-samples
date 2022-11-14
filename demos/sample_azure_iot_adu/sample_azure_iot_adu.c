@@ -191,7 +191,6 @@ static uint8_t ucCommandResponsePayloadBuffer[ 128 ];
 static uint8_t ucReportedPropertiesUpdate[ 1500 ];
 static uint32_t ulReportedPropertiesUpdateLength;
 
-uint8_t ucAduContextBuffer[ ADU_CONTEXT_BUFFER_SIZE ];
 uint8_t ucAduDownloadBuffer[ democonfigCHUNK_DOWNLOAD_SIZE + 1024 ];
 uint8_t ucAduDownloadHeaderBuffer[ ADU_HEADER_BUFFER_SIZE ];
 
