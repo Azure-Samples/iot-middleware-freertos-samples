@@ -492,7 +492,7 @@ static unsigned char root_cert_array[] = {
 
 #define democonfigADU_DEVICE_MANUFACTURER "ESPRESSIF"
 #define democonfigADU_DEVICE_MODEL        "ESP32-Azure-IoT-Kit"
-#define democonfigADU_UPDATE_PROVIDER     "ESPRESSIF"
+#define democonfigADU_UPDATE_PROVIDER     "Contoso"
 #define democonfigADU_UPDATE_NAME         "ESP32-Azure-IoT-Kit"
 #define democonfigADU_UPDATE_VERSION      "1.0"
 

@@ -204,7 +204,7 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
 
 Import-Module .\iot-hub-device-update\tools\AduCmdlets\AduUpdate.psm1
 
-$updateId = New-AduUpdateId -Provider "STMicroelectronics" -Name "STM32L475" -Version 1.1
+$updateId = New-AduUpdateId -Provider "Contoso" -Name "STM32L475" -Version 1.1
 
 $compat = New-AduUpdateCompatibility -Properties @{ deviceManufacturer = 'STMicroelectronics'; deviceModel = 'STM32L475' }
 
@@ -218,11 +218,11 @@ $update | Out-File "./$($updateId.provider).$($updateId.name).$($updateId.versio
 Verify you have the following files in your ADU-update directory:
 
 - `iot-middleware-sample-adu-v1.1.bin`
-- `STMicroelectronics.STM32L475.1.1.importmanifest.json`
+- `Contoso.STM32L475.1.1.importmanifest.json`
 
 ### Import the Update Manifest
 
-To import the update (`iot-middleware-sample-adu-v1.1.bin`) and manifest (`STMicroelectronics.STM32L475.1.1.importmanifest.json`), follow the instructions at the link below:
+To import the update (`iot-middleware-sample-adu-v1.1.bin`) and manifest (`Contoso.STM32L475.1.1.importmanifest.json`), follow the instructions at the link below:
 
 - [Import Update and Manifest](https://docs.microsoft.com/azure/iot-hub-device-update/import-update)
 

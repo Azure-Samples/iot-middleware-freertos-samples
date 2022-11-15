@@ -515,7 +515,7 @@ static unsigned char root_cert_array[] = {
 
 #define democonfigADU_DEVICE_MANUFACTURER    "STMicroelectronics"
 #define democonfigADU_DEVICE_MODEL           "STM32L475"
-#define democonfigADU_UPDATE_PROVIDER        "STMicroelectronics"
+#define democonfigADU_UPDATE_PROVIDER        "Contoso"
 #define democonfigADU_UPDATE_NAME            "STM32L475"
 #define democonfigADU_UPDATE_VERSION         "1.0"
 

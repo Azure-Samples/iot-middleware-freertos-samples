@@ -196,17 +196,9 @@ AzureIoTResult_t AzureIoTPlatform_VerifyImage( AzureADUImage_t * const pxAduImag
         memcpy( ucPartitionReadBuffer, ( pxAduImage->xUpdatePartition + ulOffset ), ulReadSize );
 
         mbedtls_md_update( &ctx, ( const unsigned char * ) ucPartitionReadBuffer, ulReadSize );
-
-        if( ( ulOffset % 65536 == 0 ) && ( ulOffset != 0 ) )
-        {
-            printf( "." );
-            fflush( stdout );
-        }
     }
 
-    printf( "\r\n" );
-
-    AZLogInfo( ( "Done\r\n" ) );
+    AZLogInfo( ( "mbedtls calculation completed\r\n" ) );
 
     mbedtls_md_finish( &ctx, ucCalculatedHash );
     mbedtls_md_free( &ctx );
@@ -223,18 +215,18 @@ AzureIoTResult_t AzureIoTPlatform_VerifyImage( AzureADUImage_t * const pxAduImag
 
         for( int i = 0; i < azureiotflashSHA_256_SIZE; ++i )
         {
-            printf( "%x", ucDecodedManifestHash[ i ] );
+            AZLogInfo( ( "%x", ucDecodedManifestHash[ i ] ) );
         }
 
-        printf( ( "\r\n" ) );
+        AZLogInfo( ( "\r\n" ) );
         AZLogInfo( ( "Calculated: " ) );
 
         for( int i = 0; i < azureiotflashSHA_256_SIZE; ++i )
         {
-            printf( "%x", ucCalculatedHash[ i ] );
+            AZLogInfo( ( "%x", ucCalculatedHash[ i ] ) );
         }
 
-        printf( ( "\r\n" ) );
+        AZLogInfo( ( "\r\n" ) );
 
         xResult = eAzureIoTErrorFailed;
     }
