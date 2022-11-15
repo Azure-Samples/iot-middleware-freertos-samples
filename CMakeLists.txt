@@ -42,4 +42,5 @@ set(FREERTOS_PORT_DIRECTORY ${BOARD_DEMO_FREERTOS_PORT_PATH} CACHE STRING "FreeR
 include_directories(${BOARD_DEMO_PORT_PATH})
 
 # Add middleware
+set(USE_COREHTTP ON)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/azure-iot-middleware-freertos)
