@@ -86,7 +86,7 @@ do
     case "$arg" in
         "-esp")
             echo -e "::group::Building sample for ESPRESSIF ESP32 port"
-            sample_build "ESPRESSIF" "adu" "build"
+            sample_build "ESPRESSIF" "adu" "build" "Debug"
             exit_if_binary_does_not_exist "./demos/projects/ESPRESSIF/adu/build" "azure_iot_freertos_esp32.bin"
             echo -e "::group::Building sample for ESPRESSIF ESP32 port - Debug"
             sample_build "ESPRESSIF" "esp32" "build" "Debug"
@@ -97,6 +97,8 @@ do
             rm -rf build
 
             echo -e "::group::Building sample for ESPRESSIF ESP32 port - Release"
+            sample_build "ESPRESSIF" "adu" "build" "Release"
+            exit_if_binary_does_not_exist "./demos/projects/ESPRESSIF/adu/build" "azure_iot_freertos_esp32.bin"
             sample_build "ESPRESSIF" "esp32" "build" "Release"
             exit_if_binary_does_not_exist "./demos/projects/ESPRESSIF/esp32/build" "azure_iot_freertos_esp32.bin"
             sample_build "ESPRESSIF" "aziotkit" "build" "Release"
