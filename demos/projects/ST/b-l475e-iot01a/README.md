@@ -13,14 +13,14 @@
 - [GNU Arm Embedded Toolchain](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads) (Version 9 or higher)
 - Serial terminal tool like [Termite](https://www.compuphase.com/software_termite.htm), Putty, Tera Term, etc.
 
-To run this sample you can use a device previously created on your Azure IoT Hub or you may have the Azure IoT middleware for FreeRTOS provision your device automatically using Azure Device Provisioning Services (DPS).
+To run this sample you can use a device previously created on your Azure IoT Hub or you may have the Azure IoT middleware for FreeRTOS provision your device automatically using Azure Device Provisioning Services (DPS). **Note** that even when using DPS, you still need an IoT Hub created and connected to DPS.
 
 IoT Hub | DPS
 ---------|----------
 Have an [Azure IoT Hub](https://docs.microsoft.com/azure/iot-hub/iot-hub-create-through-portal) created | Have an instance of [IoT Hub Device Provisioning Service](https://docs.microsoft.com/azure/iot-dps/quick-setup-auto-provision#create-a-new-iot-hub-device-provisioning-service)
 Have a [logical device](https://docs.microsoft.com/azure/iot-hub/iot-hub-create-through-portal#register-a-new-device-in-the-iot-hub) created in your Azure IoT Hub using your preferred authentication method* | Have an [individual enrollment](https://docs.microsoft.com/azure/iot-dps/how-to-manage-enrollments#create-a-device-enrollment) created in your instance of DPS using your preferred authentication method*
 
-**While this sample supports SAS keys and Certificates, this guide will refer only to SAS keys.**
+*While this sample supports SAS keys and Certificates, this guide will refer only to SAS keys.
 
 ### Install prerequisites on Windows
 
@@ -123,13 +123,35 @@ After running the sample, you can use VS Code to debug your application directly
 
 The following chart shows the RAM and ROM usage for the B-L475E-IOT01A from STMicroelectronics. 
 Build options: CMAKE_BUILD_TYPE=MinSizeRel (-Os) and no logging (-DLIBRARY_LOG_LEVEL=LOG_NONE):
-This sample can includes either IoT Hub only or both IoT Hub and DPS services. The table below shows RAM/ROM sizes considering:
+This sample can include IoT Hub only, or IoT Hub plus DPS services and/or ADU services. The table below shows RAM/ROM sizes considering:
 
 - Middleware libraries only – represents the libraries for Azure IoT connection.
 - Total size – which includes the Azure IoT middleware for FreeRTOS, Mbed TLS, FreeRTOS, CoreMQTT and the HAL for the dev kit.
 
 |  | Middleware library size | | Total Size | |
 |---------|----------|---------|---------|---------
-|**Sample** | **Flash (text,rodata,data)** | **RAM1,RAM2(dss,data)** | **Flash (text,rodata,data)** | **RAM1,RAM2(dss,data)** |
-| IoT Hub + DPS | 23.96 KB | 12 bytes | 195 KB | 104.70 KBKB
-| IoT Hub only | 11.61 KB | 12 bytes | 182.00 KB | 103.51 KB
+|**Sample** | **Flash (text,rodata)** | **RAM,RAM2(bss,data)** | **Flash (text,rodata)** | **RAM,RAM2(bss,data)** |
+| IoT Hub only | 16.2 KB | 12 bytes | 201.74 KB | 104.04 KB
+| IoT Hub + DPS | 31.61 KB | 12 bytes | 217.58 KB | 105.22 KB
+| IoT Hub + ADU | 35.97 KB | 16 bytes | 239.07 KB | 121.29 KB
+| IoT Hub + ADU + DPS | 45.02 KB | 16 bytes | 249.51 KB | 121.72 KB
+
+<details>
+  <summary>How these numbers were calculated:</summary>
+
+  - Flash includes (based on [STM32L475VGTx_FLASH.ld](./STM32L475VGTx_FLASH.ld)):
+    - .isr_vector
+    - .text
+    - .rodata
+    - .ARM.extab
+    - .ARM
+    - .preinit_array
+    - .init_array
+    - .fini_array
+  - RAM, RAM2 includes (based on [STM32L475VGTx_FLASH.ld](./STM32L475VGTx_FLASH.ld)):
+    - .data
+    - .bss
+    - ._user_heap_stack
+  - Middleware values were calculated by filtering the map file by any entries with `libaz` in the file path.
+  - Total values were calculated from the map file found at the root of the build directory by summing all values within the above specified sections.
+</details>
