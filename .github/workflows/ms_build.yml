@@ -1,0 +1,39 @@
+name: Windows CI Tests
+
+on: 
+  push:
+    branches:
+      - main
+  pull_request:
+
+env:
+  # Path to the solution file relative to the root of the project.
+  SOLUTION_FILE_PATH: .
+
+  # Configuration type to build.
+  # You can convert this to a build matrix if you need coverage of multiple configuration types.
+  # https://docs.github.com/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
+  BUILD_CONFIGURATION: Release
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - name: submodules-init
+      uses: snickerbockers/submodules-init@v4
+
+    - name: Add MSBuild to PATH
+      uses: microsoft/setup-msbuild@v1.1
+
+    - name: Get specific version CMake, v3.21.1
+      uses: lukka/get-cmake@v3.21.1
+
+    - name: Build
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      # Add additional options to the MSBuild command line here (like platform or verbosity level).
+      # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
+      run: .github/scripts/ci_tests_windows.ps1

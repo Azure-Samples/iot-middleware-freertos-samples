@@ -13,7 +13,7 @@
   Have an [Azure IoT Hub](https://docs.microsoft.com/azure/iot-hub/iot-hub-create-through-portal) created | Have an instance of [IoT Hub Device Provisioning Service](https://docs.microsoft.com/azure/iot-dps/quick-setup-auto-provision#create-a-new-iot-hub-device-provisioning-service)
   Have a [logical device](https://docs.microsoft.com/azure/iot-hub/iot-hub-create-through-portal#register-a-new-device-in-the-iot-hub) created in your Azure IoT Hub using your preferred authentication method* | Have an [individual enrollment](https://docs.microsoft.com/azure/iot-dps/how-to-manage-enrollments#create-a-device-enrollment) created in your instance of DPS using your preferred authentication method*
 
-  *While this sample supports SAS keys and Certificates, this guide will refer only to SAS keys.
+  **Instructions on how to create an X.509 cert for tests can be found [here](https://github.com/Azure/azure-sdk-for-c/blob/main/sdk/samples/iot/docs/how_to_iot_hub_samples_linux.md#configure-and-run-the-samples) (Step 1). Please note that you might need to install some of the [prerequisites](https://github.com/Azure/azure-sdk-for-c/blob/main/sdk/samples/iot/docs/how_to_iot_hub_samples_linux.md#prerequisites) like OpenSSL.** 
 
 ## Install prerequisites
 
@@ -78,10 +78,37 @@ Under menu item `Azure IoT middleware for FreeRTOS Main Task Configuration`, upd
 Parameter | Value
 ---------|----------
  `Use PnP in Azure Sample` | Enabled by default. Disable this option to build a simpler sample without Azure Plug-and-Play.
- `Azure IoT Hub FQDN` | _{Your Azure IoT Hub Host FQDN}_
+ `Azure IoT Hub FQDN` | _{Your Azure IoT Hub Host FQDN}_ (Unused if Device Provisioning is enabled below)
  `Azure IoT Device ID` | _{Your Azure IoT Hub device ID}_
+ `Azure IoT Module ID` | _{Your Azure IoT Hub Module ID}_ (optional, specify module id if using a device module; else leave blank if not)
+
+Select your desired authentication method with the `Azure IoT Authentication Method () --->`. The default option is `Symmetric Key`:
+
+Parameter | Value
+---------|----------
  `Azure IoT Device Symmetric Key` | _{Your Azure IoT Hub device symmetric key}_
- `Azure IoT Module ID` | _{Your Azure IoT Hub Module ID}_ (IF USING A MODULE; leave blank if not)
+
+If you would like to use x509 certificates, select `X509 Certificates` and update the following values:
+
+Parameter | Value
+---------|----------
+ `Azure IoT Device Client Certificate` | _{Your Azure IoT Hub device certificate}_
+ `Azure IoT Device Client Certificate Private Key` | _{Your Azure IoT Hub device certificate private key}_
+
+Note that the certificate and private key must be a single line string with `\n` characters at the appropriate line breaks. For example:
+
+```txt
+# PEM Formatted (WRONG)
+-----BEGIN CERTIFICATE-----
+MIIBJDCBywIUfeHrebBVa2eZAbouBgACp9R3BncwCgYIKoZIzj0EAwIwETEPMA0G
+...
+vTfQahwsxN3xink9z1gtirrjQlqDAiEAyU+6TUJcG6d9JF+uJqsLFpsbbF3IzGAw
+yC+koNRC0MU=
+-----END CERTIFICATE-----
+
+# Single Line (CORRECT)
+-----BEGIN CERTIFICATE-----\nMIIBJDCB...\nyC+koNRC0MU=\n-----END CERTIFICATE-----
+```
 
 > Some parameters contain default values that do not need to be updated.
 

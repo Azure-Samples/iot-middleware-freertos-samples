@@ -109,25 +109,35 @@
  * @brief Device symmetric key
  *
  */
+#ifdef CONFIG_AZURE_IOT_DEVICE_SYMMETRIC_KEY
 #define democonfigDEVICE_SYMMETRIC_KEY CONFIG_AZURE_IOT_DEVICE_SYMMETRIC_KEY
+#endif
 
 /**
  * @brief Client's X509 Certificate.
  *
  */
-// #define democonfigCLIENT_CERTIFICATE_PEM    "<YOUR DEVICE CERT HERE>"
+#ifdef CONFIG_AZURE_IOT_DEVICE_CLIENT_CERTIFICATE
+#define democonfigCLIENT_CERTIFICATE_PEM CONFIG_AZURE_IOT_DEVICE_CLIENT_CERTIFICATE
+#endif
 
 /**
  * @brief Client's private key.
  *
  */
-// #define democonfigCLIENT_PRIVATE_KEY_PEM    "<YOUR DEVICE PRIVATE KEY HERE>"
+#ifdef CONFIG_AZURE_IOT_DEVICE_CLIENT_CERTIFICATE_PRIVATE_KEY
+#define democonfigCLIENT_PRIVATE_KEY_PEM    CONFIG_AZURE_IOT_DEVICE_CLIENT_CERTIFICATE_PRIVATE_KEY
+#endif
 
 /**
  * @brief Load the required certificates:
  *  - Baltimore Trusted Root CA 
  *  - DigiCert Global Root G2 
  *  - Microsoft RSA Root Certificate Authority 2017
+ *
+ * @warning Hard coding certificates is not recommended by Microsoft as a best
+ * practice for production scenarios. Please see our document here for notes on best practices.
+ * https://github.com/Azure-Samples/iot-middleware-freertos-samples/blob/main/docs/certificate-notice.md
  *
  */
 static unsigned char root_cert_array[] = {
@@ -485,5 +495,30 @@ static unsigned char root_cert_array[] = {
  * @brief Defines configRAND32, used by the common sample modules.
  */
 #define configRAND32() (rand()/RAND_MAX)
+
+/**
+ * @brief Defines the macro for HSM usage depending on whether 
+ * the support for ATECC608 is enabled in the kconfig menu
+ */
+#ifdef CONFIG_ESP_TLS_USE_SECURE_ELEMENT
+    #if CONFIG_MBEDTLS_ATCA_HW_ECDSA_SIGN & CONFIG_MBEDTLS_ATCA_HW_ECDSA_VERIFY
+        #define democonfigUSE_HSM
+
+        /**
+         * @brief Dynamically generate and write the registration ID as a
+         *  string into the passed pointer
+         *
+         * @param[in,out] ppcRegistrationId Input: Pointer to a null pointer, 
+         *                      Output: Pointer to a null-terminated string
+         * 
+         * @return  1  if the input is not a pointer to a NULL pointer,
+         *          2  if we are not able to talk to the HSM
+         *          3  if something else went wrong (eg: memory allocation failed)
+         *          0   if everything went through correctly 
+         */
+    
+        uint32_t getRegistrationId( char **ppcRegistrationId ); 
+    #endif
+#endif /* CONFIG_ESP_TLS_USE_SECURE_ELEMENT */
 
 #endif /* DEMO_CONFIG_H */

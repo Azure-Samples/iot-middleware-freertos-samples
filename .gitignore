@@ -361,6 +361,7 @@ build/
 
 # ESP-IDF config files
 sdkconfig*
+dependencies.lock
 
 # Gate build directories
 /build_pc_linux
@@ -368,3 +369,7 @@ sdkconfig*
 /build_st_b-l4s5i-iot01a
 /build_st_b-l475e-iot01a
 /build_st_stm32h745i-disco
+
+# VSCode settings
+**/settings.json
+**/c_cpp_properties.json

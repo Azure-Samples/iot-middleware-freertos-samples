@@ -107,25 +107,35 @@
  * @brief Device symmetric key
  *
  */
+#ifdef CONFIG_AZURE_IOT_DEVICE_SYMMETRIC_KEY
 #define democonfigDEVICE_SYMMETRIC_KEY CONFIG_AZURE_IOT_DEVICE_SYMMETRIC_KEY
+#endif
 
 /**
  * @brief Client's X509 Certificate.
  *
  */
-// #define democonfigCLIENT_CERTIFICATE_PEM    "<YOUR DEVICE CERT HERE>"
+#ifdef CONFIG_AZURE_IOT_DEVICE_CLIENT_CERTIFICATE
+#define democonfigCLIENT_CERTIFICATE_PEM CONFIG_AZURE_IOT_DEVICE_CLIENT_CERTIFICATE
+#endif
 
 /**
  * @brief Client's private key.
  *
  */
-// #define democonfigCLIENT_PRIVATE_KEY_PEM    "<YOUR DEVICE PRIVATE KEY HERE>"
+#ifdef CONFIG_AZURE_IOT_DEVICE_CLIENT_CERTIFICATE_PRIVATE_KEY
+#define democonfigCLIENT_PRIVATE_KEY_PEM    CONFIG_AZURE_IOT_DEVICE_CLIENT_CERTIFICATE_PRIVATE_KEY
+#endif
 
 /**
  * @brief Load the required certificates:
  *  - Baltimore Trusted Root CA 
  *  - DigiCert Global Root G2 
  *  - Microsoft RSA Root Certificate Authority 2017
+ *
+ * @warning Hard coding certificates is not recommended by Microsoft as a best
+ * practice for production scenarios. Please see our document here for notes on best practices.
+ * https://github.com/Azure-Samples/iot-middleware-freertos-samples/blob/main/docs/certificate-notice.md
  *
  */
 static unsigned char root_cert_array[] = {
