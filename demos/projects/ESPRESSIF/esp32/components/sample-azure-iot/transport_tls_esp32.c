@@ -220,7 +220,7 @@ uint32_t getRegistrationId( char **ppcRegistrationId ) {
  * @brief Definition of the network context for the transport interface
  * implementation that uses mbedTLS and FreeRTOS+TLS sockets.
  */
-struct NetworkContext
+typedef struct EspTlsTransportParams
 {
     esp_transport_handle_t xTransport;
     uint32_t ulReceiveTimeoutMs;
