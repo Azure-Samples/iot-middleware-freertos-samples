@@ -236,7 +236,6 @@ struct NetworkContext
     void * pParams;
 };
 
-static const char *TAG = "esp_tls";
 /*-----------------------------------------------------------*/
 
 TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pNetworkContext,
@@ -297,7 +296,7 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pNetworkContext,
     }
 #ifdef democonfigUSE_HSM
 
-    esp_transport_ssl_use_secure_element( pNetworkContext->xTransport );
+    esp_transport_ssl_use_secure_element( pxEspTlsTransport->xTransport );
 
     #if defined(CONFIG_ATECC608A_TCUSTOM) || defined(CONFIG_ATECC608A_TFLEX)
         /*  This is TrustCUSTOM or TrustFLEX chip - the private key will be used from the ATECC608 device slot 0.
@@ -305,7 +304,7 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pNetworkContext,
         */
         if ( pNetworkCredentials->pucClientCert )
         {
-            esp_transport_ssl_set_client_cert_data_der( pNetworkContext->xTransport, ( const char *) pNetworkCredentials->pucClientCert, pNetworkCredentials->xClientCertSize );
+            esp_transport_ssl_set_client_cert_data_der( pxEspTlsTransport->xTransport, ( const char *) pNetworkCredentials->pucClientCert, pNetworkCredentials->xClientCertSize );
         }
 
        
@@ -330,7 +329,7 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pNetworkContext,
 
 #endif
 
-    if ( esp_transport_connect( pNetworkContext->xTransport, pHostName, usPort, ulReceiveTimeoutMs ) < 0 )
+    if ( esp_transport_connect( pxEspTlsTransport->xTransport, pHostName, usPort, ulReceiveTimeoutMs ) < 0 )
     {
         ESP_LOGE( TAG, "Failed establishing TLS connection (esp_transport_connect failed)" );
         xReturnStatus = eTLSTransportConnectFailure;
