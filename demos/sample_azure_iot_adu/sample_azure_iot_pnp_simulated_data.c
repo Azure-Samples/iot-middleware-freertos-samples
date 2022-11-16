@@ -23,7 +23,7 @@
 
 /*-----------------------------------------------------------*/
 
-#define sampleazureiotUPDATE_HANDLER "microsoft/swupdate:1"
+#define sampleazureiotUPDATE_HANDLER                      "microsoft/swupdate:1"
 
 /**
  * @brief Command values
@@ -397,9 +397,9 @@ static bool prvIsHandlerSupported( const AzureIoTADUUpdateRequest_t * pxAduUpdat
  */
 static AzureIoTADURequestDecision_t prvUserDecideShouldStartUpdate( AzureIoTADUUpdateRequest_t * pxAduUpdateRequest )
 {
-    if(!prvIsHandlerSupported(pxAduUpdateRequest))
+    if( !prvIsHandlerSupported( pxAduUpdateRequest ) )
     {
-      return eAzureIoTADURequestDecisionReject;
+        return eAzureIoTADURequestDecisionReject;
     }
 
     if( prvDoesInstalledCriteriaMatchCurrentVersion( pxAduUpdateRequest ) )
