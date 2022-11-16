@@ -3,6 +3,7 @@
 
 # set parent scope path
 set(BOARD_DEMO_CONFIG_PATH ${CMAKE_CURRENT_SOURCE_DIR}/config CACHE INTERNAL "Config path")
+set(BOARD_DEMO_PORT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/port CACHE INTERNAL "Port path")
 set(BOARD_DEMO_FREERTOS_PORT_PATH ${FreeRTOS_ARM_CM4F_PATH} CACHE INTERNAL "FreeRTOS Port used ")
 
 # Define
@@ -31,6 +32,7 @@ find_package(LWIP)
 include_directories(${BOARD_DEMO_CONFIG_PATH})
 include_directories(nxp_code)
 include_directories(nxp_code/lwip)
+include_directories(port)
 
 file(GLOB NXPCODE_SOURCES nxp_code/*.c nxp_code/lwip/*.c)
 set(PROJECT_SOURCES ${NXPCODE_SOURCES} main.c)
@@ -146,5 +148,36 @@ add_custom_command(TARGET ${PROJECT_NAME}-pnp
     # Run after all other rules within the target have been executed
     POST_BUILD
     COMMAND ${CMAKE_OBJCOPY} -Obinary $<TARGET_FILE:${PROJECT_NAME}-pnp> ${PROJECT_NAME}-pnp.bin
+    COMMENT "Generate Bin file"
+    VERBATIM)
+
+add_executable(
+  ${PROJECT_NAME}-adu
+    ${PROJECT_SOURCES}
+    ${CMAKE_CURRENT_LIST_DIR}/port/azure_iot_flash_platform.c
+)
+target_link_libraries(${PROJECT_NAME}-adu PRIVATE
+    FreeRTOS::Timers
+    FreeRTOS::Heap::5
+    FreeRTOS::ARM_CM4F
+    FreeRTOS::EventGroups
+    FreeRTOSPlus::Utilities::backoff_algorithm
+    FreeRTOSPlus::Utilities::logging
+    FreeRTOSPlus::ThirdParty::mbedtls
+    az::iot_middleware::freertos
+    az::iot_middleware::core_http
+    LWIP
+    SAMPLE::SOCKET::LWIP
+    SAMPLE::AZUREIOTADU
+    SAMPLE::TRANSPORT::MBEDTLS
+    ${MCUX_SDK_PROJECT_NAME}
+    )
+
+add_map_file(${PROJECT_NAME}-adu ${PROJECT_NAME}-adu.map)
+
+add_custom_command(TARGET ${PROJECT_NAME}-adu
+    # Run after all other rules within the target have been executed
+    POST_BUILD
+    COMMAND ${CMAKE_OBJCOPY} -Obinary $<TARGET_FILE:${PROJECT_NAME}-adu> ${PROJECT_NAME}-adu.bin
     COMMENT "Generate Bin file"
     VERBATIM)

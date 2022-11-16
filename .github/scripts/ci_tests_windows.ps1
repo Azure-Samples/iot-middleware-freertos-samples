@@ -37,7 +37,6 @@ function sample_build
         [string] $additionalFlags
     )
 
-    
     Write-Output "::group::Cleaning Repo"
     git clean -xdf
 

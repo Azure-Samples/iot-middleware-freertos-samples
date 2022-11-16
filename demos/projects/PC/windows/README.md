@@ -21,7 +21,7 @@ git submodule update --init --recursive
 
 - [CMake](https://cmake.org/download/) (Version 3.13 or higher)
 - An installed version of [WinPcap](https://www.winpcap.org/default.htm) (NPCap may also work). If you have Wireshark installed then this step might not be necessary. This is needed to create an Ethernet interface to be used by the simulator.
-- To run this sample you can use a device previously created in your IoT Hub or have the Azure IoT Middleware for FreeRTOS provision your device automatically using DPS.
+- To run this sample you can use a device previously created in your IoT Hub or have the Azure IoT Middleware for FreeRTOS provision your device automatically using DPS. **Note** that even when using DPS, you still need an IoT Hub created and connected to DPS.
 
 IoT Hub | DPS
 ---------|----------

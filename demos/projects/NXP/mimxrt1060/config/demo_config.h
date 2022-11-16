@@ -13,7 +13,7 @@
  * This Model ID is tightly tied to the code implementation in `sample_azure_iot_pnp_simulated_device.c`
  * If you intend to test a different Model ID, please provide the implementation of the model on your application.
  */
-#define sampleazureiotMODEL_ID                                "dtmi:com:example:Thermostat;1"
+#define sampleazureiotMODEL_ID                                "dtmi:azure:iot:deviceUpdateModel;1"
 
 /**************************************************/
 /******* DO NOT CHANGE the following order ********/
@@ -486,5 +486,14 @@ static unsigned char root_cert_array[] = {
  * @brief IoTHub endpoint port.
  */
 #define democonfigIOTHUB_PORT          ( 8883 )
+
+
+#define democonfigCHUNK_DOWNLOAD_SIZE   4096
+
+#define democonfigADU_DEVICE_MANUFACTURER "NXP"
+#define democonfigADU_DEVICE_MODEL        "MIMXRT1060"
+#define democonfigADU_UPDATE_PROVIDER     "Contoso"
+#define democonfigADU_UPDATE_NAME         "MIMXRT1060"
+#define democonfigADU_UPDATE_VERSION      "1.0"
 
 #endif /* DEMO_CONFIG_H */
