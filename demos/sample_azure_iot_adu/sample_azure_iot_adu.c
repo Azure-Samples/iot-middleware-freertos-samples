@@ -974,15 +974,15 @@ static void prvAzureDemoTask( void * pvParameters )
             return xResult;
         }
         else if( ( xResult = AzureIoTJSONWriter_AppendPropertyName( &xWriter,
-                                                                ( uint8_t * ) sampleazureiotMODEL_ID_STR,
-                                                                sizeof( sampleazureiotMODEL_ID_STR ) - 1 ) ) != eAzureIoTSuccess )
+                                                                    ( uint8_t * ) sampleazureiotMODEL_ID_STR,
+                                                                    sizeof( sampleazureiotMODEL_ID_STR ) - 1 ) ) != eAzureIoTSuccess )
         {
             LogError( ( "Error appending property: result 0x%08x", xResult ) );
             return xResult;
         }
         else if( ( xResult = AzureIoTJSONWriter_AppendString( &xWriter,
-                                                                   AzureIoTADUModelID,
-                                                                   AzureIoTADUModelIDLength ) ) != eAzureIoTSuccess )
+                                                              AzureIoTADUModelID,
+                                                              AzureIoTADUModelIDLength ) ) != eAzureIoTSuccess )
         {
             LogError( ( "Error appending string: result 0x%08x", xResult ) );
             return xResult;
