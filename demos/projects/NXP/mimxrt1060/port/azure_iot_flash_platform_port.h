@@ -4,7 +4,7 @@
 /**
  * @file azure_iot_flash_platform_port.h
  *
- * @brief Port file for the esp32 flash abstraction.
+ * @brief Port file for the NXP flash abstraction.
  *
  */
 
