@@ -62,11 +62,11 @@ AzureIoTResult_t AzureIoTPlatform_Init( AzureADUImage_t * const pxAduImage )
     /* Get current optionbytes configuration */
     HAL_FLASHEx_OBGetConfig( &xOptionBytes );
 
-    /* If BFB2 (Boot From Bank 2) is set, erase bank 1, otherwise erase bank 2 */
+    /* If swap is disabled, we are in bank 1 */
     xEraseInitStruct.Banks =
-        ( ( xOptionBytes.USERConfig & OB_BFB2_ENABLE ) == OB_BFB2_ENABLE )
-        ? FLASH_BANK_1
-        : FLASH_BANK_2;
+        (xOptionBytes.USERConfig & OB_SWAP_BANK_ENABLE) == OB_SWAP_BANK_DISABLE
+        ? FLASH_BANK_2
+        : FLASH_BANK_1;
     xEraseInitStruct.TypeErase = FLASH_TYPEERASE_MASSERASE;
 
     HAL_FLASH_Unlock();
@@ -242,12 +242,10 @@ AzureIoTResult_t AzureIoTPlatform_EnableImage( AzureADUImage_t * const pxAduImag
     HAL_FLASH_OB_Unlock();
     HAL_FLASHEx_OBGetConfig( &xOptionBytes ); /* Get current optionbytes configuration */
     xOptionBytes.OptionType = OPTIONBYTE_USER;
-    xOptionBytes.USERType = OB_USER_BFB2;
-    /* If BFB2 set, we will reset it when we reboot the device */
-    xOptionBytes.USERConfig =
-        ( ( xOptionBytes.USERConfig & OB_BFB2_ENABLE ) == OB_BFB2_ENABLE )
-        ? OB_BFB2_DISABLE
-        : OB_BFB2_ENABLE;
+    xOptionBytes.USERType   = OB_USER_SWAP_BANK;
+    xOptionBytes.USERConfig = (xOptionBytes.USERConfig & OB_SWAP_BANK_ENABLE) == OB_SWAP_BANK_DISABLE
+        ? OB_SWAP_BANK_ENABLE
+        : OB_SWAP_BANK_DISABLE;
 
     if( HAL_FLASHEx_OBProgram( &xOptionBytes ) != HAL_OK )
     {

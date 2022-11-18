@@ -162,11 +162,14 @@ target_link_libraries(${PROJECT_NAME}-adu PRIVATE
     HAL::STM32::H7::M7::TIM
     HAL::STM32::H7::M7::TIMEx
     HAL::STM32::H7::M7::UARTEx
+    HAL::STM32::H7::M7::FLASH
+    HAL::STM32::H7::M7::FLASHEx
     CMSIS::STM32::H745XI::M7
     STM32::Nano
     STM32::Nano::FloatScan
     STM32::Nano::FloatPrint
     az::iot_middleware::freertos
+    az::iot_middleware::core_http
     HAL::STM32::H7::M7::ETH
     BSP::STM32::H7::M7::LAN8742
     SAMPLE::AZUREIOTADU
