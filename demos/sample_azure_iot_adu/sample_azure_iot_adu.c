@@ -154,7 +154,6 @@ uint64_t ullGetUnixTime( void );
     static uint8_t ucSampleIotHubHostname[ 128 ];
     static uint8_t ucSampleIotHubDeviceId[ 128 ];
     static AzureIoTProvisioningClient_t xAzureIoTProvisioningClient;
-    static uint8_t ucProvisioningPayloadBuffer[ 128 ];
     #define sampleazureiotMODEL_ID_STR    "modelId"
 #endif /* democonfigENABLE_DPS_SAMPLE */
 
@@ -973,18 +972,13 @@ static void prvAzureDemoTask( void * pvParameters )
             LogError( ( "Error appending begin object: result 0x%08x", xResult ) );
             return xResult;
         }
-        else if( ( xResult = AzureIoTJSONWriter_AppendPropertyName( &xWriter,
-                                                                    ( uint8_t * ) sampleazureiotMODEL_ID_STR,
-                                                                    sizeof( sampleazureiotMODEL_ID_STR ) - 1 ) ) != eAzureIoTSuccess )
+        else if( ( xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter,
+                                                                               ( uint8_t * ) sampleazureiotMODEL_ID_STR,
+                                                                               sizeof( sampleazureiotMODEL_ID_STR ) - 1,
+                                                                               AzureIoTADUModelID,
+                                                                               AzureIoTADUModelIDLength ) ) != eAzureIoTSuccess )
         {
-            LogError( ( "Error appending property: result 0x%08x", xResult ) );
-            return xResult;
-        }
-        else if( ( xResult = AzureIoTJSONWriter_AppendString( &xWriter,
-                                                              AzureIoTADUModelID,
-                                                              AzureIoTADUModelIDLength ) ) != eAzureIoTSuccess )
-        {
-            LogError( ( "Error appending string: result 0x%08x", xResult ) );
+            LogError( ( "Error appending property name and string value: result 0x%08x", xResult ) );
             return xResult;
         }
         else if( ( xResult = AzureIoTJSONWriter_AppendEndObject( &xWriter ) ) != eAzureIoTSuccess )
@@ -1049,13 +1043,13 @@ static void prvAzureDemoTask( void * pvParameters )
             configASSERT( xResult == eAzureIoTSuccess );
         #endif /* democonfigDEVICE_SYMMETRIC_KEY */
 
-        xResult = prvCreateProvisioningPayload( ucProvisioningPayloadBuffer,
-                                                sizeof( ucProvisioningPayloadBuffer ),
+        xResult = prvCreateProvisioningPayload( ucScratchBuffer,
+                                                sizeof( ucScratchBuffer ),
                                                 &ulOutProvisioningPayloadLength );
         configASSERT( xResult == eAzureIoTSuccess );
 
         xResult = AzureIoTProvisioningClient_SetRegistrationPayload( &xAzureIoTProvisioningClient,
-                                                                     ( const uint8_t * ) ucProvisioningPayloadBuffer,
+                                                                     ( const uint8_t * ) ucScratchBuffer,
                                                                      ulOutProvisioningPayloadLength );
         configASSERT( xResult == eAzureIoTSuccess );
 
