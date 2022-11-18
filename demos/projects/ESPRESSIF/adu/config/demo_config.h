@@ -43,7 +43,7 @@
  *        This plug-and-play model can be found at:
  *        https://github.com/Azure/iot-plugandplay-models/blob/main/dtmi/azureiot/devkit/freertos/esp32azureiotkit-1.json
  */
-#define sampleazureiotMODEL_ID                                "dtmi:azure:iot:deviceUpdateModel;1"
+#define sampleazureiotMODEL_ID                                "dtmi:com:example:Thermostat;1"
 
 
 /**
