@@ -16,6 +16,8 @@ set(BOARD_DEMO_FREERTOS_PORT_PATH ${FreeRTOS_ARM_CM7_PATH} CACHE INTERNAL "FreeR
 include(${CMAKE_CURRENT_SOURCE_DIR}/gcc_flags.cmake)
 
 include_directories(${BOARD_DEMO_CONFIG_PATH})
+include_directories(port)
+add_compile_definitions(DUAL_BANK)
 
 file(GLOB STCODE_SOURCES st_code/*.c)
 file(GLOB LWIP_PORT_SOURCES
@@ -124,5 +126,58 @@ add_custom_command(TARGET ${PROJECT_NAME}-pnp
     # Run after all other rules within the target have been executed
     POST_BUILD
     COMMAND ${CMAKE_OBJCOPY} -Obinary $<TARGET_FILE:${PROJECT_NAME}-pnp> ${PROJECT_NAME}-pnp.bin
+    COMMENT "Generate Bin file"
+    VERBATIM)
+
+# PnP Sample
+add_executable(${PROJECT_NAME}-adu
+    ${PROJECT_SOURCES}
+    ${CMAKE_CURRENT_LIST_DIR}/port/azure_iot_flash_platform.c
+)
+target_include_directories(${PROJECT_NAME}-adu PUBLIC
+    .
+    st_code
+    st_code/lwip/App
+    st_code/lwip/Target
+    st_code/lwip/system)
+target_link_libraries(${PROJECT_NAME}-adu PRIVATE
+    FreeRTOS::Timers
+    FreeRTOS::Heap::5
+    FreeRTOS::ARM_CM7
+    FreeRTOSPlus::Utilities::backoff_algorithm
+    FreeRTOSPlus::Utilities::logging
+    FreeRTOSPlus::ThirdParty::mbedtls
+    LWIP
+    HAL::STM32::H7::M7::RCC
+    HAL::STM32::H7::M7::RCCEx
+    HAL::STM32::H7::M7::SPI
+    HAL::STM32::H7::M7::RTC
+    HAL::STM32::H7::M7::UART
+    HAL::STM32::H7::M7::DMA
+    HAL::STM32::H7::M7::PWR
+    HAL::STM32::H7::M7::PWREx
+    HAL::STM32::H7::M7::GPIO
+    HAL::STM32::H7::M7::CORTEX
+    HAL::STM32::H7::M7::RNG
+    HAL::STM32::H7::M7::TIM
+    HAL::STM32::H7::M7::TIMEx
+    HAL::STM32::H7::M7::UARTEx
+    CMSIS::STM32::H745XI::M7
+    STM32::Nano
+    STM32::Nano::FloatScan
+    STM32::Nano::FloatPrint
+    az::iot_middleware::freertos
+    HAL::STM32::H7::M7::ETH
+    BSP::STM32::H7::M7::LAN8742
+    SAMPLE::AZUREIOTADU
+    SAMPLE::TRANSPORT::MBEDTLS
+    SAMPLE::SOCKET::LWIP)
+
+add_map_file(${PROJECT_NAME}-adu ${PROJECT_NAME}-adu.map)
+
+add_custom_command(TARGET ${PROJECT_NAME}-adu
+    # Run after all other rules within the target have been executed
+    POST_BUILD
+    COMMAND ${CMAKE_OBJCOPY} -Obinary $<TARGET_FILE:${PROJECT_NAME}-adu> ${PROJECT_NAME}-adu.bin
     COMMENT "Generate Bin file"
     VERBATIM)
