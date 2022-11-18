@@ -510,4 +510,16 @@ static unsigned char root_cert_array[] = {
  */
 #define WIFI_SECURITY_TYPE  WIFI_ECN_WPA2_PSK
 
+#ifdef democonfigENABLE_DPS_SAMPLE
+    #define democonfigCHUNK_DOWNLOAD_SIZE    256
+#else
+    #define democonfigCHUNK_DOWNLOAD_SIZE    1024
+#endif /* democonfigENABLE_DPS_SAMPLE */
+
+#define democonfigADU_DEVICE_MANUFACTURER    "STMicroelectronics"
+#define democonfigADU_DEVICE_MODEL           "STM32L4S5I"
+#define democonfigADU_UPDATE_PROVIDER        "Contoso"
+#define democonfigADU_UPDATE_NAME            "STM32L4S5I"
+#define democonfigADU_UPDATE_VERSION         "1.0"
+
 #endif /* DEMO_CONFIG_H */
