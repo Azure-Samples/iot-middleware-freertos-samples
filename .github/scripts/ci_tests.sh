@@ -195,9 +195,11 @@ do
             sample_build "ST" "b-l4s5i-iot01a" "build_st_b-l4s5i-iot01a" "Debug"
             exit_if_binary_does_not_exist "build_st_b-l4s5i-iot01a" "iot-middleware-sample.elf"
             exit_if_binary_does_not_exist "build_st_b-l4s5i-iot01a" "iot-middleware-sample-pnp.elf"
+            exit_if_binary_does_not_exist "build_st_b-l4s5i-iot01a" "iot-middleware-sample-adu.elf"
             echo -e "::group::Print Size for Debug"
             grep -A5 "Linking C executable demos/projects/ST/b-l4s5i-iot01a/iot-middleware-sample.elf" build.txt
             grep -A5 "Linking C executable demos/projects/ST/b-l4s5i-iot01a/iot-middleware-sample-pnp.elf" build.txt
+            grep -A5 "Linking C executable demos/projects/ST/b-l4s5i-iot01a/iot-middleware-sample-adu.elf" build.txt
 
             rm -rf build_st_b-l4s5i-iot01a
 
@@ -205,9 +207,11 @@ do
             sample_build "ST" "b-l4s5i-iot01a" "build_st_b-l4s5i-iot01a" "Release"
             exit_if_binary_does_not_exist "build_st_b-l4s5i-iot01a" "iot-middleware-sample.elf"
             exit_if_binary_does_not_exist "build_st_b-l4s5i-iot01a" "iot-middleware-sample-pnp.elf"
+            exit_if_binary_does_not_exist "build_st_b-l4s5i-iot01a" "iot-middleware-sample-adu.elf"
             echo -e "::group::Print Size for Release"
             grep -A5 "Linking C executable demos/projects/ST/b-l4s5i-iot01a/iot-middleware-sample.elf" build.txt
             grep -A5 "Linking C executable demos/projects/ST/b-l4s5i-iot01a/iot-middleware-sample-pnp.elf" build.txt
+            grep -A5 "Linking C executable demos/projects/ST/b-l4s5i-iot01a/iot-middleware-sample-adu.elf" build.txt
             ;;
         "-pc")
             fetch_freertos
