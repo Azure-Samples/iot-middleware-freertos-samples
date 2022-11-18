@@ -43,6 +43,7 @@
 typedef struct EspSocketTransportParams
 {
     esp_transport_handle_t xTransport;
+    esp_transport_list_handle_t xTransportList;
     uint32_t ulReceiveTimeoutMs;
     uint32_t ulSendTimeoutMs;
 } EspSocketTransportParams_t;
@@ -92,8 +93,11 @@ SocketTransportStatus_t Azure_Socket_Connect( NetworkContext_t * pNetworkContext
     }
 
     pxEspSocketTransport->xTransport = esp_transport_tcp_init( );
+    pxEspSocketTransport->xTransportList = esp_transport_list_init();
     pxEspSocketTransport->ulReceiveTimeoutMs = ulReceiveTimeoutMs;
     pxEspSocketTransport->ulSendTimeoutMs = ulSendTimeoutMs;
+
+    esp_transport_list_add(pxEspSocketTransport->xTransportList, pxEspSocketTransport->xTransport, "_tcp");
 
     pxSocketTransport->xSocketContext = (void*)pxEspSocketTransport;
 
@@ -114,6 +118,7 @@ SocketTransportStatus_t Azure_Socket_Connect( NetworkContext_t * pNetworkContext
         {
             esp_transport_close( pxEspSocketTransport->xTransport );
             esp_transport_destroy( pxEspSocketTransport->xTransport );
+            esp_transport_list_destroy(pxEspSocketTransport->xTransportList);
             vPortFree(pxEspSocketTransport);
         }
     }
@@ -151,6 +156,8 @@ void Azure_Socket_Close( NetworkContext_t * pNetworkContext )
 
     /* Free socket contexts. */
     esp_transport_destroy( pxEspSocketTransport->xTransport );
+    /* Destroy list of transports */
+    esp_transport_list_destroy(pxEspSocketTransport->xTransportList);
     vPortFree( pxEspSocketTransport );
 }
 /*-----------------------------------------------------------*/
