@@ -378,7 +378,6 @@ static bool prvIsHandlerSupported( const AzureIoTADUUpdateRequest_t * pxAduUpdat
     }
     else
     {
-        LogInfo( ( "[ADU] Rejecting update request (update handler not supported)" ) );
         return false;
     }
 }
@@ -400,6 +399,7 @@ static AzureIoTADURequestDecision_t prvUserDecideShouldStartUpdate( AzureIoTADUU
 {
     if( !prvIsHandlerSupported( pxAduUpdateRequest ) )
     {
+        LogInfo( ( "[ADU] Rejecting update request (update handler not supported)" ) );
         return eAzureIoTADURequestDecisionReject;
     }
 
