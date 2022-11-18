@@ -1,5 +1,5 @@
 /* Copyright (c) Microsoft Corporation.
-   Licensed under the MIT License. */
+ * Licensed under the MIT License. */
 
 #ifndef AZURE_IOT_CONFIG_H
 #define AZURE_IOT_CONFIG_H
@@ -42,19 +42,19 @@ extern void vLoggingPrintf( const char * pcFormatString,
 
 /* Middleware logging */
 #if LIBRARY_LOG_LEVEL >= LOG_ERROR
-    #define AZLogError( message ) SdkLog ( message ); SdkLog ( ("\r\n") )
+    #define AZLogError( message )    SdkLog( message ); SdkLog( ( "\r\n" ) )
 #endif
 
 #if LIBRARY_LOG_LEVEL >= LOG_INFO
-    #define AZLogWarn( message ) SdkLog ( message ); SdkLog ( ("\r\n") )
+    #define AZLogWarn( message )    SdkLog( message ); SdkLog( ( "\r\n" ) )
 #endif
 
 #if LIBRARY_LOG_LEVEL >= LOG_INF
-    #define AZLogInfo( message ) SdkLog ( message ); SdkLog ( ("\r\n") )
+    #define AZLogInfo( message )    SdkLog( message ); SdkLog( ( "\r\n" ) )
 #endif
 
 #if LIBRARY_LOG_LEVEL >= LOG_DEBUG
-    #define AZLogDebug( message ) SdkLog ( message ); SdkLog ( ("\r\n") )
+    #define AZLogDebug( message )    SdkLog( message ); SdkLog( ( "\r\n" ) )
 #endif
 
 #include "logging_stack.h"

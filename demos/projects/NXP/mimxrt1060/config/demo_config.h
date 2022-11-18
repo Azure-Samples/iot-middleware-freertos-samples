@@ -487,4 +487,13 @@ static unsigned char root_cert_array[] = {
  */
 #define democonfigIOTHUB_PORT          ( 8883 )
 
+
+#define democonfigCHUNK_DOWNLOAD_SIZE   4096
+
+#define democonfigADU_DEVICE_MANUFACTURER "NXP"
+#define democonfigADU_DEVICE_MODEL        "MIMXRT1060"
+#define democonfigADU_UPDATE_PROVIDER     "Contoso"
+#define democonfigADU_UPDATE_NAME         "MIMXRT1060"
+#define democonfigADU_UPDATE_VERSION      "1.0"
+
 #endif /* DEMO_CONFIG_H */

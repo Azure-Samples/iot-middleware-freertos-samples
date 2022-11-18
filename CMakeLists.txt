@@ -38,5 +38,15 @@ set(FREERTOS_DIRECTORY ${FREERTOS_PATH} CACHE STRING "FreeRTOS Path")
 set(CONFIG_DIRECTORY ${BOARD_DEMO_CONFIG_PATH} CACHE STRING "Demo config")
 set(FREERTOS_PORT_DIRECTORY ${BOARD_DEMO_FREERTOS_PORT_PATH} CACHE STRING "FreeRTOS port")
 
+# Include port path for lib
+include_directories(${BOARD_DEMO_PORT_PATH})
+
 # Add middleware
+# These boards do not support ADU
+if(NOT(${BOARD} STREQUAL "stm32h745i-disco") AND
+   NOT(${BOARD} STREQUAL "b-l4s5i-iot01a") AND
+   NOT(${BOARD} STREQUAL "windows")
+)
+  set(USE_COREHTTP ON)
+endif()
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/azure-iot-middleware-freertos)

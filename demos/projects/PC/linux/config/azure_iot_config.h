@@ -40,6 +40,12 @@ extern void vLoggingPrintf( const char * pcFormatString,
     #define SdkLog( message )    vLoggingPrintf message
 #endif
 
+/* Middleware logging */
+#define AZLogError( message )    SdkLog( ( "[ERROR] [AZ IoT] [%s:%d]", __FILE__, __LINE__ ) ); SdkLog( message ); SdkLog( ( "\r\n" ) )
+#define AZLogWarn( message )     SdkLog( ( "[WARN] [AZ IoT] ") ); SdkLog( message ); SdkLog( ( "\r\n" ) )
+#define AZLogInfo( message )     SdkLog( ( "[INFO] [AZ IoT] ") ); SdkLog( message ); SdkLog( ( "\r\n" ) )
+#define AZLogDebug( message )    SdkLog( ( "[DEBUG] [AZ IoT] ") ); SdkLog( message ); SdkLog( ( "\r\n" ) )
+
 #include "logging_stack.h"
 /************ End of logging configuration ****************/
 

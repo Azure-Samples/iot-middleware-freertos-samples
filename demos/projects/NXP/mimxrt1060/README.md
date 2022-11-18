@@ -13,14 +13,14 @@
 - [Ninja build system](https://github.com/ninja-build/ninja/releases) (Version 1.10 or higher)
 - [GNU Arm Embedded Toolchain](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads) (Version 9 or higher)
 - Terminal tool like [Termite](https://www.compuphase.com/software_termite.htm), Putty, Tera Term, etc.
-- To run this sample you can use a device previously created in your IoT Hub or have the Azure IoT middleware for FreeRTOS provision your device automatically using DPS.
+- To run this sample you can use a device previously created in your IoT Hub or have the Azure IoT middleware for FreeRTOS provision your device automatically using DPS. **Note** that even when using DPS, you still need an IoT Hub created and connected to DPS.
 
 IoT Hub | DPS
 ---------|----------
 Have an [Azure IoT Hub](https://docs.microsoft.com/azure/iot-hub/iot-hub-create-through-portal) created | Have an instance of [IoT Hub Device Provisioning Service](https://docs.microsoft.com/azure/iot-dps/quick-setup-auto-provision#create-a-new-iot-hub-device-provisioning-service)
 Have a [logical device](https://docs.microsoft.com/azure/iot-hub/iot-hub-create-through-portal#register-a-new-device-in-the-iot-hub) created in your Azure IoT Hub using your preferred authentication method | Have an [individual enrollment](https://docs.microsoft.com/azure/iot-dps/how-to-manage-enrollments#create-a-device-enrollment) created in your instance of DPS using your preferred authentication method
 
-**While this sample supports SAS keys and Certificates, this guide will refer only to SAS keys.**
+*While this sample supports SAS keys and Certificates, this guide will refer only to SAS keys.
 
 ### Install prerequisites on Windows
 
@@ -125,3 +125,11 @@ This sample can includes either IoT Hub only or both IoT Hub and DPS services. T
 |**Sample** | **Flash (text,rodata,data)** | **RAM1,RAM2(dss,data)** | **Flash (text,rodata,data)** | **RAM1,RAM2(dss,data)** |
 | IoT Hub + DPS | 23.96 KB | 12 bytes | 246.89 KB | 195.55 KB
 | IoT Hub only | 11.61 KB | 12 bytes | 234.31 KB | 194.37 KB
+
+## ADU PREVIEW
+
+To get the ADU sample working for the NXP 1060, the user must fill in the code at all `TODO` locations listed here:
+
+- [azure_iot_flash_platform.h](port/azure_iot_flash_platform_port.h)
+- [azure_iot_flash_platform.c](port/azure_iot_flash_platform.c)
+- [demo_config.c](config/demo_config.h)

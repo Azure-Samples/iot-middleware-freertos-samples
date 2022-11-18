@@ -23,7 +23,7 @@
 #include "transport_tls_socket.h"
 
 /* Crypto helper header. */
-#include "crypto.h"
+#include "azure_sample_crypto.h"
 
 /*-----------------------------------------------------------*/
 
