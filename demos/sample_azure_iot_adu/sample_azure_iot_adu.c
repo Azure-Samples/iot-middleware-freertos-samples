@@ -955,7 +955,7 @@ static void prvAzureDemoTask( void * pvParameters )
 
     static AzureIoTResult_t prvCreateProvisioningPayload( uint8_t * pucBuffer,
                                                           uint32_t ulBufferLength,
-                                                          uint32_t * pulOutBufferLength )
+                                                          int32_t * plOutBufferLength )
     {
         AzureIoTResult_t xResult;
         AzureIoTJSONWriter_t xWriter;
@@ -987,7 +987,7 @@ static void prvAzureDemoTask( void * pvParameters )
             return xResult;
         }
 
-        *pulOutBufferLength = AzureIoTJSONWriter_GetBytesUsed( &xWriter );
+        *plOutBufferLength = AzureIoTJSONWriter_GetBytesUsed( &xWriter );
 
         return xResult;
     }
@@ -1006,7 +1006,7 @@ static void prvAzureDemoTask( void * pvParameters )
         TlsTransportParams_t xTlsTransportParams = { 0 };
         AzureIoTResult_t xResult;
         AzureIoTTransportInterface_t xTransport;
-        uint32_t ulOutProvisioningPayloadLength;
+        int32_t lOutProvisioningPayloadLength;
         uint32_t ucSamplepIothubHostnameLength = sizeof( ucSampleIotHubHostname );
         uint32_t ucSamplepIothubDeviceIdLength = sizeof( ucSampleIotHubDeviceId );
         uint32_t ulStatus;
@@ -1045,12 +1045,12 @@ static void prvAzureDemoTask( void * pvParameters )
 
         xResult = prvCreateProvisioningPayload( ucScratchBuffer,
                                                 sizeof( ucScratchBuffer ),
-                                                &ulOutProvisioningPayloadLength );
+                                                &lOutProvisioningPayloadLength );
         configASSERT( xResult == eAzureIoTSuccess );
 
         xResult = AzureIoTProvisioningClient_SetRegistrationPayload( &xAzureIoTProvisioningClient,
                                                                      ( const uint8_t * ) ucScratchBuffer,
-                                                                     ulOutProvisioningPayloadLength );
+                                                                     ( uint32_t ) lOutProvisioningPayloadLength );
         configASSERT( xResult == eAzureIoTSuccess );
 
         do
