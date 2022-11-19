@@ -154,6 +154,7 @@ uint64_t ullGetUnixTime( void );
     static uint8_t ucSampleIotHubHostname[ 128 ];
     static uint8_t ucSampleIotHubDeviceId[ 128 ];
     static AzureIoTProvisioningClient_t xAzureIoTProvisioningClient;
+    #define sampleazureiotMODEL_ID_STR    "modelId"
 #endif /* democonfigENABLE_DPS_SAMPLE */
 
 /* Each compilation unit must define the NetworkContext struct. */
@@ -950,6 +951,47 @@ static void prvAzureDemoTask( void * pvParameters )
 
 #ifdef democonfigENABLE_DPS_SAMPLE
 
+/*-----------------------------------------------------------*/
+
+    static AzureIoTResult_t prvCreateProvisioningPayload( uint8_t * pucBuffer,
+                                                          uint32_t ulBufferLength,
+                                                          int32_t * plOutBufferLength )
+    {
+        AzureIoTResult_t xResult;
+        AzureIoTJSONWriter_t xWriter;
+
+        if( ( xResult = AzureIoTJSONWriter_Init( &xWriter,
+                                                 pucBuffer,
+                                                 ulBufferLength ) ) != eAzureIoTSuccess )
+        {
+            LogError( ( "Error initializing JSON writer: result 0x%08x", xResult ) );
+            return xResult;
+        }
+        else if( ( xResult = AzureIoTJSONWriter_AppendBeginObject( &xWriter ) ) != eAzureIoTSuccess )
+        {
+            LogError( ( "Error appending begin object: result 0x%08x", xResult ) );
+            return xResult;
+        }
+        else if( ( xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter,
+                                                                               ( uint8_t * ) sampleazureiotMODEL_ID_STR,
+                                                                               sizeof( sampleazureiotMODEL_ID_STR ) - 1,
+                                                                               AzureIoTADUModelID,
+                                                                               AzureIoTADUModelIDLength ) ) != eAzureIoTSuccess )
+        {
+            LogError( ( "Error appending property name and string value: result 0x%08x", xResult ) );
+            return xResult;
+        }
+        else if( ( xResult = AzureIoTJSONWriter_AppendEndObject( &xWriter ) ) != eAzureIoTSuccess )
+        {
+            LogError( ( "Error appending end object: result 0x%08x", xResult ) );
+            return xResult;
+        }
+
+        *plOutBufferLength = AzureIoTJSONWriter_GetBytesUsed( &xWriter );
+
+        return xResult;
+    }
+
 /**
  * @brief Get IoT Hub endpoint and device Id info, when Provisioning service is used.
  *   This function will block for Provisioning service for result or return failure.
@@ -964,6 +1006,7 @@ static void prvAzureDemoTask( void * pvParameters )
         TlsTransportParams_t xTlsTransportParams = { 0 };
         AzureIoTResult_t xResult;
         AzureIoTTransportInterface_t xTransport;
+        int32_t lOutProvisioningPayloadLength;
         uint32_t ucSamplepIothubHostnameLength = sizeof( ucSampleIotHubHostname );
         uint32_t ucSamplepIothubDeviceIdLength = sizeof( ucSampleIotHubDeviceId );
         uint32_t ulStatus;
@@ -1000,9 +1043,14 @@ static void prvAzureDemoTask( void * pvParameters )
             configASSERT( xResult == eAzureIoTSuccess );
         #endif /* democonfigDEVICE_SYMMETRIC_KEY */
 
+        xResult = prvCreateProvisioningPayload( ucScratchBuffer,
+                                                sizeof( ucScratchBuffer ),
+                                                &lOutProvisioningPayloadLength );
+        configASSERT( xResult == eAzureIoTSuccess );
+
         xResult = AzureIoTProvisioningClient_SetRegistrationPayload( &xAzureIoTProvisioningClient,
-                                                                     ( const uint8_t * ) sampleazureiotPROVISIONING_PAYLOAD,
-                                                                     sizeof( sampleazureiotPROVISIONING_PAYLOAD ) - 1 );
+                                                                     ( const uint8_t * ) ucScratchBuffer,
+                                                                     ( uint32_t ) lOutProvisioningPayloadLength );
         configASSERT( xResult == eAzureIoTSuccess );
 
         do
@@ -1017,7 +1065,7 @@ static void prvAzureDemoTask( void * pvParameters )
         }
         else
         {
-            LogInfo( ( "Error geting IoT Hub name and Device ID: 0x%08x", xResult ) );
+            LogInfo( ( "Error getting IoT Hub name and Device ID: 0x%08x", xResult ) );
         }
 
         configASSERT( xResult == eAzureIoTSuccess );
