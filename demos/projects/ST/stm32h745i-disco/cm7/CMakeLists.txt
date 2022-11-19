@@ -17,7 +17,6 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/gcc_flags.cmake)
 
 include_directories(${BOARD_DEMO_CONFIG_PATH})
 include_directories(port)
-add_compile_definitions(DUAL_BANK)
 
 file(GLOB STCODE_SOURCES st_code/*.c)
 file(GLOB LWIP_PORT_SOURCES

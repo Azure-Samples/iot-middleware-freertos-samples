@@ -10,6 +10,7 @@
 #include "azure/core/az_base64.h"
 #include "mbedtls/md.h"
 
+#define azureiotflashH745_WORD_SIZE 32
 #define azureiotflashL475_DOUBLE_WORD_SIZE    2 * sizeof( long )
 
 /* advance addr by this amount to program the next 32 row double-word (64-bit)
@@ -48,7 +49,6 @@ static AzureIoTResult_t prvBase64Decode( uint8_t * base64Encoded,
 
 AzureIoTResult_t AzureIoTPlatform_Init( AzureADUImage_t * const pxAduImage )
 {
-    pxAduImage->xUpdatePartition = ( uint8_t * ) ( FLASH_BASE + FLASH_BANK_SIZE );
     pxAduImage->ulCurrentOffset = 0;
     pxAduImage->ulImageFileSize = 0;
 
@@ -61,6 +61,9 @@ AzureIoTResult_t AzureIoTPlatform_Init( AzureADUImage_t * const pxAduImage )
     __HAL_FLASH_CLEAR_FLAG( FLASH_FLAG_OPERR );
     /* Get current optionbytes configuration */
     HAL_FLASHEx_OBGetConfig( &xOptionBytes );
+
+    pxAduImage->xUpdatePartition = (xOptionBytes.USERConfig & OB_SWAP_BANK_ENABLE) == OB_SWAP_BANK_DISABLE ?
+          FLASH_BANK2_BASE : FLASH_BANK1_BASE;
 
     /* If swap is disabled, we are in bank 1 */
     xEraseInitStruct.Banks =
@@ -121,7 +124,7 @@ AzureIoTResult_t AzureIoTPlatform_WriteBlock( AzureADUImage_t * const pxAduImage
     uint8_t * pucLastChunkWriteAddr = pxAduImage->xUpdatePartition + pxAduImage->ulImageFileSize - ( ( xImageDividesEvenly ? 1 : 2 ) * azureiotflashL475_FLASH_ROW_SIZE );
 
     /* ending address of the last full chunk in this block */
-    uint8_t * pucBlockEndAddr = pxAduImage->xUpdatePartition + ulOffset + ulBlockSize - ( ( xIsLastBlock && !xImageDividesEvenly ) ? azureiotflashL475_FLASH_ROW_SIZE : 0 );
+    uint8_t * pucBlockEndAddr = pxAduImage->xUpdatePartition + ulOffset + ulBlockSize;
 
     HAL_FLASH_Unlock();
 
@@ -135,26 +138,8 @@ AzureIoTResult_t AzureIoTPlatform_WriteBlock( AzureADUImage_t * const pxAduImage
             break;
         }
 
-        pucNextWriteAddr += azureiotflashL475_FLASH_ROW_SIZE;
-        pucNextReadAddr += azureiotflashL475_FLASH_ROW_SIZE;
-    }
-
-    /* Write any leftover data that didn't evenly fit into the chunks */
-    if( ( xResult == eAzureIoTSuccess ) && xIsLastBlock && ( pucNextWriteAddr > pucLastChunkWriteAddr + azureiotflashL475_FLASH_ROW_SIZE ) )
-    {
-        while( pucNextWriteAddr < pucBlockEndAddr + azureiotflashL475_FLASH_ROW_SIZE )
-        {
-            /* Program double words until the end of the file */
-            if( HAL_FLASH_Program( FLASH_TYPEPROGRAM_FLASHWORD, ( uint32_t ) pucNextWriteAddr, ( uint64_t ) *( uint32_t * ) pucNextReadAddr | ( ( uint64_t ) *( uint32_t * ) ( pucNextReadAddr + 4 ) ) << 32 ) != HAL_OK )
-            {
-                /* Error occurred while writing data in Flash memory */
-                xResult = eAzureIoTErrorFailed;
-                break;
-            }
-
-            pucNextWriteAddr += azureiotflashL475_DOUBLE_WORD_SIZE;
-            pucNextReadAddr += azureiotflashL475_DOUBLE_WORD_SIZE;
-        }
+        pucNextWriteAddr += azureiotflashH745_WORD_SIZE;
+        pucNextReadAddr += azureiotflashH745_WORD_SIZE;
     }
 
     HAL_FLASH_Lock();
@@ -264,11 +249,6 @@ AzureIoTResult_t AzureIoTPlatform_ResetDevice( AzureADUImage_t * const pxAduImag
     HAL_FLASH_Unlock();
     HAL_FLASH_OB_Unlock();
 
-    /*
-     * Sets options bits and restarts device.
-     * Also sets the boot bank address to 0x08000000, which means we always write
-     * to 0x08080000
-     */
     HAL_FLASH_OB_Launch();
 
     return eAzureIoTSuccess;
