@@ -47,6 +47,8 @@ if [[ "$FIX" == "check" ]]; then
     ./demos/projects/ST/b-l475e-iot01a/port/*.c               \
     ./demos/projects/ST/b-l475e-iot01a/port/*.h               \
     ./demos/projects/ST/b-l475e-iot01a/config/*.h             \
+    ./demos/projects/ST/stm32h745i-disco/cm7/port/*.c               \
+    ./demos/projects/ST/stm32h745i-disco/cm7/port/*.h               \
     ./demos/projects/PC/linux/tests/*.c)
 
     if [ $? -ne 0 ]; then
@@ -72,6 +74,8 @@ elif [[ "$FIX" == "fix" ]]; then
     ./demos/projects/ST/b-l475e-iot01a/port/*.c               \
     ./demos/projects/ST/b-l475e-iot01a/port/*.h               \
     ./demos/projects/ST/b-l475e-iot01a/config/*.h             \
+    ./demos/projects/ST/stm32h745i-disco/cm7/port/*.c               \
+    ./demos/projects/ST/stm32h745i-disco/cm7/port/*.h               \
     ./demos/projects/PC/linux/tests/*.c
 else
     usage

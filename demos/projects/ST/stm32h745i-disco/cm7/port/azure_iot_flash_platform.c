@@ -10,8 +10,8 @@
 #include "azure/core/az_base64.h"
 #include "mbedtls/md.h"
 
-#define azureiotflashH745_WORD_SIZE 32
-#define azureiotflashSHA_256_SIZE   32
+#define azureiotflashH745_WORD_SIZE    32
+#define azureiotflashSHA_256_SIZE      32
 
 static uint8_t ucPartitionReadBuffer[ 32 ];
 static uint8_t ucDecodedManifestHash[ azureiotflashSHA_256_SIZE ];
@@ -55,12 +55,12 @@ AzureIoTResult_t AzureIoTPlatform_Init( AzureADUImage_t * const pxAduImage )
     /* Get current optionbytes configuration */
     HAL_FLASHEx_OBGetConfig( &xOptionBytes );
 
-    pxAduImage->xUpdatePartition = (xOptionBytes.USERConfig & OB_SWAP_BANK_ENABLE) == OB_SWAP_BANK_DISABLE ?
-          (uint8_t*)FLASH_BANK2_BASE : (uint8_t*)FLASH_BANK1_BASE;
+    pxAduImage->xUpdatePartition = ( xOptionBytes.USERConfig & OB_SWAP_BANK_ENABLE ) == OB_SWAP_BANK_DISABLE ?
+                                   ( uint8_t * ) FLASH_BANK2_BASE : ( uint8_t * ) FLASH_BANK1_BASE;
 
     /* If swap is disabled, we are in bank 1 */
     xEraseInitStruct.Banks =
-        (xOptionBytes.USERConfig & OB_SWAP_BANK_ENABLE) == OB_SWAP_BANK_DISABLE
+        ( xOptionBytes.USERConfig & OB_SWAP_BANK_ENABLE ) == OB_SWAP_BANK_DISABLE
         ? FLASH_BANK_2
         : FLASH_BANK_1;
     xEraseInitStruct.TypeErase = FLASH_TYPEERASE_MASSERASE;
@@ -197,10 +197,10 @@ AzureIoTResult_t AzureIoTPlatform_EnableImage( AzureADUImage_t * const pxAduImag
     HAL_FLASH_OB_Unlock();
     HAL_FLASHEx_OBGetConfig( &xOptionBytes ); /* Get current optionbytes configuration */
     xOptionBytes.OptionType = OPTIONBYTE_USER;
-    xOptionBytes.USERType   = OB_USER_SWAP_BANK;
-    xOptionBytes.USERConfig = (xOptionBytes.USERConfig & OB_SWAP_BANK_ENABLE) == OB_SWAP_BANK_DISABLE
-        ? OB_SWAP_BANK_ENABLE
-        : OB_SWAP_BANK_DISABLE;
+    xOptionBytes.USERType = OB_USER_SWAP_BANK;
+    xOptionBytes.USERConfig = ( xOptionBytes.USERConfig & OB_SWAP_BANK_ENABLE ) == OB_SWAP_BANK_DISABLE
+                              ? OB_SWAP_BANK_ENABLE
+                              : OB_SWAP_BANK_DISABLE;
 
     if( HAL_FLASHEx_OBProgram( &xOptionBytes ) != HAL_OK )
     {
