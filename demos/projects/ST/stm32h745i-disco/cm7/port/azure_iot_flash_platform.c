@@ -251,5 +251,7 @@ AzureIoTResult_t AzureIoTPlatform_ResetDevice( AzureADUImage_t * const pxAduImag
 
     HAL_FLASH_OB_Launch();
 
+    NVIC_SystemReset();
+
     return eAzureIoTSuccess;
 }
