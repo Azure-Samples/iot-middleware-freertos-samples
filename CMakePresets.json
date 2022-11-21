@@ -23,7 +23,25 @@
                 "VENDOR": "ST",
                 "BOARD": "b-l4s5i-iot01a"
             }
-        }        
+        },
+        {
+            "name": "stm32h745i-disco",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/stm32h745i-disco",
+            "cacheVariables": {
+                "VENDOR": "ST",
+                "BOARD": "stm32h745i-disco"
+            }
+        },
+        {
+            "name": "mimxrt1060",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/mimxrt1060",
+            "cacheVariables": {
+                "VENDOR": "NXP",
+                "BOARD": "mimxrt1060"
+            }
+        }
     ],
     "buildPresets": [
         {
@@ -33,6 +51,14 @@
         {
             "name": "b-l4s5i-iot01a",
             "configurePreset": "b-l4s5i-iot01a"
-        }        
+        },
+        {
+            "name": "stm32h745i-disco",
+            "configurePreset": "stm32h745i-disco"
+        },
+        {
+            "name": "mimxrt1060",
+            "configurePreset": "mimxrt1060"
+        }
     ]
 }
