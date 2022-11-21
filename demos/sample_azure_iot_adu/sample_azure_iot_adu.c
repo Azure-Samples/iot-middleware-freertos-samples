@@ -192,8 +192,8 @@ static uint8_t ucCommandResponsePayloadBuffer[ 128 ];
 static uint8_t ucReportedPropertiesUpdate[ 1500 ];
 static uint32_t ulReportedPropertiesUpdateLength;
 
-uint8_t ucAduDownloadBuffer[ democonfigCHUNK_DOWNLOAD_SIZE + 1024 ];
-uint8_t ucAduDownloadHeaderBuffer[ ADU_HEADER_BUFFER_SIZE ];
+static uint8_t ucAduDownloadBuffer[ democonfigCHUNK_DOWNLOAD_SIZE + 1024 ];
+static uint8_t ucAduDownloadHeaderBuffer[ ADU_HEADER_BUFFER_SIZE ];
 
 const uint8_t sampleaduDEFAULT_RESULT_DETAILS[] = "Ok";
 
