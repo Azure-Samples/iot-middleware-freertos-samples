@@ -198,6 +198,8 @@ AzureIoTResult_t AzureIoTPlatform_EnableImage( AzureADUImage_t * const pxAduImag
     HAL_FLASHEx_OBGetConfig( &xOptionBytes ); /* Get current optionbytes configuration */
     xOptionBytes.OptionType = OPTIONBYTE_USER;
     xOptionBytes.USERType = OB_USER_SWAP_BANK;
+
+    /* If swap is disabled, we are in bank 1 */
     xOptionBytes.USERConfig = ( xOptionBytes.USERConfig & OB_SWAP_BANK_ENABLE ) == OB_SWAP_BANK_DISABLE
                               ? OB_SWAP_BANK_ENABLE
                               : OB_SWAP_BANK_DISABLE;
