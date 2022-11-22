@@ -11,12 +11,6 @@
 #include "mbedtls/md.h"
 
 #define azureiotflashL475_DOUBLE_WORD_SIZE    2 * sizeof( long )
-
-/* advance addr by this amount to program the next 32 row double-word (64-bit)
- * for fast programming
- */
-#define azureiotflashL475_FLASH_ROW_SIZE      32 * azureiotflashL475_DOUBLE_WORD_SIZE
-
 #define azureiotflashSHA_256_SIZE             32
 
 static uint8_t ucPartitionReadBuffer[ 32 ];
@@ -97,10 +91,11 @@ AzureIoTResult_t AzureIoTPlatform_WriteBlock( AzureADUImage_t * const pxAduImage
     uint8_t * pucNextWriteAddr = pxAduImage->xUpdatePartition + ulOffset;
     uint8_t * pucNextReadAddr = pData;
     AzureIoTResult_t xResult = eAzureIoTSuccess;
+    uint32_t ulEndOfBlock = pxAduImage->xUpdatePartition + ulOffset + ulBlockSize;
 
     HAL_FLASH_Unlock();
 
-    while( pucNextWriteAddr < pxAduImage->xUpdatePartition + ulOffset + ulBlockSize )
+    while( pucNextWriteAddr < ulEndOfBlock )
     {
         if( HAL_FLASH_Program( FLASH_TYPEPROGRAM_DOUBLEWORD, ( uint32_t ) pucNextWriteAddr, ( uint64_t ) *( uint32_t * ) pucNextReadAddr | ( ( uint64_t ) *( uint32_t * ) ( pucNextReadAddr + 4 ) ) << 32 ) != HAL_OK )
         {
