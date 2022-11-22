@@ -84,7 +84,7 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pNetworkContext,
 
     if (( pxTlsParams == NULL ))
     {
-        ESP_LOGE( TAG, "Invalid input parameter(s): Arguments cannot be NULL. pxTlsParams=%p.", pxTlsParams );
+        ESP_LOGE( TAG, "Invalid input parameter(s): Arguments cannot be NULL." );
         return eTLSTransportInvalidParameter;
     }
 
@@ -92,7 +92,7 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pNetworkContext,
 
     if(pxEspTlsTransport == NULL)
     {
-      return eTLSTransportInvalidParameter;
+      return eTLSTransportInsufficientMemory;
     }
 
     pxEspTlsTransport->xTransport = esp_transport_ssl_init( );
@@ -169,7 +169,7 @@ void TLS_Socket_Disconnect( NetworkContext_t * pNetworkContext )
 
     if (( pxTlsParams == NULL ))
     {
-        ESP_LOGE( TAG, "Invalid input parameter(s): Arguments cannot be NULL. pxTlsParams=%p.", pxTlsParams );
+        ESP_LOGE( TAG, "Invalid input parameter(s): Arguments cannot be NULL." );
         return;
     }
 
@@ -203,7 +203,7 @@ int32_t TLS_Socket_Recv( NetworkContext_t * pNetworkContext,
 
     if (( pxTlsParams == NULL ))
     {
-        ESP_LOGE( TAG, "Invalid input parameter(s): Arguments cannot be NULL. pxTlsParams=%p.", pxTlsParams );
+        ESP_LOGE( TAG, "Invalid input parameter(s): Arguments cannot be NULL." );
         return eTLSTransportInvalidParameter;
     }
 
@@ -239,7 +239,7 @@ int32_t TLS_Socket_Send( NetworkContext_t * pNetworkContext,
 
     if (( pxTlsParams == NULL ))
     {
-        ESP_LOGE( TAG, "Invalid input parameter(s): Arguments cannot be NULL. pxTlsParams=%p.", pxTlsParams );
+        ESP_LOGE( TAG, "Invalid input parameter(s): Arguments cannot be NULL." );
         return eTLSTransportInvalidParameter;
     }
 

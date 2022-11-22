@@ -82,7 +82,7 @@ SocketTransportStatus_t Azure_Socket_Connect( NetworkContext_t * pNetworkContext
 
     if((pxSocketTransport == NULL))
     {
-        ESP_LOGE( TAG, "Invalid input parameter(s): Arguments cannot be NULL. pNetworkContext->pParams=%p.", pxSocketTransport );
+        ESP_LOGE( TAG, "Invalid input parameter(s): Arguments cannot be NULL." );
         return eSocketTransportInvalidParameter;
     }
 
@@ -145,7 +145,7 @@ void Azure_Socket_Close( NetworkContext_t * pNetworkContext )
 
     if((pxSocketTransport == NULL))
     {
-        ESP_LOGE( TAG, "Invalid input parameter(s): Arguments cannot be NULL. pNetworkContext->pParams=%p.", pxSocketTransport );
+        ESP_LOGE( TAG, "Invalid input parameter(s): Arguments cannot be NULL." );
         return;
     }
 
@@ -181,7 +181,7 @@ int32_t Azure_Socket_Recv( NetworkContext_t * pNetworkContext,
 
     if((pxSocketTransport == NULL))
     {
-        ESP_LOGE( TAG, "Invalid input parameter(s): Arguments cannot be NULL. pNetworkContext->pParams=%p.", pxSocketTransport );
+        ESP_LOGE( TAG, "Invalid input parameter(s): Arguments cannot be NULL." );
         return eSocketTransportInvalidParameter;
     }
 
@@ -223,7 +223,7 @@ int32_t Azure_Socket_Send( NetworkContext_t * pNetworkContext,
 
     if((pxSocketTransport == NULL))
     {
-        ESP_LOGE( TAG, "Invalid input parameter(s): Arguments cannot be NULL. pNetworkContext->pParams=%p.", pxSocketTransport );
+        ESP_LOGE( TAG, "Invalid input parameter(s): Arguments cannot be NULL." );
         return eSocketTransportInvalidParameter;
     }
 
