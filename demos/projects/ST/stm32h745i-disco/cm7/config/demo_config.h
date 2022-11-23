@@ -487,11 +487,7 @@ static unsigned char root_cert_array[] = {
  */
 #define democonfigIOTHUB_PORT          ( 8883 )
 
-#ifdef democonfigENABLE_DPS_SAMPLE
-    #define democonfigCHUNK_DOWNLOAD_SIZE    256
-#else
-    #define democonfigCHUNK_DOWNLOAD_SIZE    1024
-#endif /* democonfigENABLE_DPS_SAMPLE */
+#define democonfigCHUNK_DOWNLOAD_SIZE    1024
 
 #define democonfigADU_DEVICE_MANUFACTURER    "STMicroelectronics"
 #define democonfigADU_DEVICE_MODEL           "STM32H745"

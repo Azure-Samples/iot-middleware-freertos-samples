@@ -128,7 +128,7 @@ add_custom_command(TARGET ${PROJECT_NAME}-pnp
     COMMENT "Generate Bin file"
     VERBATIM)
 
-# PnP Sample
+# ADU Sample
 add_executable(${PROJECT_NAME}-adu
     ${PROJECT_SOURCES}
     ${CMAKE_CURRENT_LIST_DIR}/port/azure_iot_flash_platform.c

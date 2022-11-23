@@ -55,14 +55,10 @@ AzureIoTResult_t AzureIoTPlatform_Init( AzureADUImage_t * const pxAduImage )
     /* Get current optionbytes configuration */
     HAL_FLASHEx_OBGetConfig( &xOptionBytes );
 
-    pxAduImage->xUpdatePartition = ( xOptionBytes.USERConfig & OB_SWAP_BANK_ENABLE ) == OB_SWAP_BANK_DISABLE ?
-                                   ( uint8_t * ) FLASH_BANK2_BASE : ( uint8_t * ) FLASH_BANK1_BASE;
-
-    /* If swap is disabled, we are in bank 1 */
-    xEraseInitStruct.Banks =
-        ( xOptionBytes.USERConfig & OB_SWAP_BANK_ENABLE ) == OB_SWAP_BANK_DISABLE
-        ? FLASH_BANK_2
-        : FLASH_BANK_1;
+    pxAduImage->xUpdatePartition = ( uint8_t * ) ( FLASH_BASE + FLASH_BANK_SIZE );
+    /* With memory remapping, always erase bank 2 */
+    xEraseInitStruct.Banks = FLASH_BANK_2;
+    xEraseInitStruct.VoltageRange = FLASH_VOLTAGE_RANGE_3;
     xEraseInitStruct.TypeErase = FLASH_TYPEERASE_MASSERASE;
 
     HAL_FLASH_Unlock();
@@ -71,7 +67,7 @@ AzureIoTResult_t AzureIoTPlatform_Init( AzureADUImage_t * const pxAduImage )
     if( HAL_FLASHEx_Erase( &xEraseInitStruct, &ulPageError ) != HAL_OK )
     {
         /* Error occurred during page erase. */
-        AZLogError( ( "Error erasing flash bank\r\n" ) );
+        AZLogError( ( "Error erasing flash bank" ) );
         xResult = eAzureIoTErrorFailed;
     }
 
@@ -94,7 +90,7 @@ AzureIoTResult_t AzureIoTPlatform_WriteBlock( AzureADUImage_t * const pxAduImage
     uint8_t * pucNextReadAddr = pData;
     AzureIoTResult_t xResult = eAzureIoTSuccess;
 
-    /* ending address of the last full chunk in this block */
+    /* end address of the block */
     uint8_t * pucBlockEndAddr = pxAduImage->xUpdatePartition + ulOffset + ulBlockSize;
 
     HAL_FLASH_Unlock();
@@ -222,6 +218,8 @@ AzureIoTResult_t AzureIoTPlatform_ResetDevice( AzureADUImage_t * const pxAduImag
     HAL_FLASH_OB_Unlock();
 
     HAL_FLASH_OB_Launch();
+
+    SCB_InvalidateICache();
 
     NVIC_SystemReset();
 
