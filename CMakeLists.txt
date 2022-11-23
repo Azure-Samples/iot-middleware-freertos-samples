@@ -43,9 +43,7 @@ include_directories(${BOARD_DEMO_PORT_PATH})
 
 # Add middleware
 # These boards do not support ADU
-if(NOT(${BOARD} STREQUAL "b-l4s5i-iot01a") AND
-   NOT(${BOARD} STREQUAL "windows")
-)
+if(NOT(${BOARD} STREQUAL "windows"))
   set(USE_COREHTTP ON)
 endif()
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/azure-iot-middleware-freertos)

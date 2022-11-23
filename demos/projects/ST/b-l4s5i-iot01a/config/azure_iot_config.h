@@ -40,6 +40,22 @@ extern void vLoggingPrintf( const char * pcFormatString,
     #define SdkLog( message )    vLoggingPrintf message
 #endif
 
+#if LIBRARY_LOG_LEVEL >= LOG_ERROR
+    #define AZLogError( message )    SdkLog( message ); SdkLog( ( "\r\n" ) )
+#endif
+
+#if LIBRARY_LOG_LEVEL >= LOG_INFO
+    #define AZLogWarn( message )    SdkLog( message ); SdkLog( ( "\r\n" ) )
+#endif
+
+#if LIBRARY_LOG_LEVEL >= LOG_INF
+    #define AZLogInfo( message )    SdkLog( message ); SdkLog( ( "\r\n" ) )
+#endif
+
+#if LIBRARY_LOG_LEVEL >= LOG_DEBUG
+    #define AZLogDebug( message )    SdkLog( message ); SdkLog( ( "\r\n" ) )
+#endif
+
 #include "logging_stack.h"
 /************ End of logging configuration ****************/
 
