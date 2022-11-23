@@ -487,4 +487,12 @@ static unsigned char root_cert_array[] = {
  */
 #define democonfigIOTHUB_PORT          ( 8883 )
 
+#define democonfigCHUNK_DOWNLOAD_SIZE    1024
+
+#define democonfigADU_DEVICE_MANUFACTURER    "STMicroelectronics"
+#define democonfigADU_DEVICE_MODEL           "STM32H745"
+#define democonfigADU_UPDATE_PROVIDER        "Contoso"
+#define democonfigADU_UPDATE_NAME            "STM32H745"
+#define democonfigADU_UPDATE_VERSION         "1.0"
+
 #endif /* DEMO_CONFIG_H */
