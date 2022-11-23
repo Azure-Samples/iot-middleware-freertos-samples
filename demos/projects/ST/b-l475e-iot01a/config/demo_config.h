@@ -511,11 +511,7 @@ static unsigned char root_cert_array[] = {
  */
 #define WIFI_SECURITY_TYPE                   WIFI_ECN_WPA2_PSK
 
-#ifdef democonfigENABLE_DPS_SAMPLE
-    #define democonfigCHUNK_DOWNLOAD_SIZE    256
-#else
-    #define democonfigCHUNK_DOWNLOAD_SIZE    1024
-#endif /* democonfigENABLE_DPS_SAMPLE */
+#define democonfigCHUNK_DOWNLOAD_SIZE        2048
 
 #define democonfigADU_DEVICE_MANUFACTURER    "STMicroelectronics"
 #define democonfigADU_DEVICE_MODEL           "STM32L475"
