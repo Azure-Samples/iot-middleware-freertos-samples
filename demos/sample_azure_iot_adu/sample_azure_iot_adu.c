@@ -162,7 +162,7 @@ uint64_t ullGetUnixTime( void );
 /* Each compilation unit must define the NetworkContext struct. */
 struct NetworkContext
 {
-    TlsTransportParams_t * pParams;
+    void * pParams;
 };
 
 AzureIoTHubClient_t xAzureIoTHubClient;
@@ -437,14 +437,14 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash( int32_t ullTimeoutInSec
     /*HTTP Connection */
     AzureIoTTransportInterface_t xHTTPTransport;
     NetworkContext_t xHTTPNetworkContext = { 0 };
-    TlsTransportParams_t xHTTPTlsTransportParams = { 0 };
+    SocketTransportParams_t xHTTPSocketTransportParams = { 0 };
 
     /* Fill in Transport Interface send and receive function pointers. */
     xHTTPTransport.pxNetworkContext = &xHTTPNetworkContext;
     xHTTPTransport.xSend = Azure_Socket_Send;
     xHTTPTransport.xRecv = Azure_Socket_Recv;
 
-    xHTTPNetworkContext.pParams = &xHTTPTlsTransportParams;
+    xHTTPNetworkContext.pParams = &xHTTPSocketTransportParams;
 
     AzureIoTPlatform_Init( &xImage );
 
