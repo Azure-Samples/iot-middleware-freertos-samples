@@ -52,10 +52,10 @@ For **Windows**:
 For **Linux** or **macOS**:
     
 1. Install the prerequisites by following the instructions at [ESP-IDF Get Started](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started).
-1. Is is recommended to checkout a release version of the ESP-IDF, the master branch may contain blocking bugs. This guide was tested against [ESP-IDF v4.3.1](https://github.com/espressif/esp-idf/tree/v4.3.1).
+1. Is is recommended to checkout a release version of the ESP-IDF, the master branch may contain blocking bugs. This guide was tested against [ESP-IDF v4.4.3](https://github.com/espressif/esp-idf/tree/v4.4.3).
     
     ```shell
-    git checkout tags/v4.3.1
+    git checkout tags/v4.4.3
     ```
 
 > **NOTE:** For advanced installations, or for more information relating to the ESP-IDF, please refer to the [ESP-IDF Programming Guide](https://docs.espressif.com/projects/esp-idf/en/latest/esp32).
@@ -114,7 +114,7 @@ To connect the ESP32 DevKit to Azure, you'll modify a configuration file for Wi-
 
 From this point, all commands are launched from with the ESP-IDF command line. To launch the command line:
 
-1. From the Windows Start menu, launch the *ESP-IDF 4.3 PowerShell*.
+1. From the Windows Start menu, launch the *ESP-IDF 4.4 PowerShell*.
 
 ### Clone the repo for the tutorial
 
