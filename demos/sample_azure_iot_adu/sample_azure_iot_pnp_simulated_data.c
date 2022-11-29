@@ -365,7 +365,7 @@ static bool prvDoesInstalledCriteriaMatchCurrentVersion( const AzureIoTADUUpdate
  * @return true If the handler for the update step matches the supported handler.
  * @return false If the handler for the update step does not match the supported handler.
  */
-static bool prvIsHandlerSupported( const AzureIoTADUUpdateRequest_t * pxAduUpdateRequest )
+static bool prvIsADUHandlerSupported( const AzureIoTADUUpdateRequest_t * pxAduUpdateRequest )
 {
     if( ( ( sizeof( sampleazureiotUPDATE_HANDLER ) - 1 ) ==
           pxAduUpdateRequest->xUpdateManifest.xInstructions.pxSteps->ulHandlerLength ) &&
@@ -397,7 +397,7 @@ static bool prvIsHandlerSupported( const AzureIoTADUUpdateRequest_t * pxAduUpdat
  */
 static AzureIoTADURequestDecision_t prvUserDecideShouldStartUpdate( AzureIoTADUUpdateRequest_t * pxAduUpdateRequest )
 {
-    if( !prvIsHandlerSupported( pxAduUpdateRequest ) )
+    if( !prvIsADUHandlerSupported( pxAduUpdateRequest ) )
     {
         LogInfo( ( "[ADU] Rejecting update request (update handler not supported)" ) );
         return eAzureIoTADURequestDecisionReject;
