@@ -4,14 +4,14 @@
 #include <string.h>
 #include "azure_iot_flash_platform.h"
 #include "azure_iot_flash_platform_port.h"
-#include "stm32l4xx_hal.h"
+#include "stm32h7xx_hal.h"
 /* Logging */
 #include "azure_iot.h"
 #include "azure/core/az_base64.h"
 #include "mbedtls/md.h"
 
-#define azureiotflashL475_DOUBLE_WORD_SIZE    2 * sizeof( long )
-#define azureiotflashSHA_256_SIZE             32
+#define azureiotflashH745_WORD_SIZE    32
+#define azureiotflashSHA_256_SIZE      32
 
 static uint8_t ucPartitionReadBuffer[ 32 ];
 static uint8_t ucDecodedManifestHash[ azureiotflashSHA_256_SIZE ];
@@ -42,7 +42,6 @@ static AzureIoTResult_t prvBase64Decode( uint8_t * base64Encoded,
 
 AzureIoTResult_t AzureIoTPlatform_Init( AzureADUImage_t * const pxAduImage )
 {
-    pxAduImage->xUpdatePartition = ( uint8_t * ) ( FLASH_BASE + FLASH_BANK_SIZE );
     pxAduImage->ulCurrentOffset = 0;
     pxAduImage->ulImageFileSize = 0;
 
@@ -52,15 +51,14 @@ AzureIoTResult_t AzureIoTPlatform_Init( AzureADUImage_t * const pxAduImage )
     AzureIoTResult_t xResult = eAzureIoTSuccess;
 
     /* Clear OPTVERR bit set on virgin samples. */
-    __HAL_FLASH_CLEAR_FLAG( FLASH_FLAG_OPTVERR );
+    __HAL_FLASH_CLEAR_FLAG( FLASH_FLAG_OPERR );
     /* Get current optionbytes configuration */
     HAL_FLASHEx_OBGetConfig( &xOptionBytes );
 
-    /* If BFB2 (Boot From Bank 2) is set, erase bank 1, otherwise erase bank 2 */
-    xEraseInitStruct.Banks =
-        ( ( xOptionBytes.USERConfig & OB_BFB2_ENABLE ) == OB_BFB2_ENABLE )
-        ? FLASH_BANK_1
-        : FLASH_BANK_2;
+    pxAduImage->xUpdatePartition = ( uint8_t * ) ( FLASH_BASE + FLASH_BANK_SIZE );
+    /* With memory remapping, always erase bank 2 */
+    xEraseInitStruct.Banks = FLASH_BANK_2;
+    xEraseInitStruct.VoltageRange = FLASH_VOLTAGE_RANGE_3;
     xEraseInitStruct.TypeErase = FLASH_TYPEERASE_MASSERASE;
 
     HAL_FLASH_Unlock();
@@ -69,7 +67,7 @@ AzureIoTResult_t AzureIoTPlatform_Init( AzureADUImage_t * const pxAduImage )
     if( HAL_FLASHEx_Erase( &xEraseInitStruct, &ulPageError ) != HAL_OK )
     {
         /* Error occurred during page erase. */
-        AZLogError( ( "Error erasing flash bank\r\n" ) );
+        AZLogError( ( "Error erasing flash bank" ) );
         xResult = eAzureIoTErrorFailed;
     }
 
@@ -91,21 +89,23 @@ AzureIoTResult_t AzureIoTPlatform_WriteBlock( AzureADUImage_t * const pxAduImage
     uint8_t * pucNextWriteAddr = pxAduImage->xUpdatePartition + ulOffset;
     uint8_t * pucNextReadAddr = pData;
     AzureIoTResult_t xResult = eAzureIoTSuccess;
-    uint32_t ulEndOfBlock = pxAduImage->xUpdatePartition + ulOffset + ulBlockSize;
+
+    /* end address of the block */
+    uint8_t * pucBlockEndAddr = pxAduImage->xUpdatePartition + ulOffset + ulBlockSize;
 
     HAL_FLASH_Unlock();
 
-    while( pucNextWriteAddr < ulEndOfBlock )
+    while( pucNextWriteAddr < pucBlockEndAddr )
     {
-        if( HAL_FLASH_Program( FLASH_TYPEPROGRAM_DOUBLEWORD, ( uint32_t ) pucNextWriteAddr, ( uint64_t ) *( uint32_t * ) pucNextReadAddr | ( ( uint64_t ) *( uint32_t * ) ( pucNextReadAddr + 4 ) ) << 32 ) != HAL_OK )
+        if( HAL_FLASH_Program( FLASH_TYPEPROGRAM_FLASHWORD, ( uint32_t ) pucNextWriteAddr, ( uint32_t ) pucNextReadAddr ) != HAL_OK )
         {
             /* Error occurred while writing data in Flash memory */
             xResult = eAzureIoTErrorFailed;
             break;
         }
 
-        pucNextWriteAddr += azureiotflashL475_DOUBLE_WORD_SIZE;
-        pucNextReadAddr += azureiotflashL475_DOUBLE_WORD_SIZE;
+        pucNextWriteAddr += azureiotflashH745_WORD_SIZE;
+        pucNextReadAddr += azureiotflashH745_WORD_SIZE;
     }
 
     HAL_FLASH_Lock();
@@ -193,12 +193,12 @@ AzureIoTResult_t AzureIoTPlatform_EnableImage( AzureADUImage_t * const pxAduImag
     HAL_FLASH_OB_Unlock();
     HAL_FLASHEx_OBGetConfig( &xOptionBytes ); /* Get current optionbytes configuration */
     xOptionBytes.OptionType = OPTIONBYTE_USER;
-    xOptionBytes.USERType = OB_USER_BFB2;
-    /* If BFB2 set, we will reset it when we reboot the device */
-    xOptionBytes.USERConfig =
-        ( ( xOptionBytes.USERConfig & OB_BFB2_ENABLE ) == OB_BFB2_ENABLE )
-        ? OB_BFB2_DISABLE
-        : OB_BFB2_ENABLE;
+    xOptionBytes.USERType = OB_USER_SWAP_BANK;
+
+    /* If swap is disabled, we are in bank 1 */
+    xOptionBytes.USERConfig = ( xOptionBytes.USERConfig & OB_SWAP_BANK_ENABLE ) == OB_SWAP_BANK_DISABLE
+                              ? OB_SWAP_BANK_ENABLE
+                              : OB_SWAP_BANK_DISABLE;
 
     if( HAL_FLASHEx_OBProgram( &xOptionBytes ) != HAL_OK )
     {
@@ -217,12 +217,11 @@ AzureIoTResult_t AzureIoTPlatform_ResetDevice( AzureADUImage_t * const pxAduImag
     HAL_FLASH_Unlock();
     HAL_FLASH_OB_Unlock();
 
-    /*
-     * Sets options bits and restarts device.
-     * Also sets the boot bank address to 0x08000000, which means we always write
-     * to 0x08080000
-     */
     HAL_FLASH_OB_Launch();
+
+    SCB_InvalidateICache();
+
+    NVIC_SystemReset();
 
     return eAzureIoTSuccess;
 }

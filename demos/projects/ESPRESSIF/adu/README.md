@@ -30,7 +30,7 @@ This sample will allow you to update an ESP32 over the air (OTA) using Azure Dev
 
 1. ESP-IDF
 
-    On Windows, install the ESPRESSIF ESP-IDF using this [download link](https://dl.espressif.com/dl/esp-idf/?idf=4.4). Please use ESP-IDF version 4.3 on Windows and version 4.4 on Linux.
+    On Windows, install the ESPRESSIF ESP-IDF using this [download link](https://dl.espressif.com/dl/esp-idf). This guide was tested against [ESP-IDF v4.4.3](https://github.com/espressif/esp-idf/tree/v4.4.3).
 
     For other Operating Systems or to update an existing installation, follow [Espressif official documentation](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html#get-started).
 

@@ -139,7 +139,7 @@ static uint8_t ucScratchBuffer[ 128 ];
 /* Each compilation unit must define the NetworkContext struct. */
 struct NetworkContext
 {
-    TlsTransportParams_t * pParams;
+    void * pParams;
 };
 
 static AzureIoTHubClient_t xAzureIoTHubClient;

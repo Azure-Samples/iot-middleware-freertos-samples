@@ -38,18 +38,26 @@
 /* TLS includes. */
 #include "esp_transport_ssl.h"
 
-/**
- * @brief Definition of the network context for the transport interface
- * implementation that uses mbedTLS and FreeRTOS+TLS sockets.
- */
-struct NetworkContext
+
+// We will malloc this and put it in TlsTransportParams_t.xSSLContext
+typedef struct EspTlsTransportParams
 {
     esp_transport_handle_t xTransport;
+    esp_transport_list_handle_t xTransportList;
     uint32_t ulReceiveTimeoutMs;
     uint32_t ulSendTimeoutMs;
+} EspTlsTransportParams_t;
+
+/* Each transport defines the same NetworkContext. The user then passes their respective transport */
+/* as pParams for the transport which is defined in the transport header file */
+/* (here it's TlsTransportParams_t) */
+struct NetworkContext
+{
+   // TlsTransportParams_t
+    void * pParams;
 };
 
-static const char *TAG = "tls_freertos";
+static const char *TAG = "esp_tls";
 /*-----------------------------------------------------------*/
 
 TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pNetworkContext,
@@ -73,35 +81,57 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pNetworkContext,
         return eTLSTransportInvalidParameter;
     }
 
-    pNetworkContext->xTransport = esp_transport_ssl_init( );
-    pNetworkContext->ulReceiveTimeoutMs = ulReceiveTimeoutMs;
-    pNetworkContext->ulSendTimeoutMs = ulSendTimeoutMs;
+    TlsTransportParams_t * pxTlsParams = (TlsTransportParams_t*)pNetworkContext->pParams;
+
+    if (( pxTlsParams == NULL ))
+    {
+        ESP_LOGE( TAG, "Invalid input parameter(s): Arguments cannot be NULL." );
+        return eTLSTransportInvalidParameter;
+    }
+
+    EspTlsTransportParams_t * pxEspTlsTransport = (EspTlsTransportParams_t*) pvPortMalloc(sizeof(EspTlsTransportParams_t));
+
+    if(pxEspTlsTransport == NULL)
+    {
+      return eTLSTransportInsufficientMemory;
+    }
+
+    // Create a transport list into which we put the transport.
+    pxEspTlsTransport->xTransportList = esp_transport_list_init();
+    pxEspTlsTransport->xTransport = esp_transport_ssl_init( );
+    pxEspTlsTransport->ulReceiveTimeoutMs = ulReceiveTimeoutMs;
+    pxEspTlsTransport->ulSendTimeoutMs = ulSendTimeoutMs;
+
+    esp_transport_list_add(pxEspTlsTransport->xTransportList, pxEspTlsTransport->xTransport, "_ssl");
+
+    pxTlsParams->xSSLContext = (void*)pxEspTlsTransport;
+
     if ( pNetworkCredentials->ppcAlpnProtos )
     {
-        esp_transport_ssl_set_alpn_protocol( pNetworkContext->xTransport, pNetworkCredentials->ppcAlpnProtos );
+        esp_transport_ssl_set_alpn_protocol( pxEspTlsTransport->xTransport, pNetworkCredentials->ppcAlpnProtos );
     }
 
     if ( pNetworkCredentials->xDisableSni )
     {
-        esp_transport_ssl_skip_common_name_check( pNetworkContext->xTransport );
+        esp_transport_ssl_skip_common_name_check( pxEspTlsTransport->xTransport );
     }
 
     if ( pNetworkCredentials->pucRootCa )
     {
-        esp_transport_ssl_set_cert_data_der( pNetworkContext->xTransport, ( const char * ) pNetworkCredentials->pucRootCa, pNetworkCredentials->xRootCaSize );
+        esp_transport_ssl_set_cert_data_der( pxEspTlsTransport->xTransport, ( const char * ) pNetworkCredentials->pucRootCa, pNetworkCredentials->xRootCaSize );
     }
 
     if ( pNetworkCredentials->pucClientCert )
     {
-        esp_transport_ssl_set_client_cert_data_der( pNetworkContext->xTransport, ( const char *) pNetworkCredentials->pucClientCert, pNetworkCredentials->xClientCertSize );
+        esp_transport_ssl_set_client_cert_data_der( pxEspTlsTransport->xTransport, ( const char *) pNetworkCredentials->pucClientCert, pNetworkCredentials->xClientCertSize );
     }
 
     if ( pNetworkCredentials->pucPrivateKey )
     {
-        esp_transport_ssl_set_client_key_data_der( pNetworkContext->xTransport, (const char *) pNetworkCredentials->pucPrivateKey, pNetworkCredentials->xPrivateKeySize );
+        esp_transport_ssl_set_client_key_data_der( pxEspTlsTransport->xTransport, (const char *) pNetworkCredentials->pucPrivateKey, pNetworkCredentials->xPrivateKeySize );
     }
 
-    if ( esp_transport_connect( pNetworkContext->xTransport, pHostName, usPort, ulReceiveTimeoutMs ) < 0 )
+    if ( esp_transport_connect( pxEspTlsTransport->xTransport, pHostName, usPort, ulReceiveTimeoutMs ) < 0 )
     {
         ESP_LOGE( TAG, "Failed establishing TLS connection (esp_transport_connect failed)" );
         xReturnStatus = eTLSTransportConnectFailure;
@@ -114,10 +144,13 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pNetworkContext,
     /* Clean up on failure. */
     if( xReturnStatus != eTLSTransportSuccess )
     {
-        if( pNetworkContext != NULL )
+        if( pxEspTlsTransport != NULL )
         {
-            esp_transport_close( pNetworkContext->xTransport );
-            esp_transport_destroy( pNetworkContext->xTransport );
+            esp_transport_close( pxEspTlsTransport->xTransport );
+            esp_transport_destroy( pxEspTlsTransport->xTransport );
+            esp_transport_list_destroy(pxEspTlsTransport->xTransportList);
+            vPortFree(pxEspTlsTransport);
+            pxTlsParams->xSSLContext = NULL;
         }
     }
     else
@@ -139,11 +172,31 @@ void TLS_Socket_Disconnect( NetworkContext_t * pNetworkContext )
         return;
     }
 
+    TlsTransportParams_t * pxTlsParams = (TlsTransportParams_t*)pNetworkContext->pParams;
+
+    if (( pxTlsParams == NULL ))
+    {
+        ESP_LOGE( TAG, "Invalid input parameter(s): Arguments cannot be NULL." );
+        return;
+    }
+
+    EspTlsTransportParams_t * pxEspTlsTransport = (EspTlsTransportParams_t *)pxTlsParams->xSSLContext;
+
+    if((pxEspTlsTransport == NULL))
+    {
+        ESP_LOGE( TAG, "Invalid input parameter(s): Arguments cannot be NULL. pxTlsParams->xSSLContext=%p.", pxEspTlsTransport );
+        return;
+    }
+
     /* Attempting to terminate TLS connection. */
-    esp_transport_close( pNetworkContext->xTransport );
+    esp_transport_close( pxEspTlsTransport->xTransport );
 
     /* Free TLS contexts. */
-    esp_transport_destroy( pNetworkContext->xTransport );
+    esp_transport_destroy( pxEspTlsTransport->xTransport );
+    /* Destroy list of transports */
+    esp_transport_list_destroy(pxEspTlsTransport->xTransportList);
+    vPortFree(pxEspTlsTransport);
+    pxTlsParams->xSSLContext = NULL;
 }
 /*-----------------------------------------------------------*/
 
@@ -162,7 +215,23 @@ int32_t TLS_Socket_Recv( NetworkContext_t * pNetworkContext,
         return eTLSTransportInvalidParameter;
     }
 
-    tlsStatus = esp_transport_read( pNetworkContext->xTransport, pBuffer, xBytesToRecv, pNetworkContext->ulReceiveTimeoutMs );
+    TlsTransportParams_t * pxTlsParams = (TlsTransportParams_t*)pNetworkContext->pParams;
+
+    if (( pxTlsParams == NULL ))
+    {
+        ESP_LOGE( TAG, "Invalid input parameter(s): Arguments cannot be NULL." );
+        return eTLSTransportInvalidParameter;
+    }
+
+    EspTlsTransportParams_t * pxEspTlsTransport = (EspTlsTransportParams_t *)pxTlsParams->xSSLContext;
+
+    if((pxEspTlsTransport == NULL))
+    {
+        ESP_LOGE( TAG, "Invalid input parameter(s): Arguments cannot be NULL. pxTlsParams->xSSLContext=%p.", pxEspTlsTransport );
+        return eTLSTransportInvalidParameter;
+    }
+
+    tlsStatus = esp_transport_read( pxEspTlsTransport->xTransport, pBuffer, xBytesToRecv, pxEspTlsTransport->ulReceiveTimeoutMs );
     if ( tlsStatus < 0 )
     {
         ESP_LOGE( TAG, "Reading failed, errno= %d", errno );
@@ -188,7 +257,23 @@ int32_t TLS_Socket_Send( NetworkContext_t * pNetworkContext,
         return eTLSTransportInvalidParameter;
     }
 
-    tlsStatus = esp_transport_write( pNetworkContext->xTransport, pBuffer, xBytesToSend, pNetworkContext->ulSendTimeoutMs );
+    TlsTransportParams_t * pxTlsParams = (TlsTransportParams_t*)pNetworkContext->pParams;
+
+    if (( pxTlsParams == NULL ))
+    {
+        ESP_LOGE( TAG, "Invalid input parameter(s): Arguments cannot be NULL." );
+        return eTLSTransportInvalidParameter;
+    }
+
+    EspTlsTransportParams_t * pxEspTlsTransport = (EspTlsTransportParams_t *)pxTlsParams->xSSLContext;
+
+    if((pxEspTlsTransport == NULL))
+    {
+        ESP_LOGE( TAG, "Invalid input parameter(s): Arguments cannot be NULL. pxTlsParams->xSSLContext=%p.", pxEspTlsTransport );
+        return eTLSTransportInvalidParameter;
+    }
+
+    tlsStatus = esp_transport_write( pxEspTlsTransport->xTransport, pBuffer, xBytesToSend, pxEspTlsTransport->ulSendTimeoutMs );
     if ( tlsStatus < 0 )
     {
         ESP_LOGE( TAG, "Writing failed, errno= %d", errno );

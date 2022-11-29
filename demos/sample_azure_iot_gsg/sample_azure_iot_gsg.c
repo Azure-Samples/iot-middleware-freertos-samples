@@ -125,7 +125,7 @@
 /* Each compilation unit must define the NetworkContext struct. */
 struct NetworkContext
 {
-    TlsTransportParams_t * pParams;
+    void * pParams;
 };
 /*-----------------------------------------------------------*/
 

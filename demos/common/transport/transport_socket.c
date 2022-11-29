@@ -33,15 +33,13 @@ extern void vLoggingPrintf( const char * pcFormatString,
 
 #include "sockets_wrapper.h"
 
-typedef struct TlsTransportParams
-{
-    SocketHandle xTCPSocket;
-    SSLContextHandle xSSLContext;
-} TlsTransportParams_t;
-
+/* Each transport defines the same NetworkContext. The user then passes their respective transport */
+/* as pParams for the transport which is defined in the transport header file */
+/* (here it's SocketTransportParams_t) */
 struct NetworkContext
 {
-    TlsTransportParams_t * pParams;
+    /* SocketTransportParams_t */
+    void * pParams;
 };
 
 SocketTransportStatus_t Azure_Socket_Connect( NetworkContext_t * pxNetworkContext,
@@ -51,16 +49,17 @@ SocketTransportStatus_t Azure_Socket_Connect( NetworkContext_t * pxNetworkContex
                                               uint32_t ulSendTimeoutMs )
 {
     SocketTransportStatus_t xSocketStatus;
+    SocketTransportParams_t * pxSocketParams = ( SocketTransportParams_t * ) pxNetworkContext->pParams;
 
     TickType_t xRecvTimeout = pdMS_TO_TICKS( ulReceiveTimeoutMs );
     TickType_t xSendTimeout = pdMS_TO_TICKS( ulSendTimeoutMs );
 
-    if( ( pxNetworkContext->pParams->xTCPSocket = Sockets_Open() ) == SOCKETS_INVALID_SOCKET )
+    if( ( pxSocketParams->xTCPSocket = Sockets_Open() ) == SOCKETS_INVALID_SOCKET )
     {
         LogError( ( "Failed to open socket." ) );
         xSocketStatus = eSocketTransportConnectFailure;
     }
-    else if( ( xSocketStatus = Sockets_SetSockOpt( pxNetworkContext->pParams->xTCPSocket,
+    else if( ( xSocketStatus = Sockets_SetSockOpt( pxSocketParams->xTCPSocket,
                                                    SOCKETS_SO_RCVTIMEO,
                                                    &xRecvTimeout,
                                                    sizeof( xRecvTimeout ) ) != 0 ) )
@@ -68,7 +67,7 @@ SocketTransportStatus_t Azure_Socket_Connect( NetworkContext_t * pxNetworkContex
         LogError( ( "Failed to set receive timeout on socket %d.", xSocketStatus ) );
         xSocketStatus = eSocketTransportInternalError;
     }
-    else if( ( xSocketStatus = Sockets_SetSockOpt( pxNetworkContext->pParams->xTCPSocket,
+    else if( ( xSocketStatus = Sockets_SetSockOpt( pxSocketParams->xTCPSocket,
                                                    SOCKETS_SO_SNDTIMEO,
                                                    &xSendTimeout,
                                                    sizeof( xSendTimeout ) ) != 0 ) )
@@ -76,7 +75,7 @@ SocketTransportStatus_t Azure_Socket_Connect( NetworkContext_t * pxNetworkContex
         LogError( ( "Failed to set send timeout on socket %d.", xSocketStatus ) );
         xSocketStatus = eSocketTransportInternalError;
     }
-    else if( ( xSocketStatus = Sockets_Connect( pxNetworkContext->pParams->xTCPSocket,
+    else if( ( xSocketStatus = Sockets_Connect( pxSocketParams->xTCPSocket,
                                                 pHostName,
                                                 usPort ) ) != 0 )
     {
@@ -102,14 +101,18 @@ int32_t Azure_Socket_Send( NetworkContext_t * pxNetworkContext,
                            const void * pvBuffer,
                            size_t xBytesToSend )
 {
-    return Sockets_Send( pxNetworkContext->pParams->xTCPSocket, pvBuffer, xBytesToSend );
+    SocketTransportParams_t * pxSocketParams = ( SocketTransportParams_t * ) pxNetworkContext->pParams;
+
+    return Sockets_Send( pxSocketParams->xTCPSocket, pvBuffer, xBytesToSend );
 }
 
 int32_t Azure_Socket_Recv( NetworkContext_t * pxNetworkContext,
                            void * pvBuffer,
                            size_t xBytesToRecv )
 {
-    return Sockets_Recv( pxNetworkContext->pParams->xTCPSocket,
+    SocketTransportParams_t * pxSocketParams = ( SocketTransportParams_t * ) pxNetworkContext->pParams;
+
+    return Sockets_Recv( pxSocketParams->xTCPSocket,
                          pvBuffer,
                          xBytesToRecv );
 }

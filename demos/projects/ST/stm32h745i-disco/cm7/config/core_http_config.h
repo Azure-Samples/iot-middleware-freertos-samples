@@ -67,7 +67,7 @@
  * <b>Default value:</b> `my-platform-name`
  */
 #ifndef HTTP_USER_AGENT_VALUE
-    #define HTTP_USER_AGENT_VALUE    "stmh745-adu"
+    #define HTTP_USER_AGENT_VALUE    "stm32h745-adu"
 #endif
 
 /**
