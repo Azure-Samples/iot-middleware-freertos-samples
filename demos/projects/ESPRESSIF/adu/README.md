@@ -35,6 +35,11 @@ This sample will allow you to update an ESP32 over the air (OTA) using Azure Dev
     For other Operating Systems or to update an existing installation, follow [Espressif official documentation](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html#get-started).
 
 1. [Powershell](https://docs.microsoft.com/powershell/scripting/install/installing-powershell?view=powershell-7.2)
+
+1. Azure CLI and Azure IoT Module
+
+See steps to install both [here](https://learn.microsoft.com/en-us/azure/iot-hub-device-update/create-update?source=recommendations#prerequisites).
+
 1. Azure IoT Embedded middleware for FreeRTOS
 
 Clone this repo to download all sample device code, setup scripts, and offline versions of the documentation.
@@ -245,30 +250,14 @@ The resulting binary `azure_iot_freertos_esp32.bin` should be located in the bui
 
 ### Generate the ADU Update Manifest
 
-Navigate (on the new ESP-IDF console) to `C:\ADU-update` directory:
+Open PowerShell.
 
-Clone the ADU toolset.
+Navigate to `C:\ADU-update` directory.
 
-```bash
-git clone https://github.com/Azure/iot-hub-device-update
-```
-
-Generate the update manifest using **powershell**.
+Run the following command:
 
 ```powershell
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
-
-Import-Module .\iot-hub-device-update\tools\AduCmdlets\AduUpdate.psm1
-
-$updateId = New-AduUpdateId -Provider "Contoso" -Name "ESP32-Azure-IoT-Kit" -Version 1.1
-
-$compat = New-AduUpdateCompatibility -Properties @{ deviceManufacturer = 'ESPRESSIF'; deviceModel = 'ESP32-Azure-IoT-Kit' }
-
-$installStep = New-AduInstallationStep -Handler 'microsoft/swupdate:1'-HandlerProperties @{ installedCriteria = '1.1' } -Files C:\ADU-update\azure_iot_freertos_esp32-v1.1.bin
-
-$update = New-AduImportManifest -UpdateId $updateId -Compatibility $compat -InstallationSteps $installStep
-
-$update | Out-File "./$($updateId.provider).$($updateId.name).$($updateId.version).importmanifest.json" -Encoding utf8
+az iot du update init v5 --update-provider Contoso --update-name ESP32-Azure-IoT-Kit --update-version 1.1 --compat deviceModel=ESP32-Azure-IoT-Kit deviceManufacturer=ESPRESSIF --step handler=microsoft/swupdate:1 properties='{\"installedCriteria\":\"1.1\"}' --file path=./azure_iot_freertos_esp32-v1.1.bin > ./Contoso.ESP32-Azure-IoT-Kit.1.1.importmanifest.json
 ```
 
 Verify you have the following files in your ADU-update directory:
