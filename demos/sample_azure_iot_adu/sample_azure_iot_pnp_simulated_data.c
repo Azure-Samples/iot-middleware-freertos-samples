@@ -23,6 +23,8 @@
 
 /*-----------------------------------------------------------*/
 
+#define sampleazureiotUPDATE_HANDLER                      "microsoft/swupdate:1"
+
 /**
  * @brief Command values
  */
@@ -357,6 +359,31 @@ static bool prvDoesInstalledCriteriaMatchCurrentVersion( const AzureIoTADUUpdate
 /*-----------------------------------------------------------*/
 
 /**
+ * @brief Verifies that the handler is supported
+ *
+ * @param pxAduUpdateRequest Parsed update request, with the ADU update manifest.
+ * @return true If the handler for the update step matches the supported handler.
+ * @return false If the handler for the update step does not match the supported handler.
+ */
+static bool prvIsADUHandlerSupported( const AzureIoTADUUpdateRequest_t * pxAduUpdateRequest )
+{
+    if( ( ( sizeof( sampleazureiotUPDATE_HANDLER ) - 1 ) ==
+          pxAduUpdateRequest->xUpdateManifest.xInstructions.pxSteps->ulHandlerLength ) &&
+        ( strncmp(
+              ( const char * ) sampleazureiotUPDATE_HANDLER,
+              ( const char * ) pxAduUpdateRequest->xUpdateManifest.xInstructions.pxSteps->pucHandler,
+              ( size_t ) pxAduUpdateRequest->xUpdateManifest.xInstructions.pxSteps->ulHandlerLength ) == 0 ) )
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+/*-----------------------------------------------------------*/
+
+/**
  * @brief Sample function to decide if an update request should be accepted or rejected.
  *
  * @remark The user application can implement any logic to decide if an update request
@@ -370,6 +397,12 @@ static bool prvDoesInstalledCriteriaMatchCurrentVersion( const AzureIoTADUUpdate
  */
 static AzureIoTADURequestDecision_t prvUserDecideShouldStartUpdate( AzureIoTADUUpdateRequest_t * pxAduUpdateRequest )
 {
+    if( !prvIsADUHandlerSupported( pxAduUpdateRequest ) )
+    {
+        LogInfo( ( "[ADU] Rejecting update request (update handler not supported)" ) );
+        return eAzureIoTADURequestDecisionReject;
+    }
+
     if( prvDoesInstalledCriteriaMatchCurrentVersion( pxAduUpdateRequest ) )
     {
         LogInfo( ( "[ADU] Rejecting update request (installed criteria matches current version)" ) );
