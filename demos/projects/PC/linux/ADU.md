@@ -165,7 +165,7 @@ The resulting executable `iot-middleware-sample-adu` should be located in the bu
 
 Open PowerShell.
 
-Navigate to the `C:\ADU-update` directory (created on step 9).
+Navigate to the `C:\ADU-update` directory.
 
 Run the following command:
 
