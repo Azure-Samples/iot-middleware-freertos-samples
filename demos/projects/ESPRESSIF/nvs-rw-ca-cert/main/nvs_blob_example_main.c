@@ -1,27 +1,12 @@
-/* Non-Volatile Storage (NVS) Read and Write a Blob - Example
+/* Copyright (c) Microsoft Corporation.
+ * Licensed under the MIT License. */
 
-   For other examples please check:
-   https://github.com/espressif/esp-idf/tree/master/examples
-
-   This example code is in the Public Domain (or CC0 licensed, at your option.)
-
-   Unless required by applicable law or agreed to in writing, this
-   software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-   CONDITIONS OF ANY KIND, either express or implied.
-*/
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_system.h"
 #include "nvs_flash.h"
 #include "nvs.h"
-#include "driver/gpio.h"
-
-#if CONFIG_IDF_TARGET_ESP32C3
-#define BOOT_MODE_PIN GPIO_NUM_9
-#else
-#define BOOT_MODE_PIN GPIO_NUM_0
-#endif //CONFIG_IDF_TARGET_ESP32C3
 
 // Write Baltimore CA cert or Digicert CA cert
 #define WRITE_BALTIMORE
@@ -31,6 +16,10 @@
 
 #define AZURE_TRUST_BUNDLE_NAME "az-tb"
 #define AZURE_TRUST_BUNDLE_VERSION_NAME "az-tb-ver"
+
+#if defined(WRITE_BALTIMORE) && defined(WRITE_DIGICERT)
+#error "Only define one trust bundle to write."
+#endif
 
 #ifdef WRITE_BALTIMORE
 static uint8_t trust_bundle[] =
@@ -123,71 +112,6 @@ static uint32_t trust_bundle_version = 2;
 #error "Please define whether you wish to write Baltimore (WRITE_BALTIMORE) or Digicert (WRITE_DIGICERT)"
 #endif
 
-
-/* Save new run time value in NVS
-   by first reading a table of previously saved values
-   and then adding the new value at the end of the table.
-   Return an error if anything goes wrong
-   during this process.
- */
-esp_err_t save_trust_bundle(void)
-{
-    nvs_handle_t my_handle;
-    esp_err_t err;
-
-    // Open CA Cert namespace
-    err = nvs_open(CA_CERT_NAMESPACE, NVS_READWRITE, &my_handle);
-    if (err != ESP_OK)
-    {
-      return err;
-    }
-
-    // Read the current trust bundle version
-    int32_t read_trust_bundle_version = 0;  // value will default to 0, if not set yet in NVS
-    err = nvs_get_i32(my_handle, AZURE_TRUST_BUNDLE_VERSION_NAME, &read_trust_bundle_version);
-    if (err != ESP_OK && err != ESP_ERR_NVS_NOT_FOUND)
-    {
-      return err;
-    }
-
-    // If version matches, do not write to not overuse NVS
-    if (read_trust_bundle_version == trust_bundle_version)
-    {
-      printf("Trust bundle version in NVS matches bundle version to write.\n");
-      return ESP_OK;
-    }
-
-    // Set new trust bundle version
-    printf("Writing trust bundle version\n");
-    err = nvs_set_i32(my_handle, AZURE_TRUST_BUNDLE_VERSION_NAME, trust_bundle_version);
-
-    if(err != ESP_OK)
-    {
-      return err;
-    }
-
-    // Write value including previously saved blob if available
-    printf("Writing trust bundle\n");
-    err = nvs_set_blob(my_handle, AZURE_TRUST_BUNDLE_NAME, trust_bundle, trust_bundle_size);
-
-    if (err != ESP_OK)
-    {
-      return err;
-    }
-
-    // Commit
-    err = nvs_commit(my_handle);
-    if (err != ESP_OK)
-    {
-      return err;
-    }
-
-    // Close
-    nvs_close(my_handle);
-
-    return ESP_OK;
-}
-
 /* Read from NVS and print restart counter
    and the table with run times.
    Return an error if anything goes wrong
@@ -250,9 +174,83 @@ esp_err_t print_what_saved(void)
     return ESP_OK;
 }
 
+/* Save new run time value in NVS
+   by first reading a table of previously saved values
+   and then adding the new value at the end of the table.
+   Return an error if anything goes wrong
+   during this process.
+ */
+esp_err_t save_trust_bundle(void)
+{
+    nvs_handle_t my_handle;
+    esp_err_t err;
+
+    // Open CA Cert namespace
+    err = nvs_open(CA_CERT_NAMESPACE, NVS_READWRITE, &my_handle);
+    if (err != ESP_OK)
+    {
+      return err;
+    }
+
+    // Read the current trust bundle version
+    int32_t read_trust_bundle_version = 0;  // value will default to 0, if not set yet in NVS
+    err = nvs_get_i32(my_handle, AZURE_TRUST_BUNDLE_VERSION_NAME, &read_trust_bundle_version);
+    if (err != ESP_OK && err != ESP_ERR_NVS_NOT_FOUND)
+    {
+      return err;
+    }
+
+    // If version matches, do not write to not overuse NVS
+    if (read_trust_bundle_version == trust_bundle_version)
+    {
+      printf("Trust bundle version in NVS matches bundle version to write.\n");
+      return ESP_OK;
+    }
+
+    // Set new trust bundle version
+    printf("Writing trust bundle version\n");
+    err = nvs_set_i32(my_handle, AZURE_TRUST_BUNDLE_VERSION_NAME, trust_bundle_version);
+
+    if(err != ESP_OK)
+    {
+      return err;
+    }
+
+    // Write value including previously saved blob if available
+    printf("Writing trust bundle\n");
+    err = nvs_set_blob(my_handle, AZURE_TRUST_BUNDLE_NAME, trust_bundle, trust_bundle_size);
+
+    if (err != ESP_OK)
+    {
+      return err;
+    }
+
+    // Commit
+    err = nvs_commit(my_handle);
+    if (err != ESP_OK)
+    {
+      return err;
+    }
+
+    // Close
+    nvs_close(my_handle);
+
+    printf("Printing what was just written\n");
+
+    err = print_what_saved();
+    if (err != ESP_OK)
+    {
+      printf("Error (%s) reading data from NVS!\n", esp_err_to_name(err));
+    }
+
+    return ESP_OK;
+}
 
 void app_main(void)
 {
+    // Delay to give time to open UART console
+    vTaskDelay(5000 / portTICK_PERIOD_MS);
+
     esp_err_t err = nvs_flash_init();
     if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND)
     {
@@ -263,42 +261,22 @@ void app_main(void)
     }
     ESP_ERROR_CHECK( err );
 
+    printf("||| Printing what is currently saved |||\n");
     err = print_what_saved();
     if (err != ESP_OK)
     {
       printf("Error (%s) reading data from NVS!\n", esp_err_to_name(err));
     }
 
+    printf("||| Check if bundle needs to be written. Write if needed. |||\n");
     err = save_trust_bundle();
     if (err != ESP_OK)
     {
       printf("Error (%s) saving restart counter to NVS!\n", esp_err_to_name(err));
     }
 
-    gpio_reset_pin(BOOT_MODE_PIN);
-    gpio_set_direction(BOOT_MODE_PIN, GPIO_MODE_INPUT);
-
-    /* Read the status of GPIO0. If GPIO0 is LOW for longer than 1000 ms,
-       then save module's run time and restart it
-     */
     while (1)
     {
-        if (gpio_get_level(BOOT_MODE_PIN) == 0)
-        {
-            vTaskDelay(1000 / portTICK_PERIOD_MS);
-            if(gpio_get_level(BOOT_MODE_PIN) == 0)
-            {
-                err = save_trust_bundle();
-                if (err != ESP_OK)
-                {
-                  printf("Error (%s) saving run time blob to NVS!\n", esp_err_to_name(err));
-                }
-
-                printf("Restarting...\n");
-                fflush(stdout);
-                esp_restart();
-            }
-        }
-        vTaskDelay(200 / portTICK_PERIOD_MS);
+        vTaskDelay(5000 / portTICK_PERIOD_MS);
     }
 }
