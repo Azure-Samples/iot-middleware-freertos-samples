@@ -29,8 +29,8 @@
 
 #define CA_CERT_NAMESPACE "root-ca-cert"
 
-#define AZURE_TRUST_BUNDLE_NAME "az-trust-bundle"
-#define AZURE_TRUST_BUNDLE_VERSION_NAME "az-trust-bundle-ver"
+#define AZURE_TRUST_BUNDLE_NAME "az-tb"
+#define AZURE_TRUST_BUNDLE_VERSION_NAME "az-tb-ver"
 
 #ifdef WRITE_BALTIMORE
 static uint8_t trust_bundle[] =
@@ -158,13 +158,16 @@ esp_err_t save_trust_bundle(void)
     }
 
     // Set new trust bundle version
+    printf("Writing trust bundle version\n");
     err = nvs_set_i32(my_handle, AZURE_TRUST_BUNDLE_VERSION_NAME, trust_bundle_version);
+
     if(err != ESP_OK)
     {
       return err;
     }
 
     // Write value including previously saved blob if available
+    printf("Writing trust bundle\n");
     err = nvs_set_blob(my_handle, AZURE_TRUST_BUNDLE_NAME, trust_bundle, trust_bundle_size);
 
     if (err != ESP_OK)
@@ -212,35 +215,33 @@ esp_err_t print_what_saved(void)
     printf("Trust bundle version = %d\n", trust_bundle_version);
 
     // Read run time blob
-    size_t trust_bundle_size = 0;  // value will default to 0, if not set yet in NVS
+    size_t trust_bundle_read_size = 0;  // value will default to 0, if not set yet in NVS
     // obtain required memory space to store blob being read from NVS
-    err = nvs_get_blob(my_handle, AZURE_TRUST_BUNDLE_NAME, NULL, &trust_bundle_size);
+    err = nvs_get_blob(my_handle, AZURE_TRUST_BUNDLE_NAME, NULL, &trust_bundle_read_size);
     if (err != ESP_OK && err != ESP_ERR_NVS_NOT_FOUND)
     {
       return err;
     }
 
-    if (trust_bundle_size == 0)
+    if (trust_bundle_read_size == 0)
     {
         printf("Nothing saved yet!\n");
     }
     else
     {
-        uint32_t* trust_bundle = malloc(trust_bundle_size);
-        err = nvs_get_blob(my_handle, AZURE_TRUST_BUNDLE_NAME, trust_bundle, &trust_bundle_size);
+        uint8_t* trust_bundle_read = malloc(trust_bundle_read_size);
+        err = nvs_get_blob(my_handle, AZURE_TRUST_BUNDLE_NAME, trust_bundle_read, &trust_bundle_read_size);
 
         if (err != ESP_OK)
         {
-            free(trust_bundle);
+            free(trust_bundle_read);
             return err;
         }
 
-        for (int i = 0; i < trust_bundle_size / sizeof(uint32_t); i++)
-        {
-            printf("%d: %d\n", i + 1, trust_bundle[i]);
-        }
+        printf("Stored trust bundle:\n");
+        printf("%.*s\n", trust_bundle_read_size, trust_bundle_read);
 
-        free(trust_bundle);
+        free(trust_bundle_read);
     }
 
     // Close
