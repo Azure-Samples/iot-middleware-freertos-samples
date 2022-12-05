@@ -120,7 +120,7 @@ static uint8_t trust_bundle[] =
 static uint32_t trust_bundle_size = sizeof(trust_bundle) - 1;
 static uint32_t trust_bundle_version = 2;
 #else
-#error "Please define whether you wish to write Baltimore (WRITE_BALTIMORE) or Digicert (WRITE_DIGICERT)
+#error "Please define whether you wish to write Baltimore (WRITE_BALTIMORE) or Digicert (WRITE_DIGICERT)"
 #endif
 
 
@@ -143,7 +143,7 @@ esp_err_t save_trust_bundle(void)
     }
 
     // Read the current trust bundle version
-    size_t read_trust_bundle_version = 0;  // value will default to 0, if not set yet in NVS
+    int32_t read_trust_bundle_version = 0;  // value will default to 0, if not set yet in NVS
     err = nvs_get_i32(my_handle, AZURE_TRUST_BUNDLE_VERSION_NAME, &read_trust_bundle_version);
     if (err != ESP_OK && err != ESP_ERR_NVS_NOT_FOUND)
     {
@@ -205,7 +205,8 @@ esp_err_t print_what_saved(void)
     // Read AZURE_TRUST_BUNDLE_VERSION_NAME
     int32_t trust_bundle_version = 0; // value will default to 0, if not set yet in NVS
     err = nvs_get_i32(my_handle, AZURE_TRUST_BUNDLE_VERSION_NAME, &trust_bundle_version);
-    if (err != ESP_OK && err != ESP_ERR_NVS_NOT_FOUND){
+    if (err != ESP_OK && err != ESP_ERR_NVS_NOT_FOUND)
+    {
       return err;
     }
     printf("Trust bundle version = %d\n", trust_bundle_version);
@@ -219,18 +220,26 @@ esp_err_t print_what_saved(void)
       return err;
     }
 
-    if (trust_bundle_size == 0) {
+    if (trust_bundle_size == 0)
+    {
         printf("Nothing saved yet!\n");
-    } else {
+    }
+    else
+    {
         uint32_t* trust_bundle = malloc(trust_bundle_size);
         err = nvs_get_blob(my_handle, AZURE_TRUST_BUNDLE_NAME, trust_bundle, &trust_bundle_size);
-        if (err != ESP_OK) {
+
+        if (err != ESP_OK)
+        {
             free(trust_bundle);
             return err;
         }
-        for (int i = 0; i < trust_bundle_size / sizeof(uint32_t); i++) {
+
+        for (int i = 0; i < trust_bundle_size / sizeof(uint32_t); i++)
+        {
             printf("%d: %d\n", i + 1, trust_bundle[i]);
         }
+
         free(trust_bundle);
     }
 
@@ -244,7 +253,8 @@ esp_err_t print_what_saved(void)
 void app_main(void)
 {
     esp_err_t err = nvs_flash_init();
-    if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+    if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND)
+    {
         // NVS partition was truncated and needs to be erased
         // Retry nvs_flash_init
         ESP_ERROR_CHECK(nvs_flash_erase());
@@ -270,10 +280,13 @@ void app_main(void)
     /* Read the status of GPIO0. If GPIO0 is LOW for longer than 1000 ms,
        then save module's run time and restart it
      */
-    while (1) {
-        if (gpio_get_level(BOOT_MODE_PIN) == 0) {
+    while (1)
+    {
+        if (gpio_get_level(BOOT_MODE_PIN) == 0)
+        {
             vTaskDelay(1000 / portTICK_PERIOD_MS);
-            if(gpio_get_level(BOOT_MODE_PIN) == 0) {
+            if(gpio_get_level(BOOT_MODE_PIN) == 0)
+            {
                 err = save_trust_bundle();
                 if (err != ESP_OK)
                 {
