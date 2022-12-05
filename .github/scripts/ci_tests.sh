@@ -93,6 +93,8 @@ do
             exit_if_binary_does_not_exist "./demos/projects/ESPRESSIF/esp32/build" "azure_iot_freertos_esp32.bin"
             sample_build "ESPRESSIF" "aziotkit" "build" "Debug"
             exit_if_binary_does_not_exist "./demos/projects/ESPRESSIF/aziotkit/build" "azure_iot_freertos_esp32.bin"
+            sample_build "ESPRESSIF" "nvs-rw-ca-cert" "build" "Debug"
+            exit_if_binary_does_not_exist "./demos/projects/ESPRESSIF/nvs-rw-ca-cert/build" "azure_iot_freertos_esp32.bin"
 
             rm -rf build
 
@@ -103,6 +105,8 @@ do
             exit_if_binary_does_not_exist "./demos/projects/ESPRESSIF/esp32/build" "azure_iot_freertos_esp32.bin"
             sample_build "ESPRESSIF" "aziotkit" "build" "Release"
             exit_if_binary_does_not_exist "./demos/projects/ESPRESSIF/aziotkit/build" "azure_iot_freertos_esp32.bin"
+            sample_build "ESPRESSIF" "nvs-rw-ca-cert" "build" "Release"
+            exit_if_binary_does_not_exist "./demos/projects/ESPRESSIF/nvs-rw-ca-cert/build" "azure_iot_freertos_esp32.bin"
             ;;
         "-esp-atecc")
             echo -e "::group::Building sample for ESPRESSIF ESP32 with ATECC608 port - Debug"
