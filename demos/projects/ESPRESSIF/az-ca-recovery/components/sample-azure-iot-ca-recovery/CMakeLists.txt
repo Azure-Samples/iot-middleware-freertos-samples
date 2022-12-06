@@ -5,15 +5,9 @@ set(ROOT_PATH
     ${CMAKE_CURRENT_LIST_DIR}/../../../../../..
 )
 
-if (DEFINED CONFIG_AZURE_SAMPLE_USE_PLUG_AND_PLAY)
-    file(GLOB_RECURSE COMPONENT_SOURCES
-        ${ROOT_PATH}/demos/sample_azure_iot_pnp/*.c
-    )
-else()
-    file(GLOB_RECURSE COMPONENT_SOURCES
-        ${ROOT_PATH}/demos/sample_azure_iot/*.c
-    )
-endif()
+file(GLOB_RECURSE COMPONENT_SOURCES
+    ${ROOT_PATH}/demos/sample_azure_iot_ca_recovery/*.c
+)
 
 # kconfig does not support multiline strings.
 # For certificates, we use as a workaround escaping the newlines
@@ -43,12 +37,6 @@ set(COMPONENT_INCLUDE_DIRS
     ${ROOT_PATH}/demos/common/transport
     ${ROOT_PATH}/demos/common/utilities
 )
-
-if (DEFINED CONFIG_AZURE_SAMPLE_USE_PLUG_AND_PLAY)
-    list(APPEND COMPONENT_INCLUDE_DIRS
-        ${ROOT_PATH}/demos/sample_azure_iot_pnp
-    )
-endif()
 
 idf_component_register(
     SRCS ${COMPONENT_SOURCES}
