@@ -8,20 +8,10 @@
 #include "nvs_flash.h"
 #include "nvs.h"
 
-// Write Baltimore CA cert or Digicert CA cert
-#define WRITE_BALTIMORE
-// #define WRITE_DIGICERT
-
 #define CA_CERT_NAMESPACE "root-ca-cert"
-
 #define AZURE_TRUST_BUNDLE_NAME "az-tb"
 #define AZURE_TRUST_BUNDLE_VERSION_NAME "az-tb-ver"
 
-#if defined(WRITE_BALTIMORE) && defined(WRITE_DIGICERT)
-#error "Only define one trust bundle to write."
-#endif
-
-#ifdef WRITE_BALTIMORE
 static uint8_t trust_bundle[] =
 /* Baltimore */
 "-----BEGIN CERTIFICATE-----\r\n"
@@ -44,11 +34,7 @@ static uint8_t trust_bundle[] =
 "Epn3o0WC4zxe9Z2etciefC7IpJ5OCBRLbf1wbWsaY71k5h+3zvDyny67G7fyUIhz\r\n"
 "ksLi4xaNmjICq44Y3ekQEe5+NauQrz4wlHrQMz2nZQ/1/I6eYs9HRCwBXbsdtTLS\r\n"
 "R9I4LtD+gdwyah617jzV/OeBHRnDJELqYzmp\r\n"
-"-----END CERTIFICATE-----\r\n";
-static uint32_t trust_bundle_size = sizeof(trust_bundle) - 1;
-static uint32_t trust_bundle_version = 1;
-#elif defined(WRITE_DIGICERT)
-static uint8_t trust_bundle[] =
+"-----END CERTIFICATE-----\r\n"
 /* Digicert */
 "-----BEGIN CERTIFICATE-----\r\n"
 "MIIDjjCCAnagAwIBAgIQAzrx5qcRqaC7KGSxHQn65TANBgkqhkiG9w0BAQsFADBh\r\n"
@@ -107,40 +93,26 @@ static uint8_t trust_bundle[] =
 "RA+GsCyRxj3qrg+E\r\n"
 "-----END CERTIFICATE-----\r\n";
 static uint32_t trust_bundle_size = sizeof(trust_bundle) - 1;
-static uint32_t trust_bundle_version = 2;
-#else
-#error "Please define whether you wish to write Baltimore (WRITE_BALTIMORE) or Digicert (WRITE_DIGICERT)"
-#endif
+static uint32_t trust_bundle_version = 1;
 
-/* Read from NVS and print restart counter
-   and the table with run times.
-   Return an error if anything goes wrong
-   during this process.
- */
-esp_err_t print_what_saved(void)
+/*
+    Print trust bundle saved in the NVS
+*/
+esp_err_t print_saved_bundle(nvs_handle_t my_handle)
 {
-    nvs_handle_t my_handle;
     esp_err_t err;
 
-    // Open
-    err = nvs_open(CA_CERT_NAMESPACE, NVS_READWRITE, &my_handle);
-    if (err != ESP_OK)
-    {
-      return err;
-    }
-
     // Read AZURE_TRUST_BUNDLE_VERSION_NAME
-    int32_t trust_bundle_version = 0; // value will default to 0, if not set yet in NVS
-    err = nvs_get_i32(my_handle, AZURE_TRUST_BUNDLE_VERSION_NAME, &trust_bundle_version);
+    int32_t trust_bundle_read_version = 0; // value will default to 0, if not set yet in NVS
+    err = nvs_get_i32(my_handle, AZURE_TRUST_BUNDLE_VERSION_NAME, &trust_bundle_read_version);
     if (err != ESP_OK && err != ESP_ERR_NVS_NOT_FOUND)
     {
       return err;
     }
-    printf("Trust bundle version = %d\n", trust_bundle_version);
+    printf("Current trust bundle version = %d\n", trust_bundle_read_version);
 
-    // Read run time blob
+    // Get size of cert
     size_t trust_bundle_read_size = 0;  // value will default to 0, if not set yet in NVS
-    // obtain required memory space to store blob being read from NVS
     err = nvs_get_blob(my_handle, AZURE_TRUST_BUNDLE_NAME, NULL, &trust_bundle_read_size);
     if (err != ESP_OK && err != ESP_ERR_NVS_NOT_FOUND)
     {
@@ -168,60 +140,47 @@ esp_err_t print_what_saved(void)
         free(trust_bundle_read);
     }
 
-    // Close
-    nvs_close(my_handle);
-
-    return ESP_OK;
+    return err;
 }
 
-/* Save new run time value in NVS
-   by first reading a table of previously saved values
-   and then adding the new value at the end of the table.
-   Return an error if anything goes wrong
-   during this process.
- */
-esp_err_t save_trust_bundle(void)
+/*
+    Save the trust bundle (certs and version) to a namespace in the NVS
+*/
+esp_err_t save_trust_bundle(nvs_handle_t my_handle)
 {
-    nvs_handle_t my_handle;
     esp_err_t err;
-
-    // Open CA Cert namespace
-    err = nvs_open(CA_CERT_NAMESPACE, NVS_READWRITE, &my_handle);
-    if (err != ESP_OK)
-    {
-      return err;
-    }
+    int32_t read_trust_bundle_version = 0;  // value will default to 0, if not set yet in NVS
 
     // Read the current trust bundle version
-    int32_t read_trust_bundle_version = 0;  // value will default to 0, if not set yet in NVS
     err = nvs_get_i32(my_handle, AZURE_TRUST_BUNDLE_VERSION_NAME, &read_trust_bundle_version);
-    if (err != ESP_OK && err != ESP_ERR_NVS_NOT_FOUND)
+    if (err != ESP_OK)
     {
+      printf("Error (%s) getting AZURE_TRUST_BUNDLE_VERSION_NAME from NVS!\n", esp_err_to_name(err));
       return err;
     }
 
     // If version matches, do not write to not overuse NVS
-    if (read_trust_bundle_version == trust_bundle_version)
+    // if (read_trust_bundle_version == trust_bundle_version)
+    // {
+    //   printf("Trust bundle version in NVS matches bundle version to write.\n");
+    //   return ESP_OK;
+    // }
+
+    // Write value including previously saved blob if available
+    printf("Writing trust bundle\n");
+    err = nvs_set_blob(my_handle, AZURE_TRUST_BUNDLE_NAME, trust_bundle, trust_bundle_size);
+    if (err != ESP_OK)
     {
-      printf("Trust bundle version in NVS matches bundle version to write.\n");
-      return ESP_OK;
+      printf("Error (%s) getting AZURE_TRUST_BUNDLE_VERSION_NAME from NVS!\n", esp_err_to_name(err));
+      return err;
     }
 
     // Set new trust bundle version
     printf("Writing trust bundle version\n");
     err = nvs_set_i32(my_handle, AZURE_TRUST_BUNDLE_VERSION_NAME, trust_bundle_version);
-
-    if(err != ESP_OK)
-    {
-      return err;
-    }
-
-    // Write value including previously saved blob if available
-    printf("Writing trust bundle\n");
-    err = nvs_set_blob(my_handle, AZURE_TRUST_BUNDLE_NAME, trust_bundle, trust_bundle_size);
-
     if (err != ESP_OK)
     {
+      printf("Error (%s) getting AZURE_TRUST_BUNDLE_VERSION_NAME from NVS!\n", esp_err_to_name(err));
       return err;
     }
 
@@ -229,21 +188,53 @@ esp_err_t save_trust_bundle(void)
     err = nvs_commit(my_handle);
     if (err != ESP_OK)
     {
+      printf("Error (%s) getting AZURE_TRUST_BUNDLE_VERSION_NAME from NVS!\n", esp_err_to_name(err));
       return err;
     }
 
-    // Close
-    nvs_close(my_handle);
-
     printf("Printing what was just written\n");
+    err = print_saved_bundle(my_handle);
 
-    err = print_what_saved();
-    if (err != ESP_OK)
+    return err;
+}
+
+/*
+    Read and write trust bundle
+*/
+void read_and_write_bundle(void)
+{
+    nvs_handle_t my_handle;
+    esp_err_t err;
+
+    // Open CA Cert namespace
+    err = nvs_open(CA_CERT_NAMESPACE, NVS_READWRITE, &my_handle);
+    if(err != ESP_OK)
     {
-      printf("Error (%s) reading data from NVS!\n", esp_err_to_name(err));
+      printf("Error (%s) opening CA_CERT_NAMESPACE in NVS\n", esp_err_to_name(err));
+      return;
     }
 
-    return ESP_OK;
+    printf("||| Printing what is currently saved |||\n");
+
+    err = print_saved_bundle(my_handle);
+    if (err != ESP_OK)
+    {
+      printf("Error (%s) printing saved trust bundle!\n", esp_err_to_name(err));
+    }
+    else
+    {
+        printf("||| Check if bundle needs to be written. Write if needed. |||\n");
+
+        err = save_trust_bundle(my_handle);
+        if (err != ESP_OK)
+        {
+          printf("Error (%s) saving trust bundle to NVS!\n", esp_err_to_name(err));
+          nvs_close(my_handle);
+          return;
+        }
+    }
+
+    nvs_close(my_handle);
 }
 
 void app_main(void)
@@ -261,19 +252,9 @@ void app_main(void)
     }
     ESP_ERROR_CHECK( err );
 
-    printf("||| Printing what is currently saved |||\n");
-    err = print_what_saved();
-    if (err != ESP_OK)
-    {
-      printf("Error (%s) reading data from NVS!\n", esp_err_to_name(err));
-    }
+    read_and_write_bundle();
 
-    printf("||| Check if bundle needs to be written. Write if needed. |||\n");
-    err = save_trust_bundle();
-    if (err != ESP_OK)
-    {
-      printf("Error (%s) saving restart counter to NVS!\n", esp_err_to_name(err));
-    }
+    printf("Done reading and writing. Moving to infinite loop\n");
 
     while (1)
     {
