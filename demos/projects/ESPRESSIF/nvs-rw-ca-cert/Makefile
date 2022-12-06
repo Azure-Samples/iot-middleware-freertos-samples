@@ -3,6 +3,6 @@
 # project subdirectory.
 #
 
-PROJECT_NAME := nvs_rw_blob
+PROJECT_NAME := nvs-rw-ca-cert
 
 include $(IDF_PATH)/make/project.mk
