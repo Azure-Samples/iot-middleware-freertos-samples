@@ -8,6 +8,10 @@
 #include "nvs_flash.h"
 #include "nvs.h"
 
+// Define if you wish to force writing of the bundle, even if the
+// same version already exists in NVS.
+// #define AZ_FORCE_WRITE
+
 #define CA_CERT_NAMESPACE "root-ca-cert"
 #define AZURE_TRUST_BUNDLE_NAME "az-tb"
 #define AZURE_TRUST_BUNDLE_VERSION_NAME "az-tb-ver"
@@ -159,12 +163,15 @@ esp_err_t save_trust_bundle(nvs_handle_t my_handle)
       return err;
     }
 
+// Skip this if user wishes to force write the bundle.
+#ifndef AZ_FORCE_WRITE
     // If version matches, do not write to not overuse NVS
-    // if (read_trust_bundle_version == trust_bundle_version)
-    // {
-    //   printf("Trust bundle version in NVS matches bundle version to write.\n");
-    //   return ESP_OK;
-    // }
+    if (read_trust_bundle_version == trust_bundle_version)
+    {
+      printf("Trust bundle version in NVS matches bundle version to write.\n");
+      return ESP_OK;
+    }
+#endif
 
     // Write value including previously saved blob if available
     printf("Writing trust bundle\n");
