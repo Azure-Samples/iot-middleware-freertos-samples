@@ -1,0 +1,51 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "ESP32-Debug",
+        "type": "cppdbg",
+        "request": "launch",
+        "MIMode": "gdb",
+        "miDebuggerPath": "${command:espIdf.getXtensaGdb}",
+        "program": "${workspaceFolder}/build/${command:espIdf.getProjectName}.elf",
+        "windows": {
+          "program": "${workspaceFolder}\\build\\${command:espIdf.getProjectName}.elf"
+        },
+        "cwd": "${workspaceFolder}",
+        "environment": [{ "name": "PATH", "value": "${config:idf.customExtraPaths}" }],
+        "setupCommands": [
+          { "text": "target remote :3333" },
+          { "text": "set remote hardware-watchpoint-limit 2"},
+          { "text": "mon reset halt" },
+          { "text": "thb app_main" },
+          { "text": "flushregs" }
+        ],
+        "externalConsole": false,
+        "logging": {
+          "engineLogging": false
+        }
+      },
+      {
+        "name": "ESP32-Attach",
+        "type": "cppdbg",
+        "request": "launch",
+        "MIMode": "gdb",
+        "miDebuggerPath": "${command:espIdf.getXtensaGdb}",
+        "program": "${workspaceFolder}/build/${command:espIdf.getProjectName}.elf",
+        "windows": {
+          "program": "${workspaceFolder}\\build\\${command:espIdf.getProjectName}.elf"
+        },
+        "cwd": "${workspaceFolder}",
+        "environment": [{ "name": "PATH", "value": "${config:idf.customExtraPaths}" }],
+        "setupCommands": [
+          { "text": "target remote :3333" },
+          { "text": "set remote hardware-watchpoint-limit 2"},
+          { "text": "flushregs" }
+        ],
+        "externalConsole": false,
+        "logging": {
+          "engineLogging": false
+        }
+      }
+  ]
+}
