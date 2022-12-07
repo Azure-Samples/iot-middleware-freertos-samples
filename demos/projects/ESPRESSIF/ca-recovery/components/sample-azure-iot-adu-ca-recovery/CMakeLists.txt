@@ -22,7 +22,7 @@ set(COMPONENT_INCLUDE_DIRS
     ${MBEDTLS_DIR}/mbedtls/include
     ${ROOT_PATH}/demos/common/transport
     ${ROOT_PATH}/demos/common/utilities
-    ${ROOT_PATH}/demos/sample_azure_iot_adu
+    ${ROOT_PATH}/demos/sample_azure_iot_adu_ca_recovery
 )
 
 idf_component_register(
