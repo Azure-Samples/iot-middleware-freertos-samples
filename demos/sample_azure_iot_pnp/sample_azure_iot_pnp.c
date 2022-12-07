@@ -227,11 +227,11 @@ static void prvHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
                                                            ucCommandResponsePayloadBuffer,
                                                            ulCommandResponsePayloadLength ) ) != eAzureIoTSuccess )
     {
-        LogError( ( "Error sending command response: result 0x%08x", xResult ) );
+        LogError( ( "Error sending command response: result 0x%08x", ( unsigned int ) xResult ) );
     }
     else
     {
-        LogInfo( ( "Successfully sent command response %d", ulResponseStatus ) );
+        LogInfo( ( "Successfully sent command response %d", ( int ) ulResponseStatus ) );
     }
 }
 
@@ -269,7 +269,7 @@ static void prvHandleProperties( AzureIoTHubClientPropertiesResponse_t * pxMessa
     ( void ) pvContext;
 
     LogDebug( ( "Property document payload : %.*s \r\n",
-                pxMessage->ulPayloadLength,
+                ( int ) pxMessage->ulPayloadLength,
                 ( const char * ) pxMessage->pvMessagePayload ) );
 
     switch( pxMessage->xMessageType )
@@ -581,7 +581,7 @@ static void prvAzureDemoTask( void * pvParameters )
         }
         else
         {
-            LogInfo( ( "Error geting IoT Hub name and Device ID: 0x%08x", xResult ) );
+            LogInfo( ( "Error geting IoT Hub name and Device ID: 0x%08x", ( unsigned int ) xResult ) );
         }
 
         configASSERT( xResult == eAzureIoTSuccess );
@@ -632,7 +632,7 @@ static uint32_t prvConnectToServerWithBackoffRetries( const char * pcHostName,
      */
     do
     {
-        LogInfo( ( "Creating a TLS connection to %s:%u.\r\n", pcHostName, port ) );
+        LogInfo( ( "Creating a TLS connection to %s:%u.\r\n", pcHostName, ( unsigned int ) port ) );
         /* Attempt to create a mutually authenticated TLS connection. */
         xNetworkStatus = TLS_Socket_Connect( pxNetworkContext,
                                              pcHostName, port,
