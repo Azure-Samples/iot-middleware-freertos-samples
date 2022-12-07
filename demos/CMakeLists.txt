@@ -26,6 +26,16 @@ if(NOT (TARGET SAMPLE::AZUREIOTADU))
         ${CMAKE_CURRENT_SOURCE_DIR}/../libs/azure-iot-middleware-freertos/ports/mbedTLS/azure_iot_jws_mbedtls.c)
 endif()
 
+# Target for adu sample task
+if(NOT (TARGET SAMPLE::AZUREIOTADUCARECOVERY))
+    add_library(SAMPLE::AZUREIOTADUCARECOVERY INTERFACE IMPORTED)
+
+    target_sources(SAMPLE::AZUREIOTADUCARECOVERY INTERFACE
+        ${CMAKE_CURRENT_SOURCE_DIR}/sample_azure_iot_adu_ca_recovery/sample_azure_iot_adu_ca_recovery.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/sample_azure_iot_adu_ca_recovery/sample_azure_iot_pnp_simulated_data.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/../libs/azure-iot-middleware-freertos/ports/mbedTLS/azure_iot_jws_mbedtls.c)
+endif()
+
 # Target for pnp sample task
 if(NOT (TARGET SAMPLE::AZUREIOTPNP))
     add_library(SAMPLE::AZUREIOTPNP INTERFACE IMPORTED)
