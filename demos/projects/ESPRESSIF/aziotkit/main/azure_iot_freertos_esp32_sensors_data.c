@@ -168,7 +168,7 @@ uint32_t ulSampleHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
     uint32_t ulCommandResponsePayloadLength;
 
     ESP_LOGI( TAG, "Command payload : %.*s \r\n",
-              pxMessage->ulPayloadLength,
+              ( int ) pxMessage->ulPayloadLength,
               ( const char * ) pxMessage->pvMessagePayload );
 
     if ( strncmp( ( const char * ) pxMessage->pucCommandName, sampleazureiotCOMMAND_TOGGLE_LED1, pxMessage->usCommandNameLength ) == 0)
@@ -409,7 +409,7 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
             xAzIoTResult = AzureIoTJSONReader_NextToken( &xJsonReader );
             configASSERT( xAzIoTResult == eAzureIoTSuccess );
 
-            xAzIoTResult = AzureIoTJSONReader_GetTokenInt32( &xJsonReader, &lTelemetryFrequencySecs );
+            xAzIoTResult = AzureIoTJSONReader_GetTokenInt32( &xJsonReader, ( int32_t * ) &lTelemetryFrequencySecs );
             configASSERT( xAzIoTResult == eAzureIoTSuccess );
 
             *pulWritablePropertyResponseBufferLength = prvGenerateAckForTelemetryFrequencyPropertyUpdate(
