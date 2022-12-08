@@ -436,13 +436,13 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
     uint32_t ulPropertyVersion;
 
     LogInfo( ( "Writable properties received: %.*s\r\n",
-               pxMessage->ulPayloadLength, ( char * ) pxMessage->pvMessagePayload ) );
+               ( int ) pxMessage->ulPayloadLength, ( char * ) pxMessage->pvMessagePayload ) );
 
     xAzIoTResult = AzureIoTJSONReader_Init( &xJsonReader, pxMessage->pvMessagePayload, pxMessage->ulPayloadLength );
 
     if( xAzIoTResult != eAzureIoTSuccess )
     {
-        LogError( ( "AzureIoTJSONReader_Init failed: result 0x%08x", xAzIoTResult ) );
+        LogError( ( "AzureIoTJSONReader_Init failed: result 0x%08x", ( unsigned int ) xAzIoTResult ) );
         *pulWritablePropertyResponseBufferLength = 0;
         return;
     }
@@ -451,7 +451,7 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
 
     if( xAzIoTResult != eAzureIoTSuccess )
     {
-        LogError( ( "AzureIoTHubClientProperties_GetPropertiesVersion failed: result 0x%08x", xAzIoTResult ) );
+        LogError( ( "AzureIoTHubClientProperties_GetPropertiesVersion failed: result 0x%08x", ( unsigned int ) xAzIoTResult ) );
         *pulWritablePropertyResponseBufferLength = 0;
         return;
     }
@@ -460,7 +460,7 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
 
     if( xAzIoTResult != eAzureIoTSuccess )
     {
-        LogError( ( "AzureIoTJSONReader_Init failed: result 0x%08x", xAzIoTResult ) );
+        LogError( ( "AzureIoTJSONReader_Init failed: result 0x%08x", ( unsigned int ) xAzIoTResult ) );
         *pulWritablePropertyResponseBufferLength = 0;
         return;
     }
@@ -478,7 +478,7 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
                                                                                   pxMessage->xMessageType, eAzureIoTHubClientPropertyWritable,
                                                                                   &pucComponentName, &ulComponentNameLength ) ) == eAzureIoTSuccess )
     {
-        LogInfo( ( "Properties component name: %.*s", ulComponentNameLength, pucComponentName ) );
+        LogInfo( ( "Properties component name: %.*s", ( int ) ulComponentNameLength, pucComponentName ) );
 
         if( AzureIoTADUClient_IsADUComponent( &xAzureIoTADUClient, pucComponentName, ulComponentNameLength ) )
         {
@@ -491,7 +491,7 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
 
             if( xAzIoTResult != eAzureIoTSuccess )
             {
-                LogError( ( "AzureIoTADUClient_ParseRequest failed: result 0x%08x", xAzIoTResult ) );
+                LogError( ( "AzureIoTADUClient_ParseRequest failed: result 0x%08x", ( unsigned int ) xAzIoTResult ) );
                 *pulWritablePropertyResponseBufferLength = 0;
                 return;
             }
@@ -510,7 +510,7 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
 
                 if( xAzIoTResult != eAzureIoTSuccess )
                 {
-                    LogError( ( "AzureIoTJWS_ManifestAuthenticate failed: JWS was not validated successfully: result 0x%08x", xAzIoTResult ) );
+                    LogError( ( "AzureIoTJWS_ManifestAuthenticate failed: JWS was not validated successfully: result 0x%08x", ( unsigned int ) xAzIoTResult ) );
                     return;
                 }
 
@@ -527,7 +527,7 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
 
                 if( xAzIoTResult != eAzureIoTSuccess )
                 {
-                    LogError( ( "AzureIoTADUClient_GetResponse failed: result 0x%08x", xAzIoTResult ) );
+                    LogError( ( "AzureIoTADUClient_GetResponse failed: result 0x%08x", ( unsigned int ) xAzIoTResult ) );
                     return;
                 }
 
@@ -552,7 +552,7 @@ void vHandleWritableProperties( AzureIoTHubClientPropertiesResponse_t * pxMessag
         }
         else
         {
-            LogInfo( ( "Component not ADU: %.*s", ulComponentNameLength, pucComponentName ) );
+            LogInfo( ( "Component not ADU: %.*s", ( int ) ulComponentNameLength, pucComponentName ) );
             prvSkipPropertyAndValue( &xJsonReader );
         }
     }
