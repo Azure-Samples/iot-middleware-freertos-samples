@@ -56,7 +56,6 @@ static az_result az_iot_ca_recovery_parse_trust_bundle(
             &ref_json_reader->token,
             AZ_SPAN_FROM_STR(AZ_IOT_CA_RECOVERY_VERSION_NAME)))
     {
-      printf("Version\n");
       _az_RETURN_IF_FAILED(az_json_reader_next_token(ref_json_reader));
       RETURN_IF_JSON_TOKEN_NOT_TYPE(ref_json_reader, AZ_JSON_TOKEN_STRING);
 
@@ -69,7 +68,6 @@ static az_result az_iot_ca_recovery_parse_trust_bundle(
             &ref_json_reader->token,
             AZ_SPAN_FROM_STR(AZ_IOT_CA_RECOVERY_EXPIRY_TIME_NAME)))
     {
-      printf("Expiry\n");
       _az_RETURN_IF_FAILED(az_json_reader_next_token(ref_json_reader));
       RETURN_IF_JSON_TOKEN_NOT_TYPE(ref_json_reader, AZ_JSON_TOKEN_STRING);
 
@@ -82,7 +80,6 @@ static az_result az_iot_ca_recovery_parse_trust_bundle(
             &ref_json_reader->token,
             AZ_SPAN_FROM_STR(AZ_IOT_CA_RECOVERY_CERTS_NAME)))
     {
-      printf("Certs\n");
       _az_RETURN_IF_FAILED(az_json_reader_next_token(ref_json_reader));
       RETURN_IF_JSON_TOKEN_NOT_TYPE(ref_json_reader, AZ_JSON_TOKEN_STRING);
 
@@ -113,7 +110,6 @@ static az_result az_iot_ca_recovery_parse_recovery_payload(
   recovery_payload->payload_signature = AZ_SPAN_EMPTY;
   recovery_payload->trust_bundle_json_object_text = AZ_SPAN_EMPTY;
 
-  printf("While\n");
 
   while (ref_json_reader->token.kind != AZ_JSON_TOKEN_END_OBJECT)
   {
@@ -123,7 +119,6 @@ static az_result az_iot_ca_recovery_parse_recovery_payload(
             &ref_json_reader->token,
             AZ_SPAN_FROM_STR(AZ_IOT_CA_RECOVERY_HUB_HOSTNAME_NAME)))
     {
-      printf("Hostname\n");
       _az_RETURN_IF_FAILED(az_json_reader_next_token(ref_json_reader));
       RETURN_IF_JSON_TOKEN_NOT_TYPE(ref_json_reader, AZ_JSON_TOKEN_STRING);
 
@@ -136,7 +131,6 @@ static az_result az_iot_ca_recovery_parse_recovery_payload(
                  &ref_json_reader->token,
                  AZ_SPAN_FROM_STR(AZ_IOT_CA_RECOVERY_PAYLOAD_NAME)))
     {
-      printf("Payload\n");
       _az_RETURN_IF_FAILED(az_json_reader_next_token(ref_json_reader));
       RETURN_IF_JSON_TOKEN_NOT_TYPE(ref_json_reader, AZ_JSON_TOKEN_BEGIN_OBJECT);
 
@@ -146,7 +140,6 @@ static az_result az_iot_ca_recovery_parse_recovery_payload(
             &ref_json_reader->token,
             AZ_SPAN_FROM_STR(AZ_IOT_CA_RECOVERY_SIGNATURE_NAME)))
         {
-          printf("Signature\n");
           _az_RETURN_IF_FAILED(az_json_reader_next_token(ref_json_reader));
           RETURN_IF_JSON_TOKEN_NOT_TYPE(ref_json_reader, AZ_JSON_TOKEN_STRING);
 
@@ -159,7 +152,6 @@ static az_result az_iot_ca_recovery_parse_recovery_payload(
                     &ref_json_reader->token,
                     AZ_SPAN_FROM_STR(AZ_IOT_CA_RECOVERY_CERT_TRUST_BUNDLE_NAME)))
         {
-          printf("Trust Bundle\n");
           _az_RETURN_IF_FAILED(az_json_reader_next_token(ref_json_reader));
           RETURN_IF_JSON_TOKEN_NOT_TYPE(ref_json_reader, AZ_JSON_TOKEN_STRING);
 
@@ -187,8 +179,8 @@ static void prvCastCoreToMiddleware(AzureIoTCARecovery_RecoveryPayload * pxRecov
   pxRecoveryPayload->ulIoTHubHostnameLength = az_span_size(recovery_payload->iothub_hostname);
   pxRecoveryPayload->pucPayloadSignature = az_span_ptr(recovery_payload->payload_signature);
   pxRecoveryPayload->ulPayloadSignatureLength = az_span_size(recovery_payload->payload_signature);
-  pxRecoveryPayload->pucTrustBundleJSONObjectText = az_span_ptr(recovery_payload->payload_signature);
-  pxRecoveryPayload->ulTrustBundleJSONObjectTextLength = az_span_size(recovery_payload->payload_signature);
+  pxRecoveryPayload->pucTrustBundleJSONObjectText = az_span_ptr(recovery_payload->trust_bundle_json_object_text);
+  pxRecoveryPayload->ulTrustBundleJSONObjectTextLength = az_span_size(recovery_payload->trust_bundle_json_object_text);
 
   pxRecoveryPayload->xTrustBundle.pucCertificates = az_span_ptr(recovery_payload->trust_bundle.certificates);
   pxRecoveryPayload->xTrustBundle.ulCertificatesLength = az_span_size(recovery_payload->trust_bundle.certificates);
@@ -217,7 +209,6 @@ AzureIoTResult_t AzureIoTCARecovery_ParseRecoveryPayload(AzureIoTJSONReader_t * 
   }
 
   recovery_payload.trust_bundle_json_object_text = az_json_string_unescape(recovery_payload.trust_bundle_json_object_text, recovery_payload.trust_bundle_json_object_text);
-  printf("%.*s", az_span_size(recovery_payload.trust_bundle_json_object_text), az_span_ptr(recovery_payload.trust_bundle_json_object_text));
 
   xCoreResult = az_json_reader_init(&jr, recovery_payload.trust_bundle_json_object_text, NULL);
   if(az_result_failed(xCoreResult)) {
