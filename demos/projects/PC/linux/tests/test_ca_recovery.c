@@ -6,8 +6,8 @@
 
 #include "azure_sample_ca_recovery.h"
 
-#define TEST_CA_RECOVERY_SUCCESS 0
-#define TEST_CA_RECOVERY_FAIL    1
+#define TEST_CA_RECOVERY_SUCCESS        0
+#define TEST_CA_RECOVERY_FAIL           1
 
 #define TEST_HUB_HOSTNAME               "ericwol-cert.azure-devices.net"
 #define TEST_SIGNATURE                  "LpJ1ROhCUvn2qaKeDODzD2hbcgJdJHA1uygyxC5ywUBtOzKB3e+kT0B+Z/VjENbPMrBZJSncHBfuW+95yVoHpBib2kH3YOD3ZvsdTtYpIPG2HbBPtrxlzaBlek54gD9uZw+Fp3nImdUfMs/L8Hx8NDNr0HLKZVLMqnk/Vh91U1skUYLcWGQDzPpWHlKx2JakNk3BEBBR5pGCu8IVMmfo3le1ztZUcSfiOrgXndmCgngVwmWj0EiLc6MvtUVCjVJvpsOR59mXkxn3tN3ijjWEeDkOBGg4oofWXeD1vSolHYNMQ7aLHJFJ5yDU2t+bQqi87qcSAJ7jtJz7COPXIxS3MQ=="
