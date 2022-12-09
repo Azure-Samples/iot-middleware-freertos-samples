@@ -102,14 +102,14 @@ add_executable(test_ca_recovery
   ${CMAKE_CURRENT_LIST_DIR}/tests/main.c
   ${CMAKE_CURRENT_LIST_DIR}/tests/mock_needed_functions.c
   ${CMAKE_CURRENT_LIST_DIR}/tests/test_ca_recovery.c
-  ${CMAKE_CURRENT_LIST_DIR}/../../../../demos/utilities/azure_sample_ca_recovery.c
+  ${CMAKE_CURRENT_LIST_DIR}/../../../common/utilities/azure_sample_ca_recovery.c
 )
 
-target_include_directories(test_ca_recovery
-  ${CMAKE_CURRENT_LIST_DIR}/../../../../demos/utilities
+target_include_directories(test_ca_recovery PRIVATE
+  ${CMAKE_CURRENT_LIST_DIR}/../../../common/utilities
 )
 
-target_link_libraries(${PROJECT_NAME}-pnp PRIVATE
+target_link_libraries(test_ca_recovery PRIVATE
     FreeRTOS::Timers
     FreeRTOS::Heap::3
     FreeRTOS::EventGroups
