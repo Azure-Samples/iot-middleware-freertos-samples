@@ -38,9 +38,6 @@ static az_result az_iot_ca_recovery_parse_recovery_payload(
   _az_PRECONDITION_NOT_NULL(ref_json_reader);
   _az_PRECONDITION_NOT_NULL(recovery_payload);
 
-  RETURN_IF_JSON_TOKEN_NOT_TYPE(ref_json_reader, AZ_JSON_TOKEN_PROPERTY_NAME);
-  RETURN_IF_JSON_TOKEN_NOT_TEXT(ref_json_reader, AZ_IOT_ADU_CLIENT_AGENT_PROPERTY_NAME_SERVICE);
-
   _az_RETURN_IF_FAILED(az_json_reader_next_token(ref_json_reader));
   RETURN_IF_JSON_TOKEN_NOT_TYPE(ref_json_reader, AZ_JSON_TOKEN_BEGIN_OBJECT);
   _az_RETURN_IF_FAILED(az_json_reader_next_token(ref_json_reader));
