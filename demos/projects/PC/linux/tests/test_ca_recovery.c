@@ -2,8 +2,8 @@
  * Licensed under the MIT License. */
 
 /*
-    TEMPORARY UNIT TESTS FOR THE PARSING API
-*/
+ *  TEMPORARY UNIT TESTS FOR THE PARSING API
+ */
 
 #include <stdint.h>
 #include <stdio.h>
