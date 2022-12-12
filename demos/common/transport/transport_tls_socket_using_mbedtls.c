@@ -573,11 +573,18 @@ static TlsTransportStatus_t tlsHandshake( NetworkContext_t * pxNetworkContext,
 
         if( lMbedtlsError != 0 )
         {
-            LogError( ( "Failed to perform TLS handshake: lMbedtlsError[%d]= %s : %s.",
+            LogError( ( "Failed to perform TLS handshake: lMbedtlsError[0x%08x]= %s : %s.",
                         lMbedtlsError, mbedtlsHighLevelCodeOrDefault( lMbedtlsError ),
                         mbedtlsLowLevelCodeOrDefault( lMbedtlsError ) ) );
 
-            xRetVal = eTLSTransportHandshakeFailed;
+            if( lMbedtlsError == MBEDTLS_ERR_X509_CERT_VERIFY_FAILED )
+            {
+                xRetVal = eTLSTransportCAVerifyFailure;
+            }
+            else
+            {
+                xRetVal = eTLSTransportHandshakeFailed;
+            }
         }
         else
         {

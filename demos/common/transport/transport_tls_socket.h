@@ -51,7 +51,8 @@ typedef enum TlsTransportStatus
     eTLSTransportInvalidCredentials, /**< Provided credentials were invalid. */
     eTLSTransportHandshakeFailed,    /**< Performing TLS handshake with server failed. */
     eTLSTransportInternalError,      /**< A call to a system API resulted in an internal error. */
-    eTLSTransportConnectFailure      /**< Initial connection to the server failed. */
+    eTLSTransportConnectFailure,     /**< Initial connection to the server failed. */
+    eTLSTransportCAVerifyFailure     /**< Verification of TLS CA cert failed. */
 } TlsTransportStatus_t;
 
 /**
