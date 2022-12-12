@@ -33,7 +33,7 @@ typedef struct AzureIoTCARecovery_RecoveryPayload
 } AzureIoTCARecovery_RecoveryPayload;
 
 /**
- * @brief Parse the recovery payload sent from the Device Provisioning Service.
+ * @brief Parse the CA recovery payload received from the Device Provisioning Service.
  *
  * @param[in,out] pxReader The JSON reader initialized with the payload.
  * @param[out] pxRecoveryPayload The struct into which the payload will be parsed.
