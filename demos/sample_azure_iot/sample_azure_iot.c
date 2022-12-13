@@ -349,7 +349,7 @@ static void prvAzureDemoTask( void * pvParameters )
                                                                                  democonfigIOTHUB_PORT,
                                                                                  &xNetworkCredentials, &xNetworkContext );
 
-        if( ulTLSStatus == eTLSTransportCAVerifyFailure )
+        if( ulTLSStatus == eTLSTransportCAVerifyFailed )
         {
             LogInfo( ( "In recovery" ) );
 
@@ -613,7 +613,7 @@ static TlsTransportStatus_t prvConnectToServerWithBackoffRetries( const char * p
 
         if( xNetworkStatus != eTLSTransportSuccess )
         {
-            if( xNetworkStatus == eTLSTransportCAVerifyFailure )
+            if( xNetworkStatus == eTLSTransportCAVerifyFailed )
             {
                 LogWarn( ( "Entering CA recovery mode" ) );
                 break;
