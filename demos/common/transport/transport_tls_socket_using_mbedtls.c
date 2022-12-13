@@ -573,7 +573,7 @@ static TlsTransportStatus_t tlsHandshake( NetworkContext_t * pxNetworkContext,
 
         if( lMbedtlsError != 0 )
         {
-            LogError( ( "Failed to perform TLS handshake: lMbedtlsError[0x%08x]= %s : %s.",
+            LogError( ( "Failed to perform TLS handshake: lMbedtlsError[%d]= %s : %s.",
                         lMbedtlsError, mbedtlsHighLevelCodeOrDefault( lMbedtlsError ),
                         mbedtlsLowLevelCodeOrDefault( lMbedtlsError ) ) );
 
