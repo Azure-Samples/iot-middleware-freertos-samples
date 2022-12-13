@@ -184,12 +184,12 @@ static void prvAzureDemoTask( void * pvParameters );
  * @param ulPort Endpoint port.
  * @param pxNetworkCredentials Pointer to Network credentials.
  * @param pxNetworkContext Point to Network context created.
- * @return uint32_t The status of the final connection attempt.
+ * @return TlsTransportStatus_t The status of the final connection attempt.
  */
-static uint32_t prvConnectToServerWithBackoffRetries( const char * pcHostName,
-                                                      uint32_t ulPort,
-                                                      NetworkCredentials_t * pxNetworkCredentials,
-                                                      NetworkContext_t * pxNetworkContext );
+static TlsTransportStatus_t prvConnectToServerWithBackoffRetries( const char * pcHostName,
+                                                                  uint32_t ulPort,
+                                                                  NetworkCredentials_t * pxNetworkCredentials,
+                                                                  NetworkContext_t * pxNetworkContext );
 /*-----------------------------------------------------------*/
 
 /**
@@ -345,10 +345,18 @@ static void prvAzureDemoTask( void * pvParameters )
          * value is reached. The function returns a failure status if the TCP
          * connection cannot be established to the IoT Hub after the configured
          * number of attempts. */
-        ulStatus = prvConnectToServerWithBackoffRetries( ( const char * ) pucIotHubHostname,
-                                                         democonfigIOTHUB_PORT,
-                                                         &xNetworkCredentials, &xNetworkContext );
-        configASSERT( ulStatus == 0 );
+        TlsTransportStatus_t ulTLSStatus = prvConnectToServerWithBackoffRetries( ( const char * ) pucIotHubHostname,
+                                                                                 democonfigIOTHUB_PORT,
+                                                                                 &xNetworkCredentials, &xNetworkContext );
+
+        if( ulTLSStatus == eTLSTransportCAVerifyFailed )
+        {
+            LogInfo( ( "In recovery" ) );
+
+            while( 1 )
+            {
+            }
+        }
 
         /* Fill in Transport Interface send and receive function pointers. */
         xTransport.pxNetworkContext = &xNetworkContext;
@@ -573,10 +581,10 @@ static void prvAzureDemoTask( void * pvParameters )
 /**
  * @brief Connect to server with backoff retries.
  */
-static uint32_t prvConnectToServerWithBackoffRetries( const char * pcHostName,
-                                                      uint32_t port,
-                                                      NetworkCredentials_t * pxNetworkCredentials,
-                                                      NetworkContext_t * pxNetworkContext )
+static TlsTransportStatus_t prvConnectToServerWithBackoffRetries( const char * pcHostName,
+                                                                  uint32_t port,
+                                                                  NetworkCredentials_t * pxNetworkCredentials,
+                                                                  NetworkContext_t * pxNetworkContext )
 {
     TlsTransportStatus_t xNetworkStatus;
     BackoffAlgorithmStatus_t xBackoffAlgStatus = BackoffAlgorithmSuccess;
@@ -605,28 +613,36 @@ static uint32_t prvConnectToServerWithBackoffRetries( const char * pcHostName,
 
         if( xNetworkStatus != eTLSTransportSuccess )
         {
-            /* Generate a random number and calculate backoff value (in milliseconds) for
-             * the next connection retry.
-             * Note: It is recommended to seed the random number generator with a device-specific
-             * entropy source so that possibility of multiple devices retrying failed network operations
-             * at similar intervals can be avoided. */
-            xBackoffAlgStatus = BackoffAlgorithm_GetNextBackoff( &xReconnectParams, configRAND32(), &usNextRetryBackOff );
-
-            if( xBackoffAlgStatus == BackoffAlgorithmRetriesExhausted )
+            if( xNetworkStatus == eTLSTransportCAVerifyFailed )
             {
-                LogError( ( "Connection to the IoT Hub failed, all attempts exhausted." ) );
+                LogWarn( ( "Entering CA recovery mode" ) );
+                break;
             }
-            else if( xBackoffAlgStatus == BackoffAlgorithmSuccess )
+            else
             {
-                LogWarn( ( "Connection to the IoT Hub failed [%d]. "
-                           "Retrying connection with backoff and jitter [%d]ms.",
-                           xNetworkStatus, usNextRetryBackOff ) );
-                vTaskDelay( pdMS_TO_TICKS( usNextRetryBackOff ) );
+                /* Generate a random number and calculate backoff value (in milliseconds) for
+                 * the next connection retry.
+                 * Note: It is recommended to seed the random number generator with a device-specific
+                 * entropy source so that possibility of multiple devices retrying failed network operations
+                 * at similar intervals can be avoided. */
+                xBackoffAlgStatus = BackoffAlgorithm_GetNextBackoff( &xReconnectParams, configRAND32(), &usNextRetryBackOff );
+
+                if( xBackoffAlgStatus == BackoffAlgorithmRetriesExhausted )
+                {
+                    LogError( ( "Connection to the IoT Hub failed, all attempts exhausted." ) );
+                }
+                else if( xBackoffAlgStatus == BackoffAlgorithmSuccess )
+                {
+                    LogWarn( ( "Connection to the IoT Hub failed [%d]. "
+                               "Retrying connection with backoff and jitter [%d]ms.",
+                               xNetworkStatus, usNextRetryBackOff ) );
+                    vTaskDelay( pdMS_TO_TICKS( usNextRetryBackOff ) );
+                }
             }
         }
     } while( ( xNetworkStatus != eTLSTransportSuccess ) && ( xBackoffAlgStatus == BackoffAlgorithmSuccess ) );
 
-    return xNetworkStatus == eTLSTransportSuccess ? 0 : 1;
+    return xNetworkStatus;
 }
 /*-----------------------------------------------------------*/
 
