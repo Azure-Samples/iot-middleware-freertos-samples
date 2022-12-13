@@ -615,7 +615,9 @@ static TlsTransportStatus_t prvConnectToServerWithBackoffRetries( const char * p
         {
             if( xNetworkStatus == eTLSTransportCAVerifyFailed )
             {
-                LogWarn( ( "Entering CA recovery mode" ) );
+                // Break to return error and handle recovery scenario
+                // TODO: look into retrying in case other "CA failed" scenarios caused the
+                // error instead.
                 break;
             }
             else
