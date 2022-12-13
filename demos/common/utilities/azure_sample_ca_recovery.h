@@ -20,9 +20,6 @@ typedef struct AzureIoTCARecovery_TrustBundle
 
 typedef struct AzureIoTCARecovery_RecoveryPayload
 {
-    const uint8_t * pucIoTHubHostname;
-    uint32_t ulIoTHubHostnameLength;
-
     const uint8_t * pucPayloadSignature;
     uint32_t ulPayloadSignatureLength;
 

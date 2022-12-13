@@ -31,8 +31,6 @@ typedef struct azure_iot_ca_recovery_trust_bundle
 
 typedef struct azure_iot_ca_recovery_recovery_payload
 {
-    az_span iothub_hostname;
-
     az_span payload_signature;
 
     az_span trust_bundle_json_object_text;
@@ -106,7 +104,6 @@ static az_result az_iot_ca_recovery_parse_recovery_payload( az_json_reader * ref
     RETURN_IF_JSON_TOKEN_NOT_TYPE( ref_json_reader, AZ_JSON_TOKEN_BEGIN_OBJECT );
     _az_RETURN_IF_FAILED( az_json_reader_next_token( ref_json_reader ) );
 
-    recovery_payload->iothub_hostname = AZ_SPAN_EMPTY;
     recovery_payload->payload_signature = AZ_SPAN_EMPTY;
     recovery_payload->trust_bundle_json_object_text = AZ_SPAN_EMPTY;
 
@@ -119,12 +116,8 @@ static az_result az_iot_ca_recovery_parse_recovery_payload( az_json_reader * ref
                 AZ_SPAN_FROM_STR( AZ_IOT_CA_RECOVERY_HUB_HOSTNAME_NAME ) ) )
         {
             _az_RETURN_IF_FAILED( az_json_reader_next_token( ref_json_reader ) );
-            RETURN_IF_JSON_TOKEN_NOT_TYPE( ref_json_reader, AZ_JSON_TOKEN_STRING );
-
-            if( ref_json_reader->token.kind != AZ_JSON_TOKEN_NULL )
-            {
-                recovery_payload->iothub_hostname = ref_json_reader->token.slice;
-            }
+            /* Ignore iot hub name as it is only needed to satisfy Device Provisioning Service. */
+            /* Will not connect to this placeholder hub. */
         }
         else if( az_json_token_is_text_equal(
                      &ref_json_reader->token,
@@ -175,8 +168,6 @@ static az_result az_iot_ca_recovery_parse_recovery_payload( az_json_reader * ref
 static void prvCastCoreToMiddleware( AzureIoTCARecovery_RecoveryPayload * pxRecoveryPayload,
                                      azure_iot_ca_recovery_payload * recovery_payload )
 {
-    pxRecoveryPayload->pucIoTHubHostname = az_span_ptr( recovery_payload->iothub_hostname );
-    pxRecoveryPayload->ulIoTHubHostnameLength = az_span_size( recovery_payload->iothub_hostname );
     pxRecoveryPayload->pucPayloadSignature = az_span_ptr( recovery_payload->payload_signature );
     pxRecoveryPayload->ulPayloadSignatureLength = az_span_size( recovery_payload->payload_signature );
     pxRecoveryPayload->pucTrustBundleJSONObjectText = az_span_ptr( recovery_payload->trust_bundle_json_object_text );

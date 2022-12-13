@@ -50,12 +50,7 @@ int vStartTestTask( void )
 
     printf( "Checking all struct values\n" );
 
-    if( strncmp( xPayload.pucIoTHubHostname, TEST_HUB_HOSTNAME, sizeof( TEST_HUB_HOSTNAME ) - 1 ) != 0 )
-    {
-        printf( "\tHub Name Failed!\n" );
-        return TEST_CA_RECOVERY_FAIL;
-    }
-    else if( strncmp( xPayload.pucPayloadSignature, TEST_SIGNATURE, sizeof( TEST_SIGNATURE ) - 1 ) != 0 )
+    if( strncmp( xPayload.pucPayloadSignature, TEST_SIGNATURE, sizeof( TEST_SIGNATURE ) - 1 ) != 0 )
     {
         printf( "\tSignature Failed!\n" );
         return TEST_CA_RECOVERY_FAIL;
