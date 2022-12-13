@@ -615,9 +615,9 @@ static TlsTransportStatus_t prvConnectToServerWithBackoffRetries( const char * p
         {
             if( xNetworkStatus == eTLSTransportCAVerifyFailed )
             {
-                // Break to return error and handle recovery scenario
-                // TODO: look into retrying in case other "CA failed" scenarios caused the
-                // error instead.
+                /* Break to return error and handle recovery scenario */
+                /* TODO: look into retrying in case other "CA failed" scenarios caused the */
+                /* error instead. */
                 break;
             }
             else
