@@ -237,6 +237,9 @@ do
             exit_if_binary_does_not_exist "build_pc_linux" "iot-middleware-sample-pnp"
             exit_if_binary_does_not_exist "build_pc_linux" "iot-middleware-sample-adu"
 
+            echo -e "::group::Running CA Recovery Unit Tests"
+            ./build_pc_linux/demos/projects/PC/linux/test_ca_recovery
+
             ;;
         * )
             echo "build for $arg not found";;
