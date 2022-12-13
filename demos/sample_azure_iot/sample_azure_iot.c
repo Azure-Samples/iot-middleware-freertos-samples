@@ -187,9 +187,9 @@ static void prvAzureDemoTask( void * pvParameters );
  * @return TlsTransportStatus_t The status of the final connection attempt.
  */
 static TlsTransportStatus_t prvConnectToServerWithBackoffRetries( const char * pcHostName,
-                                                      uint32_t ulPort,
-                                                      NetworkCredentials_t * pxNetworkCredentials,
-                                                      NetworkContext_t * pxNetworkContext );
+                                                                  uint32_t ulPort,
+                                                                  NetworkCredentials_t * pxNetworkCredentials,
+                                                                  NetworkContext_t * pxNetworkContext );
 /*-----------------------------------------------------------*/
 
 /**
@@ -352,7 +352,10 @@ static void prvAzureDemoTask( void * pvParameters )
         if( ulTLSStatus == eTLSTransportCAVerifyFailure )
         {
             LogInfo( ( "In recovery" ) );
-            while(1);
+
+            while( 1 )
+            {
+            }
         }
 
         /* Fill in Transport Interface send and receive function pointers. */
