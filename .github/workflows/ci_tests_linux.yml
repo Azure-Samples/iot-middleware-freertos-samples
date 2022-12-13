@@ -21,8 +21,8 @@ jobs:
       run: .github/scripts/install_software.sh
     - name: Build PC Samples
       run: sudo bash -c ".github/scripts/ci_tests.sh -pc"
-    # - name: Build NXP Samples
-    #   run: sudo bash -c ".github/scripts/ci_tests.sh -nxp"
+    - name: Build NXP Samples
+      run: sudo bash -c ".github/scripts/ci_tests.sh -nxp"
     - name: Build ST Samples
       run: sudo bash -c ".github/scripts/ci_tests.sh -st"
     - name: Build ESP32 Samples
