@@ -96,3 +96,33 @@ target_link_libraries(${PROJECT_NAME}-pnp PRIVATE
     SAMPLE::SOCKET::FREERTOSTCPIP)
 
 add_map_file(${PROJECT_NAME}-pnp ${PROJECT_NAME}-pnp.map)
+
+# Add demo files and dependencies for PnP Sample
+add_executable(test_ca_recovery
+  ${CMAKE_CURRENT_LIST_DIR}/tests/main.c
+  ${CMAKE_CURRENT_LIST_DIR}/tests/mock_needed_functions.c
+  ${CMAKE_CURRENT_LIST_DIR}/tests/test_ca_recovery.c
+  ${CMAKE_CURRENT_LIST_DIR}/../../../common/utilities/azure_sample_ca_recovery.c
+)
+
+target_include_directories(test_ca_recovery PRIVATE
+  ${CMAKE_CURRENT_LIST_DIR}/../../../common/utilities
+)
+
+target_link_libraries(test_ca_recovery PRIVATE
+    FreeRTOS::Timers
+    FreeRTOS::Heap::3
+    FreeRTOS::EventGroups
+    FreeRTOS::Posix
+    FreeRTOSPlus::Utilities::backoff_algorithm
+    FreeRTOSPlus::Utilities::logging
+    FreeRTOSPlus::ThirdParty::mbedtls
+    FreeRTOSPlus::TCPIP
+    FreeRTOSPlus::TCPIP::PORT
+    az::iot_middleware::freertos
+    az::iot_middleware::core_http
+    pthread
+    pcap
+    SAMPLE::AZUREIOTPNP
+    SAMPLE::TRANSPORT::MBEDTLS
+    SAMPLE::SOCKET::FREERTOSTCPIP)
