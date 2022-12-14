@@ -16,6 +16,9 @@ TEST_FREERTOS_SRC=`pwd`/libs/FreeRTOS
 RUN_BOARDS_BUILD=${@:-"-st -nxp -pc -esp -esp-atecc"}
 FREERTOS_FETCHED=0
 
+# Add installed arm compiler to path
+export PATH="/usr/local/arm-gcc-none-eabi/bin:$PATH"
+
 function exit_if_binary_does_not_exist()
 {
     local search_dir=$1
