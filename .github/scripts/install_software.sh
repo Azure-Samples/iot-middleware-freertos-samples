@@ -8,12 +8,4 @@ set -o nounset # Exit if variable not set.
 set -o pipefail # Exit if pipe failed.
 
 sudo apt update
-sudo apt install -y net-tools gcc-multilib g++-multilib ninja-build libpcap-dev ethtool isc-dhcp-server unifdef dos2unix
-
-wget https://developer.arm.com/-/media/Files/downloads/gnu/11.2-2022.02/binrel/gcc-arm-11.2-2022.02-x86_64-arm-none-eabi.tar.xz
-
-sudo mkdir /usr/local/arm-gcc-none-eabi
-
-sudo tar -xvf gcc-arm-11.2-2022.02-x86_64-arm-none-eabi.tar.xz -C /usr/local/arm-gcc-none-eabi --strip-components=1
-
-# Export path in ci_tests.sh
+sudo apt install -y tar net-tools gcc-multilib g++-multilib ninja-build libpcap-dev ethtool isc-dhcp-server unifdef gcc-arm-none-eabi dos2unix
