@@ -16,4 +16,4 @@ sudo mkdir /usr/local/arm-gcc-none-eabi
 
 sudo tar -xvf gcc-arm-11.2-2022.02-x86_64-arm-none-eabi.tar.xz -C /usr/local/arm-gcc-none-eabi --strip-components=1
 
-# Export path in Github Action yaml
+# Export path in ci_tests.sh
