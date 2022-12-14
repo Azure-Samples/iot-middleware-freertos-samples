@@ -8,4 +8,4 @@ set -o nounset # Exit if variable not set.
 set -o pipefail # Exit if pipe failed.
 
 sudo apt update
-sudo apt install -y net-tools gcc-multilib g++-multilib ninja-build libpcap-dev ethtool isc-dhcp-server unifdef gcc-arm-none-eabi dos2unix
+sudo apt install -y tar net-tools gcc-multilib g++-multilib ninja-build libpcap-dev ethtool isc-dhcp-server unifdef dos2unix
