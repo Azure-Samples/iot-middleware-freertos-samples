@@ -769,7 +769,7 @@ static void prvAzureDemoTask( void * pvParameters )
         xHubOptions.pucModuleID = ( const uint8_t * ) democonfigMODULE_ID;
         xHubOptions.ulModuleIDLength = sizeof( democonfigMODULE_ID ) - 1;
         xHubOptions.pucModelID = ( const uint8_t * ) AzureIoTADUModelID;
-        xHubOptions.ulModelIDLength = sizeof( AzureIoTADUModelIDLength ) - 1;
+        xHubOptions.ulModelIDLength = AzureIoTADUModelIDLength;
 
         #ifdef sampleaduPNP_COMPONENTS_LIST_LENGTH
             #if sampleaduPNP_COMPONENTS_LIST_LENGTH > 0
