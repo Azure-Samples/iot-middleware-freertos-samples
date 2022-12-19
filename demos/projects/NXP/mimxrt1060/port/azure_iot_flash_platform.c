@@ -110,11 +110,7 @@ AzureIoTResult_t AzureIoTPlatform_EnableImage( AzureADUImage_t * const pxAduImag
 
 AzureIoTResult_t AzureIoTPlatform_ResetDevice( AzureADUImage_t * const pxAduImage )
 {
-    (void)pxAduImage;
-
-    // TODO: Fill in to reboot the device.
-
-    LogInfo( ( "AzureIoTPlatform_ResetDevice()\r\n" ) );
+    NVIC_SystemReset();
 
     return eAzureIoTSuccess;
 }
