@@ -26,6 +26,9 @@ nxp_mcux_sdk_fetch()
 lwip_fetch()
 
 list(APPEND CMAKE_MODULE_PATH ${NXP_MCUX_SDK_PATH})
+# list(APPEND CMAKE_MODULE_PATH ${NXP_MCUX_SDK_PATH}/drivers/flash)
+# list(APPEND CMAKE_MODULE_PATH ${NXP_MCUX_SDK_PATH}/components/internal_flash)
+list(APPEND CMAKE_MODULE_PATH ${NXP_MCUX_SDK_PATH}/CMSIS/Include)
 
 find_package(LWIP)
 
@@ -65,6 +68,12 @@ include(component_serial_manager)
 
 include(component_lists)
 
+include(driver_nor_flash-controller-flexspi)
+
+include(driver_nor_flash-common)
+
+# include(component_adapter_flash)
+
 include(component_serial_manager_uart)
 
 include(driver_lpuart)
@@ -94,6 +103,8 @@ include(device_system)
 include(driver_enet)
 
 include(driver_trng)
+
+# include(driver_flash)
 
 include(driver_phy-common)
 

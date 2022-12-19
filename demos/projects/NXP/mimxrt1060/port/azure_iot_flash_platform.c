@@ -13,6 +13,8 @@
 
 #include "mbedtls/md.h"
 
+#include "fsl_nor_flash.h"
+
 #define azureiotflashSHA_256_SIZE    32
 
 static uint8_t ucPartitionReadBuffer[ 32 ];
@@ -49,6 +51,7 @@ AzureIoTResult_t AzureIoTPlatform_Init( AzureADUImage_t * const pxAduImage )
     // TODO: Fill in initialization for NXP flash writing capability.
 
     LogInfo( ( "AzureIoTPlatform_Init()\r\n" ) );
+    // Nor_Flash_Read();
 
     return eAzureIoTSuccess;
 }
