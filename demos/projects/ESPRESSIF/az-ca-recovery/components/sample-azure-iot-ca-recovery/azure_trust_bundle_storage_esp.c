@@ -1,7 +1,7 @@
 /* Copyright (c) Microsoft Corporation.
  * Licensed under the MIT License. */
 
-#include "azure_ca_storage.h"
+#include "azure_trust_bundle_storage.h"
 
 #include "esp_system.h"
 #include "nvs_flash.h"
@@ -22,13 +22,13 @@ AzureIoTResult_t AzureIoTCAStorage_ReadTrustBundle( const uint8_t * pucTrustBund
     /* Open CA Cert namespace */
     err = nvs_open( CA_CERT_NAMESPACE, NVS_READWRITE, &xNVSHandle );
 
-    /* Read AZURE_TRUST_BUNDLE_VERSION_NAME */
-    int32_t ulTrustBundleVersion = 0; /* value will default to 0, if not set yet in NVS */
+    int32_t ulCurrentTrustBundleVersion = 0; /* value will default to 0, if not set yet in NVS */
 
-    err = nvs_get_i32( xNVSHandle, AZURE_TRUST_BUNDLE_VERSION_NAME, &ulTrustBundleVersion );
+    err = nvs_get_i32( xNVSHandle, AZURE_TRUST_BUNDLE_VERSION_NAME, &ulCurrentTrustBundleVersion );
 
     if( ( err != ESP_OK ) && ( err != ESP_ERR_NVS_NOT_FOUND ) )
     {
+          nvs_close(xNVSHandle);
         return err;
     }
 
@@ -38,6 +38,7 @@ AzureIoTResult_t AzureIoTCAStorage_ReadTrustBundle( const uint8_t * pucTrustBund
 
     if( ( err != ESP_OK ) && ( err != ESP_ERR_NVS_NOT_FOUND ) )
     {
+          nvs_close(xNVSHandle);
         return err;
     }
 
@@ -47,10 +48,11 @@ AzureIoTResult_t AzureIoTCAStorage_ReadTrustBundle( const uint8_t * pucTrustBund
     }
     else
     {
-        err = nvs_get_blob( xNVSHandle, AZURE_TRUST_BUNDLE_NAME, pucTrustBundle, &ulTrustBundleReadSize );
+        err = nvs_get_blob( xNVSHandle, AZURE_TRUST_BUNDLE_NAME, (void*)pucTrustBundle, &ulTrustBundleReadSize );
 
         if( err != ESP_OK )
         {
+              nvs_close(xNVSHandle);
             return err;
         }
     }
@@ -76,13 +78,15 @@ AzureIoTResult_t AzureIoTCAStorage_WriteTrustBundle( const uint8_t * pucTrustBun
     if( err != ESP_OK )
     {
         printf( "Error (%s) getting AZURE_TRUST_BUNDLE_VERSION_NAME from NVS!\n", esp_err_to_name( err ) );
+            nvs_close(xNVSHandle);
         return err;
     }
 
     /* If version matches, do not write to not overuse NVS */
-    if( read_trust_bundle_version == trust_bundle_version )
+    if( read_trust_bundle_version == ulTrustBundleVersion )
     {
         printf( "Trust bundle version in NVS matches bundle version to write.\n" );
+            nvs_close(xNVSHandle);
         return ESP_OK;
     }
 
@@ -93,6 +97,7 @@ AzureIoTResult_t AzureIoTCAStorage_WriteTrustBundle( const uint8_t * pucTrustBun
     if( err != ESP_OK )
     {
         printf( "Error (%s) getting AZURE_TRUST_BUNDLE_VERSION_NAME from NVS!\n", esp_err_to_name( err ) );
+            nvs_close(xNVSHandle);
         return err;
     }
 
@@ -103,6 +108,7 @@ AzureIoTResult_t AzureIoTCAStorage_WriteTrustBundle( const uint8_t * pucTrustBun
     if( err != ESP_OK )
     {
         printf( "Error (%s) getting AZURE_TRUST_BUNDLE_VERSION_NAME from NVS!\n", esp_err_to_name( err ) );
+            nvs_close(xNVSHandle);
         return err;
     }
 
@@ -112,11 +118,11 @@ AzureIoTResult_t AzureIoTCAStorage_WriteTrustBundle( const uint8_t * pucTrustBun
     if( err != ESP_OK )
     {
         printf( "Error (%s) getting AZURE_TRUST_BUNDLE_VERSION_NAME from NVS!\n", esp_err_to_name( err ) );
+            nvs_close(xNVSHandle);
         return err;
     }
 
-    printf( "Printing what was just written\n" );
-    err = read_saved_bundle( xNVSHandle );
+    nvs_close(xNVSHandle);
 
     return err;
 }
