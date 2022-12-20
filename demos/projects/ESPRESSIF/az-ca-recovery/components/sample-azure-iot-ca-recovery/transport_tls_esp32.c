@@ -333,7 +333,7 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pNetworkContext,
              *  We don't need to add certs to the network context as the esp-tls does that for us using cryptoauthlib API.
              */
         #endif
-    #else  /* ifdef democonfigUSE_HSM */
+    #else /* ifdef democonfigUSE_HSM */
         if( pNetworkCredentials->pucClientCert )
         {
             esp_transport_ssl_set_client_cert_data_der( pxEspTlsTransport->xTransport, ( const char * ) pNetworkCredentials->pucClientCert, pNetworkCredentials->xClientCertSize );

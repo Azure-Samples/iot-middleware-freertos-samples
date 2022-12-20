@@ -53,8 +53,7 @@ AzureIoTResult_t AzureIoTCAStorage_ReadTrustBundle( const uint8_t * pucTrustBund
 
     if( err != ESP_OK )
     {
-        printf( "Error (%s) getting AZURE_TRUST_BUNDLE_VERSION_NAME from NVS!\n", esp_err_to_name( err ) );
-        nvs_close(xNVSHandle);
+        nvs_close( xNVSHandle );
         return err;
     }
 
@@ -63,7 +62,7 @@ AzureIoTResult_t AzureIoTCAStorage_ReadTrustBundle( const uint8_t * pucTrustBund
 
     if( ( err != ESP_OK ) && ( err != ESP_ERR_NVS_NOT_FOUND ) )
     {
-        nvs_close(xNVSHandle);
+        nvs_close( xNVSHandle );
         return err;
     }
 
@@ -77,11 +76,11 @@ AzureIoTResult_t AzureIoTCAStorage_ReadTrustBundle( const uint8_t * pucTrustBund
     }
     else
     {
-        err = nvs_get_blob( xNVSHandle, AZURE_TRUST_BUNDLE_NAME, (void*)pucTrustBundle, &ulTrustBundleReadSize );
+        err = nvs_get_blob( xNVSHandle, AZURE_TRUST_BUNDLE_NAME, ( void * ) pucTrustBundle, &ulTrustBundleReadSize );
 
         if( err != ESP_OK )
         {
-              nvs_close(xNVSHandle);
+            nvs_close( xNVSHandle );
             return err;
         }
     }
@@ -129,7 +128,7 @@ AzureIoTResult_t AzureIoTCAStorage_WriteTrustBundle( const uint8_t * pucTrustBun
     if( err != ESP_OK )
     {
         printf( "Error (%s) getting AZURE_TRUST_BUNDLE_VERSION_NAME from NVS!\n", esp_err_to_name( err ) );
-        nvs_close(xNVSHandle);
+        nvs_close( xNVSHandle );
         return err;
     }
 
@@ -137,7 +136,7 @@ AzureIoTResult_t AzureIoTCAStorage_WriteTrustBundle( const uint8_t * pucTrustBun
     if( memcmp(ucReadTrustBundleVersion, pucTrustBundleVersion, ulTrustBundleVersionReadSize) == 0 )
     {
         printf( "Trust bundle version in NVS matches bundle version to write.\n" );
-        nvs_close(xNVSHandle);
+        nvs_close( xNVSHandle );
         return ESP_OK;
     }
 
@@ -148,7 +147,7 @@ AzureIoTResult_t AzureIoTCAStorage_WriteTrustBundle( const uint8_t * pucTrustBun
     if( err != ESP_OK )
     {
         printf( "Error (%s) getting AZURE_TRUST_BUNDLE_VERSION_NAME from NVS!\n", esp_err_to_name( err ) );
-        nvs_close(xNVSHandle);
+        nvs_close( xNVSHandle );
         return err;
     }
 
@@ -159,7 +158,7 @@ AzureIoTResult_t AzureIoTCAStorage_WriteTrustBundle( const uint8_t * pucTrustBun
     if( err != ESP_OK )
     {
         printf( "Error (%s) getting AZURE_TRUST_BUNDLE_VERSION_NAME from NVS!\n", esp_err_to_name( err ) );
-        nvs_close(xNVSHandle);
+        nvs_close( xNVSHandle );
         return err;
     }
 
@@ -169,11 +168,11 @@ AzureIoTResult_t AzureIoTCAStorage_WriteTrustBundle( const uint8_t * pucTrustBun
     if( err != ESP_OK )
     {
         printf( "Error (%s) getting AZURE_TRUST_BUNDLE_VERSION_NAME from NVS!\n", esp_err_to_name( err ) );
-        nvs_close(xNVSHandle);
+        nvs_close( xNVSHandle );
         return err;
     }
 
-    nvs_close(xNVSHandle);
+    nvs_close( xNVSHandle );
 
     return err;
 }
