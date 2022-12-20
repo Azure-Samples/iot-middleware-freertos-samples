@@ -653,16 +653,16 @@ static void prvAzureDemoTask( void * pvParameters )
         AzureIoTCARecovery_RecoveryPayload xRecoveryPayload;
         AzureIoTJSONReader_t xJSONReader;
 
-        xResult = AzureIoTJSONReader_Init(&xJSONReader,
-                  xAzureIoTProvisioningClient._internal.ucProvisioningLastResponse,
-                  xAzureIoTProvisioningClient._internal.xLastResponsePayloadLength);
+        xResult = AzureIoTJSONReader_Init( &xJSONReader,
+                                           xAzureIoTProvisioningClient._internal.ucProvisioningLastResponse,
+                                           xAzureIoTProvisioningClient._internal.xLastResponsePayloadLength );
 
-        xResult = AzureIoTCARecovery_ParseRecoveryPayload(&xJSONReader, &xRecoveryPayload);
+        xResult = AzureIoTCARecovery_ParseRecoveryPayload( &xJSONReader, &xRecoveryPayload );
 
-        xResult = AzureIoTCAStorage_WriteTrustBundle(xRecoveryPayload.xTrustBundle.pucCertificates,
-                                                  xRecoveryPayload.xTrustBundle.ulCertificatesLength,
-                                                  xRecoveryPayload.xTrustBundle.pucVersion,
-                                                  xRecoveryPayload.xTrustBundle.ulVersionLength);
+        xResult = AzureIoTCAStorage_WriteTrustBundle( xRecoveryPayload.xTrustBundle.pucCertificates,
+                                                      xRecoveryPayload.xTrustBundle.ulCertificatesLength,
+                                                      xRecoveryPayload.xTrustBundle.pucVersion,
+                                                      xRecoveryPayload.xTrustBundle.ulVersionLength );
 
         AzureIoTProvisioningClient_Deinit( &xAzureIoTProvisioningClient );
 

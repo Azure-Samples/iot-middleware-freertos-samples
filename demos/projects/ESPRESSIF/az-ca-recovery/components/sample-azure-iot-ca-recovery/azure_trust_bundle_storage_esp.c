@@ -27,6 +27,7 @@ AzureIoTResult_t AzureIoTCAStorage_ReadTrustBundle( const uint8_t * pucTrustBund
 
     /* Open CA Cert namespace */
     err = nvs_open( CA_CERT_NAMESPACE, NVS_READWRITE, &xNVSHandle );
+
     if( err != ESP_OK )
     {
         printf( "Error (%s) opening NVS!\n", esp_err_to_name( err ) );
@@ -34,17 +35,18 @@ AzureIoTResult_t AzureIoTCAStorage_ReadTrustBundle( const uint8_t * pucTrustBund
     }
 
     err = nvs_get_blob( xNVSHandle, AZURE_TRUST_BUNDLE_VERSION_NAME, NULL, &ulTrustBundleVersionReadSize );
+
     if( err != ESP_OK )
     {
         printf( "Error (%s) getting AZURE_TRUST_BUNDLE_VERSION_NAME from NVS!\n", esp_err_to_name( err ) );
-        nvs_close(xNVSHandle);
+        nvs_close( xNVSHandle );
         return err;
     }
 
-    if (ulTrustBundleVersionReadSize > ulTrustBundleVersionLength )
+    if( ulTrustBundleVersionReadSize > ulTrustBundleVersionLength )
     {
         printf( "Not enough size to read version\n" );
-        nvs_close(xNVSHandle);
+        nvs_close( xNVSHandle );
         return eAzureIoTErrorOutOfMemory;
     }
 
@@ -70,9 +72,9 @@ AzureIoTResult_t AzureIoTCAStorage_ReadTrustBundle( const uint8_t * pucTrustBund
     {
         printf( "Nothing saved yet!\n" );
     }
-    else if(ulTrustBundleReadSize > ulTrustBundleLength)
+    else if( ulTrustBundleReadSize > ulTrustBundleLength )
     {
-      printf( "Not enough space to read trust bundle" );
+        printf( "Not enough space to read trust bundle" );
     }
     else
     {
@@ -99,26 +101,28 @@ AzureIoTResult_t AzureIoTCAStorage_WriteTrustBundle( const uint8_t * pucTrustBun
 
     /* Open CA Cert namespace */
     err = nvs_open( CA_CERT_NAMESPACE, NVS_READWRITE, &xNVSHandle );
+
     if( err != ESP_OK )
     {
         printf( "Error (%s) opening NVS!\n", esp_err_to_name( err ) );
         return err;
     }
 
-    uint8_t ucReadTrustBundleVersion[8] = { 0 }; /* value will default to 0, if not set yet in NVS */
+    uint8_t ucReadTrustBundleVersion[ 8 ] = { 0 }; /* value will default to 0, if not set yet in NVS */
 
     err = nvs_get_blob( xNVSHandle, AZURE_TRUST_BUNDLE_VERSION_NAME, NULL, &ulTrustBundleVersionReadSize );
+
     if( err != ESP_OK )
     {
         printf( "Error (%s) getting AZURE_TRUST_BUNDLE_VERSION_NAME from NVS!\n", esp_err_to_name( err ) );
-        nvs_close(xNVSHandle);
+        nvs_close( xNVSHandle );
         return err;
     }
 
-    if (ulTrustBundleVersionReadSize > 8 )
+    if( ulTrustBundleVersionReadSize > 8 )
     {
         printf( "Not enough size to read version\n" );
-        nvs_close(xNVSHandle);
+        nvs_close( xNVSHandle );
         return eAzureIoTErrorOutOfMemory;
     }
 
@@ -133,7 +137,7 @@ AzureIoTResult_t AzureIoTCAStorage_WriteTrustBundle( const uint8_t * pucTrustBun
     }
 
     /* If version matches, do not write to not overuse NVS */
-    if( memcmp(ucReadTrustBundleVersion, pucTrustBundleVersion, ulTrustBundleVersionReadSize) == 0 )
+    if( memcmp( ucReadTrustBundleVersion, pucTrustBundleVersion, ulTrustBundleVersionReadSize ) == 0 )
     {
         printf( "Trust bundle version in NVS matches bundle version to write.\n" );
         nvs_close( xNVSHandle );
