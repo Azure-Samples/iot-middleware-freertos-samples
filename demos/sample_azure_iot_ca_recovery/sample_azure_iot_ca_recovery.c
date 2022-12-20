@@ -25,6 +25,9 @@
 /* Crypto helper header. */
 #include "azure_sample_crypto.h"
 
+#include "azure_sample_ca_recovery.h"
+#include "azure_trust_bundle_storage.h"
+
 /*-----------------------------------------------------------*/
 
 /* Compile time error for undefined configs. */
@@ -571,6 +574,100 @@ static void prvAzureDemoTask( void * pvParameters )
         *pulIothubHostnameLength = ucSamplepIothubHostnameLength;
         *ppucIothubDeviceId = ucSampleIotHubDeviceId;
         *pulIothubDeviceIdLength = ucSamplepIothubDeviceIdLength;
+
+        return 0;
+    }
+
+/**
+ * @brief Get IoT Hub endpoint and device Id info, when Provisioning service is used.
+ *   This function will block for Provisioning service for result or return failure.
+ */
+    static uint32_t prvRunRecovery( NetworkCredentials_t * pXNetworkCredentials )
+    {
+        NetworkContext_t xNetworkContext = { 0 };
+        TlsTransportParams_t xTlsTransportParams = { 0 };
+        AzureIoTResult_t xResult;
+        AzureIoTTransportInterface_t xTransport;
+        uint32_t ucSamplepIothubHostnameLength = sizeof( ucSampleIotHubHostname );
+        uint32_t ucSamplepIothubDeviceIdLength = sizeof( ucSampleIotHubDeviceId );
+        uint32_t ulStatus;
+
+        /* Set the pParams member of the network context with desired transport. */
+        xNetworkContext.pParams = &xTlsTransportParams;
+
+        ulStatus = prvConnectToServerWithBackoffRetries( democonfigENDPOINT, democonfigIOTHUB_PORT,
+                                                         pXNetworkCredentials, &xNetworkContext );
+        configASSERT( ulStatus == 0 );
+
+        /* Fill in Transport Interface send and receive function pointers. */
+        xTransport.pxNetworkContext = &xNetworkContext;
+        xTransport.xSend = TLS_Socket_Send;
+        xTransport.xRecv = TLS_Socket_Recv;
+
+        #ifdef democonfigUSE_HSM
+
+            /* Redefine the democonfigREGISTRATION_ID macro using registration ID
+             * generated dynamically using the HSM */
+
+            /* We use a pointer instead of a buffer so that the getRegistrationId
+             * function can allocate the necessary memory depending on the HSM */
+            char * registration_id = NULL;
+            ulStatus = getRegistrationId( &registration_id );
+            configASSERT( ulStatus == 0 );
+#undef democonfigREGISTRATION_ID
+        #define democonfigREGISTRATION_ID    registration_id
+        #endif
+
+        xResult = AzureIoTProvisioningClient_Init( &xAzureIoTProvisioningClient,
+                                                   ( const uint8_t * ) democonfigENDPOINT,
+                                                   sizeof( democonfigENDPOINT ) - 1,
+                                                   ( const uint8_t * ) democonfigRECOVERY_ID_SCOPE,
+                                                   sizeof( democonfigRECOVERY_ID_SCOPE ) - 1,
+                                                   ( const uint8_t * ) democonfigRECOVERY_REGISTRATION_ID,
+                                                   #ifdef democonfigUSE_HSM
+                                                       strlen( democonfigRECOVERY_REGISTRATION_ID ),
+                                                   #else
+                                                       sizeof( democonfigRECOVERY_REGISTRATION_ID ) - 1,
+                                                   #endif
+                                                   NULL, ucMQTTMessageBuffer, sizeof( ucMQTTMessageBuffer ),
+                                                   ullGetUnixTime,
+                                                   &xTransport );
+        configASSERT( xResult == eAzureIoTSuccess );
+
+        #ifdef democonfigRECOVERY_DEVICE_SYMMETRIC_KEY
+            xResult = AzureIoTProvisioningClient_SetSymmetricKey( &xAzureIoTProvisioningClient,
+                                                                  ( const uint8_t * ) democonfigRECOVERY_DEVICE_SYMMETRIC_KEY,
+                                                                  sizeof( democonfigRECOVERY_DEVICE_SYMMETRIC_KEY ) - 1,
+                                                                  Crypto_HMAC );
+            configASSERT( xResult == eAzureIoTSuccess );
+        #endif /* democonfigRECOVERY_DEVICE_SYMMETRIC_KEY */
+
+        do
+        {
+            xResult = AzureIoTProvisioningClient_Register( &xAzureIoTProvisioningClient,
+                                                           sampleazureiotProvisioning_Registration_TIMEOUT_MS );
+        } while( xResult == eAzureIoTErrorPending );
+
+        configASSERT( xResult == eAzureIoTSuccess );
+
+        AzureIoTCARecovery_RecoveryPayload xRecoveryPayload;
+        AzureIoTJSONReader_t xJSONReader;
+
+        xResult = AzureIoTJSONReader_Init(&xJSONReader,
+                  xAzureIoTProvisioningClient._internal.ucProvisioningLastResponse,
+                  xAzureIoTProvisioningClient._internal.xLastResponsePayloadLength);
+
+        xResult = AzureIoTCARecovery_ParseRecoveryPayload(&xJSONReader, &xRecoveryPayload);
+
+        xResult = AzureIoTCAStorage_WriteTrustBundle(xRecoveryPayload.xTrustBundle.pucCertificates,
+                                                  xRecoveryPayload.xTrustBundle.ulCertificatesLength,
+                                                  xRecoveryPayload.xTrustBundle.pucVersion,
+                                                  xRecoveryPayload.xTrustBundle.ulVersionLength);
+
+        AzureIoTProvisioningClient_Deinit( &xAzureIoTProvisioningClient );
+
+        /* Close the network connection.  */
+        TLS_Socket_Disconnect( &xNetworkContext );
 
         return 0;
     }

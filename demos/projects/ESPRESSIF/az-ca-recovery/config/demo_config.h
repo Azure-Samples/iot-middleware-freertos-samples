@@ -83,6 +83,23 @@
  */
 #define democonfigREGISTRATION_ID CONFIG_AZURE_DPS_REGISTRATION_ID
 
+/**
+ * @brief CA recovery Id scope of provisioning service.
+ *
+ * @note https://docs.microsoft.com/azure/iot-dps/concepts-service#id-scope
+ *
+ */
+#define democonfigRECOVERY_ID_SCOPE CONFIG_AZURE_DPS_RECOVERY_ID_SCOPE
+
+/**
+ * @brief CA recovery Registration Id of provisioning service
+ *
+ * @warning If using X509 authentication, this MUST match the Common Name of the cert.
+ *
+ *  @note https://docs.microsoft.com/azure/iot-dps/concepts-service#registration-id
+ */
+#define democonfigRECOVERY_REGISTRATION_ID CONFIG_AZURE_DPS_RECOVERY_REGISTRATION_ID
+
 
 #endif // democonfigENABLE_DPS_SAMPLE
 
@@ -111,6 +128,14 @@
  */
 #ifdef CONFIG_AZURE_IOT_DEVICE_SYMMETRIC_KEY
 #define democonfigDEVICE_SYMMETRIC_KEY CONFIG_AZURE_IOT_DEVICE_SYMMETRIC_KEY
+#endif
+
+/**
+ * @brief CA Recovery Device symmetric key
+ *
+ */
+#ifdef CONFIG_AZURE_DPS_RECOVERY_REGISTRATION_ID
+#define democonfigDEVICE_RECOVERY_SYMMETRIC_KEY CONFIG_AZURE_DPS_RECOVERY_REGISTRATION_ID
 #endif
 
 /**

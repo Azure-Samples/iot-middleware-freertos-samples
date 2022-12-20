@@ -8,8 +8,11 @@
 AzureIoTResult_t AzureIoTCAStorage_ReadTrustBundle( const uint8_t * pucTrustBundle,
                                                     uint32_t ulTrustBundleLength,
                                                     uint32_t * pulOutTrustBundleLength,
-                                                    uint32_t * ulTrustBundleVersion );
+                                                    const uint8_t * ulTrustBundleVersion,
+                                                    uint32_t ulTrustBundleVersionLength,
+                                                    uint32_t * pulOutTrustBundleVersionLength );
 
 AzureIoTResult_t AzureIoTCAStorage_WriteTrustBundle( const uint8_t * pucTrustBundle,
                                                      uint32_t ulTrustBundleLength,
-                                                     uint32_t ulTrustBundleVersion );
+                                                     const uint8_t * pucTrustBundleVersion,
+                                                     uint32_t ulTrustBundleVersionLength );
