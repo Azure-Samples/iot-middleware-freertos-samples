@@ -44,6 +44,13 @@ menu "Azure IoT middleware for FreeRTOS Main Task Configuration"
         help
             "Set the Azure IoT Device Symmetric Key (if using SAS token authentication)."
 
+    config AZURE_IOT_DEVICE_RECOVERY_SYMMETRIC_KEY
+        string "[RECOVERY] Azure IoT Device Symmetric Key to be used for CA recovery only"
+        default ""
+        depends on AZURE_IOT_AUTH_METHOD_SYMMETRIC_KEY
+        help
+            "Set the Azure IoT Device Symmetric Key for recovery (if using SAS token authentication)."
+
     config AZURE_IOT_DEVICE_CLIENT_CERTIFICATE
         string "Azure IoT Device Client Certificate"
         default ""
@@ -81,6 +88,18 @@ menu "Azure IoT middleware for FreeRTOS Main Task Configuration"
         default ""
         help
             "Set the Azure Device Provisioning Service Registration ID."
+
+    config AZURE_DPS_RECOVERY_ID_SCOPE
+        string "[RECOVERY] Azure Device Provisioning Service ID Scope"
+        default ""
+        help
+            "Set the Azure Device Provisioning Service ID Scope for CA recovery."
+
+    config AZURE_DPS_RECOVERY_REGISTRATION_ID
+        string "[RECOVERY] Azure Device Provisioning Service Registration ID."
+        default ""
+        help
+            "Set the Azure Device Provisioning Service Registration ID for CA recovery."
 
     config AZURE_TASK_STACKSIZE
         int "Azure Task Stack Size"
