@@ -119,6 +119,13 @@
  * @brief Wait timeout for subscribe to finish.
  */
 #define sampleazureiotSUBSCRIBE_TIMEOUT                       ( 10 * 1000U )
+
+/**
+ * @brief Return value to signify recovery initiated.
+ * 
+ */
+#define sampleazureiotRECOVERY_INITIATED                      (0xDEAD)
+
 /*-----------------------------------------------------------*/
 
 /**
@@ -165,6 +172,13 @@ static AzureIoTHubClient_t xAzureIoTHubClient;
                                       uint32_t * pulIothubHostnameLength,
                                       uint8_t ** ppucIothubDeviceId,
                                       uint32_t * pulIothubDeviceIdLength );
+
+    /**
+     * @brief Run the CA recovery protocol
+     *
+     * @param[in] pXNetworkCredentials  Network credential used to connect to Provisioning service
+     */
+    static uint32_t prvRunRecovery( NetworkCredentials_t * pXNetworkCredentials );
 
 #endif /* democonfigENABLE_DPS_SAMPLE */
 
@@ -237,7 +251,7 @@ static void prvHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Property mesage callback handler
+ * @brief Property message callback handler
  */
 static void prvHandlePropertiesMessage( AzureIoTHubClientPropertiesResponse_t * pxMessage,
                                         void * pvContext )
@@ -272,6 +286,27 @@ static void prvHandlePropertiesMessage( AzureIoTHubClientPropertiesResponse_t * 
  * @brief Setup transport credentials.
  */
 static uint32_t prvSetupNetworkCredentials( NetworkCredentials_t * pxNetworkCredentials )
+{
+    pxNetworkCredentials->xDisableSni = pdFALSE;
+    /* Set the credentials for establishing a TLS connection. */
+    pxNetworkCredentials->pucRootCa = ( const unsigned char * ) democonfigROOT_CA_PEM;
+    pxNetworkCredentials->xRootCaSize = sizeof( democonfigROOT_CA_PEM );
+    #ifdef democonfigCLIENT_CERTIFICATE_PEM
+        pxNetworkCredentials->pucClientCert = ( const unsigned char * ) democonfigCLIENT_CERTIFICATE_PEM;
+        pxNetworkCredentials->xClientCertSize = sizeof( democonfigCLIENT_CERTIFICATE_PEM );
+        pxNetworkCredentials->pucPrivateKey = ( const unsigned char * ) democonfigCLIENT_PRIVATE_KEY_PEM;
+        pxNetworkCredentials->xPrivateKeySize = sizeof( democonfigCLIENT_PRIVATE_KEY_PEM );
+    #endif
+
+    return 0;
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Setup transport credentials.
+ */
+static uint32_t prvSetupRecoveryNetworkCredentials( NetworkCredentials_t * pxNetworkCredentials )
 {
     pxNetworkCredentials->xDisableSni = pdFALSE;
     /* Set the credentials for establishing a TLS connection. */
@@ -333,8 +368,29 @@ static void prvAzureDemoTask( void * pvParameters )
                                            &pulIothubHostnameLength, &pucIotHubDeviceId,
                                            &pulIothubDeviceIdLength ) ) != 0 )
         {
-            LogError( ( "Failed on sample_dps_entry!: error code = 0x%08x\r\n", ulStatus ) );
-            return;
+            if (ulStatus == sampleazureiotRECOVERY_INITIATED)
+            {
+              ulStatus = prvSetupRecoveryNetworkCredentials( &xNetworkCredentials );
+              configASSERT( ulStatus == 0 );
+
+              if( (ulStatus = prvRunRecovery( &xNetworkCredentials)) != 0)
+              {
+                  LogError( ( "Failed to run recovery error code = 0x%08x\r\n", ulStatus ) );
+                  return;
+              }
+              else if( ( ulStatus = prvIoTHubInfoGet( &xNetworkCredentials, &pucIotHubHostname,
+                                                 &pulIothubHostnameLength, &pucIotHubDeviceId,
+                                                 &pulIothubDeviceIdLength ) ) != 0 )
+              {
+                  LogError( ( "Failed to run DPS after recovery!: error code = 0x%08x\r\n", ulStatus ) );
+                  return;
+              }
+            }
+            else
+            {
+              LogError( ( "Failed on sample_dps_entry!: error code = 0x%08x\r\n", ulStatus ) );
+              return;
+            }
         }
     #endif /* democonfigENABLE_DPS_SAMPLE */
 
@@ -500,14 +556,19 @@ static void prvAzureDemoTask( void * pvParameters )
         AzureIoTTransportInterface_t xTransport;
         uint32_t ucSamplepIothubHostnameLength = sizeof( ucSampleIotHubHostname );
         uint32_t ucSamplepIothubDeviceIdLength = sizeof( ucSampleIotHubDeviceId );
-        uint32_t ulStatus;
 
         /* Set the pParams member of the network context with desired transport. */
         xNetworkContext.pParams = &xTlsTransportParams;
 
-        ulStatus = prvConnectToServerWithBackoffRetries( democonfigENDPOINT, democonfigIOTHUB_PORT,
+        TlsTransportStatus_t ulTLSStatus = prvConnectToServerWithBackoffRetries( democonfigENDPOINT, democonfigIOTHUB_PORT,
                                                          pXNetworkCredentials, &xNetworkContext );
-        configASSERT( ulStatus == 0 );
+
+        if( ulTLSStatus == eTLSTransportCAVerifyFailed )
+        {
+            LogInfo( ( "In recovery" ) );
+
+            return sampleazureiotRECOVERY_INITIATED;
+        }
 
         /* Fill in Transport Interface send and receive function pointers. */
         xTransport.pxNetworkContext = &xNetworkContext;
@@ -588,8 +649,6 @@ static void prvAzureDemoTask( void * pvParameters )
         TlsTransportParams_t xTlsTransportParams = { 0 };
         AzureIoTResult_t xResult;
         AzureIoTTransportInterface_t xTransport;
-        uint32_t ucSamplepIothubHostnameLength = sizeof( ucSampleIotHubHostname );
-        uint32_t ucSamplepIothubDeviceIdLength = sizeof( ucSampleIotHubDeviceId );
         uint32_t ulStatus;
 
         /* Set the pParams member of the network context with desired transport. */

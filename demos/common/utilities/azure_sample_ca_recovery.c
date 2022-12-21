@@ -2,6 +2,9 @@
  * Licensed under the MIT License. */
 
 #include "azure_sample_ca_recovery.h"
+
+#include <stdio.h>
+
 #include "azure/core/internal/az_result_internal.h"
 
 #define RETURN_IF_JSON_TOKEN_NOT_TYPE( jr_ptr, json_token_type ) \
