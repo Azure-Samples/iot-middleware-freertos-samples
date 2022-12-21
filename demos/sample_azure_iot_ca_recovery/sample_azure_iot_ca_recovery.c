@@ -122,9 +122,9 @@
 
 /**
  * @brief Return value to signify recovery initiated.
- * 
+ *
  */
-#define sampleazureiotRECOVERY_INITIATED                      (0xDEAD)
+#define sampleazureiotRECOVERY_INITIATED                      ( 0xDEAD )
 
 /*-----------------------------------------------------------*/
 
@@ -173,11 +173,11 @@ static AzureIoTHubClient_t xAzureIoTHubClient;
                                       uint8_t ** ppucIothubDeviceId,
                                       uint32_t * pulIothubDeviceIdLength );
 
-    /**
-     * @brief Run the CA recovery protocol
-     *
-     * @param[in] pXNetworkCredentials  Network credential used to connect to Provisioning service
-     */
+/**
+ * @brief Run the CA recovery protocol
+ *
+ * @param[in] pXNetworkCredentials  Network credential used to connect to Provisioning service
+ */
     static uint32_t prvRunRecovery( NetworkCredentials_t * pXNetworkCredentials );
 
 #endif /* democonfigENABLE_DPS_SAMPLE */
@@ -368,28 +368,28 @@ static void prvAzureDemoTask( void * pvParameters )
                                            &pulIothubHostnameLength, &pucIotHubDeviceId,
                                            &pulIothubDeviceIdLength ) ) != 0 )
         {
-            if (ulStatus == sampleazureiotRECOVERY_INITIATED)
+            if( ulStatus == sampleazureiotRECOVERY_INITIATED )
             {
-              ulStatus = prvSetupRecoveryNetworkCredentials( &xNetworkCredentials );
-              configASSERT( ulStatus == 0 );
+                ulStatus = prvSetupRecoveryNetworkCredentials( &xNetworkCredentials );
+                configASSERT( ulStatus == 0 );
 
-              if( (ulStatus = prvRunRecovery( &xNetworkCredentials)) != 0)
-              {
-                  LogError( ( "Failed to run recovery error code = 0x%08x\r\n", ulStatus ) );
-                  return;
-              }
-              else if( ( ulStatus = prvIoTHubInfoGet( &xNetworkCredentials, &pucIotHubHostname,
-                                                 &pulIothubHostnameLength, &pucIotHubDeviceId,
-                                                 &pulIothubDeviceIdLength ) ) != 0 )
-              {
-                  LogError( ( "Failed to run DPS after recovery!: error code = 0x%08x\r\n", ulStatus ) );
-                  return;
-              }
+                if( ( ulStatus = prvRunRecovery( &xNetworkCredentials ) ) != 0 )
+                {
+                    LogError( ( "Failed to run recovery error code = 0x%08x\r\n", ulStatus ) );
+                    return;
+                }
+                else if( ( ulStatus = prvIoTHubInfoGet( &xNetworkCredentials, &pucIotHubHostname,
+                                                        &pulIothubHostnameLength, &pucIotHubDeviceId,
+                                                        &pulIothubDeviceIdLength ) ) != 0 )
+                {
+                    LogError( ( "Failed to run DPS after recovery!: error code = 0x%08x\r\n", ulStatus ) );
+                    return;
+                }
             }
             else
             {
-              LogError( ( "Failed on sample_dps_entry!: error code = 0x%08x\r\n", ulStatus ) );
-              return;
+                LogError( ( "Failed on sample_dps_entry!: error code = 0x%08x\r\n", ulStatus ) );
+                return;
             }
         }
     #endif /* democonfigENABLE_DPS_SAMPLE */
@@ -561,7 +561,7 @@ static void prvAzureDemoTask( void * pvParameters )
         xNetworkContext.pParams = &xTlsTransportParams;
 
         TlsTransportStatus_t ulTLSStatus = prvConnectToServerWithBackoffRetries( democonfigENDPOINT, democonfigIOTHUB_PORT,
-                                                         pXNetworkCredentials, &xNetworkContext );
+                                                                                 pXNetworkCredentials, &xNetworkContext );
 
         if( ulTLSStatus == eTLSTransportCAVerifyFailed )
         {
