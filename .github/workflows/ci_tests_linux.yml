@@ -19,6 +19,8 @@ jobs:
       uses: snickerbockers/submodules-init@v4
     - name: Configure
       run: .github/scripts/install_software.sh
+    - name: Install ARM GCC 11.2
+      run: .github/scripts/install_arm_gcc.sh
     - name: Build PC Samples
       run: sudo bash -c ".github/scripts/ci_tests.sh -pc"
     - name: Build NXP Samples
