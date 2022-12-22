@@ -72,6 +72,10 @@ include(driver_nor_flash-controller-flexspi)
 
 include(driver_nor_flash-common)
 
+# include(component_mflash_rt1060)
+
+include(component_flexspi_nor_flash_adapter_rt1060evk)
+
 # include(component_adapter_flash)
 
 include(component_serial_manager_uart)

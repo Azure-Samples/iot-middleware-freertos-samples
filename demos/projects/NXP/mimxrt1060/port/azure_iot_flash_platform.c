@@ -4,6 +4,8 @@
 #include <string.h>
 
 #include "azure_iot_flash_platform.h"
+// #include "mflash_drv.h"
+// #include "mflash_file.h"
 
 #include "azure_iot_flash_platform_port.h"
 /* Logging */
@@ -14,6 +16,16 @@
 #include "mbedtls/md.h"
 
 #include "fsl_nor_flash.h"
+
+#include "fsl_flexspi_nor_flash.h"
+
+#include "fsl_adapter_flash.h"
+
+// #include "flexspi_nor_flash.h"
+
+// #include "flexspi_flash.h"
+
+#include "fsl_adapter_flash.h"
 
 #define azureiotflashSHA_256_SIZE    32
 
@@ -51,9 +63,33 @@ AzureIoTResult_t AzureIoTPlatform_Init( AzureADUImage_t * const pxAduImage )
     // TODO: Fill in initialization for NXP flash writing capability.
 
     LogInfo( ( "AzureIoTPlatform_Init()\r\n" ) );
+    status_t status;
+    flexspi_transfer_t flashXfer;
+
+    /* Write enable */
+    // flashXfer.deviceAddress = 0x200000;
+    // flashXfer.port = kFLEXSPI_PortA1;
+    // flashXfer.cmdType = kFLEXSPI_Command;
+    // flashXfer.SeqNumber = 1;
+    // flashXfer.seqIndex = NOR_CMD_LUT_SEQ_IDX_WRITEENABLE;
+
+    // status = FLEXSPI_TransferBlocking(FLEXSPI, &flashXfer);
+    // Nor_Flash_Init()
+
+    // hal_flash_status_t jksdfl = HAL_FlashInit();
+    // LogInfo( ( "flash init: %08x\r\n", jksdfl ) );
+
+    uint8_t read_data;
+    hal_flash_status_t jksddfl = HAL_FlashRead(0x200000, 10, &read_data);
+    LogInfo( ( "flash read: %08x\r\n", jksddfl ) );
+    LogInfo( ( "flash data: %.s\r\n", 10, read_data ) );
+    // flexspi_nor_write_enable(FLEXSPI, 0x200000);
+    
+    
+
     // Nor_Flash_Read();
 
-    return eAzureIoTSuccess;
+    return 1;
 }
 
 int64_t AzureIoTPlatform_GetSingleFlashBootBankSize()
