@@ -896,7 +896,7 @@ static void prvAzureDemoTask( void * pvParameters )
                         configASSERT( xResult == eAzureIoTSuccess );
 
                         xResult = prvSpoofNewVersion();
-                        configASSERT( xResult = eAzureIoTSuccess );
+                        configASSERT( xResult == eAzureIoTSuccess );
                     }
                     else
                     {
