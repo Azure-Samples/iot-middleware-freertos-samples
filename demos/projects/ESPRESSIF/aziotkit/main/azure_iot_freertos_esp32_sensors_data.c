@@ -168,7 +168,7 @@ uint32_t ulSampleHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
     uint32_t ulCommandResponsePayloadLength;
 
     ESP_LOGI( TAG, "Command payload : %.*s \r\n",
-              ( int ) pxMessage->ulPayloadLength,
+              ( int16_t ) pxMessage->ulPayloadLength,
               ( const char * ) pxMessage->pvMessagePayload );
 
     if ( strncmp( ( const char * ) pxMessage->pucCommandName, sampleazureiotCOMMAND_TOGGLE_LED1, pxMessage->usCommandNameLength ) == 0)

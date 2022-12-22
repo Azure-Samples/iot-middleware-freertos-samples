@@ -9,7 +9,7 @@
 #ifndef SOCKETS_WRAPPER_H
 #define SOCKETS_WRAPPER_H
 
-#include "freertos/FreeRTOS.h"
+#include "FreeRTOS.h"
 
 typedef void * SocketHandle;
 
