@@ -31,3 +31,7 @@ jobs:
       run: docker run -v "${PWD}:/iot-middleware-freertos-samples" -w /iot-middleware-freertos-samples espressif/idf:v4.4.3 .github/scripts/ci_tests.sh -esp
     - name: Build ESP32-ATECC Samples
       run: docker run -v "${PWD}:/iot-middleware-freertos-samples" -w /iot-middleware-freertos-samples espressif/idf:v4.4.3 .github/scripts/ci_tests.sh -esp-atecc
+    - name: Build ESP32 Samples
+      run: docker run -v "${PWD}:/iot-middleware-freertos-samples" -w /iot-middleware-freertos-samples espressif/idf:v5.0 .github/scripts/ci_tests.sh -esp
+    - name: Build ESP32-ATECC Samples
+      run: docker run -v "${PWD}:/iot-middleware-freertos-samples" -w /iot-middleware-freertos-samples espressif/idf:v5.0 .github/scripts/ci_tests.sh -esp-atecc
