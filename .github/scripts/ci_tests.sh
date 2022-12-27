@@ -46,6 +46,7 @@ function sample_build() {
     elif [ $vendor == "ESPRESSIF-ATECC" ]
     then
       echo -e "::group::Cleaning Repo"
+      git config --global --add safe.directory ${PWD}
       git clean -xdf
       echo -e "::group::Configuring ESP32 with ATECC"
       rm -f ./demos/projects/ESPRESSIF/$board/sdkconfig.defaults
