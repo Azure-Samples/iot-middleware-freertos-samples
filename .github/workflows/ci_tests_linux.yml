@@ -28,6 +28,6 @@ jobs:
     - name: Build ST Samples
       run: sudo bash -c ".github/scripts/ci_tests.sh -st"
     - name: Build ESP32 Samples
-      run: docker run -v "${PWD}:/iot-middleware-freertos-samples" -w /iot-middleware-freertos-samples espressif/idf:v4.3 .github/scripts/ci_tests.sh -esp
+      run: docker run -v "${PWD}:/iot-middleware-freertos-samples" -w /iot-middleware-freertos-samples espressif/idf:v4.4.3 .github/scripts/ci_tests.sh -esp
     - name: Build ESP32-ATECC Samples
-      run: docker run -v "${PWD}:/iot-middleware-freertos-samples" -w /iot-middleware-freertos-samples espressif/idf:v4.3 .github/scripts/ci_tests.sh -esp-atecc
+      run: docker run -v "${PWD}:/iot-middleware-freertos-samples" -w /iot-middleware-freertos-samples espressif/idf:v4.4.3 .github/scripts/ci_tests.sh -esp-atecc
