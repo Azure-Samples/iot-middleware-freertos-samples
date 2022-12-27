@@ -12,7 +12,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: docker://espressif/idf:v4.4.3
-    - uses: docker://espressif/idf:v5.0
     - uses: actions/checkout@v2
     - name: Style Check
       run: .github/scripts/code_style.sh check
@@ -32,7 +31,3 @@ jobs:
       run: docker run -v "${PWD}:/iot-middleware-freertos-samples" -w /iot-middleware-freertos-samples espressif/idf:v4.4.3 .github/scripts/ci_tests.sh -esp
     - name: Build ESP32-ATECC Samples (ESP-IDF v4.4.3)
       run: docker run -v "${PWD}:/iot-middleware-freertos-samples" -w /iot-middleware-freertos-samples espressif/idf:v4.4.3 .github/scripts/ci_tests.sh -esp-atecc
-    - name: Build ESP32 Samples (ESP-IDF v5.0)
-      run: docker run -v "${PWD}:/iot-middleware-freertos-samples" -w /iot-middleware-freertos-samples espressif/idf:v5.0 .github/scripts/ci_tests.sh -esp
-    - name: Build ESP32-ATECC Samples (ESP-IDF v5.0)
-      run: docker run -v "${PWD}:/iot-middleware-freertos-samples" -w /iot-middleware-freertos-samples espressif/idf:v5.0 .github/scripts/ci_tests.sh -esp-atecc
