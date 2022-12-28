@@ -310,8 +310,8 @@ static uint32_t prvSetupRecoveryNetworkCredentials( NetworkCredentials_t * pxNet
 {
     pxNetworkCredentials->xDisableSni = pdFALSE;
     /* Set the credentials for establishing a TLS connection. */
-    pxNetworkCredentials->pucRootCa = ( const unsigned char * ) democonfigROOT_CA_PEM;
-    pxNetworkCredentials->xRootCaSize = sizeof( democonfigROOT_CA_PEM );
+    pxNetworkCredentials->pucRootCa = ( const unsigned char * ) democonfigRECOVERY_CA_CERT;
+    pxNetworkCredentials->xRootCaSize = sizeof( democonfigRECOVERY_CA_CERT );
     #ifdef democonfigCLIENT_CERTIFICATE_PEM
         pxNetworkCredentials->pucClientCert = ( const unsigned char * ) democonfigCLIENT_CERTIFICATE_PEM;
         pxNetworkCredentials->xClientCertSize = sizeof( democonfigCLIENT_CERTIFICATE_PEM );
@@ -565,7 +565,7 @@ static void prvAzureDemoTask( void * pvParameters )
 
         if( ulTLSStatus == eTLSTransportCAVerifyFailed )
         {
-            LogInfo( ( "In recovery" ) );
+            LogInfo( ( "In recovery\r\n" ) );
 
             return sampleazureiotRECOVERY_INITIATED;
         }
@@ -701,6 +701,7 @@ static void prvAzureDemoTask( void * pvParameters )
             configASSERT( xResult == eAzureIoTSuccess );
         #endif /* democonfigRECOVERY_DEVICE_SYMMETRIC_KEY */
 
+        LogInfo( ( "Registering with Recovery DPS\r\n" ) );
         do
         {
             xResult = AzureIoTProvisioningClient_Register( &xAzureIoTProvisioningClient,
@@ -712,16 +713,25 @@ static void prvAzureDemoTask( void * pvParameters )
         AzureIoTCARecovery_RecoveryPayload xRecoveryPayload;
         AzureIoTJSONReader_t xJSONReader;
 
+        LogInfo(("Received Trust Bundle:\r\n"));
+        LogInfo(("%.*s",xAzureIoTProvisioningClient._internal.xLastResponsePayloadLength,
+                        xAzureIoTProvisioningClient._internal.ucProvisioningLastResponse));
         xResult = AzureIoTJSONReader_Init( &xJSONReader,
                                            xAzureIoTProvisioningClient._internal.ucProvisioningLastResponse,
                                            xAzureIoTProvisioningClient._internal.xLastResponsePayloadLength );
 
+        LogInfo( ( "Parsing Recovery Payload\r\n" ) );
         xResult = AzureIoTCARecovery_ParseRecoveryPayload( &xJSONReader, &xRecoveryPayload );
 
-        xResult = AzureIoTCAStorage_WriteTrustBundle( xRecoveryPayload.xTrustBundle.pucCertificates,
-                                                      xRecoveryPayload.xTrustBundle.ulCertificatesLength,
-                                                      xRecoveryPayload.xTrustBundle.pucVersion,
-                                                      xRecoveryPayload.xTrustBundle.ulVersionLength );
+        LogInfo( ( "Parsed Bundle: Version %.*s | Length %i\r\n",xRecoveryPayload.xTrustBundle.ulVersionLength,
+                                                  xRecoveryPayload.xTrustBundle.pucVersion,
+                                                  xRecoveryPayload.xTrustBundle.ulCertificatesLength ) );
+
+        LogInfo( ( "Writing trust bundle to NVS\r\n" ) );
+        // xResult = AzureIoTCAStorage_WriteTrustBundle( xRecoveryPayload.xTrustBundle.pucCertificates,
+        //                                               xRecoveryPayload.xTrustBundle.ulCertificatesLength,
+        //                                               xRecoveryPayload.xTrustBundle.pucVersion,
+        //                                               xRecoveryPayload.xTrustBundle.ulVersionLength );
 
         AzureIoTProvisioningClient_Deinit( &xAzureIoTProvisioningClient );
 
@@ -787,11 +797,11 @@ static TlsTransportStatus_t prvConnectToServerWithBackoffRetries( const char * p
 
                 if( xBackoffAlgStatus == BackoffAlgorithmRetriesExhausted )
                 {
-                    LogError( ( "Connection to the IoT Hub failed, all attempts exhausted." ) );
+                    LogError( ( "Connection to the endpoint failed, all attempts exhausted." ) );
                 }
                 else if( xBackoffAlgStatus == BackoffAlgorithmSuccess )
                 {
-                    LogWarn( ( "Connection to the IoT Hub failed [%d]. "
+                    LogWarn( ( "Connection to the endpoint failed [%d]. "
                                "Retrying connection with backoff and jitter [%d]ms.",
                                xNetworkStatus, usNextRetryBackOff ) );
                     vTaskDelay( pdMS_TO_TICKS( usNextRetryBackOff ) );
