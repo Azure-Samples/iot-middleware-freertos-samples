@@ -116,47 +116,26 @@ static az_result az_iot_ca_recovery_parse_recovery_payload( az_json_reader * ref
 
         if( az_json_token_is_text_equal(
                 &ref_json_reader->token,
-                AZ_SPAN_FROM_STR( AZ_IOT_CA_RECOVERY_HUB_HOSTNAME_NAME ) ) )
+                AZ_SPAN_FROM_STR( AZ_IOT_CA_RECOVERY_SIGNATURE_NAME ) ) )
         {
             _az_RETURN_IF_FAILED( az_json_reader_next_token( ref_json_reader ) );
-            /* Ignore iot hub name as it is only needed to satisfy Device Provisioning Service. */
-            /* Will not connect to this placeholder hub. */
+            RETURN_IF_JSON_TOKEN_NOT_TYPE( ref_json_reader, AZ_JSON_TOKEN_STRING );
+
+            if( ref_json_reader->token.kind != AZ_JSON_TOKEN_NULL )
+            {
+                recovery_payload->payload_signature = ref_json_reader->token.slice;
+            }
         }
         else if( az_json_token_is_text_equal(
-                     &ref_json_reader->token,
-                     AZ_SPAN_FROM_STR( AZ_IOT_CA_RECOVERY_PAYLOAD_NAME ) ) )
+                      &ref_json_reader->token,
+                      AZ_SPAN_FROM_STR( AZ_IOT_CA_RECOVERY_CERT_TRUST_BUNDLE_NAME ) ) )
         {
             _az_RETURN_IF_FAILED( az_json_reader_next_token( ref_json_reader ) );
-            RETURN_IF_JSON_TOKEN_NOT_TYPE( ref_json_reader, AZ_JSON_TOKEN_BEGIN_OBJECT );
+            RETURN_IF_JSON_TOKEN_NOT_TYPE( ref_json_reader, AZ_JSON_TOKEN_STRING );
 
-            while( ref_json_reader->token.kind != AZ_JSON_TOKEN_END_OBJECT )
+            if( ref_json_reader->token.kind != AZ_JSON_TOKEN_NULL )
             {
-                if( az_json_token_is_text_equal(
-                        &ref_json_reader->token,
-                        AZ_SPAN_FROM_STR( AZ_IOT_CA_RECOVERY_SIGNATURE_NAME ) ) )
-                {
-                    _az_RETURN_IF_FAILED( az_json_reader_next_token( ref_json_reader ) );
-                    RETURN_IF_JSON_TOKEN_NOT_TYPE( ref_json_reader, AZ_JSON_TOKEN_STRING );
-
-                    if( ref_json_reader->token.kind != AZ_JSON_TOKEN_NULL )
-                    {
-                        recovery_payload->payload_signature = ref_json_reader->token.slice;
-                    }
-                }
-                else if( az_json_token_is_text_equal(
-                             &ref_json_reader->token,
-                             AZ_SPAN_FROM_STR( AZ_IOT_CA_RECOVERY_CERT_TRUST_BUNDLE_NAME ) ) )
-                {
-                    _az_RETURN_IF_FAILED( az_json_reader_next_token( ref_json_reader ) );
-                    RETURN_IF_JSON_TOKEN_NOT_TYPE( ref_json_reader, AZ_JSON_TOKEN_STRING );
-
-                    if( ref_json_reader->token.kind != AZ_JSON_TOKEN_NULL )
-                    {
-                        recovery_payload->trust_bundle_json_object_text = ref_json_reader->token.slice;
-                    }
-                }
-
-                _az_RETURN_IF_FAILED( az_json_reader_next_token( ref_json_reader ) );
+                recovery_payload->trust_bundle_json_object_text = ref_json_reader->token.slice;
             }
         }
 

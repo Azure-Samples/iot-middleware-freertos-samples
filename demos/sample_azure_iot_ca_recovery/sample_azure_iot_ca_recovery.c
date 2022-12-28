@@ -693,13 +693,13 @@ static void prvAzureDemoTask( void * pvParameters )
                                                    &xTransport );
         configASSERT( xResult == eAzureIoTSuccess );
 
-        #ifdef democonfigRECOVERY_DEVICE_SYMMETRIC_KEY
+        #ifdef democonfigDEVICE_RECOVERY_SYMMETRIC_KEY
             xResult = AzureIoTProvisioningClient_SetSymmetricKey( &xAzureIoTProvisioningClient,
-                                                                  ( const uint8_t * ) democonfigRECOVERY_DEVICE_SYMMETRIC_KEY,
-                                                                  sizeof( democonfigRECOVERY_DEVICE_SYMMETRIC_KEY ) - 1,
+                                                                  ( const uint8_t * ) democonfigDEVICE_RECOVERY_SYMMETRIC_KEY,
+                                                                  sizeof( democonfigDEVICE_RECOVERY_SYMMETRIC_KEY ) - 1,
                                                                   Crypto_HMAC );
             configASSERT( xResult == eAzureIoTSuccess );
-        #endif /* democonfigRECOVERY_DEVICE_SYMMETRIC_KEY */
+        #endif /* democonfigDEVICE_RECOVERY_SYMMETRIC_KEY */
 
         LogInfo( ( "Registering with Recovery DPS\r\n" ) );
         do
@@ -714,11 +714,11 @@ static void prvAzureDemoTask( void * pvParameters )
         AzureIoTJSONReader_t xJSONReader;
 
         LogInfo(("Received Trust Bundle:\r\n"));
-        LogInfo(("%.*s",xAzureIoTProvisioningClient._internal.xLastResponsePayloadLength,
-                        xAzureIoTProvisioningClient._internal.ucProvisioningLastResponse));
+        LogInfo(("%.*s",az_span_size(xAzureIoTProvisioningClient._internal.xRegisterResponse.registration_state.payload),
+                        az_span_ptr(xAzureIoTProvisioningClient._internal.xRegisterResponse.registration_state.payload)));
         xResult = AzureIoTJSONReader_Init( &xJSONReader,
-                                           xAzureIoTProvisioningClient._internal.ucProvisioningLastResponse,
-                                           xAzureIoTProvisioningClient._internal.xLastResponsePayloadLength );
+                                           az_span_ptr(xAzureIoTProvisioningClient._internal.xRegisterResponse.registration_state.payload),
+                                           az_span_size(xAzureIoTProvisioningClient._internal.xRegisterResponse.registration_state.payload) );
 
         LogInfo( ( "Parsing Recovery Payload\r\n" ) );
         xResult = AzureIoTCARecovery_ParseRecoveryPayload( &xJSONReader, &xRecoveryPayload );
