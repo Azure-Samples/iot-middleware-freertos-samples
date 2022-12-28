@@ -347,15 +347,16 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pNetworkContext,
 
     if( esp_transport_connect( pxEspTlsTransport->xTransport, pHostName, usPort, ulReceiveTimeoutMs ) < 0 )
     {
-        // TODO: FIX THIS
-        if(errno == 119)
+        /* TODO: FIX THIS */
+        if( errno == 119 )
         {
-          xReturnStatus = eTLSTransportCAVerifyFailed;
+            xReturnStatus = eTLSTransportCAVerifyFailed;
         }
         else
         {
-          xReturnStatus = eTLSTransportConnectFailure;
+            xReturnStatus = eTLSTransportConnectFailure;
         }
+
         ESP_LOGE( TAG, "Failed establishing TLS connection (esp_transport_connect failed) errno: %d | 0x%08x", errno, errno );
     }
     else

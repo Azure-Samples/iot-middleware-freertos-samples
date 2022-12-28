@@ -702,6 +702,7 @@ static void prvAzureDemoTask( void * pvParameters )
         #endif /* democonfigDEVICE_RECOVERY_SYMMETRIC_KEY */
 
         LogInfo( ( "Registering with Recovery DPS\r\n" ) );
+
         do
         {
             xResult = AzureIoTProvisioningClient_Register( &xAzureIoTProvisioningClient,
@@ -713,25 +714,25 @@ static void prvAzureDemoTask( void * pvParameters )
         AzureIoTCARecovery_RecoveryPayload xRecoveryPayload;
         AzureIoTJSONReader_t xJSONReader;
 
-        LogInfo(("Received Trust Bundle:\r\n"));
-        LogInfo(("%.*s",az_span_size(xAzureIoTProvisioningClient._internal.xRegisterResponse.registration_state.payload),
-                        az_span_ptr(xAzureIoTProvisioningClient._internal.xRegisterResponse.registration_state.payload)));
+        LogInfo( ( "Received Trust Bundle:\r\n" ) );
+        LogInfo( ( "%.*s", az_span_size( xAzureIoTProvisioningClient._internal.xRegisterResponse.registration_state.payload ),
+                   az_span_ptr( xAzureIoTProvisioningClient._internal.xRegisterResponse.registration_state.payload ) ) );
         xResult = AzureIoTJSONReader_Init( &xJSONReader,
-                                           az_span_ptr(xAzureIoTProvisioningClient._internal.xRegisterResponse.registration_state.payload),
-                                           az_span_size(xAzureIoTProvisioningClient._internal.xRegisterResponse.registration_state.payload) );
+                                           az_span_ptr( xAzureIoTProvisioningClient._internal.xRegisterResponse.registration_state.payload ),
+                                           az_span_size( xAzureIoTProvisioningClient._internal.xRegisterResponse.registration_state.payload ) );
 
         LogInfo( ( "Parsing Recovery Payload\r\n" ) );
         xResult = AzureIoTCARecovery_ParseRecoveryPayload( &xJSONReader, &xRecoveryPayload );
 
-        LogInfo( ( "Parsed Bundle: Version %.*s | Length %i\r\n",xRecoveryPayload.xTrustBundle.ulVersionLength,
-                                                  xRecoveryPayload.xTrustBundle.pucVersion,
-                                                  xRecoveryPayload.xTrustBundle.ulCertificatesLength ) );
+        LogInfo( ( "Parsed Bundle: Version %.*s | Length %i\r\n", xRecoveryPayload.xTrustBundle.ulVersionLength,
+                   xRecoveryPayload.xTrustBundle.pucVersion,
+                   xRecoveryPayload.xTrustBundle.ulCertificatesLength ) );
 
         LogInfo( ( "Writing trust bundle to NVS\r\n" ) );
-        // xResult = AzureIoTCAStorage_WriteTrustBundle( xRecoveryPayload.xTrustBundle.pucCertificates,
-        //                                               xRecoveryPayload.xTrustBundle.ulCertificatesLength,
-        //                                               xRecoveryPayload.xTrustBundle.pucVersion,
-        //                                               xRecoveryPayload.xTrustBundle.ulVersionLength );
+        /* xResult = AzureIoTCAStorage_WriteTrustBundle( xRecoveryPayload.xTrustBundle.pucCertificates, */
+        /*                                               xRecoveryPayload.xTrustBundle.ulCertificatesLength, */
+        /*                                               xRecoveryPayload.xTrustBundle.pucVersion, */
+        /*                                               xRecoveryPayload.xTrustBundle.ulVersionLength ); */
 
         AzureIoTProvisioningClient_Deinit( &xAzureIoTProvisioningClient );
 

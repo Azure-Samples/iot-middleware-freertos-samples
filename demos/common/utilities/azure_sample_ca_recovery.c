@@ -127,8 +127,8 @@ static az_result az_iot_ca_recovery_parse_recovery_payload( az_json_reader * ref
             }
         }
         else if( az_json_token_is_text_equal(
-                      &ref_json_reader->token,
-                      AZ_SPAN_FROM_STR( AZ_IOT_CA_RECOVERY_CERT_TRUST_BUNDLE_NAME ) ) )
+                     &ref_json_reader->token,
+                     AZ_SPAN_FROM_STR( AZ_IOT_CA_RECOVERY_CERT_TRUST_BUNDLE_NAME ) ) )
         {
             _az_RETURN_IF_FAILED( az_json_reader_next_token( ref_json_reader ) );
             RETURN_IF_JSON_TOKEN_NOT_TYPE( ref_json_reader, AZ_JSON_TOKEN_STRING );
