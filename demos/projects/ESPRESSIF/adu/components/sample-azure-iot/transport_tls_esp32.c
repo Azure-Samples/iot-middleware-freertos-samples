@@ -147,7 +147,6 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pNetworkContext,
         if( pxEspTlsTransport != NULL )
         {
             esp_transport_close( pxEspTlsTransport->xTransport );
-            esp_transport_destroy( pxEspTlsTransport->xTransport );
             esp_transport_list_destroy(pxEspTlsTransport->xTransportList);
             vPortFree(pxEspTlsTransport);
             pxTlsParams->xSSLContext = NULL;
@@ -191,8 +190,6 @@ void TLS_Socket_Disconnect( NetworkContext_t * pNetworkContext )
     /* Attempting to terminate TLS connection. */
     esp_transport_close( pxEspTlsTransport->xTransport );
 
-    /* Free TLS contexts. */
-    esp_transport_destroy( pxEspTlsTransport->xTransport );
     /* Destroy list of transports */
     esp_transport_list_destroy(pxEspTlsTransport->xTransportList);
     vPortFree(pxEspTlsTransport);
