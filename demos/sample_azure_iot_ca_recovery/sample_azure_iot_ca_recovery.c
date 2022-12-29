@@ -748,9 +748,14 @@ static void prvAzureDemoTask( void * pvParameters )
                    xRecoveryPayload.xTrustBundle.ulCertificatesLength,
                    xRecoveryPayload.xTrustBundle.pucCertificates ) );
 
+        LogInfo(("Unescaping the trust bundle cert\r\n"));
+        az_span xUnescapeSpan = az_span_create(xRecoveryPayload.xTrustBundle.pucCertificates,
+                                                      xRecoveryPayload.xTrustBundle.ulCertificatesLength);
+        xUnescapeSpan = az_json_string_unescape(xUnescapeSpan, xUnescapeSpan);
+
         LogInfo( ( "Writing trust bundle to NVS\r\n" ) );
-        xResult = AzureIoTCAStorage_WriteTrustBundle( xRecoveryPayload.xTrustBundle.pucCertificates,
-                                                      xRecoveryPayload.xTrustBundle.ulCertificatesLength,
+        xResult = AzureIoTCAStorage_WriteTrustBundle( az_span_ptr(xUnescapeSpan),
+                                                      az_span_size(xUnescapeSpan),
                                                       xRecoveryPayload.xTrustBundle.pucVersion,
                                                       xRecoveryPayload.xTrustBundle.ulVersionLength );
 
