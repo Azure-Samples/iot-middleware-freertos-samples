@@ -50,6 +50,8 @@ AzureIoTResult_t AzureIoTCAStorage_ReadTrustBundle( const uint8_t * pucTrustBund
         return eAzureIoTErrorOutOfMemory;
     }
 
+    *pulOutTrustBundleVersionLength = ulTrustBundleVersionReadSize;
+
     /* Read the current trust bundle version */
     err = nvs_get_blob( xNVSHandle, AZURE_TRUST_BUNDLE_VERSION_NAME, &ulTrustBundleVersion, pulOutTrustBundleVersionLength );
 
@@ -78,7 +80,8 @@ AzureIoTResult_t AzureIoTCAStorage_ReadTrustBundle( const uint8_t * pucTrustBund
     }
     else
     {
-        err = nvs_get_blob( xNVSHandle, AZURE_TRUST_BUNDLE_NAME, ( void * ) pucTrustBundle, &ulTrustBundleReadSize );
+        *pulOutTrustBundleLength = ulTrustBundleReadSize;
+        err = nvs_get_blob( xNVSHandle, AZURE_TRUST_BUNDLE_NAME, ( void * ) pucTrustBundle, pulOutTrustBundleLength );
 
         if( err != ESP_OK )
         {
@@ -145,7 +148,7 @@ AzureIoTResult_t AzureIoTCAStorage_WriteTrustBundle( const uint8_t * pucTrustBun
     }
 
     /* Write value including previously saved blob if available */
-    printf( "Writing trust bundle\n" );
+    printf( "Writing trust bundle: %.*s\n", ulTrustBundleLength, pucTrustBundle );
     err = nvs_set_blob( xNVSHandle, AZURE_TRUST_BUNDLE_NAME, pucTrustBundle, ulTrustBundleLength );
 
     if( err != ESP_OK )
@@ -156,7 +159,7 @@ AzureIoTResult_t AzureIoTCAStorage_WriteTrustBundle( const uint8_t * pucTrustBun
     }
 
     /* Set new trust bundle version */
-    printf( "Writing trust bundle version\n" );
+    printf( "Writing trust bundle version: %.*s\n" , ulTrustBundleVersionLength, pucTrustBundleVersion);
     err = nvs_set_blob( xNVSHandle, AZURE_TRUST_BUNDLE_VERSION_NAME, pucTrustBundleVersion, ulTrustBundleVersionLength );
 
     if( err != ESP_OK )

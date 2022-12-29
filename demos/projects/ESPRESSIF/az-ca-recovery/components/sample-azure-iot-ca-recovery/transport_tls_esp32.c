@@ -312,7 +312,7 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pNetworkContext,
 
     if( pNetworkCredentials->pucRootCa )
     {
-        esp_transport_ssl_set_cert_data_der( pxEspTlsTransport->xTransport, ( const char * ) pNetworkCredentials->pucRootCa, pNetworkCredentials->xRootCaSize );
+        esp_transport_ssl_set_cert_data( pxEspTlsTransport->xTransport, ( const char * ) pNetworkCredentials->pucRootCa, pNetworkCredentials->xRootCaSize );
     }
 
     #ifdef democonfigUSE_HSM
