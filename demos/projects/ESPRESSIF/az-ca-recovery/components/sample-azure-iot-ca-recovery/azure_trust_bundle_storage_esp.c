@@ -147,7 +147,7 @@ AzureIoTResult_t AzureIoTCAStorage_WriteTrustBundle( const uint8_t * pucTrustBun
         return ESP_OK;
     }
 
-    /* Write value including previously saved blob if available */
+    /* Write value */
     printf( "Writing trust bundle: %.*s\n", ulTrustBundleLength, pucTrustBundle );
     err = nvs_set_blob( xNVSHandle, AZURE_TRUST_BUNDLE_NAME, pucTrustBundle, ulTrustBundleLength );
 
