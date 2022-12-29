@@ -287,20 +287,20 @@ static void prvHandlePropertiesMessage( AzureIoTHubClientPropertiesResponse_t * 
  */
 static uint32_t prvSetupNetworkCredentials( NetworkCredentials_t * pxNetworkCredentials )
 {
-    LogInfo(("Reading trust bundle from NVS\r\n"));
+    LogInfo( ( "Reading trust bundle from NVS\r\n" ) );
     AzureIoTResult_t xResult = AzureIoTCAStorage_ReadTrustBundle( ucRootCABuffer,
-                                                    sizeof(ucRootCABuffer),
-                                                    &ulRootCABufferWrittenLength,
-                                                    ucRootCATrustBundleVersion,
-                                                    sizeof(ucRootCATrustBundleVersion),
-                                                    &ulRootCATrustBundleVersionLength );
+                                                                  sizeof( ucRootCABuffer ),
+                                                                  &ulRootCABufferWrittenLength,
+                                                                  ucRootCATrustBundleVersion,
+                                                                  sizeof( ucRootCATrustBundleVersion ),
+                                                                  &ulRootCATrustBundleVersionLength );
     configASSERT( xResult == eAzureIoTSuccess );
 
     pxNetworkCredentials->xDisableSni = pdFALSE;
     /* Set the credentials for establishing a TLS connection. */
     pxNetworkCredentials->pucRootCa = ( const unsigned char * ) ucRootCABuffer;
     pxNetworkCredentials->xRootCaSize = ulRootCABufferWrittenLength;
-    LogInfo(("Added root cert size %i value %.*s", ulRootCABufferWrittenLength, ulRootCABufferWrittenLength, ucRootCABuffer ));
+    LogInfo( ( "Added root cert size %i value %.*s", ulRootCABufferWrittenLength, ulRootCABufferWrittenLength, ucRootCABuffer ) );
     #ifdef democonfigCLIENT_CERTIFICATE_PEM
         pxNetworkCredentials->pucClientCert = ( const unsigned char * ) democonfigCLIENT_CERTIFICATE_PEM;
         pxNetworkCredentials->xClientCertSize = sizeof( democonfigCLIENT_CERTIFICATE_PEM );
@@ -320,9 +320,9 @@ static uint32_t prvSetupRecoveryNetworkCredentials( NetworkCredentials_t * pxNet
 {
     pxNetworkCredentials->xDisableSni = pdFALSE;
     /* Set the credentials for establishing a TLS connection. */
-    LogInfo(("Using hardcoded Baltimore cert for now (can't ignore server CA with ESP)\r\n"));
+    LogInfo( ( "Using hardcoded Baltimore cert for now (can't ignore server CA with ESP)\r\n" ) );
     pxNetworkCredentials->pucRootCa = ( const unsigned char * ) democonfigRECOVERY_CA_CERT;
-    pxNetworkCredentials->xRootCaSize = sizeof(democonfigRECOVERY_CA_CERT) - 1;
+    pxNetworkCredentials->xRootCaSize = sizeof( democonfigRECOVERY_CA_CERT ) - 1;
     #ifdef democonfigCLIENT_CERTIFICATE_PEM
         pxNetworkCredentials->pucClientCert = ( const unsigned char * ) democonfigCLIENT_CERTIFICATE_PEM;
         pxNetworkCredentials->xClientCertSize = sizeof( democonfigCLIENT_CERTIFICATE_PEM );
@@ -389,9 +389,9 @@ static void prvAzureDemoTask( void * pvParameters )
                     LogError( ( "Failed to run recovery error code = 0x%08x\r\n", ulStatus ) );
                     return;
                 }
-                else if((ulStatus = prvSetupNetworkCredentials( &xNetworkCredentials )) != 0)
+                else if( ( ulStatus = prvSetupNetworkCredentials( &xNetworkCredentials ) ) != 0 )
                 {
-                    LogError(("Could not set network credentials\r\n"));
+                    LogError( ( "Could not set network credentials\r\n" ) );
                     return;
                 }
                 else if( ( ulStatus = prvIoTHubInfoGet( &xNetworkCredentials, &pucIotHubHostname,
@@ -744,9 +744,9 @@ static void prvAzureDemoTask( void * pvParameters )
                    xRecoveryPayload.xTrustBundle.pucVersion,
                    xRecoveryPayload.xTrustBundle.ulCertificatesLength ) );
 
-        LogInfo(( "Certificate Bundle: %.*s\r\n",
-                        xRecoveryPayload.xTrustBundle.ulCertificatesLength,
-                        xRecoveryPayload.xTrustBundle.pucCertificates));
+        LogInfo( ( "Certificate Bundle: %.*s\r\n",
+                   xRecoveryPayload.xTrustBundle.ulCertificatesLength,
+                   xRecoveryPayload.xTrustBundle.pucCertificates ) );
 
         LogInfo( ( "Writing trust bundle to NVS\r\n" ) );
         xResult = AzureIoTCAStorage_WriteTrustBundle( xRecoveryPayload.xTrustBundle.pucCertificates,

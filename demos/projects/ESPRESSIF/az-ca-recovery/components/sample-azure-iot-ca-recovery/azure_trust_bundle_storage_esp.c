@@ -159,7 +159,7 @@ AzureIoTResult_t AzureIoTCAStorage_WriteTrustBundle( const uint8_t * pucTrustBun
     }
 
     /* Set new trust bundle version */
-    printf( "Writing trust bundle version: %.*s\n" , ulTrustBundleVersionLength, pucTrustBundleVersion);
+    printf( "Writing trust bundle version: %.*s\n", ulTrustBundleVersionLength, pucTrustBundleVersion );
     err = nvs_set_blob( xNVSHandle, AZURE_TRUST_BUNDLE_VERSION_NAME, pucTrustBundleVersion, ulTrustBundleVersionLength );
 
     if( err != ESP_OK )

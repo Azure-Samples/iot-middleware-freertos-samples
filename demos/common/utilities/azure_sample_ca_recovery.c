@@ -88,7 +88,7 @@ static az_result az_iot_ca_recovery_parse_trust_bundle( az_json_reader * ref_jso
             if( ref_json_reader->token.kind != AZ_JSON_TOKEN_NULL )
             {
                 trust_bundle->certificates = ref_json_reader->token.slice;
-                az_json_string_unescape(trust_bundle->certificates, trust_bundle->certificates);
+                az_json_string_unescape( trust_bundle->certificates, trust_bundle->certificates );
             }
         }
 
