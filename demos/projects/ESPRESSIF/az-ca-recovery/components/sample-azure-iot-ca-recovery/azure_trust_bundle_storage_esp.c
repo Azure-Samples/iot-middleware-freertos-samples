@@ -16,7 +16,7 @@
 AzureIoTResult_t AzureIoTCAStorage_ReadTrustBundle( const uint8_t * pucTrustBundle,
                                                     uint32_t ulTrustBundleLength,
                                                     uint32_t * pulOutTrustBundleLength,
-                                                    const uint8_t * ulTrustBundleVersion,
+                                                    const uint8_t * pucTrustBundleVersion,
                                                     uint32_t ulTrustBundleVersionLength,
                                                     uint32_t * pulOutTrustBundleVersionLength )
 {
@@ -53,7 +53,7 @@ AzureIoTResult_t AzureIoTCAStorage_ReadTrustBundle( const uint8_t * pucTrustBund
     *pulOutTrustBundleVersionLength = ulTrustBundleVersionReadSize;
 
     /* Read the current trust bundle version */
-    err = nvs_get_blob( xNVSHandle, AZURE_TRUST_BUNDLE_VERSION_NAME, &ulTrustBundleVersion, pulOutTrustBundleVersionLength );
+    err = nvs_get_blob( xNVSHandle, AZURE_TRUST_BUNDLE_VERSION_NAME, &pucTrustBundleVersion, pulOutTrustBundleVersionLength );
 
     if( err != ESP_OK )
     {
