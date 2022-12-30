@@ -288,13 +288,13 @@ static void prvHandlePropertiesMessage( AzureIoTHubClientPropertiesResponse_t * 
 static uint32_t prvSetupNetworkCredentials( NetworkCredentials_t * pxNetworkCredentials )
 {
     LogInfo( ( "Reading trust bundle from NVS\r\n" ) );
-    // AzureIoTResult_t xResult = AzureIoTCAStorage_ReadTrustBundle( ucRootCABuffer,
-    //                                                               sizeof( ucRootCABuffer ),
-    //                                                               &ulRootCABufferWrittenLength,
-    //                                                               ucRootCATrustBundleVersion,
-    //                                                               sizeof( ucRootCATrustBundleVersion ),
-    //                                                               &ulRootCATrustBundleVersionLength );
-    // configASSERT( xResult == eAzureIoTSuccess );
+    AzureIoTResult_t xResult = AzureIoTCAStorage_ReadTrustBundle( ucRootCABuffer,
+                                                                  sizeof( ucRootCABuffer ),
+                                                                  &ulRootCABufferWrittenLength,
+                                                                  ucRootCATrustBundleVersion,
+                                                                  sizeof( ucRootCATrustBundleVersion ),
+                                                                  &ulRootCATrustBundleVersionLength );
+    configASSERT( xResult == eAzureIoTSuccess );
 
     pxNetworkCredentials->xDisableSni = pdFALSE;
     /* Set the credentials for establishing a TLS connection. */
@@ -735,23 +735,18 @@ static void prvAzureDemoTask( void * pvParameters )
                    xRecoveryPayload.xTrustBundle.pucVersion,
                    xRecoveryPayload.xTrustBundle.ulCertificatesLength ) );
 
-        LogInfo( ( "Certificate Bundle: %.*s\r\n",
-                   xRecoveryPayload.xTrustBundle.ulCertificatesLength,
-                   xRecoveryPayload.xTrustBundle.pucCertificates ) );
-
         LogInfo(("Unescaping the trust bundle cert\r\n"));
         az_span xUnescapeSpan = az_span_create(xRecoveryPayload.xTrustBundle.pucCertificates,
                                                       xRecoveryPayload.xTrustBundle.ulCertificatesLength);
         xUnescapeSpan = az_json_string_unescape(xUnescapeSpan, xUnescapeSpan);
 
-        memcpy(ucRootCABuffer, az_span_ptr(xUnescapeSpan), az_span_size(xUnescapeSpan));
-        ulRootCABufferWrittenLength = az_span_size(xUnescapeSpan);
+        LogInfo(("Unescaped bundle length %i value\r\n%.*s",az_span_size(xUnescapeSpan), az_span_size(xUnescapeSpan), az_span_ptr(xUnescapeSpan)));
 
         LogInfo( ( "Writing trust bundle to NVS\r\n" ) );
-        // xResult = AzureIoTCAStorage_WriteTrustBundle( az_span_ptr(xUnescapeSpan),
-        //                                               az_span_size(xUnescapeSpan),
-        //                                               xRecoveryPayload.xTrustBundle.pucVersion,
-        //                                               xRecoveryPayload.xTrustBundle.ulVersionLength );
+        xResult = AzureIoTCAStorage_WriteTrustBundle( az_span_ptr(xUnescapeSpan),
+                                                      az_span_size(xUnescapeSpan),
+                                                      xRecoveryPayload.xTrustBundle.pucVersion,
+                                                      xRecoveryPayload.xTrustBundle.ulVersionLength );
 
         AzureIoTProvisioningClient_Deinit( &xAzureIoTProvisioningClient );
 

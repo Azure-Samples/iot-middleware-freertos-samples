@@ -211,7 +211,7 @@ esp_err_t prvSaveTrustBundle( nvs_handle_t xNVSHandle )
         }
     #endif
 
-    /* Write value including previously saved blob if available */
+    /* Write value */
     printf( "Writing trust bundle\n" );
     xESPErr = nvs_set_blob( xNVSHandle, AZURE_TRUST_BUNDLE_NAME, ucTrustBundle, ulTrustBundleSize );
 
