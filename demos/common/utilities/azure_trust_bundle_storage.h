@@ -7,7 +7,7 @@
 
 /**
  * @brief Read the current trust bundle from the device storage.
- * 
+ *
  * @param[in] pucTrustBundle The buffer into which the trust bundle will be copied.
  * @param[in] ulTrustBundleLength The size of \p pucTrustBundle.
  * @param[out] pulOutTrustBundleLength The number of bytes copied into \p pucTrustBundle.
@@ -25,7 +25,7 @@ AzureIoTResult_t AzureIoTCAStorage_ReadTrustBundle( const uint8_t * pucTrustBund
 
 /**
  * @brief Write a trust bundle to the device storage.
- * 
+ *
  * @param[in] pucTrustBundle The buffer containing the trust bundle.
  * @param[in] ulTrustBundleLength The size of \p pucTrustBundle
  * @param[in] pucTrustBundleVersion The buffer containing the trust bundle version.
