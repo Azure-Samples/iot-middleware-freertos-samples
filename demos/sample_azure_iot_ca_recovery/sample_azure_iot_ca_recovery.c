@@ -735,16 +735,16 @@ static void prvAzureDemoTask( void * pvParameters )
                    xRecoveryPayload.xTrustBundle.pucVersion,
                    xRecoveryPayload.xTrustBundle.ulCertificatesLength ) );
 
-        LogInfo(("Unescaping the trust bundle cert\r\n"));
-        az_span xUnescapeSpan = az_span_create(xRecoveryPayload.xTrustBundle.pucCertificates,
-                                                      xRecoveryPayload.xTrustBundle.ulCertificatesLength);
-        xUnescapeSpan = az_json_string_unescape(xUnescapeSpan, xUnescapeSpan);
+        LogInfo( ( "Unescaping the trust bundle cert\r\n" ) );
+        az_span xUnescapeSpan = az_span_create( xRecoveryPayload.xTrustBundle.pucCertificates,
+                                                xRecoveryPayload.xTrustBundle.ulCertificatesLength );
+        xUnescapeSpan = az_json_string_unescape( xUnescapeSpan, xUnescapeSpan );
 
-        LogInfo(("Unescaped bundle length %i value\r\n%.*s",az_span_size(xUnescapeSpan), az_span_size(xUnescapeSpan), az_span_ptr(xUnescapeSpan)));
+        LogInfo( ( "Unescaped bundle length %i value\r\n%.*s", az_span_size( xUnescapeSpan ), az_span_size( xUnescapeSpan ), az_span_ptr( xUnescapeSpan ) ) );
 
         LogInfo( ( "Writing trust bundle to NVS\r\n" ) );
-        xResult = AzureIoTCAStorage_WriteTrustBundle( az_span_ptr(xUnescapeSpan),
-                                                      az_span_size(xUnescapeSpan),
+        xResult = AzureIoTCAStorage_WriteTrustBundle( az_span_ptr( xUnescapeSpan ),
+                                                      az_span_size( xUnescapeSpan ),
                                                       xRecoveryPayload.xTrustBundle.pucVersion,
                                                       xRecoveryPayload.xTrustBundle.ulVersionLength );
 
