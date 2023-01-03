@@ -134,8 +134,6 @@
  */
 #define ADU_HEADER_BUFFER_SIZE                                512
 
-#define democonfigADU_PPV_DTMI                                "dtmi:azure:iot:deviceUpdateContractModel;1"
-
 #define democonfigADU_UPDATE_ID                               "{\"provider\":\"" democonfigADU_UPDATE_PROVIDER "\",\"name\":\"" democonfigADU_UPDATE_NAME "\",\"version\":\"" democonfigADU_UPDATE_VERSION "\"}"
 
 #ifdef democonfigADU_UPDATE_NEW_VERSION
@@ -770,8 +768,8 @@ static void prvAzureDemoTask( void * pvParameters )
 
         xHubOptions.pucModuleID = ( const uint8_t * ) democonfigMODULE_ID;
         xHubOptions.ulModuleIDLength = sizeof( democonfigMODULE_ID ) - 1;
-        xHubOptions.pucModelID = ( const uint8_t * ) democonfigADU_PPV_DTMI;
-        xHubOptions.ulModelIDLength = sizeof( democonfigADU_PPV_DTMI ) - 1;
+        xHubOptions.pucModelID = ( const uint8_t * ) AzureIoTADUModelID;
+        xHubOptions.ulModelIDLength = AzureIoTADUModelIDLength;
 
         #ifdef sampleaduPNP_COMPONENTS_LIST_LENGTH
             #if sampleaduPNP_COMPONENTS_LIST_LENGTH > 0
