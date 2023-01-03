@@ -38,7 +38,7 @@ This sample will allow you to update an ESP32 over the air (OTA) using Azure Dev
 
 1. Azure CLI and Azure IoT Module
 
-See steps to install both [here](https://learn.microsoft.com/azure/iot-hub-device-update/create-update?source=recommendations#prerequisites).
+    See steps to install both [here](https://learn.microsoft.com/azure/iot-hub-device-update/create-update?source=recommendations#prerequisites).
 
 1. Azure IoT Embedded middleware for FreeRTOS
 
