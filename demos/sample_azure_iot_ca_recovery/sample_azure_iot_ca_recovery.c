@@ -288,6 +288,7 @@ static void prvHandlePropertiesMessage( AzureIoTHubClientPropertiesResponse_t * 
 static uint32_t prvSetupNetworkCredentials( NetworkCredentials_t * pxNetworkCredentials )
 {
     LogInfo( ( "Reading trust bundle from NVS\r\n" ) );
+    memset(ucRootCABuffer, 0, sizeof(ucRootCABuffer));
     AzureIoTResult_t xResult = AzureIoTCAStorage_ReadTrustBundle( ucRootCABuffer,
                                                                   sizeof( ucRootCABuffer ),
                                                                   &ulRootCABufferWrittenLength,
