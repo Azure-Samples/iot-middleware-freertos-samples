@@ -1,4 +1,4 @@
-name: Linux CI Tests
+name: ESP-IDF v5.0 CI Tests
 
 on: 
   push:
