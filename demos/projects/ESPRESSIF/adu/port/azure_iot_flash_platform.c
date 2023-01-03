@@ -35,7 +35,7 @@ static AzureIoTResult_t prvBase64Decode( uint8_t * base64Encoded,
 
     if( az_result_failed( xCoreResult = az_base64_decode( outputSpan, encodedSpan, ( int32_t * ) outputSize ) ) )
     {
-        AZLogError( ( "az_base64_decode failed: core error=0x%08x", xCoreResult ) );
+        AZLogError( ( "az_base64_decode failed: core error=0x%08x", ( uint16_t ) xCoreResult ) );
         return eAzureIoTErrorFailed;
     }
 
@@ -120,7 +120,7 @@ AzureIoTResult_t AzureIoTPlatform_VerifyImage( AzureADUImage_t * const pxAduImag
     uint32_t ulOutputSize;
     uint32_t ulReadSize;
 
-    AZLogInfo( ( "Base64 Encoded Hash from ADU: %.*s", ulSHA256HashLength, pucSHA256Hash ) );
+    AZLogInfo( ( "Base64 Encoded Hash from ADU: %.*s", ( int16_t ) ulSHA256HashLength, pucSHA256Hash ) );
     xResult = prvBase64Decode( pucSHA256Hash, ulSHA256HashLength, ucDecodedManifestHash, azureiotflashSHA_256_SIZE, ( size_t * ) &ulOutputSize );
 
     if( xResult != eAzureIoTSuccess )
@@ -136,7 +136,7 @@ AzureIoTResult_t AzureIoTPlatform_VerifyImage( AzureADUImage_t * const pxAduImag
     mbedtls_md_setup( &ctx, mbedtls_md_info_from_type( md_type ), 0 );
     mbedtls_md_starts( &ctx );
 
-    AZLogInfo( ( "Starting the mbedtls calculation: image size %d\r\n", pxAduImage->ulImageFileSize ) );
+    AZLogInfo( ( "Starting the mbedtls calculation: image size %u\r\n", ( uint16_t ) pxAduImage->ulImageFileSize ) );
 
     for( size_t ulOffset = 0; ulOffset < pxAduImage->ulImageFileSize; ulOffset += sizeof( ucPartitionReadBuffer ) )
     {

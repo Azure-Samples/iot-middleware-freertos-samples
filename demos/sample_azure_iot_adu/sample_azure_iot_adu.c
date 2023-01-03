@@ -287,11 +287,11 @@ static void prvHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
                                                            ucCommandResponsePayloadBuffer,
                                                            ulCommandResponsePayloadLength ) ) != eAzureIoTSuccess )
     {
-        LogError( ( "Error sending command response: result 0x%08x", xResult ) );
+        LogError( ( "Error sending command response: result 0x%08x", ( uint16_t ) xResult ) );
     }
     else
     {
-        LogInfo( ( "Successfully sent command response %d", ulResponseStatus ) );
+        LogInfo( ( "Successfully sent command response %u", ( uint16_t ) ulResponseStatus ) );
     }
 }
 
@@ -316,7 +316,7 @@ static void prvHandleProperties( AzureIoTHubClientPropertiesResponse_t * pxMessa
     ( void ) pvContext;
 
     LogDebug( ( "Property document payload : %.*s ",
-                pxMessage->ulPayloadLength,
+                ( int16_t ) pxMessage->ulPayloadLength,
                 ( const char * ) pxMessage->pvMessagePayload ) );
 
     switch( pxMessage->xMessageType )
@@ -487,7 +487,7 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash( int32_t ullTimeoutInSec
     if( ( xImage.ulImageFileSize = AzureIoTHTTP_RequestSize( &xHTTP, ( char * ) ucAduDownloadBuffer,
                                                              sizeof( ucAduDownloadBuffer ) ) ) != -1 )
     {
-        LogInfo( ( "[ADU] HTTP Range Request was successful: size %d bytes", xImage.ulImageFileSize ) );
+        LogInfo( ( "[ADU] HTTP Range Request was successful: size %u bytes", ( uint16_t ) xImage.ulImageFileSize ) );
     }
     else
     {
@@ -505,7 +505,7 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash( int32_t ullTimeoutInSec
 
         if( ullCurrentTime - ullPreviousTimeout > ullTimeoutInSec )
         {
-            LogInfo( ( "%i second timeout. Taking a break from downloading image.", ullTimeoutInSec ) );
+            LogInfo( ( "%u second timeout. Taking a break from downloading image.", ( uint16_t ) ullTimeoutInSec ) );
             LogInfo( ( "Receiving messages from IoT Hub." ) );
             xResult = AzureIoTHubClient_ProcessLoop( &xAzureIoTHubClient,
                                                      sampleazureiotPROCESS_LOOP_TIMEOUT_MS );
@@ -671,7 +671,7 @@ static AzureIoTResult_t prvSpoofNewVersion( void )
         LogError( ( "[ADU] New ADU update version for simulator not given." ) );
     #endif
     LogInfo( ( "[ADU] Device Version %.*s",
-               xADUDeviceProperties.ulCurrentUpdateIdLength, xADUDeviceProperties.ucCurrentUpdateId ) );
+               ( int16_t ) xADUDeviceProperties.ulCurrentUpdateIdLength, xADUDeviceProperties.ucCurrentUpdateId ) );
     return AzureIoTADUClient_SendAgentState( &xAzureIoTADUClient,
                                              &xAzureIoTHubClient,
                                              &xADUDeviceProperties,
@@ -896,7 +896,7 @@ static void prvAzureDemoTask( void * pvParameters )
                         configASSERT( xResult == eAzureIoTSuccess );
 
                         xResult = prvSpoofNewVersion();
-                        configASSERT( xResult = eAzureIoTSuccess );
+                        configASSERT( xResult == eAzureIoTSuccess );
                     }
                     else
                     {
@@ -964,12 +964,12 @@ static void prvAzureDemoTask( void * pvParameters )
                                                  pucBuffer,
                                                  ulBufferLength ) ) != eAzureIoTSuccess )
         {
-            LogError( ( "Error initializing JSON writer: result 0x%08x", xResult ) );
+            LogError( ( "Error initializing JSON writer: result 0x%08x", ( uint16_t ) xResult ) );
             return xResult;
         }
         else if( ( xResult = AzureIoTJSONWriter_AppendBeginObject( &xWriter ) ) != eAzureIoTSuccess )
         {
-            LogError( ( "Error appending begin object: result 0x%08x", xResult ) );
+            LogError( ( "Error appending begin object: result 0x%08x", ( uint16_t ) xResult ) );
             return xResult;
         }
         else if( ( xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter,
@@ -978,12 +978,12 @@ static void prvAzureDemoTask( void * pvParameters )
                                                                                AzureIoTADUModelID,
                                                                                AzureIoTADUModelIDLength ) ) != eAzureIoTSuccess )
         {
-            LogError( ( "Error appending property name and string value: result 0x%08x", xResult ) );
+            LogError( ( "Error appending property name and string value: result 0x%08x", ( uint16_t ) xResult ) );
             return xResult;
         }
         else if( ( xResult = AzureIoTJSONWriter_AppendEndObject( &xWriter ) ) != eAzureIoTSuccess )
         {
-            LogError( ( "Error appending end object: result 0x%08x", xResult ) );
+            LogError( ( "Error appending end object: result 0x%08x", ( uint16_t ) xResult ) );
             return xResult;
         }
 
@@ -1065,7 +1065,7 @@ static void prvAzureDemoTask( void * pvParameters )
         }
         else
         {
-            LogInfo( ( "Error getting IoT Hub name and Device ID: 0x%08x", xResult ) );
+            LogInfo( ( "Error getting IoT Hub name and Device ID: 0x%08x", ( uint16_t ) xResult ) );
         }
 
         configASSERT( xResult == eAzureIoTSuccess );
@@ -1116,7 +1116,7 @@ static uint32_t prvConnectToServerWithBackoffRetries( const char * pcHostName,
      */
     do
     {
-        LogInfo( ( "Creating a TLS connection to %s:%u.", pcHostName, port ) );
+        LogInfo( ( "Creating a TLS connection to %s:%u.", pcHostName, ( uint16_t ) port ) );
         /* Attempt to create a mutually authenticated TLS connection. */
         xNetworkStatus = TLS_Socket_Connect( pxNetworkContext,
                                              pcHostName, port,

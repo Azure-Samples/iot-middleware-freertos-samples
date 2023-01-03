@@ -411,7 +411,7 @@ uint32_t ulHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
     int32_t ulCommandResponsePayloadLength;
 
     LogInfo( ( "Command payload : %.*s \r\n",
-               pxMessage->ulPayloadLength,
+               ( int16_t ) pxMessage->ulPayloadLength,
                ( const char * ) pxMessage->pvMessagePayload ) );
 
     lCommandNameLength = sizeof( sampleazureiotCOMMAND_MAX_MIN_REPORT ) - 1;
