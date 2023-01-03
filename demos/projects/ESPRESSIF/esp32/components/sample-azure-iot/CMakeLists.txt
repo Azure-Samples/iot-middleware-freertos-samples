@@ -50,8 +50,6 @@ if (DEFINED CONFIG_AZURE_SAMPLE_USE_PLUG_AND_PLAY)
     )
 endif()
 
-esp-cryptoauthlib
-
 if (DEFINED CONFIG_ESP_TLS_USE_SECURE_ELEMENT)
     idf_component_register(
         SRCS ${COMPONENT_SOURCES}
