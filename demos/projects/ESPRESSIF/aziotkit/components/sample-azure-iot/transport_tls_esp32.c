@@ -26,6 +26,7 @@
  */
 
 /* Standard includes. */
+#include "errno.h"
 
 /* FreeRTOS includes. */
 #include "freertos/FreeRTOS.h"

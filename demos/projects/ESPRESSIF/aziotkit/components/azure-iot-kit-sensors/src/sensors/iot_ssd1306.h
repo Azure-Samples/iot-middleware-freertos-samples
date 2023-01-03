@@ -21,6 +21,7 @@ extern "C"
 
 #include "driver/gpio.h"
 #include "driver/i2c.h"
+#include "rom/gpio.h"
 #include "iot_i2c_bus.h"
 #include "stdint.h"
 
