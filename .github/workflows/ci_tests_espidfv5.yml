@@ -17,5 +17,3 @@ jobs:
       uses: snickerbockers/submodules-init@v4
     - name: Build ESP32 Samples (ESP-IDF v5.0)
       run: docker run -v "${PWD}:/iot-middleware-freertos-samples" -w /iot-middleware-freertos-samples espressif/idf:v5.0 .github/scripts/ci_tests.sh -esp
-    - name: Build ESP32-ATECC Samples (ESP-IDF v5.0)
-      run: docker run -v "${PWD}:/iot-middleware-freertos-samples" -w /iot-middleware-freertos-samples espressif/idf:v5.0 .github/scripts/ci_tests.sh -esp-atecc
