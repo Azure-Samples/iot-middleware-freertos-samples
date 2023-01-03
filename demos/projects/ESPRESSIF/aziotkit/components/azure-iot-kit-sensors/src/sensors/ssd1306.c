@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #include "driver/i2c.h"
+#include "soc/io_mux_reg.h"
 #include "iot_ssd1306.h"
 #include "ssd1306_fonts.h"
 #include <time.h>

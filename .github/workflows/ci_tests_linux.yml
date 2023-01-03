@@ -11,7 +11,7 @@ jobs:
 
     runs-on: ubuntu-latest
     steps:
-    - uses: docker://espressif/idf:v4.3
+    - uses: docker://espressif/idf:v4.4.3
     - uses: actions/checkout@v2
     - name: Style Check
       run: .github/scripts/code_style.sh check
@@ -19,13 +19,15 @@ jobs:
       uses: snickerbockers/submodules-init@v4
     - name: Configure
       run: .github/scripts/install_software.sh
+    - name: Install ARM GCC 11.2
+      run: .github/scripts/install_arm_gcc.sh
     - name: Build PC Samples
       run: sudo bash -c ".github/scripts/ci_tests.sh -pc"
     - name: Build NXP Samples
       run: sudo bash -c ".github/scripts/ci_tests.sh -nxp"
     - name: Build ST Samples
       run: sudo bash -c ".github/scripts/ci_tests.sh -st"
-    - name: Build ESP32 Samples
-      run: docker run -v "${PWD}:/iot-middleware-freertos-samples" -w /iot-middleware-freertos-samples espressif/idf:v4.3 .github/scripts/ci_tests.sh -esp
-    - name: Build ESP32-ATECC Samples
-      run: docker run -v "${PWD}:/iot-middleware-freertos-samples" -w /iot-middleware-freertos-samples espressif/idf:v4.3 .github/scripts/ci_tests.sh -esp-atecc
+    - name: Build ESP32 Samples (ESP-IDF v4.4.3)
+      run: docker run -v "${PWD}:/iot-middleware-freertos-samples" -w /iot-middleware-freertos-samples espressif/idf:v4.4.3 .github/scripts/ci_tests.sh -esp
+    - name: Build ESP32-ATECC Samples (ESP-IDF v4.4.3)
+      run: docker run -v "${PWD}:/iot-middleware-freertos-samples" -w /iot-middleware-freertos-samples espressif/idf:v4.4.3 .github/scripts/ci_tests.sh -esp-atecc

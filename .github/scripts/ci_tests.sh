@@ -16,6 +16,9 @@ TEST_FREERTOS_SRC=`pwd`/libs/FreeRTOS
 RUN_BOARDS_BUILD=${@:-"-st -nxp -pc -esp -esp-atecc"}
 FREERTOS_FETCHED=0
 
+# Add installed arm compiler to path
+export PATH="/usr/local/arm-gcc-none-eabi/bin:$PATH"
+
 function exit_if_binary_does_not_exist()
 {
     local search_dir=$1
@@ -43,6 +46,7 @@ function sample_build() {
     elif [ $vendor == "ESPRESSIF-ATECC" ]
     then
       echo -e "::group::Cleaning Repo"
+      git config --global --add safe.directory ${PWD}
       git clean -xdf
       echo -e "::group::Configuring ESP32 with ATECC"
       rm -f ./demos/projects/ESPRESSIF/$board/sdkconfig.defaults
