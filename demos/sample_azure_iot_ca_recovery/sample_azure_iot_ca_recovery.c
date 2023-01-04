@@ -580,6 +580,7 @@ static void prvAzureDemoTask( void * pvParameters )
  * @brief Get IoT Hub endpoint and device Id info, when Provisioning service is used.
  *   This function will block for Provisioning service for result or return failure.
  */
+static bool tempBool = false;
     static uint32_t prvIoTHubInfoGet( NetworkCredentials_t * pXNetworkCredentials,
                                       uint8_t ** ppucIothubHostname,
                                       uint32_t * pulIothubHostnameLength,
@@ -595,6 +596,8 @@ static void prvAzureDemoTask( void * pvParameters )
 
         /* Set the pParams member of the network context with desired transport. */
         xNetworkContext.pParams = &xTlsTransportParams;
+
+        if(!tempBool) {tempBool = true; return sampleazureiotRECOVERY_INITIATED;}
 
         TlsTransportStatus_t ulTLSStatus = prvConnectToServerWithBackoffRetries( democonfigENDPOINT, democonfigIOTHUB_PORT,
                                                                                  pXNetworkCredentials, &xNetworkContext );
@@ -756,9 +759,11 @@ static void prvAzureDemoTask( void * pvParameters )
         xResult = AzureIoTJSONReader_Init( &xJSONReader,
                                            az_span_ptr( xAzureIoTProvisioningClient._internal.xRegisterResponse.registration_state.payload ),
                                            az_span_size( xAzureIoTProvisioningClient._internal.xRegisterResponse.registration_state.payload ) );
+        configASSERT( xResult == eAzureIoTSuccess );
 
         LogInfo( ( "Parsing Recovery Payload\r\n" ) );
         xResult = AzureIoTCARecovery_ParseRecoveryPayload( &xJSONReader, &xRecoveryPayload );
+        configASSERT( xResult == eAzureIoTSuccess );
 
         LogInfo( ( "Parsed Bundle: Version %.*s | Length %i\r\n", xRecoveryPayload.xTrustBundle.ulVersionLength,
                    xRecoveryPayload.xTrustBundle.pucVersion,
@@ -775,6 +780,8 @@ static void prvAzureDemoTask( void * pvParameters )
                                               sizeof(ucAzureIoTRecoveryKeyE) / sizeof(ucAzureIoTRecoveryKeyE[0]),
                                               ucSignatureValidateScratchBuffer,
                                               sizeof(ucSignatureValidateScratchBuffer) );
+        configASSERT( xResult == eAzureIoTSuccess );
+        LogInfo( ( "Trust Bundle Signature Successfully Validated\r\n" ) );
 
         LogInfo( ( "Unescaping the trust bundle cert\r\n" ) );
         az_span xUnescapeSpan = az_span_create( xRecoveryPayload.xTrustBundle.pucCertificates,
@@ -788,6 +795,7 @@ static void prvAzureDemoTask( void * pvParameters )
                                                       az_span_size( xUnescapeSpan ),
                                                       xRecoveryPayload.xTrustBundle.pucVersion,
                                                       xRecoveryPayload.xTrustBundle.ulVersionLength );
+        configASSERT( xResult == eAzureIoTSuccess );
 
         AzureIoTProvisioningClient_Deinit( &xAzureIoTProvisioningClient );
 

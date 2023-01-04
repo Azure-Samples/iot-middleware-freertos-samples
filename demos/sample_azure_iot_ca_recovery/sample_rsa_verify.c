@@ -4,6 +4,7 @@
 #include "sample_rsa_verify.h"
 
 #include "azure_iot_config.h"
+#include "azure/core/az_base64.h"
 
 #include "mbedtls/base64.h"
 #include "mbedtls/rsa.h"
@@ -52,12 +53,25 @@ AzureIoTResult_t AzureIoTSample_RS256Verify( uint8_t * pucInput,
 {
     AzureIoTResult_t xResult;
     int32_t lMbedTLSResult;
+    int32_t outDecodeSize;
     mbedtls_rsa_context ctx;
+    uint8_t* ucSignatureBase64Decoded;
 
     if( ulBufferLength < azureiotjwsSHA_CALCULATION_SCRATCH_SIZE )
     {
         AZLogError( ( "[JWS] Buffer Not Large Enough" ) );
         return eAzureIoTErrorOutOfMemory;
+    }
+
+    ucSignatureBase64Decoded = pucBuffer + azureiotjwsSHA256_SIZE;
+
+    az_result xCoreResult = az_base64_decode( az_span_create( ucSignatureBase64Decoded, azureiotjwsRSA3072_SIZE ),
+                    az_span_create( pucSignature, ulSignatureLength ),
+                    &outDecodeSize);
+    if (az_result_failed(xCoreResult))
+    {
+      AZLogError( ( "[JWS] Base64 decode failed: 0x%08x", xCoreResult ) );
+      return eAzureIoTErrorFailed;
     }
 
     /* The signature is encrypted using the input key. We need to decrypt the */
@@ -112,14 +126,14 @@ AzureIoTResult_t AzureIoTSample_RS256Verify( uint8_t * pucInput,
     }
 
     #if MBEDTLS_VERSION_NUMBER >= 0x03000000
-        lMbedTLSResult = mbedtls_rsa_pkcs1_verify( &ctx, MBEDTLS_MD_SHA256, azureiotjwsSHA256_SIZE, pucBuffer, pucSignature );
+        lMbedTLSResult = mbedtls_rsa_pkcs1_verify( &ctx, MBEDTLS_MD_SHA256, azureiotjwsSHA256_SIZE, pucBuffer, ucSignatureBase64Decoded );
     #else
-        lMbedTLSResult = mbedtls_rsa_pkcs1_verify( &ctx, NULL, NULL, MBEDTLS_RSA_PUBLIC, MBEDTLS_MD_SHA256, azureiotjwsSHA256_SIZE, pucBuffer, pucSignature );
+        lMbedTLSResult = mbedtls_rsa_pkcs1_verify( &ctx, NULL, NULL, MBEDTLS_RSA_PUBLIC, MBEDTLS_MD_SHA256, azureiotjwsSHA256_SIZE, pucBuffer, ucSignatureBase64Decoded );
     #endif
 
     if( lMbedTLSResult != 0 )
     {
-        AZLogError( ( "[JWS] SHA of JWK does NOT match (%08x)", ( uint16_t ) lMbedTLSResult ) );
+        AZLogError( ( "[JWS] SHA of JWK does NOT match (0x%08x)", ( uint16_t ) lMbedTLSResult ) );
         xResult = eAzureIoTErrorFailed;
     }
     else
