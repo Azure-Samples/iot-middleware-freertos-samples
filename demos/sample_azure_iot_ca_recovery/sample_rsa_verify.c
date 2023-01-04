@@ -42,15 +42,15 @@ static AzureIoTResult_t prvJWS_SHA256Calculate( const uint8_t * pucInput,
 }
 
 AzureIoTResult_t AzureIoTSample_RS256Verify( uint8_t * pucInput,
-                                            uint32_t ulInputLength,
-                                            uint8_t * pucSignature,
-                                            uint32_t ulSignatureLength,
-                                            uint8_t * pucN,
-                                            uint32_t ulNLength,
-                                            uint8_t * pucE,
-                                            uint32_t ulELength,
-                                            uint8_t * pucBuffer,
-                                            uint32_t ulBufferLength )
+                                             uint32_t ulInputLength,
+                                             uint8_t * pucSignature,
+                                             uint32_t ulSignatureLength,
+                                             uint8_t * pucN,
+                                             uint32_t ulNLength,
+                                             uint8_t * pucE,
+                                             uint32_t ulELength,
+                                             uint8_t * pucBuffer,
+                                             uint32_t ulBufferLength )
 {
     AzureIoTResult_t xResult;
     int32_t lMbedTLSResult;

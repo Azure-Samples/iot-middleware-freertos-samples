@@ -1,4 +1,5 @@
-
+/* Copyright (c) Microsoft Corporation.
+ * Licensed under the MIT License. */
 
 #include "azure_iot_result.h"
 
@@ -21,12 +22,12 @@
  * @retval Non-0 if not successful.
  */
 AzureIoTResult_t AzureIoTSample_RS256Verify( uint8_t * pucInput,
-                                            uint32_t ulInputLength,
-                                            uint8_t * pucSignature,
-                                            uint32_t ulSignatureLength,
-                                            uint8_t * pucN,
-                                            uint32_t ulNLength,
-                                            uint8_t * pucE,
-                                            uint32_t ulELength,
-                                            uint8_t * pucBuffer,
-                                            uint32_t ulBufferLength );
+                                             uint32_t ulInputLength,
+                                             uint8_t * pucSignature,
+                                             uint32_t ulSignatureLength,
+                                             uint8_t * pucN,
+                                             uint32_t ulNLength,
+                                             uint8_t * pucE,
+                                             uint32_t ulELength,
+                                             uint8_t * pucBuffer,
+                                             uint32_t ulBufferLength );
