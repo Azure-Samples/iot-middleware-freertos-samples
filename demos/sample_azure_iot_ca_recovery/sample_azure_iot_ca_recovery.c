@@ -25,6 +25,7 @@
 /* Crypto helper header. */
 #include "azure_sample_crypto.h"
 
+#include "sample_rsa_verify.h"
 #include "azure_sample_ca_recovery.h"
 #include "azure_trust_bundle_storage.h"
 #include "azure_iot_jws.h"
@@ -146,9 +147,9 @@ static uint8_t ucRootCABuffer[ 5000 ];
 static uint32_t ulRootCABufferWrittenLength;
 static uint8_t ucRootCATrustBundleVersion[ 16 ];
 static uint32_t ulRootCATrustBundleVersionLength;
-static uint8_t ucSignatureValidateScratchBuffer[ azureiotjwsSCRATCH_BUFFER_SIZE ];
+static uint8_t ucSignatureValidateScratchBuffer[ azureiotjwsSHA_CALCULATION_SCRATCH_SIZE ];
 
-static uint8_t ucAzureRecoveryRootKeyN[] =
+static uint8_t ucAzureIoTRecoveryRootKeyN[] =
 {
     0x00, 0xC3, 0x87, 0x64, 0x80, 0xF7, 0x88, 0x8A, 0xB3, 0xC1, 0xE2, 0x0D, 0x3D,
     0xD0, 0xA4, 0xA9, 0x72, 0x7E, 0x9A, 0x42, 0xAE, 0x8E, 0x7F, 0x32, 0x5D, 0x2B,
@@ -171,19 +172,7 @@ static uint8_t ucAzureRecoveryRootKeyN[] =
     0x7B, 0xD3, 0x98, 0x73, 0x8C, 0x84, 0x75, 0xA1, 0x98, 0x57, 0x27, 0x4F, 0xD3,
     0xF6, 0x1B, 0xA8, 0xE0, 0xB6, 0xB8, 0x58, 0xC6, 0x5A, 0xD3
 };
-static uint8_t ucAzureRecoveryRootKeyID[ 13 ] = "Recovery.R";
 static uint8_t ucAzureIoTRecoveryKeyE[ 3 ] = { 0x01, 0x00, 0x01 };
-static AzureIoTJWS_RootKey_t xRecoveryRootKey[] =
-{
-    {
-        .pucRootKeyId = ucAzureRecoveryRootKeyID,
-        .ulRootKeyIdLength = sizeof( ucAzureRecoveryRootKeyID ) - 1,
-        .pucRootKeyN = ucAzureRecoveryRootKeyN,
-        .ulRootKeyNLength = sizeof( ucAzureRecoveryRootKeyN ),
-        .pucRootKeyExponent = ucAzureIoTRecoveryKeyE,
-        .ulRootKeyExponentLength = sizeof( ucAzureIoTRecoveryKeyE )
-    }
-};
 
 /* Each compilation unit must define the NetworkContext struct. */
 struct NetworkContext
@@ -776,14 +765,16 @@ static void prvAzureDemoTask( void * pvParameters )
                    xRecoveryPayload.xTrustBundle.ulCertificatesLength ) );
 
         LogInfo( ( "Validating Trust Bundle Signature\r\n" ) );
-        AzureIoTJWS_ManifestAuthenticate( const uint8_t * pucManifest,
-                                          uint32_t ulManifestLength,
-                                          uint8_t * pucJWS,
-                                          uint32_t ulJWSLength,
-                                          AzureIoTJWS_RootKey_t * xRecoveryRootKey,
-                                          uint32_t ulADURootKeysLength,
-                                          ucSignatureValidateScratchBuffer,
-                                          sizeof( ucSignatureValidateScratchBuffer ) );
+        xResult = AzureIoTSample_RS256Verify( xRecoveryPayload.pucTrustBundleJSONObjectText,
+                                              xRecoveryPayload.ulTrustBundleJSONObjectTextLength,
+                                              xRecoveryPayload.pucPayloadSignature,
+                                              xRecoveryPayload.ulPayloadSignatureLength,
+                                              ucAzureIoTRecoveryRootKeyN,
+                                              sizeof(ucAzureIoTRecoveryRootKeyN) / sizeof(ucAzureIoTRecoveryRootKeyN[0]),
+                                              ucAzureIoTRecoveryKeyE,
+                                              sizeof(ucAzureIoTRecoveryKeyE) / sizeof(ucAzureIoTRecoveryKeyE[0]),
+                                              ucSignatureValidateScratchBuffer,
+                                              sizeof(ucSignatureValidateScratchBuffer) );
 
         LogInfo( ( "Unescaping the trust bundle cert\r\n" ) );
         az_span xUnescapeSpan = az_span_create( xRecoveryPayload.xTrustBundle.pucCertificates,

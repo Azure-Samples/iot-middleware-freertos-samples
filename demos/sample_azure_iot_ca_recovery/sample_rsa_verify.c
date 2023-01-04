@@ -3,16 +3,14 @@
 
 #include "sample_rsa_verify.h"
 
+#include "azure_iot_config.h"
+
 #include "mbedtls/base64.h"
 #include "mbedtls/rsa.h"
 #include "mbedtls/pk.h"
 #include "mbedtls/ctr_drbg.h"
 #include "mbedtls/entropy.h"
 #include "mbedtls/cipher.h"
-
-#define azureiotjwsSHA256_SIZE                     32                                               /**< Size of the SHA256 hash. */
-#define azureiotjwsRSA3072_SIZE                    384                                              /**< Size of the RSA 3072 key. */
-#define azureiotjwsSHA_CALCULATION_SCRATCH_SIZE    azureiotjwsRSA3072_SIZE + azureiotjwsSHA256_SIZE /**< Size of the sha calculation scratch space. */
 
 /**
  * @brief Calculate the SHA256 over a buffer of bytes

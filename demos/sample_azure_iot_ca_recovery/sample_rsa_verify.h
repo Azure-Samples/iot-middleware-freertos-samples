@@ -3,6 +3,11 @@
 
 #include "azure_iot_result.h"
 
+#define azureiotjwsSHA256_SIZE                     32                                               /**< Size of the SHA256 hash. */
+#define azureiotjwsRSA3072_SIZE                    384                                              /**< Size of the RSA 3072 key. */
+#define azureiotjwsSHA_CALCULATION_SCRATCH_SIZE    azureiotjwsRSA3072_SIZE + azureiotjwsSHA256_SIZE /**< Size of the sha calculation scratch space. */
+
+
 /**
  * @brief Verify the manifest via RS256 for the JWS.
  *
