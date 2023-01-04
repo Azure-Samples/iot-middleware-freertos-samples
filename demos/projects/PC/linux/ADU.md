@@ -41,6 +41,10 @@ git submodule update --init --recursive
 
 * [CMake](https://cmake.org/download/) (Version 3.13 or higher)
 
+* Azure CLI and Azure IoT Module
+
+  See steps to install both [here](https://learn.microsoft.com/en-us/azure/iot-hub-device-update/create-update?source=recommendations#prerequisites).
+
 * Execute the installation script for additional prerequisites:
 
 ```bash
@@ -159,30 +163,14 @@ The resulting executable `iot-middleware-sample-adu` should be located in the bu
 
 ### Generate the ADU Update Manifest
 
-Navigate to the `C:\ADU-update` directory (created on step 9):
+Open PowerShell.
 
-Clone the ADU toolset.
+Navigate to the `C:\ADU-update` directory.
 
-```bash
-git clone https://github.com/Azure/iot-hub-device-update
-```
-
-Generate the update manifest using **powershell**.
+Run the following command:
 
 ```powershell
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
-
-Import-Module .\iot-hub-device-update\tools\AduCmdlets\AduUpdate.psm1
-
-$updateId = New-AduUpdateId -Provider "Contoso" -Name "Linux" -Version 1.1
-
-$compat = New-AduUpdateCompatibility -Properties @{ deviceManufacturer = 'PC'; deviceModel = 'Linux' }
-
-$installStep = New-AduInstallationStep -Handler 'microsoft/swupdate:1'-HandlerProperties @{ installedCriteria = '1.1' } -Files C:\ADU-update\iot-middleware-sample-adu-v1-1
-
-$update = New-AduImportManifest -UpdateId $updateId -Compatibility $compat -InstallationSteps $installStep
-
-$update | Out-File "./$($updateId.provider).$($updateId.name).$($updateId.version).importmanifest.json" -Encoding utf8
+az iot du update init v5 --update-provider Contoso --update-name Linux --update-version 1.1 --compat deviceModel=Linux deviceManufacturer=PC --step handler=microsoft/swupdate:1 properties='{\"installedCriteria\":\"1.1\"}' --file path=./iot-middleware-sample-adu-v1-1 > ./Contoso.Linux.1.1.importmanifest.json
 ```
 
 Verify you have the following files in your ADU-update directory:

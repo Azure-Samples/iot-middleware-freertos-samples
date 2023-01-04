@@ -25,6 +25,11 @@ This sample will allow you to update an STMicroelectronics B-L475E-IOT01A Discov
 
     Install `git` following the [official website](https://git-scm.com/). 
 1. [Powershell](https://docs.microsoft.com/powershell/scripting/install/installing-powershell?view=powershell-7.2)
+
+1. Azure CLI and Azure IoT Module
+
+    See steps to install both [here](https://learn.microsoft.com/en-us/azure/iot-hub-device-update/create-update?source=recommendations#prerequisites).
+
 1. [CMake](https://cmake.org/download/) (Version 3.13 or higher)
 1. [Ninja build system](https://github.com/ninja-build/ninja/releases) (Version 1.10 or higher)
 1. [GNU Arm Embedded Toolchain](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads) (Version 9 or higher)
@@ -188,30 +193,14 @@ The resulting binary `iot-middleware-sample-adu.bin` should be located in the bu
 
 ### Generate the ADU Update Manifest
 
-Navigate to the `C:\ADU-update` directory:
+Open PowerShell.
 
-Clone the ADU toolset.
+Navigate to the `C:\ADU-update` directory.
 
-```bash
-git clone https://github.com/Azure/iot-hub-device-update
-```
-
-Generate the update manifest using **powershell**.
+Run the following command:
 
 ```powershell
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
-
-Import-Module .\iot-hub-device-update\tools\AduCmdlets\AduUpdate.psm1
-
-$updateId = New-AduUpdateId -Provider "Contoso" -Name "STM32L475" -Version 1.1
-
-$compat = New-AduUpdateCompatibility -Properties @{ deviceManufacturer = 'STMicroelectronics'; deviceModel = 'STM32L475' }
-
-$installStep = New-AduInstallationStep -Handler 'microsoft/swupdate:1'-HandlerProperties @{ installedCriteria = '1.1' } -Files C:\ADU-update\iot-middleware-sample-adu-v1.1.bin
-
-$update = New-AduImportManifest -UpdateId $updateId -Compatibility $compat -InstallationSteps $installStep
-
-$update | Out-File "./$($updateId.provider).$($updateId.name).$($updateId.version).importmanifest.json" -Encoding utf8
+az iot du update init v5 --update-provider Contoso --update-name STM32L475 --update-version 1.1 --compat deviceModel=STM32L475 deviceManufacturer=STMicroelectronics --step handler=microsoft/swupdate:1 properties='{\"installedCriteria\":\"1.1\"}' --file path=./iot-middleware-sample-adu-v1.1.bin > ./Contoso.STM32L475.1.1.importmanifest.json
 ```
 
 Verify you have the following files in your ADU-update directory:
