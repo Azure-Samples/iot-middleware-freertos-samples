@@ -580,7 +580,7 @@ static void prvAzureDemoTask( void * pvParameters )
  * @brief Get IoT Hub endpoint and device Id info, when Provisioning service is used.
  *   This function will block for Provisioning service for result or return failure.
  */
-static bool tempBool = false;
+    static bool tempBool = false;
     static uint32_t prvIoTHubInfoGet( NetworkCredentials_t * pXNetworkCredentials,
                                       uint8_t ** ppucIothubHostname,
                                       uint32_t * pulIothubHostnameLength,
@@ -597,7 +597,11 @@ static bool tempBool = false;
         /* Set the pParams member of the network context with desired transport. */
         xNetworkContext.pParams = &xTlsTransportParams;
 
-        if(!tempBool) {tempBool = true; return sampleazureiotRECOVERY_INITIATED;}
+        if( !tempBool )
+        {
+            tempBool = true;
+            return sampleazureiotRECOVERY_INITIATED;
+        }
 
         TlsTransportStatus_t ulTLSStatus = prvConnectToServerWithBackoffRetries( democonfigENDPOINT, democonfigIOTHUB_PORT,
                                                                                  pXNetworkCredentials, &xNetworkContext );
@@ -775,11 +779,11 @@ static bool tempBool = false;
                                               xRecoveryPayload.pucPayloadSignature,
                                               xRecoveryPayload.ulPayloadSignatureLength,
                                               ucAzureIoTRecoveryRootKeyN,
-                                              sizeof(ucAzureIoTRecoveryRootKeyN) / sizeof(ucAzureIoTRecoveryRootKeyN[0]),
+                                              sizeof( ucAzureIoTRecoveryRootKeyN ) / sizeof( ucAzureIoTRecoveryRootKeyN[ 0 ] ),
                                               ucAzureIoTRecoveryKeyE,
-                                              sizeof(ucAzureIoTRecoveryKeyE) / sizeof(ucAzureIoTRecoveryKeyE[0]),
+                                              sizeof( ucAzureIoTRecoveryKeyE ) / sizeof( ucAzureIoTRecoveryKeyE[ 0 ] ),
                                               ucSignatureValidateScratchBuffer,
-                                              sizeof(ucSignatureValidateScratchBuffer) );
+                                              sizeof( ucSignatureValidateScratchBuffer ) );
         configASSERT( xResult == eAzureIoTSuccess );
         LogInfo( ( "Trust Bundle Signature Successfully Validated\r\n" ) );
 

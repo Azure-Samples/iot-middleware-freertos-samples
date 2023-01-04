@@ -55,7 +55,7 @@ AzureIoTResult_t AzureIoTSample_RS256Verify( uint8_t * pucInput,
     int32_t lMbedTLSResult;
     int32_t outDecodeSize;
     mbedtls_rsa_context ctx;
-    uint8_t* ucSignatureBase64Decoded;
+    uint8_t * ucSignatureBase64Decoded;
 
     if( ulBufferLength < azureiotjwsSHA_CALCULATION_SCRATCH_SIZE )
     {
@@ -66,12 +66,13 @@ AzureIoTResult_t AzureIoTSample_RS256Verify( uint8_t * pucInput,
     ucSignatureBase64Decoded = pucBuffer + azureiotjwsSHA256_SIZE;
 
     az_result xCoreResult = az_base64_decode( az_span_create( ucSignatureBase64Decoded, azureiotjwsRSA3072_SIZE ),
-                    az_span_create( pucSignature, ulSignatureLength ),
-                    &outDecodeSize);
-    if (az_result_failed(xCoreResult))
+                                              az_span_create( pucSignature, ulSignatureLength ),
+                                              &outDecodeSize );
+
+    if( az_result_failed( xCoreResult ) )
     {
-      AZLogError( ( "[JWS] Base64 decode failed: 0x%08x", xCoreResult ) );
-      return eAzureIoTErrorFailed;
+        AZLogError( ( "[JWS] Base64 decode failed: 0x%08x", xCoreResult ) );
+        return eAzureIoTErrorFailed;
     }
 
     /* The signature is encrypted using the input key. We need to decrypt the */
