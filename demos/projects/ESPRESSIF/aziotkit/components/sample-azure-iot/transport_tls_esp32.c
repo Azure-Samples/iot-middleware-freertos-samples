@@ -114,7 +114,7 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pNetworkContext,
 
     if ( pNetworkCredentials->pucRootCa )
     {
-        esp_transport_ssl_set_cert_data_der( pxEspTlsTransport->xTransport, ( const char * ) pNetworkCredentials->pucRootCa, pNetworkCredentials->xRootCaSize );
+        esp_tls_set_global_ca_store( ( const unsigned char * ) pNetworkCredentials->pucRootCa, pNetworkCredentials->xRootCaSize );
     }
 
     if ( pNetworkCredentials->pucClientCert )
