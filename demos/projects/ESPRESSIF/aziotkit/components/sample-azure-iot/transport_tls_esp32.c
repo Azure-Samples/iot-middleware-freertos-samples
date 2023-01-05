@@ -100,6 +100,8 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pNetworkContext,
     pxEspTlsTransport->ulReceiveTimeoutMs = ulReceiveTimeoutMs;
     pxEspTlsTransport->ulSendTimeoutMs = ulSendTimeoutMs;
 
+    esp_transport_ssl_enable_global_ca_store(pxEspTlsTransport->xTransport);
+
     pxTlsParams->xSSLContext = (void*)pxEspTlsTransport;
 
     if ( pNetworkCredentials->ppcAlpnProtos )
