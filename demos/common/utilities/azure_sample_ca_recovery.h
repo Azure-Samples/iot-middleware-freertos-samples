@@ -14,7 +14,7 @@ typedef struct AzureIoTCARecovery_TrustBundle
     const uint8_t * pucExpiryTime;
     uint32_t ulExpiryTimeLength;
 
-    const uint8_t * pucCertificates;
+    uint8_t * pucCertificates;
     uint32_t ulCertificatesLength;
 } AzureIoTCARecovery_TrustBundle;
 
