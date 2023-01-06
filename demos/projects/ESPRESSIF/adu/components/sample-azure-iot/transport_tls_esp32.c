@@ -26,6 +26,7 @@
  */
 
 /* Standard includes. */
+#include "errno.h"
 
 /* FreeRTOS includes. */
 #include "freertos/FreeRTOS.h"
@@ -102,6 +103,8 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pNetworkContext,
     pxEspTlsTransport->ulReceiveTimeoutMs = ulReceiveTimeoutMs;
     pxEspTlsTransport->ulSendTimeoutMs = ulSendTimeoutMs;
 
+    esp_transport_ssl_enable_global_ca_store(pxEspTlsTransport->xTransport);
+
     esp_transport_list_add(pxEspTlsTransport->xTransportList, pxEspTlsTransport->xTransport, "_ssl");
 
     pxTlsParams->xSSLContext = (void*)pxEspTlsTransport;
@@ -118,7 +121,7 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pNetworkContext,
 
     if ( pNetworkCredentials->pucRootCa )
     {
-        esp_transport_ssl_set_cert_data_der( pxEspTlsTransport->xTransport, ( const char * ) pNetworkCredentials->pucRootCa, pNetworkCredentials->xRootCaSize );
+        esp_tls_set_global_ca_store( ( const unsigned char * ) pNetworkCredentials->pucRootCa, pNetworkCredentials->xRootCaSize );
     }
 
     if ( pNetworkCredentials->pucClientCert )

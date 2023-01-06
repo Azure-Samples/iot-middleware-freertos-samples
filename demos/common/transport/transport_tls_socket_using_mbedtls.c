@@ -272,9 +272,9 @@ static int32_t setRootCa( MbedSSLContext_t * pxSslContext,
     configASSERT( pucRootCa != NULL );
 
     /* Parse the server root CA certificate into the SSL context. */
-    lMbedtlsError = mbedtls_x509_crt_parse_der_nocopy( &( pxSslContext->rootCa ),
-                                                       pucRootCa,
-                                                       xRootCaSize );
+    lMbedtlsError = mbedtls_x509_crt_parse( &( pxSslContext->rootCa ),
+                                            pucRootCa,
+                                            xRootCaSize );
 
     if( lMbedtlsError != 0 )
     {
