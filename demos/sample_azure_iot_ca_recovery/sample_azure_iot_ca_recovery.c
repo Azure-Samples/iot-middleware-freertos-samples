@@ -347,7 +347,7 @@ static uint32_t prvSetupNetworkCredentials( NetworkCredentials_t * pxNetworkCred
  */
 static uint32_t prvSetupRecoveryNetworkCredentials( NetworkCredentials_t * pxNetworkCredentials )
 {
-    // Don't set CA cert since we ignore CA validation on recovery
+    /* Don't set CA cert since we ignore CA validation on recovery */
     #ifdef democonfigCLIENT_CERTIFICATE_PEM
         pxNetworkCredentials->pucClientCert = ( const unsigned char * ) democonfigCLIENT_CERTIFICATE_PEM;
         pxNetworkCredentials->xClientCertSize = sizeof( democonfigCLIENT_CERTIFICATE_PEM );
@@ -406,7 +406,7 @@ static void prvAzureDemoTask( void * pvParameters )
         {
             if( ulStatus == sampleazureiotRECOVERY_INITIATED )
             {
-                memset(&xNetworkCredentials, 0, sizeof(xNetworkCredentials));
+                memset( &xNetworkCredentials, 0, sizeof( xNetworkCredentials ) );
                 ulStatus = prvSetupRecoveryNetworkCredentials( &xNetworkCredentials );
                 configASSERT( ulStatus == 0 );
 
@@ -764,9 +764,9 @@ static void prvAzureDemoTask( void * pvParameters )
                    xRecoveryPayload.xTrustBundle.ulCertificatesLength ) );
 
         LogInfo( ( "Validating Trust Bundle Signature\r\n" ) );
-        xResult = AzureIoTSample_RS256Verify((uint8_t *) xRecoveryPayload.pucTrustBundleJSONObjectText,
+        xResult = AzureIoTSample_RS256Verify( ( uint8_t * ) xRecoveryPayload.pucTrustBundleJSONObjectText,
                                               xRecoveryPayload.ulTrustBundleJSONObjectTextLength,
-                                              (uint8_t *)xRecoveryPayload.pucPayloadSignature,
+                                              ( uint8_t * ) xRecoveryPayload.pucPayloadSignature,
                                               xRecoveryPayload.ulPayloadSignatureLength,
                                               ucAzureIoTRecoveryRootKeyN,
                                               sizeof( ucAzureIoTRecoveryRootKeyN ) / sizeof( ucAzureIoTRecoveryRootKeyN[ 0 ] ),
