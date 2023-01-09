@@ -9,6 +9,8 @@
 #include "nvs_flash.h"
 #include "nvs.h"
 
+static const char * TAG = "trust-bundle-storage";
+
 #define CA_CERT_NAMESPACE                  "root-ca-cert"
 #define AZURE_TRUST_BUNDLE_NAME            "az-tb"
 #define AZURE_TRUST_BUNDLE_VERSION_NAME    "az-tb-ver"
@@ -25,12 +27,11 @@ AzureIoTResult_t AzureIoTCAStorage_ReadTrustBundle( const uint8_t * pucTrustBund
     size_t ulTrustBundleReadSize = 0; /* value will default to 0, if not set yet in NVS */
     size_t ulTrustBundleVersionReadSize = 0;
 
-    /* Open CA Cert namespace */
     err = nvs_open( CA_CERT_NAMESPACE, NVS_READWRITE, &xNVSHandle );
 
     if( err != ESP_OK )
     {
-        printf( "Error (%s) opening NVS!\n", esp_err_to_name( err ) );
+        ESP_LOGE( "Error (%s) opening NVS!\n", esp_err_to_name( err ) );
         return err;
     }
 
@@ -38,21 +39,20 @@ AzureIoTResult_t AzureIoTCAStorage_ReadTrustBundle( const uint8_t * pucTrustBund
 
     if( err != ESP_OK )
     {
-        printf( "Error (%s) getting AZURE_TRUST_BUNDLE_VERSION_NAME from NVS!\n", esp_err_to_name( err ) );
+        ESP_LOGE( TAG, "Error (%s) getting AZURE_TRUST_BUNDLE_VERSION_NAME from NVS!\n", esp_err_to_name( err ) );
         nvs_close( xNVSHandle );
         return err;
     }
 
     if( ulTrustBundleVersionReadSize > ulTrustBundleVersionLength )
     {
-        printf( "Not enough size to read version\n" );
+        ESP_LOGE( TAG, "Not enough size to read version\n" );
         nvs_close( xNVSHandle );
         return eAzureIoTErrorOutOfMemory;
     }
 
     *pulOutTrustBundleVersionLength = ulTrustBundleVersionReadSize;
 
-    /* Read the current trust bundle version */
     err = nvs_get_blob( xNVSHandle, AZURE_TRUST_BUNDLE_VERSION_NAME, &pucTrustBundleVersion, pulOutTrustBundleVersionLength );
 
     if( err != ESP_OK )
@@ -72,11 +72,11 @@ AzureIoTResult_t AzureIoTCAStorage_ReadTrustBundle( const uint8_t * pucTrustBund
 
     if( ulTrustBundleReadSize == 0 )
     {
-        printf( "Nothing saved yet!\n" );
+        ESP_LOGE( "Nothing saved yet!\n" );
     }
     else if( ulTrustBundleReadSize > ulTrustBundleLength )
     {
-        printf( "Not enough space to read trust bundle" );
+        ESP_LOGE( TAG, "Not enough space to read trust bundle" );
     }
     else
     {
@@ -104,12 +104,11 @@ AzureIoTResult_t AzureIoTCAStorage_WriteTrustBundle( const uint8_t * pucTrustBun
     esp_err_t err;
     size_t ulTrustBundleVersionReadSize = 0;
 
-    /* Open CA Cert namespace */
     err = nvs_open( CA_CERT_NAMESPACE, NVS_READWRITE, &xNVSHandle );
 
     if( err != ESP_OK )
     {
-        printf( "Error (%s) opening NVS!\n", esp_err_to_name( err ) );
+        ESP_LOGE( TAG, "Error (%s) opening NVS!\n", esp_err_to_name( err ) );
         return err;
     }
 
@@ -119,24 +118,23 @@ AzureIoTResult_t AzureIoTCAStorage_WriteTrustBundle( const uint8_t * pucTrustBun
 
     if( err != ESP_OK )
     {
-        printf( "Error (%s) getting AZURE_TRUST_BUNDLE_VERSION_NAME from NVS!\n", esp_err_to_name( err ) );
+        ESP_LOGE( TAG, "Error (%s) getting AZURE_TRUST_BUNDLE_VERSION_NAME from NVS!\n", esp_err_to_name( err ) );
         nvs_close( xNVSHandle );
         return err;
     }
 
     if( ulTrustBundleVersionReadSize > 8 )
     {
-        printf( "Not enough size to read version\n" );
+        ESP_LOGE( TAG, "Not enough size to read version\n" );
         nvs_close( xNVSHandle );
         return eAzureIoTErrorOutOfMemory;
     }
 
-    /* Read the current trust bundle version */
     err = nvs_get_blob( xNVSHandle, AZURE_TRUST_BUNDLE_VERSION_NAME, &ucReadTrustBundleVersion, &ulTrustBundleVersionReadSize );
 
     if( err != ESP_OK )
     {
-        printf( "Error (%s) getting AZURE_TRUST_BUNDLE_VERSION_NAME from NVS!\n", esp_err_to_name( err ) );
+        ESP_LOGE( TAG, "Error (%s) getting AZURE_TRUST_BUNDLE_VERSION_NAME from NVS!\n", esp_err_to_name( err ) );
         nvs_close( xNVSHandle );
         return err;
     }
@@ -144,29 +142,28 @@ AzureIoTResult_t AzureIoTCAStorage_WriteTrustBundle( const uint8_t * pucTrustBun
     /* If version matches, do not write to not overuse NVS */
     if( memcmp( ucReadTrustBundleVersion, pucTrustBundleVersion, ulTrustBundleVersionReadSize ) == 0 )
     {
-        printf( "Trust bundle version in NVS matches bundle version to write.\n" );
+        ESP_LOGI( "Trust bundle version in NVS matches bundle version to write.\n" );
         nvs_close( xNVSHandle );
         return ESP_OK;
     }
 
-    /* Write value */
-    printf( "Writing trust bundle:\r\n%.*s\n", ulTrustBundleLength, pucTrustBundle );
+    ESP_LOGI( "Writing trust bundle:\r\n%.*s\n", ulTrustBundleLength, pucTrustBundle );
     err = nvs_set_blob( xNVSHandle, AZURE_TRUST_BUNDLE_NAME, pucTrustBundle, ulTrustBundleLength );
 
     if( err != ESP_OK )
     {
-        printf( "Error (%s) getting AZURE_TRUST_BUNDLE_VERSION_NAME from NVS!\n", esp_err_to_name( err ) );
+        ESP_LOGE( TAG, "Error (%s) getting AZURE_TRUST_BUNDLE_VERSION_NAME from NVS!\n", esp_err_to_name( err ) );
         nvs_close( xNVSHandle );
         return err;
     }
 
     /* Set new trust bundle version */
-    printf( "Writing trust bundle version: %.*s\n", ulTrustBundleVersionLength, pucTrustBundleVersion );
+    ESP_LOGI( TAG, "Writing trust bundle version: %.*s\n", ulTrustBundleVersionLength, pucTrustBundleVersion );
     err = nvs_set_blob( xNVSHandle, AZURE_TRUST_BUNDLE_VERSION_NAME, pucTrustBundleVersion, ulTrustBundleVersionLength );
 
     if( err != ESP_OK )
     {
-        printf( "Error (%s) getting AZURE_TRUST_BUNDLE_VERSION_NAME from NVS!\n", esp_err_to_name( err ) );
+        ESP_LOGE( TAG, "Error (%s) getting AZURE_TRUST_BUNDLE_VERSION_NAME from NVS!\n", esp_err_to_name( err ) );
         nvs_close( xNVSHandle );
         return err;
     }
@@ -176,7 +173,7 @@ AzureIoTResult_t AzureIoTCAStorage_WriteTrustBundle( const uint8_t * pucTrustBun
 
     if( err != ESP_OK )
     {
-        printf( "Error (%s) getting AZURE_TRUST_BUNDLE_VERSION_NAME from NVS!\n", esp_err_to_name( err ) );
+        ESP_LOGE( TAG, "Error (%s) getting AZURE_TRUST_BUNDLE_VERSION_NAME from NVS!\n", esp_err_to_name( err ) );
         nvs_close( xNVSHandle );
         return err;
     }
