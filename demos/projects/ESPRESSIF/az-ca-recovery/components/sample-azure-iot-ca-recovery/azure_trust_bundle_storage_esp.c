@@ -32,7 +32,7 @@ AzureIoTResult_t AzureIoTCAStorage_ReadTrustBundle( const uint8_t * pucTrustBund
 
     if( err != ESP_OK )
     {
-        ESP_LOGE(TAG, "Error (%s) opening NVS!\n", esp_err_to_name( err ) );
+        ESP_LOGE( TAG, "Error (%s) opening NVS!\n", esp_err_to_name( err ) );
         return err;
     }
 
@@ -73,7 +73,7 @@ AzureIoTResult_t AzureIoTCAStorage_ReadTrustBundle( const uint8_t * pucTrustBund
 
     if( ulTrustBundleReadSize == 0 )
     {
-        ESP_LOGE(TAG, "Nothing saved yet!\n" );
+        ESP_LOGE( TAG, "Nothing saved yet!\n" );
     }
     else if( ulTrustBundleReadSize > ulTrustBundleLength )
     {
@@ -143,12 +143,12 @@ AzureIoTResult_t AzureIoTCAStorage_WriteTrustBundle( const uint8_t * pucTrustBun
     /* If version matches, do not write to not overuse NVS */
     if( memcmp( ucReadTrustBundleVersion, pucTrustBundleVersion, ulTrustBundleVersionReadSize ) == 0 )
     {
-        ESP_LOGI(TAG, "Trust bundle version in NVS matches bundle version to write.\n" );
+        ESP_LOGI( TAG, "Trust bundle version in NVS matches bundle version to write.\n" );
         nvs_close( xNVSHandle );
         return ESP_OK;
     }
 
-    ESP_LOGI(TAG, "Writing trust bundle:\r\n%.*s\n", ulTrustBundleLength, pucTrustBundle );
+    ESP_LOGI( TAG, "Writing trust bundle:\r\n%.*s\n", ulTrustBundleLength, pucTrustBundle );
     err = nvs_set_blob( xNVSHandle, AZURE_TRUST_BUNDLE_NAME, pucTrustBundle, ulTrustBundleLength );
 
     if( err != ESP_OK )
