@@ -90,6 +90,8 @@ AzureIoTResult_t AzureIoTCAStorage_ReadTrustBundle( const uint8_t * pucTrustBund
         }
     }
 
+    nvs_close( xNVSHandle );
+
     return err;
 }
 
