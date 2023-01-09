@@ -116,7 +116,7 @@ esp_err_t print_saved_bundle( nvs_handle_t my_handle )
         return err;
     }
 
-    printf( "Current trust bundle version = %d\n", trust_bundle_read_version );
+    printf( "Current trust bundle version = %ld\n", trust_bundle_read_version );
 
     /* Get size of cert */
     size_t trust_bundle_read_size = 0; /* value will default to 0, if not set yet in NVS */
