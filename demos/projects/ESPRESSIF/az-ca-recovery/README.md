@@ -1,5 +1,7 @@
 # Perform Trust Bundle Recovery with an ESPRESSIF ESP32 using Azure IoT Middleware for FreeRTOS
 
+Trust Bundle Recovery allows a mechanism for your device to recover connection to Azure resources should the CA certificates expire or otherwise become invalid. This requires a standard DPS instance and connected hub with associated credentials, and then a separate DPS instance and credential, only to be used once for recovery. The device will connect to the recovery DPS instance, ignoring CA cert validation, and will be returned a signed trust bundle recovery payload. This payload contains the complete and updated collection of CA certificates, signed by a root key determined by the user. The device receives this payload, verifies the authenticity with the saved public key, and then installs the certificates into the device's non-volatile storage (NVS). This allows the certificates to be loaded again should the device restart, removing the need for the device to use the recovery endpoint again. From that point on, the device can connect to the usual DPS endpoint and provisioned hub with full CA validation.
+
 ## What you need
 
 - [ESPRESSIF ESP32 Board](https://www.espressif.com/en/products/devkits)
