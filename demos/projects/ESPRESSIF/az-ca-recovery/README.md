@@ -74,7 +74,6 @@ Parameter | Value
  `WiFi SSID` | _{Your WiFi SSID}_
  `WiFi Password` | _{Your WiFi password}_
 
-
 Under menu item `Azure IoT middleware for FreeRTOS Main Task Configuration`, update the following configuration values:
 
 Parameter | Value
@@ -85,7 +84,7 @@ Parameter | Value
  `[RECOVERY] Azure Device Provisioning Service ID Scope` | _{Your ID scope value for the recovery instance}_
  `[RECOVERY] Azure Device Provisioning Service Registration ID.` | _{Your Device Registration ID value for the recovery instance}_
 
-Select your desired authentication method with the `Azure IoT Authentication Method () --->`. The default option is `Symmetric Key`:
+Select your desired authentication method with the `Azure IoT Authentication Method () --->` as `Symmetric Key`:
 
 Parameter | Value
 ---------|----------
@@ -296,20 +295,3 @@ I (6322) tls_freertos: (Network connection 0x3ffc8c4c) Connection to contoso-iot
 ...
 ```
 </details>
-
-## Size Chart
-
-The following chart shows the RAM and ROM usage for the ESPRESSIF ESP32 microcontroller.
-Build options: Compile optimized for size (-Os) and no logging (-DLIBRARY_LOG_LEVEL=LOG_NONE).
-This sample can include either IoT Hub only or both IoT Hub and DPS services. Also it can optionally use IoT Plug-and-Play. The table below shows RAM/ROM sizes considering:
-
-- Middleware libraries only – represents the libraries for Azure IoT connection and features.
-- Total size – which includes the Azure IoT middleware for FreeRTOS, Mbed TLS, FreeRTOS, CoreMQTT and the HAL for the dev kit.
-
-|  | Middleware library size | | Total Size | |
-|---------|----------|---------|---------|---------
-| **Sample** | **Flash (code,rodata)** | **DRAM,IRAM (bss,data)** | **Flash (code,rodata)** | **DRAM,IRAM (bss,data)** |
-| IoT Hub + DPS + PnP | 38.13 KB | 12 bytes | 704.81 KB | 119.69 KB
-| IoT Hub + DPS | 38.13 KB | 12 bytes | 704.81 KB | 119.69 KB
-| IoT Hub + PnP | 28.74 KB | 12 bytes | 694.81 KB | 118.34 KB
-| IoT Hub only | 28.73 KB | 12 bytes | 694.65 KB | 118.34 KB
