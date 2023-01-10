@@ -1,4 +1,4 @@
-# Connect an ESPRESSIF ESP32 using Azure IoT Middleware for FreeRTOS
+# Perform Trust Bundle Recovery with an ESPRESSIF ESP32 using Azure IoT Middleware for FreeRTOS
 
 ## What you need
 
@@ -29,7 +29,6 @@
 
 3. Azure IoT Embedded middleware for FreeRTOS
 
-
 Clone the following repo to download all sample device code, setup scripts, and offline versions of the documentation.
 
 **If you previously cloned this repo in another sample, you don't need to do it again.**
@@ -50,6 +49,9 @@ You may also need to enable long path support for both Microsoft Windows and git
 - Windows: <https://docs.microsoft.com/windows/win32/fileio/maximum-file-path-limitation?tabs=cmd#enable-long-paths-in-windows-10-version-1607-and-later>
 - Git: as Administrator run `git config --system core.longpaths true`
 
+## Prepare the Trust Bundle in the NVS
+
+Run the sample called `az-nvs-cert-bundle` in the `/ESPRESSIF` directory to load the v1.0 trust bundle in your ESP device. This will purposely save an incomplete trust bundle in your devices's NVS, which will then be loaded for the IoT application. Once the CA validation fails, the sample will then move into the recovery phase which fetches the new and complete trust bundle.
 
 ## Prepare the sample
 
