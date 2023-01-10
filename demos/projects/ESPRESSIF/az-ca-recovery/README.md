@@ -55,7 +55,7 @@ Run the sample called `az-nvs-cert-bundle` in the `/ESPRESSIF` directory to load
 
 ## Prepare the sample
 
-To connect the ESPRESSIF ESP32 to Azure, you will update the sample configuration, build the image, and flash the image to the device.
+After running the set up application, you will then need to update this sample configuration, build the image, and flash the image to the device.
 
 ### Update sample configuration
 
@@ -79,50 +79,18 @@ Under menu item `Azure IoT middleware for FreeRTOS Main Task Configuration`, upd
 
 Parameter | Value
 ---------|----------
- `Use PnP in Azure Sample` | Enabled by default. Disable this option to build a simpler sample without Azure Plug-and-Play.
- `Azure IoT Hub FQDN` | _{Your Azure IoT Hub Host FQDN}_ (Unused if Device Provisioning is enabled below)
- `Azure IoT Device ID` | _{Your Azure IoT Hub device ID}_
- `Azure IoT Module ID` | _{Your Azure IoT Hub Module ID}_ (optional, specify module id if using a device module; else leave blank if not)
+ `Enable Device Provisioning Sample` | _{Check this option to enable DPS in the sample}_
+ `Azure Device Provisioning Service ID Scope` | _{Your ID scope value}_
+ `Azure Device Provisioning Service Registration ID` | _{Your Device Registration ID value}_
+ `[RECOVERY] Azure Device Provisioning Service ID Scope` | _{Your ID scope value for the recovery instance}_
+ `[RECOVERY] Azure Device Provisioning Service Registration ID.` | _{Your Device Registration ID value for the recovery instance}_
 
 Select your desired authentication method with the `Azure IoT Authentication Method () --->`. The default option is `Symmetric Key`:
 
 Parameter | Value
 ---------|----------
  `Azure IoT Device Symmetric Key` | _{Your Azure IoT Hub device symmetric key}_
-
-If you would like to use x509 certificates, select `X509 Certificates` and update the following values:
-
-Parameter | Value
----------|----------
- `Azure IoT Device Client Certificate` | _{Your Azure IoT Hub device certificate}_
- `Azure IoT Device Client Certificate Private Key` | _{Your Azure IoT Hub device certificate private key}_
-
-Note that the certificate and private key must be a single line string with `\n` characters at the appropriate line breaks. For example:
-
-```txt
-# PEM Formatted (WRONG)
------BEGIN CERTIFICATE-----
-MIIBJDCBywIUfeHrebBVa2eZAbouBgACp9R3BncwCgYIKoZIzj0EAwIwETEPMA0G
-...
-vTfQahwsxN3xink9z1gtirrjQlqDAiEAyU+6TUJcG6d9JF+uJqsLFpsbbF3IzGAw
-yC+koNRC0MU=
------END CERTIFICATE-----
-
-# Single Line (CORRECT)
------BEGIN CERTIFICATE-----\nMIIBJDCB...\nyC+koNRC0MU=\n-----END CERTIFICATE-----
-```
-
-> Some parameters contain default values that do not need to be updated.
-
-If you're using **DPS** with an individual enrollment with SAS authentication, set the following parameters:
-
-Parameter | Value
----------|----------
- `Enable Device Provisioning Sample` | _{Check this option to enable DPS in the sample}_
- `Azure Device Provisioning Service ID Scope` | _{Your ID scope value}_
- `Azure Device Provisioning Service Registration ID` | _{Your Device Registration ID value}_
-
-> Some parameters contain default values that do not need to be updated.
+ `[RECOVERY] Azure IoT Device Symmetric Key` | _{Your Azure IoT Hub device symmetric key for the recovery instance}_
 
 Save the configuration (`Shift + S`) inside the sample folder in a file with name `sdkconfig`.
 After that, close the configuration utility (`Shift + Q`).
