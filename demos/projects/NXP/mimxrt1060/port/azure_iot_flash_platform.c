@@ -15,17 +15,20 @@
 
 #include "mbedtls/md.h"
 
-#include "fsl_nor_flash.h"
+#include "fsl_flexspi.h"
+#include "app.h"
 
-#include "fsl_flexspi_nor_flash.h"
+// #include "fsl_nor_flash.h"
 
-#include "fsl_adapter_flash.h"
+// #include "fsl_flexspi_nor_flash.h"
+
+// #include "fsl_adapter_flash.h"
 
 // #include "flexspi_nor_flash.h"
 
 // #include "flexspi_flash.h"
 
-#include "fsl_adapter_flash.h"
+// #include "fsl_adapter_flash.h"
 
 #define azureiotflashSHA_256_SIZE    32
 
@@ -63,8 +66,10 @@ AzureIoTResult_t AzureIoTPlatform_Init( AzureADUImage_t * const pxAduImage )
     // TODO: Fill in initialization for NXP flash writing capability.
 
     LogInfo( ( "AzureIoTPlatform_Init()\r\n" ) );
-    status_t status;
-    flexspi_transfer_t flashXfer;
+    // status_t status;
+    // flexspi_transfer_t flashXfer;
+    // hal_flash_status_t initStat = HAL_FlashInit();
+    // LogInfo( ( "init status: %08x\r\n", initStat ) );
 
     /* Write enable */
     // flashXfer.deviceAddress = 0x200000;
@@ -79,10 +84,46 @@ AzureIoTResult_t AzureIoTPlatform_Init( AzureADUImage_t * const pxAduImage )
     // hal_flash_status_t jksdfl = HAL_FlashInit();
     // LogInfo( ( "flash init: %08x\r\n", jksdfl ) );
 
+    status_t status;
+    // LogInfo( ( "Vendor ID: 0x%x\r\n", vendorID ) );
+    
+
     uint8_t read_data;
-    hal_flash_status_t jksddfl = HAL_FlashRead(0x200000, 10, &read_data);
-    LogInfo( ( "flash read: %08x\r\n", jksddfl ) );
-    LogInfo( ( "flash data: %.s\r\n", 10, read_data ) );
+    // hal_flash_status_t jksddfl = HAL_FlashRead(0x60073f20, 10, &read_data); //E packet....pCon
+    // LogInfo( ( "flash read: %08x\r\n", jksddfl ) );
+    // LogInfo( ( "flash data: %08x\r\n", read_data ) );
+    // jksddfl = HAL_FlashRead(0x60000000, 10, &read_data); // FCFB...V........
+    // LogInfo( ( "flash read: %08x\r\n", jksddfl ) );
+    // LogInfo( ( "flash data: %08x\r\n", read_data ) );
+    // jksddfl = HAL_FlashRead(0x60200000, 10, &read_data); // E packet....pCon
+    // LogInfo( ( "flash read: %08x\r\n", jksddfl ) );
+    // LogInfo( ( "flash data: %08x\r\n", read_data ) );
+// 0x402A8000u flexspi base addr 60000000 0x200000
+// dstAddr = 0x200000 or 0x100000
+// sec_num prob just number of sectors to erase, so multiples of 0x1000
+
+// address = dstAddr, len = sec_num * flash_area_image_sector_size. If either of them are not divisible by sector size, error
+
+// base = pointer to flexspi_base, which is 0x402A8000u, address = address
+// flashXfer.deviceAddress = address;
+
+// mine
+// address should be FLEXSPI_AMBA_BASE + address
+    // hal_flash_status_t sjdkfl = HAL_FlashEraseSector(0x60200000, 0x1000);
+    // LogInfo( ( "flash erase: %08x\r\n", sjdkfl ) );
+
+    // // sjdkfl = HAL_FlashEraseSector(0x60200000, 0x1000);
+    // // LogInfo( ( "flash erase: %08x\r\n", sjdkfl ) );
+
+    // jksddfl = HAL_FlashRead(0x60073f20, 10, &read_data);
+    // LogInfo( ( "flash read: %08x\r\n", jksddfl ) );
+    // LogInfo( ( "flash data: %08x\r\n", read_data ) );
+    // jksddfl = HAL_FlashRead(0x60000000, 10, &read_data);
+    // LogInfo( ( "flash read: %08x\r\n", jksddfl ) );
+    // LogInfo( ( "flash data: %08x\r\n", read_data ) );
+    // jksddfl = HAL_FlashRead(0x60200000, 10, &read_data);
+    // LogInfo( ( "flash read: %08x\r\n", jksddfl ) );
+    // LogInfo( ( "flash data: %08x\r\n", read_data ) );
     // flexspi_nor_write_enable(FLEXSPI, 0x200000);
     
     
