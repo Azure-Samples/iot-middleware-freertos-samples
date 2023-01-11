@@ -447,6 +447,14 @@ static void prvAzureDemoTask( void * pvParameters )
                 xResult = AzureIoTHubClient_SendTelemetry( &xAzureIoTHubClient,
                                                            ucScratchBuffer, ulScratchBufferLength,
                                                            NULL, eAzureIoTHubMessageQoS1, NULL );
+
+                if( xResult == eAzureIoTErrorPublishFailed )
+                {
+                    LogError( ( "Error sending telemetry - restarting demo...\r\n" ) );
+                    /* force the demo to restart */
+                    break;
+                }
+
                 configASSERT( xResult == eAzureIoTSuccess );
             }
 
@@ -456,12 +464,28 @@ static void prvAzureDemoTask( void * pvParameters )
             if( ulReportedPropertiesUpdateLength > 0 )
             {
                 xResult = AzureIoTHubClient_SendPropertiesReported( &xAzureIoTHubClient, ucReportedPropertiesUpdate, ulReportedPropertiesUpdateLength, NULL );
+
+                if( xResult == eAzureIoTErrorPublishFailed )
+                {
+                    LogError( ( "Publish failed - restarting demo...\r\n" ) );
+                    /* force the demo to restart */
+                    break;
+                }
+
                 configASSERT( xResult == eAzureIoTSuccess );
             }
 
             LogInfo( ( "Attempt to receive publish message from IoT Hub.\r\n" ) );
             xResult = AzureIoTHubClient_ProcessLoop( &xAzureIoTHubClient,
                                                      sampleazureiotPROCESS_LOOP_TIMEOUT_MS );
+
+            if( xResult == eAzureIoTErrorFailed )
+            {
+                LogError( ( "Error in process loop - restarting demo...\r\n" ) );
+                /* force the demo to restart */
+                break;
+            }
+
             configASSERT( xResult == eAzureIoTSuccess );
 
             /* Leave Connection Idle for some time. */
@@ -470,24 +494,34 @@ static void prvAzureDemoTask( void * pvParameters )
         }
 
         xResult = AzureIoTHubClient_UnsubscribeProperties( &xAzureIoTHubClient );
-        configASSERT( xResult == eAzureIoTSuccess );
 
-        xResult = AzureIoTHubClient_UnsubscribeCommand( &xAzureIoTHubClient );
-        configASSERT( xResult == eAzureIoTSuccess );
+        /* if there are network issues, this will fail and we should still close the network connection and restart */
+        if( xResult == eAzureIoTSuccess )
+        {
+            xResult = AzureIoTHubClient_UnsubscribeCommand( &xAzureIoTHubClient );
+            configASSERT( xResult == eAzureIoTSuccess );
 
-        /* Send an MQTT Disconnect packet over the already connected TLS over
-         * TCP connection. There is no corresponding response for the disconnect
-         * packet. After sending disconnect, client must close the network
-         * connection. */
-        xResult = AzureIoTHubClient_Disconnect( &xAzureIoTHubClient );
-        configASSERT( xResult == eAzureIoTSuccess );
+            /* Send an MQTT Disconnect packet over the already connected TLS over
+             * TCP connection. There is no corresponding response for the disconnect
+             * packet. After sending disconnect, client must close the network
+             * connection. */
+            xResult = AzureIoTHubClient_Disconnect( &xAzureIoTHubClient );
+            configASSERT( xResult == eAzureIoTSuccess );
 
-        /* Close the network connection.  */
-        TLS_Socket_Disconnect( &xNetworkContext );
+            /* Close the network connection.  */
+            TLS_Socket_Disconnect( &xNetworkContext );
+
+            LogInfo( ( "Demo completed successfully.\r\n" ) );
+        }
+        else
+        {
+            /* Close the network connection.  */
+            TLS_Socket_Disconnect( &xNetworkContext );
+            LogError( ( "Demo completed with errors.\r\n" ) );
+        }
 
         /* Wait for some time between two iterations to ensure that we do not
          * bombard the IoT Hub. */
-        LogInfo( ( "Demo completed successfully.\r\n" ) );
         LogInfo( ( "Short delay before starting the next iteration.... \r\n\r\n" ) );
         vTaskDelay( sampleazureiotDELAY_BETWEEN_DEMO_ITERATIONS_TICKS );
     }
