@@ -22,7 +22,7 @@ if(NOT (TARGET SAMPLE::AZUREIOTCARECOVERY))
 
     target_sources(SAMPLE::AZUREIOTCARECOVERY INTERFACE 
       ${CMAKE_CURRENT_SOURCE_DIR}/sample_azure_iot_ca_recovery/sample_azure_iot_ca_recovery.c
-      ${CMAKE_CURRENT_SOURCE_DIR}/sample_azure_iot_ca_recovery/sample_rsa_verify.c
+      ${CMAKE_CURRENT_SOURCE_DIR}/sample_azure_iot_ca_recovery/azure_sample_rsa_verify.c
       )
 endif()
 

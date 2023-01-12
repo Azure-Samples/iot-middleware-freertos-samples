@@ -53,7 +53,7 @@ You may also need to enable long path support for both Microsoft Windows and git
 
 ## Prepare the Trust Bundle in the NVS
 
-Run the sample called `az-nvs-cert-bundle` in the `/ESPRESSIF` directory to load the v1.0 trust bundle in your ESP device. This will purposely save an incomplete trust bundle in your devices's NVS, which will then be loaded for the IoT application. Once the CA validation fails, the sample will then move into the recovery phase which fetches the new and complete trust bundle.
+Run the sample called `az-nvs-cert-bundle` in the `/ESPRESSIF` directory to load the v1.0 trust bundle in your ESP device. This will purposely save an incomplete trust bundle in your devices's NVS, which will then be loaded for the IoT application. Once the CA validation fails in this sample, the device will then move into the recovery phase which fetches the new and complete trust bundle.
 
 ## Prepare the sample
 

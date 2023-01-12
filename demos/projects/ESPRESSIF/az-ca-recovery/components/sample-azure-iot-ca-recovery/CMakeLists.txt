@@ -8,6 +8,7 @@ set(ROOT_PATH
 file(GLOB_RECURSE COMPONENT_SOURCES
     ${ROOT_PATH}/demos/sample_azure_iot_ca_recovery/*.c
     ${ROOT_PATH}/demos/common/utilities/azure_sample_ca_recovery.c
+    ${ROOT_PATH}/demos/common/utilities/azure_sample_rsa_verify.c
 )
 
 # kconfig does not support multiline strings.

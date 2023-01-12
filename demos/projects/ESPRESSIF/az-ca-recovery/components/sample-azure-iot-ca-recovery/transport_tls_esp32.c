@@ -48,6 +48,8 @@
 
 static const char * TAG = "tls_freertos";
 
+#define transporttlsFAILED_TLS_RETURN_CODE    119
+
 #ifdef democonfigUSE_HSM
 
     #define tlsesp32SERIAL_NUMBER_SIZE      9
@@ -348,8 +350,8 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pNetworkContext,
 
     if( esp_transport_connect( pxEspTlsTransport->xTransport, pHostName, usPort, ulReceiveTimeoutMs ) < 0 )
     {
-        /* TODO: FIX THIS */
-        if( errno == 119 )
+        /* TODO: Find more precise return code for CA validation failed https://github.com/espressif/esp-idf/issues/10515 */
+        if( errno == transporttlsFAILED_TLS_RETURN_CODE )
         {
             xReturnStatus = eTLSTransportCAVerifyFailed;
         }

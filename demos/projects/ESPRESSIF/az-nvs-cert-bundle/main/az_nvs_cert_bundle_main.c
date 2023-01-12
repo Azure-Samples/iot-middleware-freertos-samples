@@ -10,7 +10,7 @@
 
 /* Define if you wish to force writing of the bundle, even if the */
 /* same version already exists in NVS. */
-#define AZ_FORCE_WRITE
+/* #define AZ_FORCE_WRITE */
 
 #define CA_CERT_NAMESPACE                  "root-ca-cert"
 #define AZURE_TRUST_BUNDLE_NAME            "az-tb"
