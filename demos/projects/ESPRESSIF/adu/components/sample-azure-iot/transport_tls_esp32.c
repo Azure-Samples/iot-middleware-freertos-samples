@@ -136,7 +136,6 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pNetworkContext,
 
     if ( esp_transport_connect( pxEspTlsTransport->xTransport, pHostName, usPort, ulReceiveTimeoutMs ) < 0 )
     {
-        ESP_LOGE( TAG, "Failed establishing TLS connection (esp_transport_connect failed)" );
         xReturnStatus = eTLSTransportConnectFailure;
     }
     else
