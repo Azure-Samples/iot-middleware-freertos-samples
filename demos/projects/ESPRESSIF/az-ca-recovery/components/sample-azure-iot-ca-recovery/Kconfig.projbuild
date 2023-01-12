@@ -45,7 +45,7 @@ menu "Azure IoT middleware for FreeRTOS Main Task Configuration"
             "Set the Azure IoT Device Symmetric Key (if using SAS token authentication)."
 
     config AZURE_IOT_DEVICE_RECOVERY_SYMMETRIC_KEY
-        string "[RECOVERY] Azure IoT Device Symmetric Key to be used for CA recovery only"
+        string "[RECOVERY] Azure IoT Device Symmetric Key"
         default ""
         depends on AZURE_IOT_AUTH_METHOD_SYMMETRIC_KEY
         help
