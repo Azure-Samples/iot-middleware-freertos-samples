@@ -22,9 +22,7 @@
  * @param pucBuffer The buffer used as scratch space to make the calculations. It should be at least
  * `azureiotjwsSHA256_SIZE` in size.
  * @param ulBufferLength The length of \p pucBuffer.
- * @return uint32_t The result of the operation.
- * @retval 0 if successful.
- * @retval Non-0 if not successful.
+ * @return AzureIoTResult_t The result of the operation.
  */
 AzureIoTResult_t AzureIoTSample_RS256Verify( uint8_t * pucInput,
                                              uint32_t ulInputLength,

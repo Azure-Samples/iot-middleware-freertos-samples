@@ -19,9 +19,7 @@
  * @param pucInput The input buffer over which to calculate the SHA256.
  * @param ulInputLength The length of \p pucInput.
  * @param pucOutput The output buffer into which the SHA256. It must be 32 bytes in length.
- * @return uint32_t The result of the operation.
- * @retval 0 if successful.
- * @retval Non-0 if not successful.
+ * @return AzureIoTResult_t The result of the operation.
  */
 static AzureIoTResult_t prvJWS_SHA256Calculate( const uint8_t * pucInput,
                                                 uint32_t ulInputLength,
@@ -59,7 +57,7 @@ AzureIoTResult_t AzureIoTSample_RS256Verify( uint8_t * pucInput,
 
     if( ulBufferLength < azureiotjwsSHA_CALCULATION_SCRATCH_SIZE )
     {
-        AZLogError( ( "[JWS] Buffer Not Large Enough" ) );
+        AZLogError( ( "[RSA] Buffer Not Large Enough" ) );
         return eAzureIoTErrorOutOfMemory;
     }
 
@@ -71,7 +69,7 @@ AzureIoTResult_t AzureIoTSample_RS256Verify( uint8_t * pucInput,
 
     if( az_result_failed( xCoreResult ) )
     {
-        AZLogError( ( "[JWS] Base64 decode failed: 0x%08x", xCoreResult ) );
+        AZLogError( ( "[RSA] Base64 decode failed: 0x%08x", xCoreResult ) );
         return eAzureIoTErrorFailed;
     }
 
@@ -93,7 +91,7 @@ AzureIoTResult_t AzureIoTSample_RS256Verify( uint8_t * pucInput,
 
     if( lMbedTLSResult != 0 )
     {
-        AZLogError( ( "[JWS] mbedtls_rsa_import_raw res: %08x", ( uint16_t ) lMbedTLSResult ) );
+        AZLogError( ( "[RSA] mbedtls_rsa_import_raw res: %08x", ( uint16_t ) lMbedTLSResult ) );
         mbedtls_rsa_free( &ctx );
         return eAzureIoTErrorFailed;
     }
@@ -102,7 +100,7 @@ AzureIoTResult_t AzureIoTSample_RS256Verify( uint8_t * pucInput,
 
     if( lMbedTLSResult != 0 )
     {
-        AZLogError( ( "[JWS] mbedtls_rsa_complete res: %08x", ( uint16_t ) lMbedTLSResult ) );
+        AZLogError( ( "[RSA] mbedtls_rsa_complete res: %08x", ( uint16_t ) lMbedTLSResult ) );
         mbedtls_rsa_free( &ctx );
         return eAzureIoTErrorFailed;
     }
@@ -111,7 +109,7 @@ AzureIoTResult_t AzureIoTSample_RS256Verify( uint8_t * pucInput,
 
     if( lMbedTLSResult != 0 )
     {
-        AZLogError( ( "[JWS] mbedtls_rsa_check_pubkey res: %08x", ( uint16_t ) lMbedTLSResult ) );
+        AZLogError( ( "[RSA] mbedtls_rsa_check_pubkey res: %08x", ( uint16_t ) lMbedTLSResult ) );
         mbedtls_rsa_free( &ctx );
         return eAzureIoTErrorFailed;
     }
@@ -122,7 +120,7 @@ AzureIoTResult_t AzureIoTSample_RS256Verify( uint8_t * pucInput,
 
     if( xResult != eAzureIoTSuccess )
     {
-        AZLogError( ( "[JWS] prvJWS_SHA256Calculate failed" ) );
+        AZLogError( ( "[RSA] prvJWS_SHA256Calculate failed" ) );
         return xResult;
     }
 
@@ -134,7 +132,7 @@ AzureIoTResult_t AzureIoTSample_RS256Verify( uint8_t * pucInput,
 
     if( lMbedTLSResult != 0 )
     {
-        AZLogError( ( "[JWS] SHA of JWK does NOT match (0x%08x)", ( uint16_t ) lMbedTLSResult ) );
+        AZLogError( ( "[RSA] SHA of JWK does NOT match (0x%08x)", ( uint16_t ) lMbedTLSResult ) );
         xResult = eAzureIoTErrorFailed;
     }
     else

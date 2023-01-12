@@ -329,7 +329,6 @@ static uint32_t prvSetupNetworkCredentials( NetworkCredentials_t * pxNetworkCred
     /* Set the credentials for establishing a TLS connection. */
     pxNetworkCredentials->pucRootCa = ( const unsigned char * ) ucRootCABuffer;
     pxNetworkCredentials->xRootCaSize = ulRootCABufferWrittenLength;
-    LogInfo( ( "Added root cert size %i value\r\n%.*s", ulRootCABufferWrittenLength, ulRootCABufferWrittenLength, ucRootCABuffer ) );
     #ifdef democonfigCLIENT_CERTIFICATE_PEM
         pxNetworkCredentials->pucClientCert = ( const unsigned char * ) democonfigCLIENT_CERTIFICATE_PEM;
         pxNetworkCredentials->xClientCertSize = sizeof( democonfigCLIENT_CERTIFICATE_PEM );
@@ -673,8 +672,7 @@ static void prvAzureDemoTask( void * pvParameters )
     }
 
 /**
- * @brief Get IoT Hub endpoint and device Id info, when Provisioning service is used.
- *   This function will block for Provisioning service for result or return failure.
+ * @brief Run trust bundle recovery.
  */
     static uint32_t prvRunRecovery( NetworkCredentials_t * pXNetworkCredentials )
     {
