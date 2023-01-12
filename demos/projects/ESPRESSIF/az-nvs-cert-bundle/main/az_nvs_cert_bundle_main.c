@@ -2,6 +2,7 @@
  * Licensed under the MIT License. */
 
 #include <stdio.h>
+#include <string.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_system.h"
@@ -202,7 +203,7 @@ esp_err_t prvSaveTrustBundle( nvs_handle_t xNVSHandle )
     #ifndef AZ_FORCE_WRITE
         if( xESPErr != ESP_ERR_NVS_NOT_FOUND )
         {
-            if( memcmp( ucReadTrustBundleVersion, pucTrustBundleVersion, xTrustBundleVersionReadSize ) == 0 )
+            if( memcmp( ucReadTrustBundleVersion, ucTrustBundleVersion, xTrustBundleVersionReadSize ) == 0 )
             {
                 printf( "Trust bundle version in NVS matches bundle version to write.\n" );
                 nvs_close( xNVSHandle );
