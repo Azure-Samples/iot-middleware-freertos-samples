@@ -240,6 +240,11 @@
 #define configRAND32() (rand()/RAND_MAX)
 
 /**
+ * @brief Defines device restart function, used by the common sample modules.
+ */
+#define configRestartDevice() esp_restart()
+
+/**
  * @brief Defines the macro for HSM usage depending on whether 
  * the support for ATECC608 is enabled in the kconfig menu
  */
