@@ -233,6 +233,11 @@
 #define democonfigIOTHUB_PORT 8883
 
 /**
+ * @brief Defines device restart function, used by the common sample modules.
+ */
+#define configRestartDevice() esp_restart()
+
+/**
  * @brief Defines configRAND32, used by the common sample modules.
  */
 #define configRAND32() (rand()/RAND_MAX)

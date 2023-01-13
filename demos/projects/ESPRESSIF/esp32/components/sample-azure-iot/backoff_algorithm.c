@@ -46,7 +46,7 @@ BackoffAlgorithmStatus_t BackoffAlgorithm_GetNextBackoff( BackoffAlgorithmContex
 
     /* If BACKOFF_ALGORITHM_RETRY_FOREVER is set to 0, try forever. */
     if( ( pRetryContext->attemptsDone < pRetryContext->maxRetryAttempts ) ||
-        ( BACKOFF_ALGORITHM_RETRY_FOREVER == 0 ) )
+        ( pRetryContext->maxRetryAttempts == BACKOFF_ALGORITHM_RETRY_FOREVER ) )
     {
         /* The next backoff value is a random value between 0 and the maximum jitter value
          * for the retry attempt. */

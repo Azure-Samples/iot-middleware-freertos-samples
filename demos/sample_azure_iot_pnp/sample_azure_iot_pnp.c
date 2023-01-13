@@ -452,7 +452,6 @@ static void prvAzureDemoTask( void * pvParameters )
                 {
                     LogError( ( "Error sending telemetry - restarting device...\r\n" ) );
                     configRestartDevice();
-                    break; /* for PC samples */
                 }
 
                 configASSERT( xResult == eAzureIoTSuccess );
@@ -469,7 +468,6 @@ static void prvAzureDemoTask( void * pvParameters )
                 {
                     LogError( ( "Publish failed - restarting device...\r\n" ) );
                     configRestartDevice();
-                    break; /* for PC samples */
                 }
 
                 configASSERT( xResult == eAzureIoTSuccess );
@@ -483,7 +481,6 @@ static void prvAzureDemoTask( void * pvParameters )
             {
                 LogError( ( "Error in process loop - restarting device...\r\n" ) );
                 configRestartDevice();
-                break; /* for PC samples */
             }
 
             configASSERT( xResult == eAzureIoTSuccess );
@@ -508,7 +505,6 @@ static void prvAzureDemoTask( void * pvParameters )
 
         /* Close the network connection.  */
         TLS_Socket_Disconnect( &xNetworkContext );
-
 
         /* Wait for some time between two iterations to ensure that we do not
          * bombard the IoT Hub. */
