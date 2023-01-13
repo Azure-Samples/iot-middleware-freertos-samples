@@ -27,7 +27,7 @@ typedef struct azure_iot_ca_recovery_trust_bundle
 {
     az_span version;
 
-    az_span expiry_time;
+    uint64_t expiry_time;
 
     az_span certificates;
 } azure_iot_ca_recovery_trust_bundle;
@@ -49,7 +49,7 @@ static az_result az_iot_ca_recovery_parse_trust_bundle( az_json_reader * ref_jso
     _az_RETURN_IF_FAILED( az_json_reader_next_token( ref_json_reader ) );
 
     trust_bundle->certificates = AZ_SPAN_EMPTY;
-    trust_bundle->expiry_time = AZ_SPAN_EMPTY;
+    trust_bundle->expiry_time = 0;
     trust_bundle->version = AZ_SPAN_EMPTY;
 
     while( ref_json_reader->token.kind != AZ_JSON_TOKEN_END_OBJECT )
@@ -73,9 +73,9 @@ static az_result az_iot_ca_recovery_parse_trust_bundle( az_json_reader * ref_jso
             _az_RETURN_IF_FAILED( az_json_reader_next_token( ref_json_reader ) );
             RETURN_IF_JSON_TOKEN_NOT_TYPE( ref_json_reader, AZ_JSON_TOKEN_STRING );
 
-            if( ref_json_reader->token.kind != AZ_JSON_TOKEN_NULL )
+            if( ref_json_reader->token.kind == AZ_JSON_TOKEN_NUMBER )
             {
-                trust_bundle->expiry_time = ref_json_reader->token.slice;
+                _az_RETURN_IF_FAILED( az_json_token_get_uint64( &ref_json_reader->token, &trust_bundle->expiry_time ) );
             }
         }
         else if( az_json_token_is_text_equal(
@@ -159,8 +159,7 @@ static void prvCastCoreToMiddleware( AzureIoTCARecovery_RecoveryPayload * pxReco
     pxRecoveryPayload->xTrustBundle.ulCertificatesLength = az_span_size( recovery_payload->trust_bundle.certificates );
     pxRecoveryPayload->xTrustBundle.pucVersion = az_span_ptr( recovery_payload->trust_bundle.version );
     pxRecoveryPayload->xTrustBundle.ulVersionLength = az_span_size( recovery_payload->trust_bundle.version );
-    pxRecoveryPayload->xTrustBundle.pucExpiryTime = az_span_ptr( recovery_payload->trust_bundle.expiry_time );
-    pxRecoveryPayload->xTrustBundle.ulExpiryTimeLength = az_span_size( recovery_payload->trust_bundle.expiry_time );
+    pxRecoveryPayload->xTrustBundle.ullExpiryTime = recovery_payload->trust_bundle.expiry_time;
 }
 
 AzureIoTResult_t AzureIoTCARecovery_ParseRecoveryPayload( AzureIoTJSONReader_t * pxReader,

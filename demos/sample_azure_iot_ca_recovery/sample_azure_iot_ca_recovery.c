@@ -780,6 +780,16 @@ static void prvAzureDemoTask( void * pvParameters )
         configASSERT( xResult == eAzureIoTSuccess );
         LogInfo( ( "Trust Bundle Signature Successfully Validated\r\n" ) );
 
+        /*Check expiration time */
+        uint64_t ullCurrentTime = ullGetUnixTime();
+
+        if( ullCurrentTime > xRecoveryPayload.xTrustBundle.ullExpiryTime )
+        {
+            LogError( ( "Trust bundle validity expired | current (%lu) payload (%lu).\r\n",
+                        ullCurrentTime, xRecoveryPayload.xTrustBundle.ullExpiryTime ) );
+            configASSERT( false );
+        }
+
         LogInfo( ( "Unescaping the trust bundle cert\r\n" ) );
         az_span xUnescapeSpan = az_span_create( xRecoveryPayload.xTrustBundle.pucCertificates,
                                                 xRecoveryPayload.xTrustBundle.ulCertificatesLength );
