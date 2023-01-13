@@ -71,12 +71,9 @@ static az_result az_iot_ca_recovery_parse_trust_bundle( az_json_reader * ref_jso
                      AZ_SPAN_FROM_STR( AZ_IOT_CA_RECOVERY_EXPIRY_TIME_NAME ) ) )
         {
             _az_RETURN_IF_FAILED( az_json_reader_next_token( ref_json_reader ) );
-            RETURN_IF_JSON_TOKEN_NOT_TYPE( ref_json_reader, AZ_JSON_TOKEN_STRING );
+            RETURN_IF_JSON_TOKEN_NOT_TYPE( ref_json_reader, AZ_JSON_TOKEN_NUMBER );
 
-            if( ref_json_reader->token.kind == AZ_JSON_TOKEN_NUMBER )
-            {
-                _az_RETURN_IF_FAILED( az_json_token_get_uint64( &ref_json_reader->token, &trust_bundle->expiry_time ) );
-            }
+            _az_RETURN_IF_FAILED( az_json_token_get_uint64( &ref_json_reader->token, &trust_bundle->expiry_time ) );
         }
         else if( az_json_token_is_text_equal(
                      &ref_json_reader->token,
