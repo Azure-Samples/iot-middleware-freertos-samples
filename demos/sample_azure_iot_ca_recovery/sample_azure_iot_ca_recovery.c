@@ -323,7 +323,12 @@ static uint32_t prvSetupNetworkCredentials( NetworkCredentials_t * pxNetworkCred
                                                                   ucRootCATrustBundleVersion,
                                                                   sizeof( ucRootCATrustBundleVersion ),
                                                                   &ulRootCATrustBundleVersionLength );
-    configASSERT( xResult == eAzureIoTSuccess );
+
+    if( xResult != eAzureIoTSuccess )
+    {
+        LogError( ( "Could not read trust bundle from NVS. Please run az-nvs-cert-bundle sample to save certs to NVS\r\n" ) );
+        return 1;
+    }
 
     pxNetworkCredentials->xDisableSni = pdFALSE;
     /* Set the credentials for establishing a TLS connection. */
@@ -412,25 +417,25 @@ static void prvAzureDemoTask( void * pvParameters )
                 if( ( ulStatus = prvRunRecovery( &xNetworkCredentials ) ) != 0 )
                 {
                     LogError( ( "Failed to run recovery error code = 0x%08x\r\n", ulStatus ) );
-                    return;
+                    configASSERT( ulStatus == 0 );
                 }
                 else if( ( ulStatus = prvSetupNetworkCredentials( &xNetworkCredentials ) ) != 0 )
                 {
                     LogError( ( "Could not set network credentials\r\n" ) );
-                    return;
+                    configASSERT( ulStatus == 0 );
                 }
                 else if( ( ulStatus = prvIoTHubInfoGet( &xNetworkCredentials, &pucIotHubHostname,
                                                         &pulIothubHostnameLength, &pucIotHubDeviceId,
                                                         &pulIothubDeviceIdLength ) ) != 0 )
                 {
                     LogError( ( "Failed to run DPS after recovery!: error code = 0x%08x\r\n", ulStatus ) );
-                    return;
+                    configASSERT( ulStatus == 0 );
                 }
             }
             else
             {
                 LogError( ( "Failed on sample_dps_entry!: error code = 0x%08x\r\n", ulStatus ) );
-                return;
+                configASSERT( false );
             }
         }
     #endif /* democonfigENABLE_DPS_SAMPLE */
