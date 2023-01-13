@@ -55,6 +55,10 @@ You may also need to enable long path support for both Microsoft Windows and git
 
 Run the sample called `az-nvs-cert-bundle` in the `/ESPRESSIF` directory to load the v1.0 trust bundle in your ESP device. This will purposely save an incomplete trust bundle in your devices's NVS, which will then be loaded for the IoT application. Once the CA validation fails in this sample, the device will then move into the recovery phase which fetches the new and complete certificate trust bundle.
 
+## Create a Derived Shared Access Key for Group Enrollment
+
+To use the custom allocation policy with the recovery Azure function, you have to create a derived SAS key from the group enrollment key. To create one, [follow the directions here](https://learn.microsoft.com/azure/iot-dps/concepts-symmetric-key-attestation?tabs=azure-cli#group-enrollments) and save the derived key to be used later.
+
 ## Prepare the sample
 
 After running the set up application, you will then need to update this sample configuration, build the image, and flash the image to the device.
