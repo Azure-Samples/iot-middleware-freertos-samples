@@ -229,7 +229,7 @@ extern void vLoggingPrintf( const char * pcFormatString,
 /**
  * @brief IoTHub endpoint port.
  */
-#define democonfigIOTHUB_PORT                ( 8883 )
+#define democonfigIOTHUB_PORT            ( 8883 )
 
 /**
  * @brief Defines device restart function, used by the common sample modules.
