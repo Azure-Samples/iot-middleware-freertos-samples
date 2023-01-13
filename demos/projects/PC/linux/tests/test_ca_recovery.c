@@ -8,7 +8,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include "azure_sample_ca_recovery.h"
+#include "azure_ca_recovery_parse.h"
 
 #define TEST_CA_RECOVERY_SUCCESS        0
 #define TEST_CA_RECOVERY_FAIL           1

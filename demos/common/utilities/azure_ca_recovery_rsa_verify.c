@@ -1,7 +1,7 @@
 /* Copyright (c) Microsoft Corporation.
  * Licensed under the MIT License. */
 
-#include "azure_sample_rsa_verify.h"
+#include "azure_ca_recovery_rsa_verify.h"
 
 #include "azure_iot_config.h"
 #include "azure/core/az_base64.h"
@@ -57,7 +57,7 @@ AzureIoTResult_t AzureIoTSample_RS256Verify( uint8_t * pucInput,
 
     if( ulBufferLength < azureiotjwsSHA_CALCULATION_SCRATCH_SIZE )
     {
-        AZLogError( ( "[RSA] Buffer Not Large Enough" ) );
+        AZLogError( ( "[RSA] Buffer not large enough" ) );
         return eAzureIoTErrorOutOfMemory;
     }
 
@@ -73,9 +73,8 @@ AzureIoTResult_t AzureIoTSample_RS256Verify( uint8_t * pucInput,
         return eAzureIoTErrorFailed;
     }
 
-    /* The signature is encrypted using the input key. We need to decrypt the */
-    /* signature which gives us the SHA256 inside a PKCS7 structure. We then compare */
-    /* that to the SHA256 of the input. */
+    /* The signature is signed using the input key. We compare the signature to */
+    /* the SHA256 of the input. */
     #if MBEDTLS_VERSION_NUMBER >= 0x03000000
         mbedtls_rsa_init( &ctx );
     #else
@@ -91,7 +90,7 @@ AzureIoTResult_t AzureIoTSample_RS256Verify( uint8_t * pucInput,
 
     if( lMbedTLSResult != 0 )
     {
-        AZLogError( ( "[RSA] mbedtls_rsa_import_raw res: %08x", ( uint16_t ) lMbedTLSResult ) );
+        AZLogError( ( "[RSA] mbedtls_rsa_import_raw failed, res: %08x", ( uint16_t ) lMbedTLSResult ) );
         mbedtls_rsa_free( &ctx );
         return eAzureIoTErrorFailed;
     }
@@ -100,7 +99,7 @@ AzureIoTResult_t AzureIoTSample_RS256Verify( uint8_t * pucInput,
 
     if( lMbedTLSResult != 0 )
     {
-        AZLogError( ( "[RSA] mbedtls_rsa_complete res: %08x", ( uint16_t ) lMbedTLSResult ) );
+        AZLogError( ( "[RSA] mbedtls_rsa_complete failed, res: %08x", ( uint16_t ) lMbedTLSResult ) );
         mbedtls_rsa_free( &ctx );
         return eAzureIoTErrorFailed;
     }
@@ -109,7 +108,7 @@ AzureIoTResult_t AzureIoTSample_RS256Verify( uint8_t * pucInput,
 
     if( lMbedTLSResult != 0 )
     {
-        AZLogError( ( "[RSA] mbedtls_rsa_check_pubkey res: %08x", ( uint16_t ) lMbedTLSResult ) );
+        AZLogError( ( "[RSA] mbedtls_rsa_check_pubkey failed, res: %08x", ( uint16_t ) lMbedTLSResult ) );
         mbedtls_rsa_free( &ctx );
         return eAzureIoTErrorFailed;
     }
@@ -121,6 +120,7 @@ AzureIoTResult_t AzureIoTSample_RS256Verify( uint8_t * pucInput,
     if( xResult != eAzureIoTSuccess )
     {
         AZLogError( ( "[RSA] prvJWS_SHA256Calculate failed" ) );
+        mbedtls_rsa_free( &ctx );
         return xResult;
     }
 

@@ -1,7 +1,7 @@
 /* Copyright (c) Microsoft Corporation.
  * Licensed under the MIT License. */
 
-#include "azure_sample_ca_recovery.h"
+#include "azure_ca_recovery_parse.h"
 
 #include <stdio.h>
 

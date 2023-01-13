@@ -1,6 +1,6 @@
 # Perform Trust Bundle Recovery with an ESPRESSIF ESP32 using Azure IoT Middleware for FreeRTOS
 
-Trust Bundle Recovery allows a mechanism for your device to recover connection to Azure resources should the CA certificates expire or otherwise become invalid. This requires a standard DPS instance and connected hub with associated credentials, and then a separate "recovery" DPS instance and credential, only to be used once for recovery. Should CA verification fail, the device will connect to the recovery DPS instance, ignoring CA cert validation, and will be returned a signed trust bundle recovery payload. This payload contains the complete and updated collection of CA certificates, asymmetrically signed by a root key created by the user. The device receives this payload, verifies the authenticity by decrypting and comparing the signature using the saved public key, and then installs the certificates into the device's non-volatile storage (NVS). This permanent storage allows the certificates to be loaded again should the device restart, removing the need for the device to use the recovery endpoint again. From that point on, the device can connect to the usual DPS endpoint and provisioned hub with full CA validation.
+Trust Bundle Recovery allows a mechanism for your device to recover connection to Azure resources should the CA certificates expire or otherwise become invalid. This requires an additional, separate "recovery" DPS instance and device credential, only to be used for recovery of the CA certificate. Should CA verification fail, the device will connect to the recovery DPS instance, ignoring TLS CA cert validation, and will be returned a signed trust bundle recovery payload from DPS. This payload contains the complete and updated collection of CA certificates, asymmetrically signed by a root key created by the user. The device receives this payload, verifies the authenticity by decrypting and comparing the signature using the saved public key, and then installs the certificates into the device's non-volatile storage (NVS). This permanent storage allows the new certificates to be loaded again should the device restart, removing the need for the device to use the recovery endpoint again. From that point on, the device can connect to the usual DPS endpoint and provisioned hub with full CA trust validation.
 
 ## What you need
 
@@ -51,9 +51,9 @@ You may also need to enable long path support for both Microsoft Windows and git
 - Windows: <https://docs.microsoft.com/windows/win32/fileio/maximum-file-path-limitation?tabs=cmd#enable-long-paths-in-windows-10-version-1607-and-later>
 - Git: as Administrator run `git config --system core.longpaths true`
 
-## Prepare the Trust Bundle in the NVS
+## Prepare the TLS CA Trust Bundle in the NVS
 
-Run the sample called `az-nvs-cert-bundle` in the `/ESPRESSIF` directory to load the v1.0 trust bundle in your ESP device. This will purposely save an incomplete trust bundle in your devices's NVS, which will then be loaded for the IoT application. Once the CA validation fails in this sample, the device will then move into the recovery phase which fetches the new and complete trust bundle.
+Run the sample called `az-nvs-cert-bundle` in the `/ESPRESSIF` directory to load the v1.0 trust bundle in your ESP device. This will purposely save an incomplete trust bundle in your devices's NVS, which will then be loaded for the IoT application. Once the CA validation fails in this sample, the device will then move into the recovery phase which fetches the new and complete certificate trust bundle.
 
 ## Prepare the sample
 

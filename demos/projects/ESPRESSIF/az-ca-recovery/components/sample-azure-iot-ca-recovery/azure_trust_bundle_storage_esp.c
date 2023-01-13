@@ -10,7 +10,7 @@
 #include "nvs_flash.h"
 #include "nvs.h"
 
-static const char * TAG = "trust-bundle-storage";
+static const char * TAG = "ca-trust-bundle-storage";
 
 #define CA_CERT_NAMESPACE                  "root-ca-cert"
 #define AZURE_TRUST_BUNDLE_NAME            "az-tb"
@@ -33,7 +33,7 @@ AzureIoTResult_t AzureIoTCAStorage_ReadTrustBundle( const uint8_t * pucTrustBund
     if( err != ESP_OK )
     {
         ESP_LOGE( TAG, "Error (%s) opening NVS!\n", esp_err_to_name( err ) );
-        return err;
+        return eAzureIoTErrorFailed;
     }
 
     err = nvs_get_blob( xNVSHandle, AZURE_TRUST_BUNDLE_VERSION_NAME, NULL, &ulTrustBundleVersionReadSize );
@@ -42,12 +42,12 @@ AzureIoTResult_t AzureIoTCAStorage_ReadTrustBundle( const uint8_t * pucTrustBund
     {
         ESP_LOGE( TAG, "Error (%s) getting AZURE_TRUST_BUNDLE_VERSION_NAME from NVS!\n", esp_err_to_name( err ) );
         nvs_close( xNVSHandle );
-        return err;
+        return eAzureIoTErrorFailed;
     }
 
     if( ulTrustBundleVersionReadSize > ulTrustBundleVersionLength )
     {
-        ESP_LOGE( TAG, "Not enough size to read version\n" );
+        ESP_LOGE( TAG, "Not enough space to read version\n" );
         nvs_close( xNVSHandle );
         return eAzureIoTErrorOutOfMemory;
     }
@@ -59,7 +59,7 @@ AzureIoTResult_t AzureIoTCAStorage_ReadTrustBundle( const uint8_t * pucTrustBund
     if( err != ESP_OK )
     {
         nvs_close( xNVSHandle );
-        return err;
+        return eAzureIoTErrorFailed;
     }
 
     /* Get size of cert */
@@ -68,7 +68,7 @@ AzureIoTResult_t AzureIoTCAStorage_ReadTrustBundle( const uint8_t * pucTrustBund
     if( ( err != ESP_OK ) && ( err != ESP_ERR_NVS_NOT_FOUND ) )
     {
         nvs_close( xNVSHandle );
-        return err;
+        return eAzureIoTErrorFailed;
     }
 
     if( ulTrustBundleReadSize == 0 )
@@ -87,13 +87,13 @@ AzureIoTResult_t AzureIoTCAStorage_ReadTrustBundle( const uint8_t * pucTrustBund
         if( err != ESP_OK )
         {
             nvs_close( xNVSHandle );
-            return err;
+            return eAzureIoTErrorFailed;
         }
     }
 
     nvs_close( xNVSHandle );
 
-    return err;
+    return eAzureIoTSuccess;
 }
 
 AzureIoTResult_t AzureIoTCAStorage_WriteTrustBundle( const uint8_t * pucTrustBundle,
@@ -110,7 +110,7 @@ AzureIoTResult_t AzureIoTCAStorage_WriteTrustBundle( const uint8_t * pucTrustBun
     if( err != ESP_OK )
     {
         ESP_LOGE( TAG, "Error (%s) opening NVS!\n", esp_err_to_name( err ) );
-        return err;
+        return eAzureIoTErrorFailed;
     }
 
     uint8_t ucReadTrustBundleVersion[ 8 ] = { 0 }; /* value will default to 0, if not set yet in NVS */
@@ -121,7 +121,7 @@ AzureIoTResult_t AzureIoTCAStorage_WriteTrustBundle( const uint8_t * pucTrustBun
     {
         ESP_LOGE( TAG, "Error (%s) getting AZURE_TRUST_BUNDLE_VERSION_NAME from NVS!\n", esp_err_to_name( err ) );
         nvs_close( xNVSHandle );
-        return err;
+        return eAzureIoTErrorFailed;
     }
 
     if( ulTrustBundleVersionReadSize > 8 )
@@ -137,7 +137,7 @@ AzureIoTResult_t AzureIoTCAStorage_WriteTrustBundle( const uint8_t * pucTrustBun
     {
         ESP_LOGE( TAG, "Error (%s) getting AZURE_TRUST_BUNDLE_VERSION_NAME from NVS!\n", esp_err_to_name( err ) );
         nvs_close( xNVSHandle );
-        return err;
+        return eAzureIoTErrorFailed;
     }
 
     /* If version matches, do not write to not overuse NVS */
@@ -145,7 +145,7 @@ AzureIoTResult_t AzureIoTCAStorage_WriteTrustBundle( const uint8_t * pucTrustBun
     {
         ESP_LOGI( TAG, "Trust bundle version in NVS matches bundle version to write.\n" );
         nvs_close( xNVSHandle );
-        return ESP_OK;
+        return eAzureIoTErrorFailed;
     }
 
     ESP_LOGI( TAG, "Writing trust bundle:\r\n%.*s\n", ulTrustBundleLength, pucTrustBundle );
@@ -155,7 +155,7 @@ AzureIoTResult_t AzureIoTCAStorage_WriteTrustBundle( const uint8_t * pucTrustBun
     {
         ESP_LOGE( TAG, "Error (%s) getting AZURE_TRUST_BUNDLE_VERSION_NAME from NVS!\n", esp_err_to_name( err ) );
         nvs_close( xNVSHandle );
-        return err;
+        return eAzureIoTErrorFailed;
     }
 
     /* Set new trust bundle version */
@@ -166,7 +166,7 @@ AzureIoTResult_t AzureIoTCAStorage_WriteTrustBundle( const uint8_t * pucTrustBun
     {
         ESP_LOGE( TAG, "Error (%s) getting AZURE_TRUST_BUNDLE_VERSION_NAME from NVS!\n", esp_err_to_name( err ) );
         nvs_close( xNVSHandle );
-        return err;
+        return eAzureIoTErrorFailed;
     }
 
     /* Commit */
@@ -176,10 +176,10 @@ AzureIoTResult_t AzureIoTCAStorage_WriteTrustBundle( const uint8_t * pucTrustBun
     {
         ESP_LOGE( TAG, "Error (%s) getting AZURE_TRUST_BUNDLE_VERSION_NAME from NVS!\n", esp_err_to_name( err ) );
         nvs_close( xNVSHandle );
-        return err;
+        return eAzureIoTErrorFailed;
     }
 
     nvs_close( xNVSHandle );
 
-    return err;
+    return eAzureIoTSuccess;
 }

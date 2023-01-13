@@ -25,8 +25,8 @@
 /* Crypto helper header. */
 #include "azure_sample_crypto.h"
 
-#include "azure_sample_rsa_verify.h"
-#include "azure_sample_ca_recovery.h"
+#include "azure_ca_recovery_rsa_verify.h"
+#include "azure_ca_recovery_parse.h"
 #include "azure_trust_bundle_storage.h"
 #include "azure_iot_jws.h"
 
