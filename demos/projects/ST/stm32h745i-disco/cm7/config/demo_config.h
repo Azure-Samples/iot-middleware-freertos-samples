@@ -230,10 +230,12 @@ extern void vLoggingPrintf( const char * pcFormatString,
  */
 #define democonfigIOTHUB_PORT          ( 8883 )
 
+#include "stm32h7xx_hal.h"
+
 /**
  * @brief Defines device restart function, used by the common sample modules.
  */
-#define configRestartDevice() NVIC_SystemReset()
+#define configRestartDevice()    HAL_NVIC_SystemReset()
 
 #define democonfigCHUNK_DOWNLOAD_SIZE    1024
 
