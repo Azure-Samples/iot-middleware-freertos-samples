@@ -139,6 +139,27 @@
 #endif
 
 /**
+ * @brief CA Recovery signing key N value (modulus)
+ * 
+ */
+static uint8_t ucAzureIoTRecoveryRootKeyN[] =
+{
+    
+};
+
+#define democonfigRECOVERY_SIGNING_KEY_N ucAzureIoTRecoveryRootKeyN
+
+
+/**
+ * @brief CA Recovery signing key N value (modulus)
+ * 
+ */
+static uint8_t ucAzureIoTRecoveryRootKeyE[] = { 0x01, 0x00, 0x01 };
+
+#define democonfigRECOVERY_SIGNING_KEY_E ucAzureIoTRecoveryRootKeyE
+
+
+/**
  * @brief Client's X509 Certificate.
  *
  */

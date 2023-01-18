@@ -771,10 +771,10 @@ static void prvAzureDemoTask( void * pvParameters )
                                               xRecoveryPayload.ulTrustBundleJSONObjectTextLength,
                                               ( uint8_t * ) xRecoveryPayload.pucPayloadSignature,
                                               xRecoveryPayload.ulPayloadSignatureLength,
-                                              ucAzureIoTRecoveryRootKeyN,
-                                              sizeof( ucAzureIoTRecoveryRootKeyN ) / sizeof( ucAzureIoTRecoveryRootKeyN[ 0 ] ),
-                                              ucAzureIoTRecoveryKeyE,
-                                              sizeof( ucAzureIoTRecoveryKeyE ) / sizeof( ucAzureIoTRecoveryKeyE[ 0 ] ),
+                                              democonfigRECOVERY_SIGNING_KEY_N,
+                                              sizeof( democonfigRECOVERY_SIGNING_KEY_N ) / sizeof( democonfigRECOVERY_SIGNING_KEY_N[ 0 ] ),
+                                              democonfigRECOVERY_SIGNING_KEY_E,
+                                              sizeof( democonfigRECOVERY_SIGNING_KEY_E ) / sizeof( democonfigRECOVERY_SIGNING_KEY_E[ 0 ] ),
                                               ucSignatureValidateScratchBuffer,
                                               sizeof( ucSignatureValidateScratchBuffer ) );
         configASSERT( xResult == eAzureIoTSuccess );

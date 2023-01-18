@@ -100,6 +100,12 @@ Parameter | Value
 Save the configuration (`Shift + S`) inside the sample folder in a file with name `sdkconfig`.
 After that, close the configuration utility (`Shift + Q`).
 
+You must also update the signing root key which is located in `demo_config.h`, titled `ucAzureIoTRecoveryRootKeyN`. You can get the hex value of the modulus using the below 
+
+```bash
+openssl x509 -in <your-public-cert>.pem -modulus -noout | sed s/Modulus=// | sed -r 's/../0x&, /g'
+```
+
 ## Build the image
 
 To build the device image, run the following command (the path `"C:\espbuild"` is only a suggestion, feel free to use a different one, as long as it is near your root directory, for a shorter path):
