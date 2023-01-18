@@ -20,7 +20,7 @@ git submodule update --init --recursive
 ## Install Prerequisites
 
 - [CMake](https://cmake.org/download/) (Version 3.13 or higher)
-- [Npcap](https://npcap.com/dist/) (Version 1.6) (WinPCap may also work on older systems). If you have Wireshark installed then this step might not be necessary. This is needed to create an Ethernet interface to be used by the simulator. Make sure the install directory is on your Path Environment variable (`C:\Program Files\Npcap`).
+- [Npcap](https://npcap.com/dist/) (Version 1.6) (WinPCap may also work on older systems). If you have Wireshark installed then this step might not be necessary, although it may install a newer version that doesn't work. You can check the version you have installed in Settings -> Apps -> Installed apps -> search for `npcap`. Npcap/WinPCap is needed to create an Ethernet interface to be used by the simulator. Make sure the install directory is on your Path Environment variable (`C:\Program Files\Npcap`).
 - Ethernet connection - Npcap only works over ethernet.
 - To run this sample you can use a device previously created in your IoT Hub or have the Azure IoT Middleware for FreeRTOS provision your device automatically using DPS. **Note** that even when using DPS, you still need an IoT Hub created and connected to DPS.
 
