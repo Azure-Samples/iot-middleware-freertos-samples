@@ -1,4 +1,6 @@
-# Connect an ESPRESSIF ESP32 using Azure IoT Middleware for FreeRTOS
+# Perform Trust Bundle Recovery with an ESPRESSIF ESP32 using Azure IoT Middleware for FreeRTOS
+
+Trust Bundle Recovery allows a mechanism for your device to recover connection to Azure resources should the CA certificates expire or otherwise become invalid. This requires an additional, separate "recovery" DPS instance and device credential, only to be used for recovery of the CA certificate. Should CA verification fail, the device will connect to the recovery DPS instance, ignoring TLS CA cert validation, and will be returned a signed trust bundle recovery payload from DPS. This payload contains the complete and updated collection of CA certificates, asymmetrically signed by a root key created by the user. The device receives this payload, verifies the authenticity by decrypting and comparing the signature using the saved public key, and then installs the certificates into the device's non-volatile storage (NVS). This permanent storage allows the new certificates to be loaded again should the device restart, removing the need for the device to use the recovery endpoint again. From that point on, the device can connect to the usual DPS endpoint and provisioned hub with full CA trust validation.
 
 ## What you need
 
@@ -29,7 +31,6 @@
 
 3. Azure IoT Embedded middleware for FreeRTOS
 
-
 Clone the following repo to download all sample device code, setup scripts, and offline versions of the documentation.
 
 **If you previously cloned this repo in another sample, you don't need to do it again.**
@@ -50,10 +51,17 @@ You may also need to enable long path support for both Microsoft Windows and git
 - Windows: <https://docs.microsoft.com/windows/win32/fileio/maximum-file-path-limitation?tabs=cmd#enable-long-paths-in-windows-10-version-1607-and-later>
 - Git: as Administrator run `git config --system core.longpaths true`
 
+## Prepare the TLS CA Trust Bundle in the NVS
+
+Run the sample called `az-nvs-cert-bundle` in the `/ESPRESSIF` directory to load the v1.0 trust bundle in your ESP device. This will purposely save an incomplete trust bundle in your devices's NVS, which will then be loaded for the IoT application. Once the CA validation fails in this sample, the device will then move into the recovery phase which fetches the new and complete certificate trust bundle.
+
+## Create a Derived Shared Access Key for Group Enrollment
+
+To use the custom allocation policy with the recovery Azure function, you have to create a derived SAS key from the group enrollment key. To create one, [follow the directions here](https://learn.microsoft.com/azure/iot-dps/concepts-symmetric-key-attestation?tabs=azure-cli#group-enrollments) and save the derived key to be used later.
 
 ## Prepare the sample
 
-To connect the ESPRESSIF ESP32 to Azure, you will update the sample configuration, build the image, and flash the image to the device.
+After running the set up application, you will then need to update this sample configuration, build the image, and flash the image to the device.
 
 ### Update sample configuration
 
@@ -72,58 +80,31 @@ Parameter | Value
  `WiFi SSID` | _{Your WiFi SSID}_
  `WiFi Password` | _{Your WiFi password}_
 
-
 Under menu item `Azure IoT middleware for FreeRTOS Main Task Configuration`, update the following configuration values:
-
-Parameter | Value
----------|----------
- `Use PnP in Azure Sample` | Enabled by default. Disable this option to build a simpler sample without Azure Plug-and-Play.
- `Azure IoT Hub FQDN` | _{Your Azure IoT Hub Host FQDN}_ (Unused if Device Provisioning is enabled below)
- `Azure IoT Device ID` | _{Your Azure IoT Hub device ID}_
- `Azure IoT Module ID` | _{Your Azure IoT Hub Module ID}_ (optional, specify module id if using a device module; else leave blank if not)
-
-Select your desired authentication method with the `Azure IoT Authentication Method () --->`. The default option is `Symmetric Key`:
-
-Parameter | Value
----------|----------
- `Azure IoT Device Symmetric Key` | _{Your Azure IoT Hub device symmetric key}_
-
-If you would like to use x509 certificates, select `X509 Certificates` and update the following values:
-
-Parameter | Value
----------|----------
- `Azure IoT Device Client Certificate` | _{Your Azure IoT Hub device certificate}_
- `Azure IoT Device Client Certificate Private Key` | _{Your Azure IoT Hub device certificate private key}_
-
-Note that the certificate and private key must be a single line string with `\n` characters at the appropriate line breaks. For example:
-
-```txt
-# PEM Formatted (WRONG)
------BEGIN CERTIFICATE-----
-MIIBJDCBywIUfeHrebBVa2eZAbouBgACp9R3BncwCgYIKoZIzj0EAwIwETEPMA0G
-...
-vTfQahwsxN3xink9z1gtirrjQlqDAiEAyU+6TUJcG6d9JF+uJqsLFpsbbF3IzGAw
-yC+koNRC0MU=
------END CERTIFICATE-----
-
-# Single Line (CORRECT)
------BEGIN CERTIFICATE-----\nMIIBJDCB...\nyC+koNRC0MU=\n-----END CERTIFICATE-----
-```
-
-> Some parameters contain default values that do not need to be updated.
-
-If you're using **DPS** with an individual enrollment with SAS authentication, set the following parameters:
 
 Parameter | Value
 ---------|----------
  `Enable Device Provisioning Sample` | _{Check this option to enable DPS in the sample}_
  `Azure Device Provisioning Service ID Scope` | _{Your ID scope value}_
  `Azure Device Provisioning Service Registration ID` | _{Your Device Registration ID value}_
+ `[RECOVERY] Azure Device Provisioning Service ID Scope` | _{Your ID scope value for the recovery instance}_
+ `[RECOVERY] Azure Device Provisioning Service Registration ID.` | _{Your Device Registration ID value for the recovery instance}_
 
-> Some parameters contain default values that do not need to be updated.
+Select your desired authentication method with the `Azure IoT Authentication Method () --->` as `Symmetric Key`:
+
+Parameter | Value
+---------|----------
+ `Azure IoT Device Symmetric Key` | _{Your Azure IoT Hub device symmetric key}_
+ `[RECOVERY] Azure IoT Device Symmetric Key` | _{Your Azure IoT Hub device symmetric key for the recovery instance}_
 
 Save the configuration (`Shift + S`) inside the sample folder in a file with name `sdkconfig`.
 After that, close the configuration utility (`Shift + Q`).
+
+You must also update the signing root key which is located in `demo_config.h`, titled `ucAzureIoTRecoveryRootKeyN`. You can get the hex value of the modulus (N value) using the below command.
+
+```bash
+openssl x509 -in <your-public-cert>.pem -modulus -noout | sed s/Modulus=// | sed -r 's/../0x&, /g'
+```
 
 ## Build the image
 
@@ -326,20 +307,3 @@ I (6322) tls_freertos: (Network connection 0x3ffc8c4c) Connection to contoso-iot
 ...
 ```
 </details>
-
-## Size Chart
-
-The following chart shows the RAM and ROM usage for the ESPRESSIF ESP32 microcontroller.
-Build options: Compile optimized for size (-Os) and no logging (-DLIBRARY_LOG_LEVEL=LOG_NONE).
-This sample can include either IoT Hub only or both IoT Hub and DPS services. Also it can optionally use IoT Plug-and-Play. The table below shows RAM/ROM sizes considering:
-
-- Middleware libraries only – represents the libraries for Azure IoT connection and features.
-- Total size – which includes the Azure IoT middleware for FreeRTOS, Mbed TLS, FreeRTOS, CoreMQTT and the HAL for the dev kit.
-
-|  | Middleware library size | | Total Size | |
-|---------|----------|---------|---------|---------
-| **Sample** | **Flash (code,rodata)** | **DRAM,IRAM (bss,data)** | **Flash (code,rodata)** | **DRAM,IRAM (bss,data)** |
-| IoT Hub + DPS + PnP | 38.13 KB | 12 bytes | 704.81 KB | 119.69 KB
-| IoT Hub + DPS | 38.13 KB | 12 bytes | 704.81 KB | 119.69 KB
-| IoT Hub + PnP | 28.74 KB | 12 bytes | 694.81 KB | 118.34 KB
-| IoT Hub only | 28.73 KB | 12 bytes | 694.65 KB | 118.34 KB

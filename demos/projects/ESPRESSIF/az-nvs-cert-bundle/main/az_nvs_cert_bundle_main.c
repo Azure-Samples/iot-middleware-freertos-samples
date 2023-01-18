@@ -2,6 +2,7 @@
  * Licensed under the MIT License. */
 
 #include <stdio.h>
+#include <string.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_system.h"
@@ -16,29 +17,29 @@
 #define AZURE_TRUST_BUNDLE_NAME            "az-tb"
 #define AZURE_TRUST_BUNDLE_VERSION_NAME    "az-tb-ver"
 
-static uint8_t trust_bundle[] =
+static uint8_t ucTrustBundle[] =
 /* Baltimore */
-    "-----BEGIN CERTIFICATE-----\r\n"
-    "MIIDdzCCAl+gAwIBAgIEAgAAuTANBgkqhkiG9w0BAQUFADBaMQswCQYDVQQGEwJJ\r\n"
-    "RTESMBAGA1UEChMJQmFsdGltb3JlMRMwEQYDVQQLEwpDeWJlclRydXN0MSIwIAYD\r\n"
-    "VQQDExlCYWx0aW1vcmUgQ3liZXJUcnVzdCBSb290MB4XDTAwMDUxMjE4NDYwMFoX\r\n"
-    "DTI1MDUxMjIzNTkwMFowWjELMAkGA1UEBhMCSUUxEjAQBgNVBAoTCUJhbHRpbW9y\r\n"
-    "ZTETMBEGA1UECxMKQ3liZXJUcnVzdDEiMCAGA1UEAxMZQmFsdGltb3JlIEN5YmVy\r\n"
-    "VHJ1c3QgUm9vdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAKMEuyKr\r\n"
-    "mD1X6CZymrV51Cni4eiVgLGw41uOKymaZN+hXe2wCQVt2yguzmKiYv60iNoS6zjr\r\n"
-    "IZ3AQSsBUnuId9Mcj8e6uYi1agnnc+gRQKfRzMpijS3ljwumUNKoUMMo6vWrJYeK\r\n"
-    "mpYcqWe4PwzV9/lSEy/CG9VwcPCPwBLKBsua4dnKM3p31vjsufFoREJIE9LAwqSu\r\n"
-    "XmD+tqYF/LTdB1kC1FkYmGP1pWPgkAx9XbIGevOF6uvUA65ehD5f/xXtabz5OTZy\r\n"
-    "dc93Uk3zyZAsuT3lySNTPx8kmCFcB5kpvcY67Oduhjprl3RjM71oGDHweI12v/ye\r\n"
-    "jl0qhqdNkNwnGjkCAwEAAaNFMEMwHQYDVR0OBBYEFOWdWTCCR1jMrPoIVDaGezq1\r\n"
-    "BE3wMBIGA1UdEwEB/wQIMAYBAf8CAQMwDgYDVR0PAQH/BAQDAgEGMA0GCSqGSIb3\r\n"
-    "DQEBBQUAA4IBAQCFDF2O5G9RaEIFoN27TyclhAO992T9Ldcw46QQF+vaKSm2eT92\r\n"
-    "9hkTI7gQCvlYpNRhcL0EYWoSihfVCr3FvDB81ukMJY2GQE/szKN+OMY3EU/t3Wgx\r\n"
-    "jkzSswF07r51XgdIGn9w/xZchMB5hbgF/X++ZRGjD8ACtPhSNzkE1akxehi/oCr0\r\n"
-    "Epn3o0WC4zxe9Z2etciefC7IpJ5OCBRLbf1wbWsaY71k5h+3zvDyny67G7fyUIhz\r\n"
-    "ksLi4xaNmjICq44Y3ekQEe5+NauQrz4wlHrQMz2nZQ/1/I6eYs9HRCwBXbsdtTLS\r\n"
-    "R9I4LtD+gdwyah617jzV/OeBHRnDJELqYzmp\r\n"
-    "-----END CERTIFICATE-----\r\n"
+    /* "-----BEGIN CERTIFICATE-----\r\n" */
+    /* "MIIDdzCCAl+gAwIBAgIEAgAAuTANBgkqhkiG9w0BAQUFADBaMQswCQYDVQQGEwJJ\r\n" */
+    /* "RTESMBAGA1UEChMJQmFsdGltb3JlMRMwEQYDVQQLEwpDeWJlclRydXN0MSIwIAYD\r\n" */
+    /* "VQQDExlCYWx0aW1vcmUgQ3liZXJUcnVzdCBSb290MB4XDTAwMDUxMjE4NDYwMFoX\r\n" */
+    /* "DTI1MDUxMjIzNTkwMFowWjELMAkGA1UEBhMCSUUxEjAQBgNVBAoTCUJhbHRpbW9y\r\n" */
+    /* "ZTETMBEGA1UECxMKQ3liZXJUcnVzdDEiMCAGA1UEAxMZQmFsdGltb3JlIEN5YmVy\r\n" */
+    /* "VHJ1c3QgUm9vdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAKMEuyKr\r\n" */
+    /* "mD1X6CZymrV51Cni4eiVgLGw41uOKymaZN+hXe2wCQVt2yguzmKiYv60iNoS6zjr\r\n" */
+    /* "IZ3AQSsBUnuId9Mcj8e6uYi1agnnc+gRQKfRzMpijS3ljwumUNKoUMMo6vWrJYeK\r\n" */
+    /* "mpYcqWe4PwzV9/lSEy/CG9VwcPCPwBLKBsua4dnKM3p31vjsufFoREJIE9LAwqSu\r\n" */
+    /* "XmD+tqYF/LTdB1kC1FkYmGP1pWPgkAx9XbIGevOF6uvUA65ehD5f/xXtabz5OTZy\r\n" */
+    /* "dc93Uk3zyZAsuT3lySNTPx8kmCFcB5kpvcY67Oduhjprl3RjM71oGDHweI12v/ye\r\n" */
+    /* "jl0qhqdNkNwnGjkCAwEAAaNFMEMwHQYDVR0OBBYEFOWdWTCCR1jMrPoIVDaGezq1\r\n" */
+    /* "BE3wMBIGA1UdEwEB/wQIMAYBAf8CAQMwDgYDVR0PAQH/BAQDAgEGMA0GCSqGSIb3\r\n" */
+    /* "DQEBBQUAA4IBAQCFDF2O5G9RaEIFoN27TyclhAO992T9Ldcw46QQF+vaKSm2eT92\r\n" */
+    /* "9hkTI7gQCvlYpNRhcL0EYWoSihfVCr3FvDB81ukMJY2GQE/szKN+OMY3EU/t3Wgx\r\n" */
+    /* "jkzSswF07r51XgdIGn9w/xZchMB5hbgF/X++ZRGjD8ACtPhSNzkE1akxehi/oCr0\r\n" */
+    /* "Epn3o0WC4zxe9Z2etciefC7IpJ5OCBRLbf1wbWsaY71k5h+3zvDyny67G7fyUIhz\r\n" */
+    /* "ksLi4xaNmjICq44Y3ekQEe5+NauQrz4wlHrQMz2nZQ/1/I6eYs9HRCwBXbsdtTLS\r\n" */
+    /* "R9I4LtD+gdwyah617jzV/OeBHRnDJELqYzmp\r\n" */
+    /* "-----END CERTIFICATE-----\r\n" */
 /* Digicert */
     "-----BEGIN CERTIFICATE-----\r\n"
     "MIIDjjCCAnagAwIBAgIQAzrx5qcRqaC7KGSxHQn65TANBgkqhkiG9w0BAQsFADBh\r\n"
@@ -96,163 +97,196 @@ static uint8_t trust_bundle[] =
     "AHFiRSdLOkKEW39lt2c0Ui2cFmuqqNh7o0JMcccMyj6D5KbvtwEwXlGjefVwaaZB\r\n"
     "RA+GsCyRxj3qrg+E\r\n"
     "-----END CERTIFICATE-----\r\n";
-static uint32_t trust_bundle_size = sizeof( trust_bundle ) - 1;
-static uint32_t trust_bundle_version = 1;
+static uint32_t ulTrustBundleSize = sizeof( ucTrustBundle ) - 1;
+static uint8_t ucTrustBundleVersion[] = "1.0";
 
 /*
  *  Print trust bundle saved in the NVS
  */
-esp_err_t print_saved_bundle( nvs_handle_t my_handle )
+esp_err_t prvPrintSavedBundle( nvs_handle_t xNVSHandle )
 {
-    esp_err_t err;
+    esp_err_t xESPErr;
+    size_t xTrustBundleReadSize = 0;
+    size_t xTrustBundleVersionReadSize = 0;
+    uint8_t ucReadTrustBundleVersion[ 8 ] = { 0 }; /* value will default to 0, if not set yet in NVS */
 
-    /* Read AZURE_TRUST_BUNDLE_VERSION_NAME */
-    int32_t trust_bundle_read_version = 0; /* value will default to 0, if not set yet in NVS */
+    xESPErr = nvs_get_blob( xNVSHandle, AZURE_TRUST_BUNDLE_VERSION_NAME, NULL, &xTrustBundleVersionReadSize );
 
-    err = nvs_get_i32( my_handle, AZURE_TRUST_BUNDLE_VERSION_NAME, &trust_bundle_read_version );
-
-    if( ( err != ESP_OK ) && ( err != ESP_ERR_NVS_NOT_FOUND ) )
+    if( xESPErr != ESP_OK )
     {
-        return err;
+        printf( "Error (%s) getting AZURE_TRUST_BUNDLE_VERSION_NAME from NVS!\n", esp_err_to_name( xESPErr ) );
+        return xESPErr;
     }
 
-    printf( "Current trust bundle version = %d\n", ( int ) trust_bundle_read_version );
+    if( xTrustBundleVersionReadSize > 8 )
+    {
+        printf( "Not enough size to read version\n" );
+        return ESP_ERR_NO_MEM;
+    }
+
+    /* Read the current trust bundle version */
+    xESPErr = nvs_get_blob( xNVSHandle, AZURE_TRUST_BUNDLE_VERSION_NAME, &ucReadTrustBundleVersion, &xTrustBundleVersionReadSize );
+
+    if( xESPErr != ESP_OK )
+    {
+        printf( "Error (%s) getting AZURE_TRUST_BUNDLE_VERSION_NAME from NVS!\n", esp_err_to_name( xESPErr ) );
+        return xESPErr;
+    }
+
+    printf( "Current trust bundle version = %.*s\n", xTrustBundleVersionReadSize, ucReadTrustBundleVersion );
 
     /* Get size of cert */
-    size_t trust_bundle_read_size = 0; /* value will default to 0, if not set yet in NVS */
-    err = nvs_get_blob( my_handle, AZURE_TRUST_BUNDLE_NAME, NULL, &trust_bundle_read_size );
+    xESPErr = nvs_get_blob( xNVSHandle, AZURE_TRUST_BUNDLE_NAME, NULL, &xTrustBundleReadSize );
 
-    if( ( err != ESP_OK ) && ( err != ESP_ERR_NVS_NOT_FOUND ) )
+    if( ( xESPErr != ESP_OK ) && ( xESPErr != ESP_ERR_NVS_NOT_FOUND ) )
     {
-        return err;
+        return xESPErr;
     }
 
-    if( trust_bundle_read_size == 0 )
+    if( xTrustBundleReadSize == 0 )
     {
         printf( "Nothing saved yet!\n" );
     }
     else
     {
-        uint8_t * trust_bundle_read = malloc( trust_bundle_read_size );
-        err = nvs_get_blob( my_handle, AZURE_TRUST_BUNDLE_NAME, trust_bundle_read, &trust_bundle_read_size );
+        uint8_t * trust_bundle_read = malloc( xTrustBundleReadSize );
+        xESPErr = nvs_get_blob( xNVSHandle, AZURE_TRUST_BUNDLE_NAME, trust_bundle_read, &xTrustBundleReadSize );
 
-        if( err != ESP_OK )
+        if( xESPErr != ESP_OK )
         {
             free( trust_bundle_read );
-            return err;
+            return xESPErr;
         }
 
         printf( "Stored trust bundle:\n" );
-        printf( "%.*s\n", trust_bundle_read_size, trust_bundle_read );
+        printf( "%.*s\n", xTrustBundleReadSize, trust_bundle_read );
 
         free( trust_bundle_read );
     }
 
-    return err;
+    return xESPErr;
 }
 
 /*
  *  Save the trust bundle (certs and version) to a namespace in the NVS
  */
-esp_err_t save_trust_bundle( nvs_handle_t my_handle )
+esp_err_t prvSaveTrustBundle( nvs_handle_t xNVSHandle )
 {
-    esp_err_t err;
-    int32_t read_trust_bundle_version = 0; /* value will default to 0, if not set yet in NVS */
+    esp_err_t xESPErr;
+    size_t xTrustBundleVersionReadSize = 0;
+    uint8_t ucReadTrustBundleVersion[ 8 ] = { 0 }; /* value will default to 0, if not set yet in NVS */
+
+    xESPErr = nvs_get_blob( xNVSHandle, AZURE_TRUST_BUNDLE_VERSION_NAME, NULL, &xTrustBundleVersionReadSize );
+
+    if( ( xESPErr != ESP_OK ) && ( xESPErr != ESP_ERR_NVS_NOT_FOUND ) )
+    {
+        printf( "Error (%s) getting AZURE_TRUST_BUNDLE_VERSION_NAME from NVS!\n", esp_err_to_name( xESPErr ) );
+        return xESPErr;
+    }
+
+    if( xTrustBundleVersionReadSize > 8 )
+    {
+        printf( "Not enough size to read version\n" );
+        return ESP_ERR_NO_MEM;
+    }
 
     /* Read the current trust bundle version */
-    err = nvs_get_i32( my_handle, AZURE_TRUST_BUNDLE_VERSION_NAME, &read_trust_bundle_version );
+    xESPErr = nvs_get_blob( xNVSHandle, AZURE_TRUST_BUNDLE_VERSION_NAME, &ucReadTrustBundleVersion, &xTrustBundleVersionReadSize );
 
-    if( err != ESP_OK )
+    if( ( xESPErr != ESP_OK ) && ( xESPErr != ESP_ERR_NVS_NOT_FOUND ) )
     {
-        printf( "Error (%s) getting AZURE_TRUST_BUNDLE_VERSION_NAME from NVS!\n", esp_err_to_name( err ) );
-        return err;
+        printf( "Error (%s) getting AZURE_TRUST_BUNDLE_VERSION_NAME from NVS!\n", esp_err_to_name( xESPErr ) );
+        return xESPErr;
     }
 
 /* Skip this if user wishes to force write the bundle. */
     #ifndef AZ_FORCE_WRITE
-        /* If version matches, do not write to not overuse NVS */
-        if( read_trust_bundle_version == trust_bundle_version )
+        if( xESPErr != ESP_ERR_NVS_NOT_FOUND )
         {
-            printf( "Trust bundle version in NVS matches bundle version to write.\n" );
-            return ESP_OK;
+            if( memcmp( ucReadTrustBundleVersion, ucTrustBundleVersion, xTrustBundleVersionReadSize ) == 0 )
+            {
+                printf( "Trust bundle version in NVS matches bundle version to write.\n" );
+                nvs_close( xNVSHandle );
+                return ESP_OK;
+            }
         }
     #endif
 
-    /* Write value including previously saved blob if available */
+    /* Write value */
     printf( "Writing trust bundle\n" );
-    err = nvs_set_blob( my_handle, AZURE_TRUST_BUNDLE_NAME, trust_bundle, trust_bundle_size );
+    xESPErr = nvs_set_blob( xNVSHandle, AZURE_TRUST_BUNDLE_NAME, ucTrustBundle, ulTrustBundleSize );
 
-    if( err != ESP_OK )
+    if( xESPErr != ESP_OK )
     {
-        printf( "Error (%s) getting AZURE_TRUST_BUNDLE_VERSION_NAME from NVS!\n", esp_err_to_name( err ) );
-        return err;
+        printf( "Error (%s) getting AZURE_TRUST_BUNDLE_VERSION_NAME from NVS!\n", esp_err_to_name( xESPErr ) );
+        return xESPErr;
     }
 
     /* Set new trust bundle version */
     printf( "Writing trust bundle version\n" );
-    err = nvs_set_i32( my_handle, AZURE_TRUST_BUNDLE_VERSION_NAME, trust_bundle_version );
+    xESPErr = nvs_set_blob( xNVSHandle, AZURE_TRUST_BUNDLE_VERSION_NAME, ucTrustBundleVersion, sizeof( ucTrustBundleVersion ) - 1 );
 
-    if( err != ESP_OK )
+    if( xESPErr != ESP_OK )
     {
-        printf( "Error (%s) getting AZURE_TRUST_BUNDLE_VERSION_NAME from NVS!\n", esp_err_to_name( err ) );
-        return err;
+        printf( "Error (%s) getting AZURE_TRUST_BUNDLE_VERSION_NAME from NVS!\n", esp_err_to_name( xESPErr ) );
+        return xESPErr;
     }
 
     /* Commit */
-    err = nvs_commit( my_handle );
+    xESPErr = nvs_commit( xNVSHandle );
 
-    if( err != ESP_OK )
+    if( xESPErr != ESP_OK )
     {
-        printf( "Error (%s) getting AZURE_TRUST_BUNDLE_VERSION_NAME from NVS!\n", esp_err_to_name( err ) );
-        return err;
+        printf( "Error (%s) getting AZURE_TRUST_BUNDLE_VERSION_NAME from NVS!\n", esp_err_to_name( xESPErr ) );
+        return xESPErr;
     }
 
     printf( "Printing what was just written\n" );
-    err = print_saved_bundle( my_handle );
+    xESPErr = prvPrintSavedBundle( xNVSHandle );
 
-    return err;
+    return xESPErr;
 }
 
 /*
  *  Read and write trust bundle
  */
-void read_and_write_bundle( void )
+void prvReadAndWriteBundle( void )
 {
-    nvs_handle_t my_handle;
-    esp_err_t err;
+    nvs_handle_t xNVSHandle;
+    esp_err_t xESPErr;
 
     /* Open CA Cert namespace */
-    err = nvs_open( CA_CERT_NAMESPACE, NVS_READWRITE, &my_handle );
+    xESPErr = nvs_open( CA_CERT_NAMESPACE, NVS_READWRITE, &xNVSHandle );
 
-    if( err != ESP_OK )
+    if( xESPErr != ESP_OK )
     {
-        printf( "Error (%s) opening CA_CERT_NAMESPACE in NVS\n", esp_err_to_name( err ) );
+        printf( "Error (%s) opening CA_CERT_NAMESPACE in NVS\n", esp_err_to_name( xESPErr ) );
         return;
     }
 
     printf( "||| Printing what is currently saved |||\n" );
 
-    err = print_saved_bundle( my_handle );
+    xESPErr = prvPrintSavedBundle( xNVSHandle );
 
-    if( err != ESP_OK )
+    if( ( xESPErr != ESP_OK ) && ( xESPErr != ESP_ERR_NVS_NOT_FOUND ) )
     {
-        printf( "Error (%s) printing saved trust bundle!\n", esp_err_to_name( err ) );
+        printf( "Error (%s) printing saved trust bundle!\n", esp_err_to_name( xESPErr ) );
     }
     else
     {
         printf( "||| Check if bundle needs to be written. Write if needed. |||\n" );
 
-        err = save_trust_bundle( my_handle );
+        xESPErr = prvSaveTrustBundle( xNVSHandle );
 
-        if( err != ESP_OK )
+        if( xESPErr != ESP_OK )
         {
-            printf( "Error (%s) saving trust bundle to NVS!\n", esp_err_to_name( err ) );
-            nvs_close( my_handle );
+            printf( "Error (%s) saving trust bundle to NVS!\n", esp_err_to_name( xESPErr ) );
+            nvs_close( xNVSHandle );
             return;
         }
     }
 
-    nvs_close( my_handle );
+    nvs_close( xNVSHandle );
 }
 
 void app_main( void )
@@ -260,19 +294,19 @@ void app_main( void )
     /* Delay to give time to open UART console */
     vTaskDelay( 5000 / portTICK_PERIOD_MS );
 
-    esp_err_t err = nvs_flash_init();
+    esp_err_t xESPErr = nvs_flash_init();
 
-    if( ( err == ESP_ERR_NVS_NO_FREE_PAGES ) || ( err == ESP_ERR_NVS_NEW_VERSION_FOUND ) )
+    if( ( xESPErr == ESP_ERR_NVS_NO_FREE_PAGES ) || ( xESPErr == ESP_ERR_NVS_NEW_VERSION_FOUND ) )
     {
         /* NVS partition was truncated and needs to be erased */
         /* Retry nvs_flash_init */
         ESP_ERROR_CHECK( nvs_flash_erase() );
-        err = nvs_flash_init();
+        xESPErr = nvs_flash_init();
     }
 
-    ESP_ERROR_CHECK( err );
+    ESP_ERROR_CHECK( xESPErr );
 
-    read_and_write_bundle();
+    prvReadAndWriteBundle();
 
     printf( "Done reading and writing. Moving to infinite loop\n" );
 

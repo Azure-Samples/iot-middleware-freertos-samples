@@ -1,7 +1,10 @@
 /* Copyright (c) Microsoft Corporation.
  * Licensed under the MIT License. */
 
-#include "azure_sample_ca_recovery.h"
+#include "azure_ca_recovery_parse.h"
+
+#include <stdio.h>
+
 #include "azure/core/internal/az_result_internal.h"
 
 #define RETURN_IF_JSON_TOKEN_NOT_TYPE( jr_ptr, json_token_type ) \
@@ -24,7 +27,7 @@ typedef struct azure_iot_ca_recovery_trust_bundle
 {
     az_span version;
 
-    az_span expiry_time;
+    uint64_t expiry_time;
 
     az_span certificates;
 } azure_iot_ca_recovery_trust_bundle;
@@ -46,7 +49,7 @@ static az_result az_iot_ca_recovery_parse_trust_bundle( az_json_reader * ref_jso
     _az_RETURN_IF_FAILED( az_json_reader_next_token( ref_json_reader ) );
 
     trust_bundle->certificates = AZ_SPAN_EMPTY;
-    trust_bundle->expiry_time = AZ_SPAN_EMPTY;
+    trust_bundle->expiry_time = 0;
     trust_bundle->version = AZ_SPAN_EMPTY;
 
     while( ref_json_reader->token.kind != AZ_JSON_TOKEN_END_OBJECT )
@@ -68,12 +71,9 @@ static az_result az_iot_ca_recovery_parse_trust_bundle( az_json_reader * ref_jso
                      AZ_SPAN_FROM_STR( AZ_IOT_CA_RECOVERY_EXPIRY_TIME_NAME ) ) )
         {
             _az_RETURN_IF_FAILED( az_json_reader_next_token( ref_json_reader ) );
-            RETURN_IF_JSON_TOKEN_NOT_TYPE( ref_json_reader, AZ_JSON_TOKEN_STRING );
+            RETURN_IF_JSON_TOKEN_NOT_TYPE( ref_json_reader, AZ_JSON_TOKEN_NUMBER );
 
-            if( ref_json_reader->token.kind != AZ_JSON_TOKEN_NULL )
-            {
-                trust_bundle->expiry_time = ref_json_reader->token.slice;
-            }
+            _az_RETURN_IF_FAILED( az_json_token_get_uint64( &ref_json_reader->token, &trust_bundle->expiry_time ) );
         }
         else if( az_json_token_is_text_equal(
                      &ref_json_reader->token,
@@ -113,47 +113,26 @@ static az_result az_iot_ca_recovery_parse_recovery_payload( az_json_reader * ref
 
         if( az_json_token_is_text_equal(
                 &ref_json_reader->token,
-                AZ_SPAN_FROM_STR( AZ_IOT_CA_RECOVERY_HUB_HOSTNAME_NAME ) ) )
+                AZ_SPAN_FROM_STR( AZ_IOT_CA_RECOVERY_SIGNATURE_NAME ) ) )
         {
             _az_RETURN_IF_FAILED( az_json_reader_next_token( ref_json_reader ) );
-            /* Ignore iot hub name as it is only needed to satisfy Device Provisioning Service. */
-            /* Will not connect to this placeholder hub. */
+            RETURN_IF_JSON_TOKEN_NOT_TYPE( ref_json_reader, AZ_JSON_TOKEN_STRING );
+
+            if( ref_json_reader->token.kind != AZ_JSON_TOKEN_NULL )
+            {
+                recovery_payload->payload_signature = ref_json_reader->token.slice;
+            }
         }
         else if( az_json_token_is_text_equal(
                      &ref_json_reader->token,
-                     AZ_SPAN_FROM_STR( AZ_IOT_CA_RECOVERY_PAYLOAD_NAME ) ) )
+                     AZ_SPAN_FROM_STR( AZ_IOT_CA_RECOVERY_CERT_TRUST_BUNDLE_NAME ) ) )
         {
             _az_RETURN_IF_FAILED( az_json_reader_next_token( ref_json_reader ) );
-            RETURN_IF_JSON_TOKEN_NOT_TYPE( ref_json_reader, AZ_JSON_TOKEN_BEGIN_OBJECT );
+            RETURN_IF_JSON_TOKEN_NOT_TYPE( ref_json_reader, AZ_JSON_TOKEN_STRING );
 
-            while( ref_json_reader->token.kind != AZ_JSON_TOKEN_END_OBJECT )
+            if( ref_json_reader->token.kind != AZ_JSON_TOKEN_NULL )
             {
-                if( az_json_token_is_text_equal(
-                        &ref_json_reader->token,
-                        AZ_SPAN_FROM_STR( AZ_IOT_CA_RECOVERY_SIGNATURE_NAME ) ) )
-                {
-                    _az_RETURN_IF_FAILED( az_json_reader_next_token( ref_json_reader ) );
-                    RETURN_IF_JSON_TOKEN_NOT_TYPE( ref_json_reader, AZ_JSON_TOKEN_STRING );
-
-                    if( ref_json_reader->token.kind != AZ_JSON_TOKEN_NULL )
-                    {
-                        recovery_payload->payload_signature = ref_json_reader->token.slice;
-                    }
-                }
-                else if( az_json_token_is_text_equal(
-                             &ref_json_reader->token,
-                             AZ_SPAN_FROM_STR( AZ_IOT_CA_RECOVERY_CERT_TRUST_BUNDLE_NAME ) ) )
-                {
-                    _az_RETURN_IF_FAILED( az_json_reader_next_token( ref_json_reader ) );
-                    RETURN_IF_JSON_TOKEN_NOT_TYPE( ref_json_reader, AZ_JSON_TOKEN_STRING );
-
-                    if( ref_json_reader->token.kind != AZ_JSON_TOKEN_NULL )
-                    {
-                        recovery_payload->trust_bundle_json_object_text = ref_json_reader->token.slice;
-                    }
-                }
-
-                _az_RETURN_IF_FAILED( az_json_reader_next_token( ref_json_reader ) );
+                recovery_payload->trust_bundle_json_object_text = ref_json_reader->token.slice;
             }
         }
 
@@ -177,8 +156,7 @@ static void prvCastCoreToMiddleware( AzureIoTCARecovery_RecoveryPayload * pxReco
     pxRecoveryPayload->xTrustBundle.ulCertificatesLength = az_span_size( recovery_payload->trust_bundle.certificates );
     pxRecoveryPayload->xTrustBundle.pucVersion = az_span_ptr( recovery_payload->trust_bundle.version );
     pxRecoveryPayload->xTrustBundle.ulVersionLength = az_span_size( recovery_payload->trust_bundle.version );
-    pxRecoveryPayload->xTrustBundle.pucExpiryTime = az_span_ptr( recovery_payload->trust_bundle.expiry_time );
-    pxRecoveryPayload->xTrustBundle.ulExpiryTimeLength = az_span_size( recovery_payload->trust_bundle.expiry_time );
+    pxRecoveryPayload->xTrustBundle.ullExpiryTime = recovery_payload->trust_bundle.expiry_time;
 }
 
 AzureIoTResult_t AzureIoTCARecovery_ParseRecoveryPayload( AzureIoTJSONReader_t * pxReader,
