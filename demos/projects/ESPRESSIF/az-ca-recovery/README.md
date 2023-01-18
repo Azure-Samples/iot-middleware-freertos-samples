@@ -100,7 +100,7 @@ Parameter | Value
 Save the configuration (`Shift + S`) inside the sample folder in a file with name `sdkconfig`.
 After that, close the configuration utility (`Shift + Q`).
 
-You must also update the signing root key which is located in `demo_config.h`, titled `ucAzureIoTRecoveryRootKeyN`. You can get the hex value of the modulus using the below 
+You must also update the signing root key which is located in `demo_config.h`, titled `ucAzureIoTRecoveryRootKeyN`. You can get the hex value of the modulus (N value) using the below command.
 
 ```bash
 openssl x509 -in <your-public-cert>.pem -modulus -noout | sed s/Modulus=// | sed -r 's/../0x&, /g'
