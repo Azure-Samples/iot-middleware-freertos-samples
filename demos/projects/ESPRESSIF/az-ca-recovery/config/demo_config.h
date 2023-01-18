@@ -144,7 +144,8 @@
  */
 static uint8_t ucAzureIoTRecoveryRootKeyN[] =
 {
-    
+    // For example:
+    // 0x00, 0xab, 0xcd, 0xef .......... 0x00
 };
 
 #define democonfigRECOVERY_SIGNING_KEY_N ucAzureIoTRecoveryRootKeyN
