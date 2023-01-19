@@ -7,8 +7,8 @@ set(ROOT_PATH
 
 file(GLOB_RECURSE COMPONENT_SOURCES
     ${ROOT_PATH}/demos/sample_azure_iot_ca_recovery/*.c
-    ${ROOT_PATH}/demos/common/utilities/azure_ca_recovery_parse.c
-    ${ROOT_PATH}/demos/common/utilities/azure_ca_recovery_rsa_verify.c
+    ${ROOT_PATH}/demos/common/azure_ca_recovery/azure_ca_recovery_parse.c
+    ${ROOT_PATH}/demos/common/azure_ca_recovery/azure_ca_recovery_mbedtls_rsa_verify.c
 )
 
 # kconfig does not support multiline strings.
@@ -37,6 +37,7 @@ set(COMPONENT_INCLUDE_DIRS
     ${CMAKE_CURRENT_LIST_DIR}/../../config
     ${CMAKE_CURRENT_LIST_DIR}
     ${MBEDTLS_DIR}/mbedtls/include
+    ${ROOT_PATH}/demos/common/ca-recovery
     ${ROOT_PATH}/demos/common/transport
     ${ROOT_PATH}/demos/common/utilities
 )

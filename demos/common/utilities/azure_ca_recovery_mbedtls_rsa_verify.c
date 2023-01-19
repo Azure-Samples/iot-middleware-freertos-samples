@@ -21,9 +21,9 @@
  * @param pucOutput The output buffer into which the SHA256. It must be 32 bytes in length.
  * @return AzureIoTResult_t The result of the operation.
  */
-static AzureIoTResult_t prvJWS_SHA256Calculate( const uint8_t * pucInput,
-                                                uint32_t ulInputLength,
-                                                uint8_t * pucOutput )
+static AzureIoTResult_t prvSHA256Calculate( const uint8_t * pucInput,
+                                            uint32_t ulInputLength,
+                                            uint8_t * pucOutput )
 {
     mbedtls_md_context_t ctx;
     mbedtls_md_type_t md_type = MBEDTLS_MD_SHA256;
@@ -114,12 +114,12 @@ AzureIoTResult_t AzureIoTSample_RS256Verify( uint8_t * pucInput,
     }
 
     /* RSA */
-    xResult = prvJWS_SHA256Calculate( pucInput, ulInputLength,
-                                      pucBuffer );
+    xResult = prvSHA256Calculate( pucInput, ulInputLength,
+                                  pucBuffer );
 
     if( xResult != eAzureIoTSuccess )
     {
-        AZLogError( ( "[RSA] prvJWS_SHA256Calculate failed" ) );
+        AZLogError( ( "[RSA] prvSHA256Calculate failed" ) );
         mbedtls_rsa_free( &ctx );
         return xResult;
     }

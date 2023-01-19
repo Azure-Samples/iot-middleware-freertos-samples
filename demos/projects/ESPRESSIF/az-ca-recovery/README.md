@@ -2,6 +2,40 @@
 
 Trust Bundle Recovery allows a mechanism for your device to recover connection to Azure resources should the CA certificates expire or otherwise become invalid. This requires an additional, separate "recovery" DPS instance and device credential, only to be used for recovery of the CA certificate. Should CA verification fail, the device will connect to the recovery DPS instance, ignoring TLS CA cert validation, and will be returned a signed trust bundle recovery payload from DPS. This payload contains the complete and updated collection of CA certificates, asymmetrically signed by a root key created by the user. The device receives this payload, verifies the authenticity by decrypting and comparing the signature using the saved public key, and then installs the certificates into the device's non-volatile storage (NVS). This permanent storage allows the new certificates to be loaded again should the device restart, removing the need for the device to use the recovery endpoint again. From that point on, the device can connect to the usual DPS endpoint and provisioned hub with full CA trust validation.
 
+## Sequence Diagram
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Device
+    participant DPS_operational
+    participant DPS_recovery
+    participant CustomAllocation
+
+    Note right of Device: Device firmware contains:CA TrustBundle &  version<br>RecoveryKey, Device Recovery Identity and IDScope
+
+    loop retry count
+        Device-->>DPS_operational: Connect
+        DPS_operational-->>Device: Invalid CA Certificate
+    end
+
+    Note left of Device: Initiate Recovery
+    Device-->>DPS_recovery: Connect using Device Recovery Identity and IDScope
+    Note right of Device: !! Ignore CA validation !!
+    Note right of Device: Custom Payload: Current TrustBundle version
+
+
+    DPS_recovery-->>CustomAllocation: Recovery Identity
+    CustomAllocation-->>DPS_recovery: Custom Payload
+    Note left of CustomAllocation: Payload: <br> CA TrustBundle, Device Recovery Identity,<br> version, expiryTime <br> Sign(data=payload, key=RecoveryKey)
+    DPS_recovery-->>Device: Registration Information (including Custom Payload)
+    Device-->>Device: Verify Custom Payload Signature,<br> version and expiryTime
+    Device-->>Device: Install CA TrustBundle
+    Note left of Device: End Recovery
+    Device-->>DPS_operational: Connect
+    DPS_operational-->>Device: Valid CA Certificate
+```
+
 ## What you need
 
 - [ESPRESSIF ESP32 Board](https://www.espressif.com/en/products/devkits)
@@ -100,7 +134,7 @@ Parameter | Value
 Save the configuration (`Shift + S`) inside the sample folder in a file with name `sdkconfig`.
 After that, close the configuration utility (`Shift + Q`).
 
-You must also update the signing root key which is located in `demo_config.h`, titled `ucAzureIoTRecoveryRootKeyN`. You can get the hex value of the modulus (N value) using the below command.
+You must also update the signing root key which is located in `demo_config.h`, titled `ucAzureIoTRecoveryRootKeyN`, and possibly the exponent (E) value `ucAzureIoTRecoveryRootKeyE`. You can get the hex value of the modulus (N value) using the below command. **Note** that most times the exponent is defaulted to the value already in the config. Update the value if you use an exponent other than 65537.
 
 ```bash
 openssl x509 -in <your-public-cert>.pem -modulus -noout | sed s/Modulus=// | sed -r 's/../0x&, /g'

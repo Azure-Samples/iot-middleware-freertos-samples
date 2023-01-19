@@ -759,10 +759,10 @@ static void prvAzureDemoTask( void * pvParameters )
         /*Check expiration time */
         uint64_t ullCurrentTime = ullGetUnixTime();
 
-        if( ullCurrentTime > xRecoveryPayload.xTrustBundle.ullExpiryTime )
+        if( ullCurrentTime > xRecoveryPayload.xTrustBundle.ullExpiryTimeSecs )
         {
             LogError( ( "Trust bundle validity expired | current (%llu) payload (%llu).\r\n",
-                        ullCurrentTime, xRecoveryPayload.xTrustBundle.ullExpiryTime ) );
+                        ullCurrentTime, xRecoveryPayload.xTrustBundle.ullExpiryTimeSecs ) );
             configASSERT( false );
         }
 

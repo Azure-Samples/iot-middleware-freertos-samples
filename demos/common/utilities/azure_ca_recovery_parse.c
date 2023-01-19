@@ -156,7 +156,7 @@ static void prvCastCoreToMiddleware( AzureIoTCARecovery_RecoveryPayload * pxReco
     pxRecoveryPayload->xTrustBundle.ulCertificatesLength = az_span_size( recovery_payload->trust_bundle.certificates );
     pxRecoveryPayload->xTrustBundle.pucVersion = az_span_ptr( recovery_payload->trust_bundle.version );
     pxRecoveryPayload->xTrustBundle.ulVersionLength = az_span_size( recovery_payload->trust_bundle.version );
-    pxRecoveryPayload->xTrustBundle.ullExpiryTime = recovery_payload->trust_bundle.expiry_time;
+    pxRecoveryPayload->xTrustBundle.ullExpiryTimeSecs = recovery_payload->trust_bundle.expiry_time;
 }
 
 AzureIoTResult_t AzureIoTCARecovery_ParseRecoveryPayload( AzureIoTJSONReader_t * pxReader,

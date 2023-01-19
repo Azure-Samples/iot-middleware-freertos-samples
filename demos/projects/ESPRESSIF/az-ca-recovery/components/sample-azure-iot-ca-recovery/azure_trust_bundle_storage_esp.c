@@ -12,7 +12,7 @@
 
 static const char * TAG = "ca-trust-bundle-storage";
 
-#define CA_CERT_NAMESPACE                  "root-ca-cert"
+#define CA_CERT_NAMESPACE                  "trusted-ca"
 #define AZURE_TRUST_BUNDLE_NAME            "az-tb"
 #define AZURE_TRUST_BUNDLE_VERSION_NAME    "az-tb-ver"
 
