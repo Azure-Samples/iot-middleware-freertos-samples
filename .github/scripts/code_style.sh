@@ -30,100 +30,22 @@ if ! [ -x "$(command -v uncrustify)" ]; then
 fi
 
 if [[ "$FIX" == "check" ]]; then
-    RESULT=$(uncrustify -c ./uncrustify.cfg --check           \
-    ./demos/sample_azure_iot/*.c                              \
-    ./demos/sample_azure_iot_adu/*.c                          \
-    ./demos/sample_azure_iot_adu/*.h                          \
-    ./demos/sample_azure_iot_pnp/*.c                          \
-    ./demos/sample_azure_iot_pnp/*.h                          \
-    ./demos/sample_azure_iot_gsg/*.c                          \
-    ./demos/sample_azure_iot_gsg/*.h                          \
-    ./demos/common/transport/*.c                              \
-    ./demos/common/transport/*.h                              \
-    ./demos/common/utilities/*.c                              \
-    ./demos/common/utilities/*.h                              \
-    ./demos/projects/ESPRESSIF/adu/config/*.h                 \
-    ./demos/projects/ESPRESSIF/adu/port/*.c                   \
-    ./demos/projects/ESPRESSIF/adu/port/*.h                   \
-    ./demos/projects/ESPRESSIF/adu/main/*.c                   \
-    ./demos/projects/ESPRESSIF/aziotkit/config/*.h            \
-    ./demos/projects/ESPRESSIF/aziotkit/main/*.c              \
-    ./demos/projects/ESPRESSIF/aziotkit/main/*.h              \
-    ./demos/projects/ESPRESSIF/esp32/config/*.h               \
-    ./demos/projects/ESPRESSIF/esp32/main/*.c                 \
-    ./demos/projects/NXP/mimxrt1060/config/*.h                \
-    ./demos/projects/NXP/mimxrt1060/port/*.c                  \
-    ./demos/projects/NXP/mimxrt1060/port/*.h                  \
-    ./demos/projects/NXP/mimxrt1060/*.c                       \
-    ./demos/projects/PC/linux/config/*.h                      \
-    ./demos/projects/PC/linux/port/*.c                        \
-    ./demos/projects/PC/linux/port/*.h                        \
-    ./demos/projects/PC/linux/tests/*.c                       \
-    ./demos/projects/PC/linux/*.c                             \
-    ./demos/projects/PC/linux/*.h                             \
-    ./demos/projects/PC/windows/config/*.h                    \
-    ./demos/projects/PC/windows/*.c                           \
-    ./demos/projects/ST/b-l4s5i-iot01a/config/*.h             \
-    ./demos/projects/ST/b-l475e-iot01a/port/*.c               \
-    ./demos/projects/ST/b-l475e-iot01a/port/*.h               \
-    ./demos/projects/ST/b-l475e-iot01a/config/*.h             \
-    ./demos/projects/ST/b-l475e-iot01a/*.c                    \
-    ./demos/projects/ST/b-l475e-iot01a/*.h                    \
-    ./demos/projects/ST/stm32h745i-disco/cm7/config/*.h       \
-    ./demos/projects/ST/stm32h745i-disco/cm7/port/*.c         \
-    ./demos/projects/ST/stm32h745i-disco/cm7/port/*.h         \
-    ./demos/projects/ST/stm32h745i-disco/cm7/*.c              \
-    ./demos/projects/ST/stm32h745i-disco/cm7/*.h)
+    RESULT=$(uncrustify -c ./uncrustify.cfg --check $(find demos -name "*.[ch]"      \
+    -not -path "*nxp_code*"                                                          \
+    -not -path "*WinPCap*"                                                           \
+    -not -path "*st_code*"                                                           \
+    -not -path "*components*"))
 
     if [ $? -ne 0 ]; then
       echo $RESULT | grep "FAIL"
       exit 1
     fi
 elif [[ "$FIX" == "fix" ]]; then
-    uncrustify -c ./uncrustify.cfg --no-backup --replace      \
-    ./demos/sample_azure_iot/*.c                              \
-    ./demos/sample_azure_iot_adu/*.c                          \
-    ./demos/sample_azure_iot_adu/*.h                          \
-    ./demos/sample_azure_iot_pnp/*.c                          \
-    ./demos/sample_azure_iot_pnp/*.h                          \
-    ./demos/sample_azure_iot_gsg/*.c                          \
-    ./demos/sample_azure_iot_gsg/*.h                          \
-    ./demos/common/transport/*.c                              \
-    ./demos/common/transport/*.h                              \
-    ./demos/common/utilities/*.c                              \
-    ./demos/common/utilities/*.h                              \
-    ./demos/projects/ESPRESSIF/adu/config/*.h                 \
-    ./demos/projects/ESPRESSIF/adu/port/*.c                   \
-    ./demos/projects/ESPRESSIF/adu/port/*.h                   \
-    ./demos/projects/ESPRESSIF/adu/main/*.c                   \
-    ./demos/projects/ESPRESSIF/aziotkit/config/*.h            \
-    ./demos/projects/ESPRESSIF/aziotkit/main/*.c              \
-    ./demos/projects/ESPRESSIF/aziotkit/main/*.h              \
-    ./demos/projects/ESPRESSIF/esp32/config/*.h               \
-    ./demos/projects/ESPRESSIF/esp32/main/*.c                 \
-    ./demos/projects/NXP/mimxrt1060/config/*.h                \
-    ./demos/projects/NXP/mimxrt1060/port/*.c                  \
-    ./demos/projects/NXP/mimxrt1060/port/*.h                  \
-    ./demos/projects/NXP/mimxrt1060/*.c                       \
-    ./demos/projects/PC/linux/config/*.h                      \
-    ./demos/projects/PC/linux/port/*.c                        \
-    ./demos/projects/PC/linux/port/*.h                        \
-    ./demos/projects/PC/linux/tests/*.c                       \
-    ./demos/projects/PC/linux/*.c                             \
-    ./demos/projects/PC/linux/*.h                             \
-    ./demos/projects/PC/windows/config/*.h                    \
-    ./demos/projects/PC/windows/*.c                           \
-    ./demos/projects/ST/b-l4s5i-iot01a/config/*.h             \
-    ./demos/projects/ST/b-l475e-iot01a/port/*.c               \
-    ./demos/projects/ST/b-l475e-iot01a/port/*.h               \
-    ./demos/projects/ST/b-l475e-iot01a/config/*.h             \
-    ./demos/projects/ST/b-l475e-iot01a/*.c                    \
-    ./demos/projects/ST/b-l475e-iot01a/*.h                    \
-    ./demos/projects/ST/stm32h745i-disco/cm7/config/*.h       \
-    ./demos/projects/ST/stm32h745i-disco/cm7/port/*.c         \
-    ./demos/projects/ST/stm32h745i-disco/cm7/port/*.h         \
-    ./demos/projects/ST/stm32h745i-disco/cm7/*.c              \
-    ./demos/projects/ST/stm32h745i-disco/cm7/*.h
+    uncrustify -c ./uncrustify.cfg --no-backup --replace $(find demos -name "*.[ch]" \
+    -not -path "*nxp_code*"                                                          \
+    -not -path "*WinPCap*"                                                           \
+    -not -path "*st_code*"                                                           \
+    -not -path "*components*")
 else
     usage
 fi
