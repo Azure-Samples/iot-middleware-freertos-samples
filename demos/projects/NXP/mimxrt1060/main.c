@@ -527,6 +527,7 @@ int iMainRand32( void )
 }
 /*-----------------------------------------------------------*/
 
+/* *INDENT-OFF* */
 #ifdef __GNUC__
     int _read( int file,
                char * ptr,
@@ -550,6 +551,7 @@ int iMainRand32( void )
 }
 /*-----------------------------------------------------------*/
 
+/* *INDENT-OFF* */
 #ifdef __GNUC__
     int _write( int file,
                 char * ptr,

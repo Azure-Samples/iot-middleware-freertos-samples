@@ -64,8 +64,6 @@ if [[ "$FIX" == "check" ]]; then
     ./demos/projects/PC/windows/config/*.h                    \
     ./demos/projects/PC/windows/*.c                           \
     ./demos/projects/ST/b-l4s5i-iot01a/config/*.h             \
-    ./demos/projects/ST/b-l4s5i-iot01a/*.c                    \
-    ./demos/projects/ST/b-l4s5i-iot01a/*.h                    \
     ./demos/projects/ST/b-l475e-iot01a/port/*.c               \
     ./demos/projects/ST/b-l475e-iot01a/port/*.h               \
     ./demos/projects/ST/b-l475e-iot01a/config/*.h             \
@@ -116,8 +114,6 @@ elif [[ "$FIX" == "fix" ]]; then
     ./demos/projects/PC/windows/config/*.h                    \
     ./demos/projects/PC/windows/*.c                           \
     ./demos/projects/ST/b-l4s5i-iot01a/config/*.h             \
-    ./demos/projects/ST/b-l4s5i-iot01a/*.c                    \
-    ./demos/projects/ST/b-l4s5i-iot01a/*.h                    \
     ./demos/projects/ST/b-l475e-iot01a/port/*.c               \
     ./demos/projects/ST/b-l475e-iot01a/port/*.h               \
     ./demos/projects/ST/b-l475e-iot01a/config/*.h             \
