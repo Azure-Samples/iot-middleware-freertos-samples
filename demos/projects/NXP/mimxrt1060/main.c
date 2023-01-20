@@ -1,5 +1,5 @@
 /* Copyright (c) Microsoft Corporation.
-   Licensed under the MIT License. */
+ * Licensed under the MIT License. */
 
 /*******************************************************************************
  * Includes
@@ -528,35 +528,47 @@ int iMainRand32( void )
 /*-----------------------------------------------------------*/
 
 #ifdef __GNUC__
-int _read(int file, char *ptr, int len)
+    int _read( int file,
+               char * ptr,
+               int len )
 #elif __ICCARM__
-size_t __read(int file, unsigned char *ptr, size_t len)
+    size_t __read( int file,
+                   unsigned char * ptr,
+                   size_t len )
 #else
-#error unknown compiler
+    #error unknown compiler
 #endif
 {
-	int DataIdx;
-	for (DataIdx = 0; DataIdx < len; DataIdx++)
-	{
-		*ptr++ = DbgConsole_Getchar();
-	}
-	return len;
+    int DataIdx;
+
+    for( DataIdx = 0; DataIdx < len; DataIdx++ )
+    {
+        *ptr++ = DbgConsole_Getchar();
+    }
+
+    return len;
 }
 /*-----------------------------------------------------------*/
 
 #ifdef __GNUC__
-int _write(int file, char *ptr, int len)
+    int _write( int file,
+                char * ptr,
+                int len )
 #elif __ICCARM__
-size_t __write(int file, unsigned char *ptr, size_t len)
+    size_t __write( int file,
+                    unsigned char * ptr,
+                    size_t len )
 #else
-#error unknown compiler
+    #error unknown compiler
 #endif
 {
-	int DataIdx;
-	for (DataIdx = 0; DataIdx < len; DataIdx++)
-	{
-		DbgConsole_Putchar(*ptr++);
-	}
-	return len;
+    int DataIdx;
+
+    for( DataIdx = 0; DataIdx < len; DataIdx++ )
+    {
+        DbgConsole_Putchar( *ptr++ );
+    }
+
+    return len;
 }
 /*-----------------------------------------------------------*/

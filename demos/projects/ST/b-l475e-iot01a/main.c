@@ -1,5 +1,5 @@
 /* Copyright (c) Microsoft Corporation.
-   Licensed under the MIT License. */
+ * Licensed under the MIT License. */
 
 #include "main.h"
 #include <stdint.h>
@@ -27,25 +27,25 @@
 #include "wifi.h"
 
 /* Define the default wifi ssid and password.
-   User must override this in demo_config.h 
-*/
+ * User must override this in demo_config.h
+ */
 #ifndef WIFI_SSID
-#error "Symbol WIFI_SSID must be defined."
+    #error "Symbol WIFI_SSID must be defined."
 #endif /* WIFI_SSID  */
 
 #ifndef WIFI_PASSWORD
-#error "Symbol WIFI_PASSWORD must be defined."
+    #error "Symbol WIFI_PASSWORD must be defined."
 #endif /* WIFI_PASSWORD  */
 
 #ifndef WIFI_SECURITY_TYPE
-#error "Symbol WIFI_SECURITY_TYPE must be defined."
+    #error "Symbol WIFI_SECURITY_TYPE must be defined."
 #endif /* WIFI_SECURITY_TYPE  */
 
-uint8_t  MAC_Addr[6];
-uint8_t  IP_Addr[4];
-uint8_t  Gateway_Addr[4];
-uint8_t  DNS1_Addr[4];
-uint8_t  DNS2_Addr[4];
+uint8_t MAC_Addr[ 6 ];
+uint8_t IP_Addr[ 4 ];
+uint8_t Gateway_Addr[ 4 ];
+uint8_t DNS1_Addr[ 4 ];
+uint8_t DNS2_Addr[ 4 ];
 
 /*-----------------------------------------------------------*/
 
@@ -108,6 +108,7 @@ void vLoggingPrintf( const char * pcFormat,
                      ... )
 {
     va_list vargs;
+
     va_start( vargs, pcFormat );
     vprintf( pcFormat, vargs );
     va_end( vargs );
@@ -149,15 +150,15 @@ UBaseType_t uxRand( void )
 
 void vApplicationDaemonTaskStartupHook( void )
 {
-	/**
-	* Initialize wifi semaphore
-	*/
-	xWifiSemaphoreHandle = xSemaphoreCreateMutexStatic( &( xSemaphoreBuffer ) );
-	/* Initialize semaphore. */
-	xSemaphoreGive( xWifiSemaphoreHandle );
+    /**
+     * Initialize wifi semaphore
+     */
+    xWifiSemaphoreHandle = xSemaphoreCreateMutexStatic( &( xSemaphoreBuffer ) );
+    /* Initialize semaphore. */
+    xSemaphoreGive( xWifiSemaphoreHandle );
 
     /* Demos that use the network are created after the network is
-    * up. */
+     * up. */
     configPRINTF( ( "---------STARTING DEMO---------\r\n" ) );
     vStartDemoTask();
 }
@@ -179,51 +180,51 @@ static BaseType_t prvInitializeWifi( void )
     if( xWifiStatus == WIFI_STATUS_OK )
     {
         configPRINTF( ( "WiFi module initialized.\r\n" ) );
-        
-        configPRINTF( ( "STM32L4XX Lib:\r\n") );
+
+        configPRINTF( ( "STM32L4XX Lib:\r\n" ) );
         configPRINTF( ( "> CMSIS Device Version: %d.%d.%d.%d.\r\n",
                         __STM32L4_CMSIS_VERSION_MAIN, __STM32L4_CMSIS_VERSION_SUB1,
                         __STM32L4_CMSIS_VERSION_SUB2, __STM32L4_CMSIS_VERSION_RC ) );
         configPRINTF( ( "> HAL Driver Version: %ld.%ld.%ld.%ld.\r\n",
-                        ((hal_version >> 24U) & 0xFF), ((hal_version >> 16U) & 0xFF),
-                        ((hal_version >> 8U) & 0xFF), (hal_version & 0xFF) ) );
+                        ( ( hal_version >> 24U ) & 0xFF ), ( ( hal_version >> 16U ) & 0xFF ),
+                        ( ( hal_version >> 8U ) & 0xFF ), ( hal_version & 0xFF ) ) );
         configPRINTF( ( "> BSP Driver Version: %ld.%ld.%ld.%ld.\r\n",
-                        ((bsp_version >> 24U) & 0xFF), ((bsp_version >> 16U) & 0xFF),
-                        ((bsp_version >> 8U) & 0xFF), (bsp_version & 0xFF)) );
+                        ( ( bsp_version >> 24U ) & 0xFF ), ( ( bsp_version >> 16U ) & 0xFF ),
+                        ( ( bsp_version >> 8U ) & 0xFF ), ( bsp_version & 0xFF ) ) );
 
         if( WIFI_GetMAC_Address( MAC_Addr ) != WIFI_STATUS_OK )
-        {          
-            configPRINTF( ( "!!!ERROR: ES-WIFI Get MAC Address Failed.\r\n") );
+        {
+            configPRINTF( ( "!!!ERROR: ES-WIFI Get MAC Address Failed.\r\n" ) );
             ret = -1;
         }
         else if( WIFI_Connect( WIFI_SSID, WIFI_PASSWORD, WIFI_SECURITY_TYPE ) != WIFI_STATUS_OK )
         {
-            configPRINTF( ("!!!ERROR: ES-WIFI NOT connected.\r\n") );
+            configPRINTF( ( "!!!ERROR: ES-WIFI NOT connected.\r\n" ) );
             ret = -1;
         }
         else
         {
-            configPRINTF( ( "ES-WIFI MAC Address: %X:%X:%X:%X:%X:%X\r\n",     
-                          MAC_Addr[0], MAC_Addr[1], MAC_Addr[2],
-                          MAC_Addr[3], MAC_Addr[4], MAC_Addr[5] ) );
-            
+            configPRINTF( ( "ES-WIFI MAC Address: %X:%X:%X:%X:%X:%X\r\n",
+                            MAC_Addr[ 0 ], MAC_Addr[ 1 ], MAC_Addr[ 2 ],
+                            MAC_Addr[ 3 ], MAC_Addr[ 4 ], MAC_Addr[ 5 ] ) );
+
             configPRINTF( ( "ES-WIFI Connected.\r\n" ) );
 
             if( WIFI_GetIP_Address( IP_Addr ) == WIFI_STATUS_OK )
             {
-                configPRINTF( ( "> ES-WIFI IP Address: %d.%d.%d.%d\r\n",     
-                                IP_Addr[0],
-                                IP_Addr[1],
-                                IP_Addr[2],
-                                IP_Addr[3] ) ); 
-			}
+                configPRINTF( ( "> ES-WIFI IP Address: %d.%d.%d.%d\r\n",
+                                IP_Addr[ 0 ],
+                                IP_Addr[ 1 ],
+                                IP_Addr[ 2 ],
+                                IP_Addr[ 3 ] ) );
+            }
 
-            if( (IP_Addr[0] == 0)&& 
-                (IP_Addr[1] == 0)&& 
-                (IP_Addr[2] == 0)&&
-                (IP_Addr[3] == 0) )
+            if( ( IP_Addr[ 0 ] == 0 ) &&
+                ( IP_Addr[ 1 ] == 0 ) &&
+                ( IP_Addr[ 2 ] == 0 ) &&
+                ( IP_Addr[ 3 ] == 0 ) )
             {
-                configPRINTF( ("!!!ERROR: ES-WIFI Get IP Address Failed.\r\n") );
+                configPRINTF( ( "!!!ERROR: ES-WIFI Get IP Address Failed.\r\n" ) );
                 ret = -1;
             }
             else
@@ -317,11 +318,11 @@ void vSTM32L475putc( void * pv,
 
 /**
  * @brief Publishes a character to the STM32L475 UART
- * 
+ *
  */
-int __io_putchar(int ch)
+int __io_putchar( int ch )
 {
-    vSTM32L475putc(NULL, ch);
+    vSTM32L475putc( NULL, ch );
 
     return 0;
 }
@@ -373,42 +374,42 @@ static void prvMiscInitialization( void )
 /**
  * @brief Discovery and Intialize all the Target's Features
  */
-static void Init_MEM1_Sensors(void)
+static void Init_MEM1_Sensors( void )
 {
-    // Accelero
-    if (ACCELERO_OK != BSP_ACCELERO_Init())
+    /* Accelero */
+    if( ACCELERO_OK != BSP_ACCELERO_Init() )
     {
-        printf("Error Accelero Sensor\r\n");
+        printf( "Error Accelero Sensor\r\n" );
     }
 
-    // Gyro
-    if (GYRO_OK != BSP_GYRO_Init())
+    /* Gyro */
+    if( GYRO_OK != BSP_GYRO_Init() )
     {
-        printf("Error Gyroscope Sensor\r\n");
+        printf( "Error Gyroscope Sensor\r\n" );
     }
 
-    // Mag
-    if (MAGNETO_OK != BSP_MAGNETO_Init())
+    /* Mag */
+    if( MAGNETO_OK != BSP_MAGNETO_Init() )
     {
-        printf("Error Magneto Sensor\r\n");
+        printf( "Error Magneto Sensor\r\n" );
     }
 
-    // Humidity
-    if (HSENSOR_OK != BSP_HSENSOR_Init())
+    /* Humidity */
+    if( HSENSOR_OK != BSP_HSENSOR_Init() )
     {
-        printf("Error Humidity Sensor\r\n");
+        printf( "Error Humidity Sensor\r\n" );
     }
 
-    // Temperature
-    if (TSENSOR_OK != BSP_TSENSOR_Init())
+    /* Temperature */
+    if( TSENSOR_OK != BSP_TSENSOR_Init() )
     {
-        printf("Error Temperature Sensor\r\n");
+        printf( "Error Temperature Sensor\r\n" );
     }
 
-    // Pressure
-    if (PSENSOR_OK != BSP_PSENSOR_Init())
+    /* Pressure */
+    if( PSENSOR_OK != BSP_PSENSOR_Init() )
     {
-        printf("Error Pressure Sensor\r\n");
+        printf( "Error Pressure Sensor\r\n" );
     }
 }
 /*-----------------------------------------------------------*/
@@ -735,26 +736,26 @@ void HAL_TIM_PeriodElapsedCallback( TIM_HandleTypeDef * htim )
 /*-----------------------------------------------------------*/
 
 int mbedtls_platform_entropy_poll( void * data,
-                           unsigned char * output,
-                           size_t len,
-                           size_t * olen )
+                                   unsigned char * output,
+                                   size_t len,
+                                   size_t * olen )
 {
-  HAL_StatusTypeDef status = HAL_OK;
-  uint32_t random_number = 0;
-  
-  status = HAL_RNG_GenerateRandomNumber(&xHrng, &random_number);
-  ((void) data);
-  *olen = 0;
-  
-  if ((len < sizeof(uint32_t)) || (HAL_OK != status))
-  {
+    HAL_StatusTypeDef status = HAL_OK;
+    uint32_t random_number = 0;
+
+    status = HAL_RNG_GenerateRandomNumber( &xHrng, &random_number );
+    ( ( void ) data );
+    *olen = 0;
+
+    if( ( len < sizeof( uint32_t ) ) || ( HAL_OK != status ) )
+    {
+        return 0;
+    }
+
+    memcpy( output, &random_number, sizeof( uint32_t ) );
+    *olen = sizeof( uint32_t );
+
     return 0;
-  }
-  
-  memcpy(output, &random_number, sizeof(uint32_t));
-  *olen = sizeof(uint32_t);
-  
-  return 0;
 }
 /*-----------------------------------------------------------*/
 

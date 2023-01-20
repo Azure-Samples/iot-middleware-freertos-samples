@@ -1,5 +1,5 @@
 /* Copyright (c) Microsoft Corporation.
-   Licensed under the MIT License. */
+ * Licensed under the MIT License. */
 
 #ifndef AZURE_IOT_CONFIG_H
 #define AZURE_IOT_CONFIG_H
