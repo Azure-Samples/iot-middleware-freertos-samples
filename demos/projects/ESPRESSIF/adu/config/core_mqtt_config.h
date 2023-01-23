@@ -1,5 +1,5 @@
 /* Copyright (c) Microsoft Corporation.
-   Licensed under the MIT License. */
+ * Licensed under the MIT License. */
 
 #ifndef CORE_MQTT_CONFIG_H
 #define CORE_MQTT_CONFIG_H
@@ -22,17 +22,17 @@
     #define LIBRARY_LOG_NAME    "MQTT"
 #endif
 
-#define SINGLE_PARENTHESIS_LOGE( x, ... ) ESP_LOGE( LIBRARY_LOG_NAME, x, ##__VA_ARGS__ )
-#define LogError( message )               SINGLE_PARENTHESIS_LOGE message
+#define SINGLE_PARENTHESIS_LOGE( x, ... )    ESP_LOGE( LIBRARY_LOG_NAME, x, ## __VA_ARGS__ )
+#define LogError( message )                  SINGLE_PARENTHESIS_LOGE message
 
-#define SINGLE_PARENTHESIS_LOGI( x, ... ) ESP_LOGI( LIBRARY_LOG_NAME, x, ##__VA_ARGS__ )
-#define LogInfo( message )                SINGLE_PARENTHESIS_LOGI message
+#define SINGLE_PARENTHESIS_LOGI( x, ... )    ESP_LOGI( LIBRARY_LOG_NAME, x, ## __VA_ARGS__ )
+#define LogInfo( message )                   SINGLE_PARENTHESIS_LOGI message
 
-#define SINGLE_PARENTHESIS_LOGW( x, ... ) ESP_LOGW( LIBRARY_LOG_NAME, x, ##__VA_ARGS__ )
-#define LogWarn( message )                SINGLE_PARENTHESIS_LOGW message
+#define SINGLE_PARENTHESIS_LOGW( x, ... )    ESP_LOGW( LIBRARY_LOG_NAME, x, ## __VA_ARGS__ )
+#define LogWarn( message )                   SINGLE_PARENTHESIS_LOGW message
 
-#define SINGLE_PARENTHESIS_LOGD( x, ... ) ESP_LOGD( LIBRARY_LOG_NAME, x, ##__VA_ARGS__ )
-#define LogDebug( message )               SINGLE_PARENTHESIS_LOGD message
+#define SINGLE_PARENTHESIS_LOGD( x, ... )    ESP_LOGD( LIBRARY_LOG_NAME, x, ## __VA_ARGS__ )
+#define LogDebug( message )                  SINGLE_PARENTHESIS_LOGD message
 
 /************ End of logging configuration ****************/
 

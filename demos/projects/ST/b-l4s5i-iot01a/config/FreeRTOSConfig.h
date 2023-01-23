@@ -1,5 +1,5 @@
 /* Copyright (c) Microsoft Corporation.
-   Licensed under the MIT License. */
+ * Licensed under the MIT License. */
 
 #ifndef FREERTOS_CONFIG_H
 #define FREERTOS_CONFIG_H
@@ -111,8 +111,8 @@ void vLoggingPrintf( const char * pcFormat,
                      ... );
 
 /* Map the FreeRTOS printf() to the logging task printf. */
-#define configPRINTF( x )          vLoggingPrintf x
-//#define configPRINTF( x )
+#define configPRINTF( x )    vLoggingPrintf x
+/*#define configPRINTF( x ) */
 
 /* Map the logging task's printf to the board specific output function. */
 #define configPRINT_STRING( x )    vMainUARTPrintString( x );
@@ -126,12 +126,12 @@ void vLoggingPrintf( const char * pcFormat,
 #define configLOGGING_INCLUDE_TIME_AND_TASK_NAME    1
 
 /* The size of the global output buffer that is available for use when there
-   *  are multiple command interpreters running at once (for example, one on a UART
-   *  and one on TCP/IP).  This is done to prevent an output buffer being defined by
-   *  each implementation - which would waste RAM.  In this case, there is only one
-   *  command interpreter running, and it has its own local output buffer, so the
-   *  global buffer is just set to be one byte long as it is not used and should not
-   *  take up unnecessary RAM. */
+ *  are multiple command interpreters running at once (for example, one on a UART
+ *  and one on TCP/IP).  This is done to prevent an output buffer being defined by
+ *  each implementation - which would waste RAM.  In this case, there is only one
+ *  command interpreter running, and it has its own local output buffer, so the
+ *  global buffer is just set to be one byte long as it is not used and should not
+ *  take up unnecessary RAM. */
 #define configCOMMAND_INT_MAX_OUTPUT_SIZE           1
 
 /* Pseudo random number generator, just used by demos so does not have to be
@@ -142,9 +142,9 @@ extern int iMainRand32( void );
 
 /* Definitions that map the FreeRTOS port interrupt handlers to their CMSIS
  * standard names. */
-#define vPortSVCHandler               SVC_Handler
-#define xPortPendSVHandler            PendSV_Handler
-#define vHardFault_Handler            HardFault_Handler
+#define vPortSVCHandler       SVC_Handler
+#define xPortPendSVHandler    PendSV_Handler
+#define vHardFault_Handler    HardFault_Handler
 
 /* IMPORTANT: This define MUST be commented when used with STM32Cube firmware,
  *            to prevent overwriting SysTick_Handler defined within STM32Cube HAL. */

@@ -1,5 +1,5 @@
 /* Copyright (c) Microsoft Corporation.
-   Licensed under the MIT License. */
+ * Licensed under the MIT License. */
 
 /* Standard includes. */
 #include <stdarg.h>
@@ -303,7 +303,7 @@ extern uint32_t ulApplicationGetNextSequenceNumber( uint32_t ulSourceAddress,
     ( void ) ulDestinationAddress;
     ( void ) usDestinationPort;
 
-    return (uint32_t) configRAND32();
+    return ( uint32_t ) configRAND32();
 }
 /*-----------------------------------------------------------*/
 
@@ -318,7 +318,7 @@ extern uint32_t ulApplicationGetNextSequenceNumber( uint32_t ulSourceAddress,
  */
 BaseType_t xApplicationGetRandomNumber( uint32_t * pulNumber )
 {
-    *pulNumber = (uint32_t) configRAND32();
+    *pulNumber = ( uint32_t ) configRAND32();
     return pdTRUE;
 }
 /*-----------------------------------------------------------*/
@@ -379,7 +379,7 @@ void vApplicationGetTimerTaskMemory( StaticTask_t ** ppxTimerTaskTCBBuffer,
 
 uint64_t ullGetUnixTime( void )
 {
-    return (uint64_t) time(NULL);
+    return ( uint64_t ) time( NULL );
 }
 /*-----------------------------------------------------------*/
 
@@ -418,7 +418,7 @@ int mbedtls_platform_entropy_poll( void * data,
     if( read_len != len )
     {
         fclose( file );
-        return(  -1 );
+        return( -1 );
     }
 
     fclose( file );

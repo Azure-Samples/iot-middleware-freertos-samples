@@ -1,5 +1,5 @@
 /* Copyright (c) Microsoft Corporation.
-   Licensed under the MIT License. */
+ * Licensed under the MIT License. */
 
 #include "main.h"
 #include <stdint.h>
@@ -634,7 +634,7 @@ int mbedtls_platform_entropy_poll( void * data,
                                    size_t len,
                                    size_t * olen )
 {
-  return mbedtls_hardware_poll( data, output, len, olen );
+    return mbedtls_hardware_poll( data, output, len, olen );
 }
 /*-----------------------------------------------------------*/
 

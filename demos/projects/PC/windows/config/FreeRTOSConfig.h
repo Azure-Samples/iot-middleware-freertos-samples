@@ -1,5 +1,5 @@
 /* Copyright (c) Microsoft Corporation.
-   Licensed under the MIT License. */
+ * Licensed under the MIT License. */
 
 #ifndef FREERTOS_CONFIG_H
 #define FREERTOS_CONFIG_H
@@ -183,6 +183,6 @@ extern void vLoggingPrintf( const char * pcFormatString,
 #define configPRINTF( X )    vLoggingPrintf X
 
 extern int iMainRand32( void );
-#define configRAND32() iMainRand32()
+#define configRAND32()       iMainRand32()
 
 #endif /* FREERTOS_CONFIG_H */
