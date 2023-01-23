@@ -1,6 +1,16 @@
 /* Copyright (c) Microsoft Corporation.
  * Licensed under the MIT License. */
 
+/*
+// Usage (from this directory)
+
+az login
+az account set --subscription <subscription id>
+az group create --name '<name>' --location '<location>'
+az deployment group create --name <deployment name --resource-group '<name>' --template-file './ca-recovery-arm.bicep' --parameters location='<location>'
+
+*/
+
 @description('Prefix to apply to all of the resources')
 param resourcePrefix string = 'azrecov'
 
