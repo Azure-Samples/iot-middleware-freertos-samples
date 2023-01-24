@@ -21,6 +21,7 @@ var runtime = 'dotnet'
 var iothubName = '${resourcePrefix}-iothub'
 var dpsName = '${resourcePrefix}-dps'
 var functionAppName = '${resourcePrefix}-fnapp'
+var functionName = '${resourcePrefix}-fn'
 var hostingPlanName = '${resourcePrefix}-hosting'
 var applicationInsightsName = '${resourcePrefix}-insights'
 var storageAccountName = '${resourcePrefix}storage'
@@ -107,5 +108,34 @@ resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = {
   properties: {
     Application_Type: 'web'
     Request_Source: 'rest'
+  }
+}
+
+resource function 'Microsoft.Web/sites/functions@2021-03-01' = {
+  name: functionName
+  parent: functionApp
+  properties: {
+    config: {
+      disabled: false
+      bindings: [
+        {
+          name: 'req'
+          type: 'httpTrigger'
+          direction: 'in'
+          authLevel: 'function'
+          methods: [
+            'get'
+          ]
+        }
+        {
+          name: '$return'
+          type: 'http'
+          direction: 'out'
+        }
+      ]
+    }
+    files: {
+      'recovery.csx': loadTextContent('./az-function/recovery.csx')
+    }
   }
 }
