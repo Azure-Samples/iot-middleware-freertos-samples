@@ -3,6 +3,7 @@
 
 /*
 // Usage (from this directory)
+// Location examples: 'East US' 'West US 2'
 
 az login
 az account set --subscription <subscription id>
