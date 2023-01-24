@@ -41,7 +41,14 @@ resource dps 'Microsoft.Devices/provisioningServices@2022-02-05' = {
     capacity: 1
     name: 'S1'
   }
-  // TODO: Add section connecting Hub once it works
+  properties: {
+    iotHubs: [
+      {
+        connectionString: 'HostName=${iothub.properties.hostName};SharedAccessKeyName=iothubowner;SharedAccessKey=${iothub.listkeys().value[0].primaryKey}'
+        location: location
+      }
+    ]
+  }
 }
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2021-06-01' = {
