@@ -1,3 +1,6 @@
+/* Copyright (c) Microsoft Corporation.
+ * Licensed under the MIT License. */
+
 #r "Newtonsoft.Json" 
 #nullable enable 
 
