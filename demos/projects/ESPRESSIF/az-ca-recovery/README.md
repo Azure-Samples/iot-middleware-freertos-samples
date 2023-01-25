@@ -89,7 +89,7 @@ You may also need to enable long path support for both Microsoft Windows and git
 
 ## Set Up Azure Resources
 
-In order to create the resources to use for the recovery process, we are going to use an Azure Resource Manager (ARM) template. The file detailing all the resources to be deployed is located in [`demos/sample_azure_iot_ca_recovery/ca-recovery-template.bicep`](../../../sample_azure_iot_ca_recovery/ca-recovery-template.bicep). You will login to the Azure CLI, and then deploy the resources to a subscription and resource group of your choosing.
+In order to create the resources to use for the recovery process, we are going to use an Azure Resource Manager (ARM) template. The file detailing all the resources to be deployed is located in [demos/sample_azure_iot_ca_recovery/ca-recovery-template.bicep](../../../sample_azure_iot_ca_recovery/ca-recovery-template.bicep). You will login to the Azure CLI, and then deploy the resources to a subscription and resource group of your choosing.
 
 ### Deploy Resources
 
@@ -155,7 +155,7 @@ To use the custom allocation policy with the recovery Azure function, you have t
 
 ## Prepare the TLS CA Trust Bundle in the NVS
 
-Run the sample called `az-nvs-cert-bundle` in the `/ESPRESSIF` directory to load the v1.0 trust bundle in your ESP device. This will purposely save an incomplete trust bundle in your devices's NVS, which will then be loaded for the IoT application. Once the CA validation fails in this sample, the device will then move into the recovery phase which fetches the new and complete certificate trust bundle.
+[Run the sample called az-nvs-cert-bundle](../az-nvs-cert-bundle/README.md) in the `/ESPRESSIF` directory to load the version 1 trust bundle in your ESP device. This will purposely save an incomplete trust bundle in your devices's NVS, which will then be loaded for the IoT application. Once the CA validation fails in this sample, the device will then move into the recovery phase which fetches the new and complete certificate trust bundle.
 
 ## Prepare the sample
 
