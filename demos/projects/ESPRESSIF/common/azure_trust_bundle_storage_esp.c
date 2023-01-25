@@ -75,8 +75,7 @@ AzureIoTResult_t AzureIoTCAStorage_ReadTrustBundle( const uint8_t * pucTrustBund
     }
     else
     {
-        *pulOutTrustBundleLength = ulTrustBundleReadSize;
-        err = nvs_get_blob( xNVSHandle, AZURE_TRUST_BUNDLE_NAME, ( void * ) pucTrustBundle, pulOutTrustBundleLength );
+        err = nvs_get_blob( xNVSHandle, AZURE_TRUST_BUNDLE_NAME, ( void * ) pucTrustBundle, &ulTrustBundleReadSize );
 
         if( err != ESP_OK )
         {
@@ -84,6 +83,8 @@ AzureIoTResult_t AzureIoTCAStorage_ReadTrustBundle( const uint8_t * pucTrustBund
             return eAzureIoTErrorFailed;
         }
     }
+
+    *pulOutTrustBundleLength = ulTrustBundleReadSize;
 
     nvs_close( xNVSHandle );
 
@@ -105,7 +106,7 @@ AzureIoTResult_t AzureIoTCAStorage_WriteTrustBundle( const uint8_t * pucTrustBun
         return eAzureIoTErrorFailed;
     }
 
-    ESP_LOGI( TAG, "Writing trust bundle:\r\n%.*s\n", ulTrustBundleLength, pucTrustBundle );
+    ESP_LOGI( TAG, "Writing trust bundle:\r\n%.*s\n", ( int ) ulTrustBundleLength, pucTrustBundle );
     err = nvs_set_blob( xNVSHandle, AZURE_TRUST_BUNDLE_NAME, pucTrustBundle, ulTrustBundleLength );
 
     if( err != ESP_OK )
@@ -116,7 +117,7 @@ AzureIoTResult_t AzureIoTCAStorage_WriteTrustBundle( const uint8_t * pucTrustBun
     }
 
     /* Set new trust bundle version */
-    ESP_LOGI( TAG, "Writing trust bundle version: %d\n", ulTrustBundleVersion );
+    ESP_LOGI( TAG, "Writing trust bundle version: %d\n", ( int ) ulTrustBundleVersion );
     err = nvs_set_u32( xNVSHandle, AZURE_TRUST_BUNDLE_VERSION_NAME, ulTrustBundleVersion );
 
     if( err != ESP_OK )
