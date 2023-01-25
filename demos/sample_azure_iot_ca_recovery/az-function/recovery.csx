@@ -17,7 +17,7 @@ using System.Security.Cryptography;
  *  - DigiCert Global Root G2 
  *  - Microsoft RSA Root Certificate Authority 2017
  */
-const string certTrust1Version = "2.0";
+const int certTrust1Version = 2;
 const string certTrust1 =
 "-----BEGIN CERTIFICATE-----\r\n" +
 "MIIDdzCCAl+gAwIBAgIEAgAAuTANBgkqhkiG9w0BAQUFADBaMQswCQYDVQQGEwJJ\r\n" +
@@ -171,7 +171,7 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
 public class TrustBundlePayload 
 {
     public string? certs {get;set;}
-    public string? version;
+    public int version;
     public int expiryTime;
 }
 
