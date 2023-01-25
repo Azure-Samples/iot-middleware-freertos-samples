@@ -97,8 +97,7 @@ const string certTrust1 =
 "-----END CERTIFICATE-----\r\n";
 
 public static async Task<IActionResult> Run(HttpRequest req, ILogger log) 
-
-{ 
+{
     log.LogInformation("C# HTTP trigger function processed a request.");
     // Get request body 
     string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
