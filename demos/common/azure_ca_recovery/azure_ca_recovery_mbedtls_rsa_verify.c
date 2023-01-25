@@ -55,15 +55,15 @@ AzureIoTResult_t AzureIoTSample_RS256Verify( uint8_t * pucInput,
     mbedtls_rsa_context ctx;
     uint8_t * ucSignatureBase64Decoded;
 
-    if( ulBufferLength < azureiotjwsSHA_CALCULATION_SCRATCH_SIZE )
+    if( ulBufferLength < azureiotrsaverifySHA_CALCULATION_SCRATCH_SIZE )
     {
         AZLogError( ( "[RSA] Buffer not large enough" ) );
         return eAzureIoTErrorOutOfMemory;
     }
 
-    ucSignatureBase64Decoded = pucBuffer + azureiotjwsSHA256_SIZE;
+    ucSignatureBase64Decoded = pucBuffer + azureiotrsaverifySHA256_SIZE_BYTES;
 
-    az_result xCoreResult = az_base64_decode( az_span_create( ucSignatureBase64Decoded, azureiotjwsRSA3072_SIZE ),
+    az_result xCoreResult = az_base64_decode( az_span_create( ucSignatureBase64Decoded, azureiotrsaverifyRSA3072_SIZE_BYTES ),
                                               az_span_create( pucSignature, ulSignatureLength ),
                                               &outDecodeSize );
 
@@ -127,7 +127,7 @@ AzureIoTResult_t AzureIoTSample_RS256Verify( uint8_t * pucInput,
     #if MBEDTLS_VERSION_NUMBER >= 0x03000000
         lMbedTLSResult = mbedtls_rsa_pkcs1_verify( &ctx, MBEDTLS_MD_SHA256, azureiotjwsSHA256_SIZE, pucBuffer, ucSignatureBase64Decoded );
     #else
-        lMbedTLSResult = mbedtls_rsa_pkcs1_verify( &ctx, NULL, NULL, MBEDTLS_RSA_PUBLIC, MBEDTLS_MD_SHA256, azureiotjwsSHA256_SIZE, pucBuffer, ucSignatureBase64Decoded );
+        lMbedTLSResult = mbedtls_rsa_pkcs1_verify( &ctx, NULL, NULL, MBEDTLS_RSA_PUBLIC, MBEDTLS_MD_SHA256, azureiotrsaverifySHA256_SIZE_BYTES, pucBuffer, ucSignatureBase64Decoded );
     #endif
 
     if( lMbedTLSResult != 0 )

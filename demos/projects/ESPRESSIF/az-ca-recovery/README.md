@@ -2,6 +2,8 @@
 
 Trust Bundle Recovery allows a mechanism for your device to recover connection to Azure resources should the CA certificates expire or otherwise become invalid. This requires an additional, separate "recovery" DPS instance and device credential, only to be used for recovery of the CA certificate. Should CA verification fail, the device will connect to the recovery DPS instance, ignoring TLS CA cert validation, and will be returned a signed trust bundle recovery payload from DPS. This payload contains the complete and updated collection of CA certificates, asymmetrically signed by a root key created by the user. The device receives this payload, verifies the authenticity by decrypting and comparing the signature using the saved public key, and then installs the certificates into the device's non-volatile storage (NVS). This permanent storage allows the new certificates to be loaded again should the device restart, removing the need for the device to use the recovery endpoint again. From that point on, the device can connect to the usual DPS endpoint and provisioned hub with full CA trust validation.
 
+**NOTE**: This sample does not use NVS encryption. It is advised to use NVS encryption so that write operations to the NVS trust bundle section are performed only by those authorized to. For more information on implementing this, [please see here](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/storage/nvs_flash.html#security-tampering-and-robustness).
+
 ## Sequence Diagram
 
 ```mermaid

@@ -3,6 +3,8 @@
 
 #include <stdio.h>
 #include <string.h>
+
+#include "azure_ca_recovery_storage.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_system.h"
@@ -98,195 +100,64 @@ static uint8_t ucTrustBundle[] =
     "RA+GsCyRxj3qrg+E\n"
     "-----END CERTIFICATE-----\n";
 static uint32_t ulTrustBundleSize = sizeof( ucTrustBundle ) - 1;
-static uint8_t ucTrustBundleVersion[] = "1.0";
+static uint32_t ulTrustBundleVersion = 1;
+static uint8_t ucTrustBundleReadBuffer[ 4000 ];
 
 /*
  *  Print trust bundle saved in the NVS
  */
-esp_err_t prvPrintSavedBundle( nvs_handle_t xNVSHandle )
+static void prvPrintSavedBundle( void )
 {
-    esp_err_t xESPErr;
+    AzureIoTResult_t xAzResult;
+    uint32_t ulTrustBundleVersion;
     size_t xTrustBundleReadSize = 0;
-    size_t xTrustBundleVersionReadSize = 0;
-    uint8_t ucReadTrustBundleVersion[ 8 ] = { 0 }; /* value will default to 0, if not set yet in NVS */
 
-    xESPErr = nvs_get_blob( xNVSHandle, AZURE_TRUST_BUNDLE_VERSION_NAME, NULL, &xTrustBundleVersionReadSize );
+    xAzResult = AzureIoTCAStorage_ReadTrustBundleVersion( &ulTrustBundleVersion );
 
-    if( xESPErr != ESP_OK )
+    if( xAzResult != eAzureIoTSuccess )
     {
-        printf( "Error (%s) getting AZURE_TRUST_BUNDLE_VERSION_NAME from NVS!\n", esp_err_to_name( xESPErr ) );
-        return xESPErr;
-    }
-
-    if( xTrustBundleVersionReadSize > 8 )
-    {
-        printf( "Not enough size to read version\n" );
-        return ESP_ERR_NO_MEM;
-    }
-
-    /* Read the current trust bundle version */
-    xESPErr = nvs_get_blob( xNVSHandle, AZURE_TRUST_BUNDLE_VERSION_NAME, &ucReadTrustBundleVersion, &xTrustBundleVersionReadSize );
-
-    if( xESPErr != ESP_OK )
-    {
-        printf( "Error (%s) getting AZURE_TRUST_BUNDLE_VERSION_NAME from NVS!\n", esp_err_to_name( xESPErr ) );
-        return xESPErr;
-    }
-
-    printf( "Current trust bundle version = %.*s\n", xTrustBundleVersionReadSize, ucReadTrustBundleVersion );
-
-    /* Get size of cert */
-    xESPErr = nvs_get_blob( xNVSHandle, AZURE_TRUST_BUNDLE_NAME, NULL, &xTrustBundleReadSize );
-
-    if( ( xESPErr != ESP_OK ) && ( xESPErr != ESP_ERR_NVS_NOT_FOUND ) )
-    {
-        return xESPErr;
-    }
-
-    if( xTrustBundleReadSize == 0 )
-    {
-        printf( "Nothing saved yet!\n" );
+        printf( "Error reading the trust bundle. There might not be one written yet.\n" );
     }
     else
     {
-        uint8_t * trust_bundle_read = malloc( xTrustBundleReadSize );
-        xESPErr = nvs_get_blob( xNVSHandle, AZURE_TRUST_BUNDLE_NAME, trust_bundle_read, &xTrustBundleReadSize );
-
-        if( xESPErr != ESP_OK )
-        {
-            free( trust_bundle_read );
-            return xESPErr;
-        }
-
-        printf( "Stored trust bundle:\n" );
-        printf( "%.*s\n", xTrustBundleReadSize, trust_bundle_read );
-
-        free( trust_bundle_read );
+        printf( "Current trust bundle version = %i\n", ulTrustBundleVersion );
     }
 
-    return xESPErr;
+    xAzResult = AzureIoTCAStorage_ReadTrustBundle( ucTrustBundleReadBuffer,
+                                                   sizeof( ucTrustBundleReadBuffer ),
+                                                   &xTrustBundleReadSize );
+
+    if( xAzResult != eAzureIoTSuccess )
+    {
+        printf( "Error reading the trust bundle. There might not be one written yet.\n" );
+    }
+    else
+    {
+        printf( "Current stored trust bundle:\n" );
+        printf( "%.*s\n", xTrustBundleReadSize, ucTrustBundleReadBuffer );
+    }
 }
 
 /*
  *  Save the trust bundle (certs and version) to a namespace in the NVS
  */
-esp_err_t prvSaveTrustBundle( nvs_handle_t xNVSHandle )
+static void prvSaveTrustBundle( void )
 {
-    esp_err_t xESPErr;
-    size_t xTrustBundleVersionReadSize = 0;
-    uint8_t ucReadTrustBundleVersion[ 8 ] = { 0 }; /* value will default to 0, if not set yet in NVS */
+    AzureIoTResult_t xAzResult;
 
-    xESPErr = nvs_get_blob( xNVSHandle, AZURE_TRUST_BUNDLE_VERSION_NAME, NULL, &xTrustBundleVersionReadSize );
+    xAzResult = AzureIoTCAStorage_WriteTrustBundle( ucTrustBundle,
+                                                    ulTrustBundleSize,
+                                                    ulTrustBundleVersion );
 
-    if( ( xESPErr != ESP_OK ) && ( xESPErr != ESP_ERR_NVS_NOT_FOUND ) )
+    if( xAzResult != eAzureIoTSuccess )
     {
-        printf( "Error (%s) getting AZURE_TRUST_BUNDLE_VERSION_NAME from NVS!\n", esp_err_to_name( xESPErr ) );
-        return xESPErr;
-    }
-
-    if( xTrustBundleVersionReadSize > 8 )
-    {
-        printf( "Not enough size to read version\n" );
-        return ESP_ERR_NO_MEM;
-    }
-
-    /* Read the current trust bundle version */
-    xESPErr = nvs_get_blob( xNVSHandle, AZURE_TRUST_BUNDLE_VERSION_NAME, &ucReadTrustBundleVersion, &xTrustBundleVersionReadSize );
-
-    if( ( xESPErr != ESP_OK ) && ( xESPErr != ESP_ERR_NVS_NOT_FOUND ) )
-    {
-        printf( "Error (%s) getting AZURE_TRUST_BUNDLE_VERSION_NAME from NVS!\n", esp_err_to_name( xESPErr ) );
-        return xESPErr;
-    }
-
-/* Skip this if user wishes to force write the bundle. */
-    #ifndef AZ_FORCE_WRITE
-        if( xESPErr != ESP_ERR_NVS_NOT_FOUND )
-        {
-            if( memcmp( ucReadTrustBundleVersion, ucTrustBundleVersion, xTrustBundleVersionReadSize ) == 0 )
-            {
-                printf( "Trust bundle version in NVS matches bundle version to write.\n" );
-                nvs_close( xNVSHandle );
-                return ESP_OK;
-            }
-        }
-    #endif
-
-    /* Write value */
-    printf( "Writing trust bundle\n" );
-    xESPErr = nvs_set_blob( xNVSHandle, AZURE_TRUST_BUNDLE_NAME, ucTrustBundle, ulTrustBundleSize );
-
-    if( xESPErr != ESP_OK )
-    {
-        printf( "Error (%s) getting AZURE_TRUST_BUNDLE_VERSION_NAME from NVS!\n", esp_err_to_name( xESPErr ) );
-        return xESPErr;
-    }
-
-    /* Set new trust bundle version */
-    printf( "Writing trust bundle version\n" );
-    xESPErr = nvs_set_blob( xNVSHandle, AZURE_TRUST_BUNDLE_VERSION_NAME, ucTrustBundleVersion, sizeof( ucTrustBundleVersion ) - 1 );
-
-    if( xESPErr != ESP_OK )
-    {
-        printf( "Error (%s) getting AZURE_TRUST_BUNDLE_VERSION_NAME from NVS!\n", esp_err_to_name( xESPErr ) );
-        return xESPErr;
-    }
-
-    /* Commit */
-    xESPErr = nvs_commit( xNVSHandle );
-
-    if( xESPErr != ESP_OK )
-    {
-        printf( "Error (%s) getting AZURE_TRUST_BUNDLE_VERSION_NAME from NVS!\n", esp_err_to_name( xESPErr ) );
-        return xESPErr;
-    }
-
-    printf( "Printing what was just written\n" );
-    xESPErr = prvPrintSavedBundle( xNVSHandle );
-
-    return xESPErr;
-}
-
-/*
- *  Read and write trust bundle
- */
-void prvReadAndWriteBundle( void )
-{
-    nvs_handle_t xNVSHandle;
-    esp_err_t xESPErr;
-
-    /* Open CA Cert namespace */
-    xESPErr = nvs_open( CA_CERT_NAMESPACE, NVS_READWRITE, &xNVSHandle );
-
-    if( xESPErr != ESP_OK )
-    {
-        printf( "Error (%s) opening CA_CERT_NAMESPACE in NVS\n", esp_err_to_name( xESPErr ) );
-        return;
-    }
-
-    printf( "||| Printing what is currently saved |||\n" );
-
-    xESPErr = prvPrintSavedBundle( xNVSHandle );
-
-    if( ( xESPErr != ESP_OK ) && ( xESPErr != ESP_ERR_NVS_NOT_FOUND ) )
-    {
-        printf( "Error (%s) printing saved trust bundle!\n", esp_err_to_name( xESPErr ) );
+        printf( "Error writing the trust bundle: 0x%08x\n", xAzResult );
     }
     else
     {
-        printf( "||| Check if bundle needs to be written. Write if needed. |||\n" );
-
-        xESPErr = prvSaveTrustBundle( xNVSHandle );
-
-        if( xESPErr != ESP_OK )
-        {
-            printf( "Error (%s) saving trust bundle to NVS!\n", esp_err_to_name( xESPErr ) );
-            nvs_close( xNVSHandle );
-            return;
-        }
+        printf( "Stored the trust bundle version %i\n", ulTrustBundleVersion );
+        printf( "%.*s\n", ulTrustBundleSize, ucTrustBundle );
     }
-
-    nvs_close( xNVSHandle );
 }
 
 void app_main( void )
@@ -306,7 +177,8 @@ void app_main( void )
 
     ESP_ERROR_CHECK( xESPErr );
 
-    prvReadAndWriteBundle();
+    prvPrintSavedBundle();
+    prvSaveTrustBundle();
 
     printf( "Done reading and writing. Moving to infinite loop\n" );
 

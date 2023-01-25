@@ -106,7 +106,7 @@ add_executable(test_ca_recovery
 )
 
 target_include_directories(test_ca_recovery PRIVATE
-  ${CMAKE_CURRENT_LIST_DIR}/../../../common/ca-recovery
+  ${CMAKE_CURRENT_LIST_DIR}/../../../common/azure_ca_recovery
   ${CMAKE_CURRENT_LIST_DIR}/../../../common/utilities
 )
 

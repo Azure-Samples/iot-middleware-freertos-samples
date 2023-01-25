@@ -39,6 +39,8 @@ if [[ "$FIX" == "check" ]]; then
     ./demos/sample_azure_iot_pnp/*.h                                                      \
     ./demos/sample_azure_iot_gsg/*.c                                                      \
     ./demos/sample_azure_iot_gsg/*.h                                                      \
+    ./demos/common/azure_ca_recovery/*.c                                                  \
+    ./demos/common/azure_ca_recovery/*.h                                                  \
     ./demos/common/transport/*.c                                                          \
     ./demos/common/transport/*.h                                                          \
     ./demos/common/utilities/*.c                                                          \
@@ -68,6 +70,8 @@ elif [[ "$FIX" == "fix" ]]; then
     ./demos/sample_azure_iot_pnp/*.h                                                        \
     ./demos/sample_azure_iot_gsg/*.c                                                        \
     ./demos/sample_azure_iot_gsg/*.h                                                        \
+    ./demos/common/azure_ca_recovery/*.c                                                    \
+    ./demos/common/azure_ca_recovery/*.h                                                    \
     ./demos/common/transport/*.c                                                            \
     ./demos/common/transport/*.h                                                            \
     ./demos/common/utilities/*.c                                                            \

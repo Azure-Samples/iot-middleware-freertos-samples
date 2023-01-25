@@ -25,7 +25,7 @@
 
 typedef struct azure_iot_ca_recovery_trust_bundle
 {
-    az_span version;
+    uint32_t version;
 
     uint64_t expiry_time;
 
@@ -50,7 +50,7 @@ static az_result az_iot_ca_recovery_parse_trust_bundle( az_json_reader * ref_jso
 
     trust_bundle->certificates = AZ_SPAN_EMPTY;
     trust_bundle->expiry_time = 0;
-    trust_bundle->version = AZ_SPAN_EMPTY;
+    trust_bundle->version = 0;
 
     while( ref_json_reader->token.kind != AZ_JSON_TOKEN_END_OBJECT )
     {
@@ -59,12 +59,8 @@ static az_result az_iot_ca_recovery_parse_trust_bundle( az_json_reader * ref_jso
                 AZ_SPAN_FROM_STR( AZ_IOT_CA_RECOVERY_VERSION_NAME ) ) )
         {
             _az_RETURN_IF_FAILED( az_json_reader_next_token( ref_json_reader ) );
-            RETURN_IF_JSON_TOKEN_NOT_TYPE( ref_json_reader, AZ_JSON_TOKEN_STRING );
-
-            if( ref_json_reader->token.kind != AZ_JSON_TOKEN_NULL )
-            {
-                trust_bundle->version = ref_json_reader->token.slice;
-            }
+            RETURN_IF_JSON_TOKEN_NOT_TYPE( ref_json_reader, AZ_JSON_TOKEN_NUMBER );
+            _az_RETURN_IF_FAILED( az_json_token_get_uint32( &ref_json_reader->token, &trust_bundle->version ) );
         }
         else if( az_json_token_is_text_equal(
                      &ref_json_reader->token,
@@ -154,8 +150,7 @@ static void prvCastCoreToMiddleware( AzureIoTCARecovery_RecoveryPayload * pxReco
 
     pxRecoveryPayload->xTrustBundle.pucCertificates = az_span_ptr( recovery_payload->trust_bundle.certificates );
     pxRecoveryPayload->xTrustBundle.ulCertificatesLength = az_span_size( recovery_payload->trust_bundle.certificates );
-    pxRecoveryPayload->xTrustBundle.pucVersion = az_span_ptr( recovery_payload->trust_bundle.version );
-    pxRecoveryPayload->xTrustBundle.ulVersionLength = az_span_size( recovery_payload->trust_bundle.version );
+    pxRecoveryPayload->xTrustBundle.ulVersion = recovery_payload->trust_bundle.version;
     pxRecoveryPayload->xTrustBundle.ullExpiryTimeSecs = recovery_payload->trust_bundle.expiry_time;
 }
 

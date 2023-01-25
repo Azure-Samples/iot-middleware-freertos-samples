@@ -27,7 +27,7 @@
 
 #include "azure_ca_recovery_rsa_verify.h"
 #include "azure_ca_recovery_parse.h"
-#include "azure_trust_bundle_storage.h"
+#include "azure_ca_recovery_storage.h"
 #include "azure_iot_jws.h"
 
 /*-----------------------------------------------------------*/
@@ -145,8 +145,6 @@ static uint8_t ucPropertyBuffer[ 32 ];
 static uint8_t ucScratchBuffer[ 128 ];
 static uint8_t ucRootCABuffer[ 5000 ];
 static uint32_t ulRootCABufferWrittenLength;
-static uint8_t ucRootCATrustBundleVersion[ 16 ];
-static uint32_t ulRootCATrustBundleVersionLength;
 static uint8_t ucSignatureValidateScratchBuffer[ azureiotjwsSHA_CALCULATION_SCRATCH_SIZE ];
 
 
@@ -295,10 +293,7 @@ static uint32_t prvSetupNetworkCredentials( NetworkCredentials_t * pxNetworkCred
     memset( ucRootCABuffer, 0, sizeof( ucRootCABuffer ) );
     AzureIoTResult_t xResult = AzureIoTCAStorage_ReadTrustBundle( ucRootCABuffer,
                                                                   sizeof( ucRootCABuffer ),
-                                                                  &ulRootCABufferWrittenLength,
-                                                                  ucRootCATrustBundleVersion,
-                                                                  sizeof( ucRootCATrustBundleVersion ),
-                                                                  &ulRootCATrustBundleVersionLength );
+                                                                  &ulRootCABufferWrittenLength );
 
     if( xResult != eAzureIoTSuccess )
     {
@@ -738,8 +733,8 @@ static void prvAzureDemoTask( void * pvParameters )
         xResult = AzureIoTCARecovery_ParseRecoveryPayload( &xJSONReader, &xRecoveryPayload );
         configASSERT( xResult == eAzureIoTSuccess );
 
-        LogInfo( ( "Parsed Bundle: Version %.*s | Length %i\r\n", xRecoveryPayload.xTrustBundle.ulVersionLength,
-                   xRecoveryPayload.xTrustBundle.pucVersion,
+        LogInfo( ( "Parsed Bundle: Version %i | Length %i\r\n",
+                   xRecoveryPayload.xTrustBundle.ulVersion,
                    xRecoveryPayload.xTrustBundle.ulCertificatesLength ) );
 
         LogInfo( ( "Validating Trust Bundle Signature\r\n" ) );
@@ -755,6 +750,17 @@ static void prvAzureDemoTask( void * pvParameters )
                                               sizeof( ucSignatureValidateScratchBuffer ) );
         configASSERT( xResult == eAzureIoTSuccess );
         LogInfo( ( "Trust Bundle Signature Successfully Validated\r\n" ) );
+
+        /* Check version */
+        uint32_t ulCurrentBundleVersion;
+        AzureIoTCAStorage_ReadTrustBundleVersion( &ulCurrentBundleVersion );
+
+        if( xRecoveryPayload.xTrustBundle.ulVersion <= ulCurrentBundleVersion )
+        {
+            LogError( ( "Invalid bundle version: current version = %i received version = %i\r\n",
+                        ulCurrentBundleVersion, xRecoveryPayload.xTrustBundle.ulVersion ) );
+            configASSERT( false );
+        }
 
         /*Check expiration time */
         uint64_t ullCurrentTime = ullGetUnixTime();
@@ -776,8 +782,7 @@ static void prvAzureDemoTask( void * pvParameters )
         LogInfo( ( "Writing trust bundle to NVS\r\n" ) );
         xResult = AzureIoTCAStorage_WriteTrustBundle( az_span_ptr( xUnescapeSpan ),
                                                       az_span_size( xUnescapeSpan ),
-                                                      xRecoveryPayload.xTrustBundle.pucVersion,
-                                                      xRecoveryPayload.xTrustBundle.ulVersionLength );
+                                                      xRecoveryPayload.xTrustBundle.ulVersion );
         configASSERT( xResult == eAzureIoTSuccess );
 
         AzureIoTProvisioningClient_Deinit( &xAzureIoTProvisioningClient );
