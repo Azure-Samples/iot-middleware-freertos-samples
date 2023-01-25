@@ -110,7 +110,7 @@ static void prvPrintSavedBundle( void )
 {
     AzureIoTResult_t xAzResult;
     uint32_t ulTrustBundleVersion;
-    size_t xTrustBundleReadSize = 0;
+    uint32_t xTrustBundleReadSize = 0;
 
     xAzResult = AzureIoTCAStorage_ReadTrustBundleVersion( &ulTrustBundleVersion );
 
@@ -120,7 +120,7 @@ static void prvPrintSavedBundle( void )
     }
     else
     {
-        printf( "Current trust bundle version = %i\n", ulTrustBundleVersion );
+        printf( "Current trust bundle version = %d\n", ulTrustBundleVersion );
     }
 
     xAzResult = AzureIoTCAStorage_ReadTrustBundle( ucTrustBundleReadBuffer,
@@ -134,7 +134,7 @@ static void prvPrintSavedBundle( void )
     else
     {
         printf( "Current stored trust bundle:\n" );
-        printf( "%.*s\n", xTrustBundleReadSize, ucTrustBundleReadBuffer );
+        printf( "%.*s\n", ( int ) xTrustBundleReadSize, ucTrustBundleReadBuffer );
     }
 }
 
@@ -155,8 +155,8 @@ static void prvSaveTrustBundle( void )
     }
     else
     {
-        printf( "Stored the trust bundle version %i\n", ulTrustBundleVersion );
-        printf( "%.*s\n", ulTrustBundleSize, ucTrustBundle );
+        printf( "Stored the trust bundle version %d\n", ulTrustBundleVersion );
+        printf( "%.*s\n", ( int ) ulTrustBundleSize, ucTrustBundle );
     }
 }
 
