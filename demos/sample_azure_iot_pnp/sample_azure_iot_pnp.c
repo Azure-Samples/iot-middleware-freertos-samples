@@ -199,6 +199,14 @@ static uint32_t prvConnectToServerWithBackoffRetries( const char * pcHostName,
                                                       uint32_t ulPort,
                                                       NetworkCredentials_t * pxNetworkCredentials,
                                                       NetworkContext_t * pxNetworkContext );
+
+/**
+ * @brief Publish messages with QoS1, send and process keep alive messages
+ *
+ * @param ulScratchBufferLength Length of scratch buffer for sending telemetry
+ * @return AzureIoTResult_t The status of publishing and processing messages
+ */
+static AzureIoTResult_t prvTelemetryLoop( uint32_t ulScratchBufferLength );
 /*-----------------------------------------------------------*/
 
 /**
@@ -373,10 +381,13 @@ static void prvAzureDemoTask( void * pvParameters )
          * value is reached. The function returns a failure status if the TCP
          * connection cannot be established to the IoT Hub after the configured
          * number of attempts. */
-        ulStatus = prvConnectToServerWithBackoffRetries( ( const char * ) pucIotHubHostname,
-                                                         democonfigIOTHUB_PORT,
-                                                         &xNetworkCredentials, &xNetworkContext );
-        configASSERT( ulStatus == 0 );
+        if( ( ulStatus = prvConnectToServerWithBackoffRetries( ( const char * ) pucIotHubHostname,
+                                                               democonfigIOTHUB_PORT,
+                                                               &xNetworkCredentials, &xNetworkContext ) ) != 0 )
+        {
+            LogError( ( "Error connecting to server\r\nRestarting device...\r\n" ) );
+            configRestartDevice();
+        }
 
         /* Fill in Transport Interface send and receive function pointers. */
         xTransport.pxNetworkContext = &xNetworkContext;
@@ -399,14 +410,17 @@ static void prvAzureDemoTask( void * pvParameters )
             #endif /* > 0 */
         #endif /* democonfigPNP_COMPONENTS_LIST_LENGTH */
 
-        xResult = AzureIoTHubClient_Init( &xAzureIoTHubClient,
-                                          pucIotHubHostname, pulIothubHostnameLength,
-                                          pucIotHubDeviceId, pulIothubDeviceIdLength,
-                                          &xHubOptions,
-                                          ucMQTTMessageBuffer, sizeof( ucMQTTMessageBuffer ),
-                                          ullGetUnixTime,
-                                          &xTransport );
-        configASSERT( xResult == eAzureIoTSuccess );
+        if( ( xResult = AzureIoTHubClient_Init( &xAzureIoTHubClient,
+                                                pucIotHubHostname, pulIothubHostnameLength,
+                                                pucIotHubDeviceId, pulIothubDeviceIdLength,
+                                                &xHubOptions,
+                                                ucMQTTMessageBuffer, sizeof( ucMQTTMessageBuffer ),
+                                                ullGetUnixTime,
+                                                &xTransport ) ) != eAzureIoTSuccess )
+        {
+            LogError( ( "Failed to initialize IoT Hub client\r\nRestarting device...\r\n" ) );
+            configRestartDevice();
+        }
 
         #ifdef democonfigDEVICE_SYMMETRIC_KEY
             xResult = AzureIoTHubClient_SetSymmetricKey( &xAzureIoTHubClient,
@@ -420,98 +434,117 @@ static void prvAzureDemoTask( void * pvParameters )
          * and waits for connection acknowledgment (CONNACK) packet. */
         LogInfo( ( "Creating an MQTT connection to %s.\r\n", pucIotHubHostname ) );
 
-        xResult = AzureIoTHubClient_Connect( &xAzureIoTHubClient,
-                                             false, &xSessionPresent,
-                                             sampleazureiotCONNACK_RECV_TIMEOUT_MS );
-        configASSERT( xResult == eAzureIoTSuccess );
-
-        xResult = AzureIoTHubClient_SubscribeCommand( &xAzureIoTHubClient, prvHandleCommand,
-                                                      &xAzureIoTHubClient, sampleazureiotSUBSCRIBE_TIMEOUT );
-        configASSERT( xResult == eAzureIoTSuccess );
-
-        xResult = AzureIoTHubClient_SubscribeProperties( &xAzureIoTHubClient, prvHandleProperties,
-                                                         &xAzureIoTHubClient, sampleazureiotSUBSCRIBE_TIMEOUT );
-        configASSERT( xResult == eAzureIoTSuccess );
-
-        /* Get property document after initial connection */
-        xResult = AzureIoTHubClient_RequestPropertiesAsync( &xAzureIoTHubClient );
-        configASSERT( xResult == eAzureIoTSuccess );
-
-        /* Publish messages with QoS1, send and process Keep alive messages. */
-        for( ; ; )
+        if( ( xResult = AzureIoTHubClient_Connect( &xAzureIoTHubClient,
+                                                   false, &xSessionPresent,
+                                                   sampleazureiotCONNACK_RECV_TIMEOUT_MS ) ) != eAzureIoTSuccess )
         {
-            /* Hook for sending Telemetry */
-            if( ( ulCreateTelemetry( ucScratchBuffer, sizeof( ucScratchBuffer ), &ulScratchBufferLength ) == 0 ) &&
-                ( ulScratchBufferLength > 0 ) )
+            LogError( ( "Failed to connect to IoT Hub client\r\n" ) );
+        }
+        else if( ( xResult = AzureIoTHubClient_SubscribeCommand( &xAzureIoTHubClient, prvHandleCommand,
+                                                                 &xAzureIoTHubClient, sampleazureiotSUBSCRIBE_TIMEOUT ) ) != eAzureIoTSuccess )
+        {
+            LogError( ( "Command subscribe failed\r\n" ) );
+        }
+        else if( ( xResult = AzureIoTHubClient_SubscribeProperties( &xAzureIoTHubClient, prvHandleProperties,
+                                                                    &xAzureIoTHubClient, sampleazureiotSUBSCRIBE_TIMEOUT ) ) != eAzureIoTSuccess )
+        {
+            LogError( ( "Property subscribe failed\r\n" ) );
+        }
+        /* Get property document after initial connection */
+        else if( ( xResult = AzureIoTHubClient_RequestPropertiesAsync( &xAzureIoTHubClient ) ) != eAzureIoTSuccess )
+        {
+            LogError( ( "Request properties failed\r\n" ) );
+        }
+        else
+        {
+            /* Publish messages with QoS1, send and process Keep alive messages. */
+            for( ; ; )
             {
-                xResult = AzureIoTHubClient_SendTelemetry( &xAzureIoTHubClient,
-                                                           ucScratchBuffer, ulScratchBufferLength,
-                                                           NULL, eAzureIoTHubMessageQoS1, NULL );
-
-                if( xResult == eAzureIoTErrorPublishFailed )
+                if( ( xResult = prvTelemetryLoop( ulScratchBufferLength ) ) != eAzureIoTSuccess )
                 {
-                    LogError( ( "Error sending telemetry - restarting device...\r\n" ) );
+                    LogError( ( "Telemetry loop failed: error=0x%08x\r\nRestarting device...\r\n", xResult ) );
                     configRestartDevice();
                 }
-
-                configASSERT( xResult == eAzureIoTSuccess );
             }
 
-            /* Hook for sending update to reported properties */
-            ulReportedPropertiesUpdateLength = ulCreateReportedPropertiesUpdate( ucReportedPropertiesUpdate, sizeof( ucReportedPropertiesUpdate ) );
-
-            if( ulReportedPropertiesUpdateLength > 0 )
+            if( ( xResult = AzureIoTHubClient_UnsubscribeProperties( &xAzureIoTHubClient ) ) != eAzureIoTSuccess )
             {
-                xResult = AzureIoTHubClient_SendPropertiesReported( &xAzureIoTHubClient, ucReportedPropertiesUpdate, ulReportedPropertiesUpdateLength, NULL );
-
-                if( xResult == eAzureIoTErrorPublishFailed )
-                {
-                    LogError( ( "Publish failed - restarting device...\r\n" ) );
-                    configRestartDevice();
-                }
-
-                configASSERT( xResult == eAzureIoTSuccess );
+                LogError( ( "Property unsubscribe failed\r\n" ) );
             }
-
-            LogInfo( ( "Attempt to receive publish message from IoT Hub.\r\n" ) );
-            xResult = AzureIoTHubClient_ProcessLoop( &xAzureIoTHubClient,
-                                                     sampleazureiotPROCESS_LOOP_TIMEOUT_MS );
-
-            if( xResult == eAzureIoTErrorFailed )
+            else if( ( xResult = AzureIoTHubClient_UnsubscribeCommand( &xAzureIoTHubClient ) ) != eAzureIoTSuccess )
             {
-                LogError( ( "Error in process loop - restarting device...\r\n" ) );
-                configRestartDevice();
+                LogError( ( "Command unsubscribe failed\r\n" ) );
             }
 
-            configASSERT( xResult == eAzureIoTSuccess );
+            /* Send an MQTT Disconnect packet over the already connected TLS over
+             * TCP connection. There is no corresponding response for the disconnect
+             * packet. After sending disconnect, client must close the network
+             * connection. */
+            else if( ( xResult = AzureIoTHubClient_Disconnect( &xAzureIoTHubClient ) ) != eAzureIoTSuccess )
+            {
+                LogError( ( "Failed to disconnect from IoT Hub\r\n" ) );
+            }
+            /* Close the network connection.  */
+            else
+            {
+                TLS_Socket_Disconnect( &xNetworkContext );
 
-            /* Leave Connection Idle for some time. */
-            LogInfo( ( "Keeping Connection Idle...\r\n\r\n" ) );
-            vTaskDelay( sampleazureiotDELAY_BETWEEN_PUBLISHES_TICKS );
+                /* Wait for some time between two iterations to ensure that we do not
+                 * bombard the IoT Hub. */
+                LogInfo( ( "Demo completed successfully.\r\n" ) );
+                LogInfo( ( "Short delay before starting the next iteration.... \r\n\r\n" ) );
+                vTaskDelay( sampleazureiotDELAY_BETWEEN_DEMO_ITERATIONS_TICKS );
+            }
         }
 
-        xResult = AzureIoTHubClient_UnsubscribeProperties( &xAzureIoTHubClient );
-        configASSERT( xResult == eAzureIoTSuccess );
-
-        xResult = AzureIoTHubClient_UnsubscribeCommand( &xAzureIoTHubClient );
-        configASSERT( xResult == eAzureIoTSuccess );
-
-        /* Send an MQTT Disconnect packet over the already connected TLS over
-         * TCP connection. There is no corresponding response for the disconnect
-         * packet. After sending disconnect, client must close the network
-         * connection. */
-        xResult = AzureIoTHubClient_Disconnect( &xAzureIoTHubClient );
-        configASSERT( xResult == eAzureIoTSuccess );
-
-        /* Close the network connection.  */
-        TLS_Socket_Disconnect( &xNetworkContext );
-
-        /* Wait for some time between two iterations to ensure that we do not
-         * bombard the IoT Hub. */
-        LogInfo( ( "Demo completed successfully.\r\n" ) );
-        LogInfo( ( "Short delay before starting the next iteration.... \r\n\r\n" ) );
-        vTaskDelay( sampleazureiotDELAY_BETWEEN_DEMO_ITERATIONS_TICKS );
+        if( xResult != eAzureIoTSuccess )
+        {
+            LogError( ( "Sample loop failed: error=0x%08x\nRestarting device...\r\n", xResult ) );
+            configRestartDevice();
+        }
     }
+}
+/*-----------------------------------------------------------*/
+
+static AzureIoTResult_t prvTelemetryLoop( uint32_t ulScratchBufferLength )
+{
+    AzureIoTResult_t xResult = eAzureIoTSuccess;
+
+    /* Hook for sending Telemetry */
+    if( ( ulCreateTelemetry( ucScratchBuffer, sizeof( ucScratchBuffer ), &ulScratchBufferLength ) == 0 ) &&
+        ( ulScratchBufferLength > 0 ) )
+    {
+        xResult = AzureIoTHubClient_SendTelemetry( &xAzureIoTHubClient,
+                                                   ucScratchBuffer, ulScratchBufferLength,
+                                                   NULL, eAzureIoTHubMessageQoS1, NULL );
+    }
+
+    if( xResult == eAzureIoTSuccess )
+    {
+        /* Hook for sending update to reported properties */
+        ulReportedPropertiesUpdateLength = ulCreateReportedPropertiesUpdate( ucReportedPropertiesUpdate, sizeof( ucReportedPropertiesUpdate ) );
+
+        if( ulReportedPropertiesUpdateLength > 0 )
+        {
+            xResult = AzureIoTHubClient_SendPropertiesReported( &xAzureIoTHubClient, ucReportedPropertiesUpdate, ulReportedPropertiesUpdateLength, NULL );
+        }
+    }
+
+    if( xResult == eAzureIoTSuccess )
+    {
+        LogInfo( ( "Attempt to receive publish message from IoT Hub.\r\n" ) );
+        xResult = AzureIoTHubClient_ProcessLoop( &xAzureIoTHubClient,
+                                                 sampleazureiotPROCESS_LOOP_TIMEOUT_MS );
+    }
+
+    if( xResult == eAzureIoTSuccess )
+    {
+        /* Leave Connection Idle for some time. */
+        LogInfo( ( "Keeping Connection Idle...\r\n\r\n" ) );
+        vTaskDelay( sampleazureiotDELAY_BETWEEN_PUBLISHES_TICKS );
+    }
+
+    return xResult;
 }
 /*-----------------------------------------------------------*/
 
@@ -538,9 +571,12 @@ static void prvAzureDemoTask( void * pvParameters )
         /* Set the pParams member of the network context with desired transport. */
         xNetworkContext.pParams = &xTlsTransportParams;
 
-        ulStatus = prvConnectToServerWithBackoffRetries( democonfigENDPOINT, democonfigIOTHUB_PORT,
-                                                         pXNetworkCredentials, &xNetworkContext );
-        configASSERT( ulStatus == 0 );
+        if( ( ulStatus = prvConnectToServerWithBackoffRetries( democonfigENDPOINT, democonfigIOTHUB_PORT,
+                                                               pXNetworkCredentials, &xNetworkContext ) ) != 0 )
+        {
+            LogError( ( "Error connecting to server\r\nRestarting device...\r\n" ) );
+            configRestartDevice();
+        }
 
         /* Fill in Transport Interface send and receive function pointers. */
         xTransport.pxNetworkContext = &xNetworkContext;
@@ -555,11 +591,16 @@ static void prvAzureDemoTask( void * pvParameters )
             /* We use a pointer instead of a buffer so that the getRegistrationId
              * function can allocate the necessary memory depending on the HSM */
             char * registration_id = NULL;
-            ulStatus = getRegistrationId( &registration_id );
-            configASSERT( ulStatus == 0 );
+
+            if( ( ulStatus = getRegistrationId( &registration_id ) ) != 0 )
+            {
+                LogError( ( "Error getting registration ID\r\nRestarting device...\r\n" ) );
+                configRestartDevice();
+            }
+
 #undef democonfigREGISTRATION_ID
         #define democonfigREGISTRATION_ID    registration_id
-        #endif
+        #endif /* ifdef democonfigUSE_HSM */
 
         xResult = AzureIoTProvisioningClient_Init( &xAzureIoTProvisioningClient,
                                                    ( const uint8_t * ) democonfigENDPOINT,
