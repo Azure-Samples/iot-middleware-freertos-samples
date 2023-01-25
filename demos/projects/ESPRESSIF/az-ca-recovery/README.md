@@ -141,17 +141,17 @@ Make note or copy the thumbprint. Create an application setting for the function
 
 ### Create Enrollment Group with Custom Allocation
 
-Navigate to your DPS instance, select `Manage enrollments` on the left side, and create a `Group Enrollment`. Under `Select how your want to assign devices to hubs`, select `Custom (Use Azure Function)`.
+Navigate to your DPS instance, select `Manage enrollments` on the left side, and create a `Group Enrollment`. For authenticaiton, use `Symmetric key`. Under `Select how your want to assign devices to hubs`, select `Custom (Use Azure Function)`.
 
 ![img](./images/AzureGroupEnrollment.png)
 
-Then as you scroll down, select the Azure Function which was deployed previously.
+As you scroll down, select the Azure Function which was deployed previously.
 
 Select `Save` and make note of the Group Enrollment Key.
 
 ## Create a Derived Shared Access Key for Group Enrollment
 
-To use the custom allocation policy with the recovery Azure function, you have to create a derived SAS key from the group enrollment key. To create one, [follow the directions here](https://learn.microsoft.com/azure/iot-dps/concepts-symmetric-key-attestation?tabs=azure-cli#group-enrollments) and save the derived key to be used later.
+To use the custom allocation policy with the recovery Azure function, you have to create a derived SAS key from the group enrollment key. To create one, [follow the directions here](https://learn.microsoft.com/azure/iot-dps/concepts-symmetric-key-attestation?tabs=azure-cli#group-enrollments) and save the derived key to be used later. You may use a registration id of your choice.
 
 ## Prepare the TLS CA Trust Bundle in the NVS
 
