@@ -1,5 +1,5 @@
 /* Copyright (c) Microsoft Corporation.
-   Licensed under the MIT License. */
+ * Licensed under the MIT License. */
 
 /* This file configures mbed TLS for FreeRTOS. */
 
