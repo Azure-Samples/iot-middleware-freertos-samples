@@ -110,7 +110,7 @@ az account list-locations
 az group create --name '<name>' --location '<location>'
 
 # Deploy the resources
-az deployment group create --name '<deployment name>' --resource-group '<name>' --template-file './ca-recovery-arm.bicep' --parameters location='<location>'
+az deployment group create --name '<deployment name>' --resource-group '<name>' --template-file './ca-recovery-arm.bicep' --parameters location='<location>' resourcePrefix='<your prefix'
 ```
 
 ### Create and Import Signing Certificate
@@ -120,6 +120,8 @@ Generate the certificate which will be used to sign the recovery payload.
 ```powershell
 openssl genrsa -out recovery-private-key.pem 2048
 openssl req -new -key recovery-private-key.pem -x509 -days 36500 -out recovery-public-cert.pem
+
+# You might not need the -legacy flag
 openssl pkcs12 -export -in recovery-public-cert.pem -inkey recovery-private-key.pem -out recovery-key-pairs.pfx -legacy
 ```
 
@@ -200,10 +202,14 @@ Parameter | Value
 Save the configuration (`Shift + S`) inside the sample folder in a file with name `sdkconfig`.
 After that, close the configuration utility (`Shift + Q`).
 
-You must also update the signing root key which is located in `demo_config.h`, titled `ucAzureIoTRecoveryRootKeyN`, and possibly the exponent (E) value `ucAzureIoTRecoveryRootKeyE`. You can get the hex value of the modulus (N value) using the below command. **Note** that most times the exponent is defaulted to the value already in the config. Update the value if you use an exponent other than 65537.
+You must also update the signing root key which is located in `demo_config.h`, titled `ucAzureIoTRecoveryRootKeyN`, and  the exponent (E) value `ucAzureIoTRecoveryRootKeyE`. You can get the hex value of the modulus (N value) using the below command. **Note** that most times the exponent is defaulted to 65537 (0x10001). If that is the case, you may use `{ 0x01, 0x00, 0x01 }` for the exponent. Otherwise, see the below command to check your exponent value and format it appropriately.
 
 ```bash
-openssl x509 -in <your-public-cert>.pem -modulus -noout | sed s/Modulus=// | sed -r 's/../0x&, /g'
+# Modulus
+openssl x509 -in recovery-public-cert.pem -modulus -noout | sed s/Modulus=// | sed -r 's/../0x&, /g'
+
+# Exponent
+openssl x509 -in recovery-public-cert.pem --text -noout | grep Exponent | sed -r 's/.*Exponent: .*\((.*)\)/\1/g'
 ```
 
 ## Build the image
