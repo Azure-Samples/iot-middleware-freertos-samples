@@ -3,9 +3,9 @@
 
 #include "azure_iot_result.h"
 
-#define azureiotjwsSHA256_SIZE                     32                                               /**< Size of the SHA256 hash. */
-#define azureiotjwsRSA3072_SIZE                    384                                              /**< Size of the RSA 3072 key. */
-#define azureiotjwsSHA_CALCULATION_SCRATCH_SIZE    azureiotjwsRSA3072_SIZE + azureiotjwsSHA256_SIZE /**< Size of the sha calculation scratch space. */
+#define azureiotrsaverifySHA256_SIZE_BYTES               32                                                                       /**< Size of the SHA256 hash. */
+#define azureiotrsaverifyRSA3072_SIZE_BYTES              384                                                                      /**< Size of the RSA 3072 key. */
+#define azureiotrsaverifySHA_CALCULATION_SCRATCH_SIZE    azureiotrsaverifyRSA3072_SIZE_BYTES + azureiotrsaverifySHA256_SIZE_BYTES /**< Size of the sha calculation scratch space. */
 
 
 /**
@@ -20,7 +20,7 @@
  * @param pucE The exponent used for the key.
  * @param ulELength The length of \p pucE.
  * @param pucBuffer The buffer used as scratch space to make the calculations. It should be at least
- * `azureiotjwsSHA256_SIZE` in size.
+ * `azureiotrsaverifySHA256_SIZE_BYTES` in bytes.
  * @param ulBufferLength The length of \p pucBuffer.
  * @return AzureIoTResult_t The result of the operation.
  */

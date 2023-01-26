@@ -2,13 +2,19 @@
  * Licensed under the MIT License. */
 
 /*
-// Usage (from this directory)
-// Location examples: 'East US' 'West US 2'
 
+# For any < > value, substitute in the value of your choice.
 az login
 az account set --subscription <subscription id>
+
+# To see a list of locations, run the following and look for `name` values.
+az account list-locations
+
+# Create a resource group
 az group create --name '<name>' --location '<location>'
-az deployment group create --name <deployment name --resource-group '<name>' --template-file './ca-recovery-arm.bicep' --parameters location='<location>'
+
+# Deploy the resources
+az deployment group create --name '<deployment name>' --resource-group '<name>' --template-file './ca-recovery-arm.bicep' --parameters location='<location>' resourcePrefix='<your prefix'
 
 */
 
@@ -87,8 +93,24 @@ resource functionApp 'Microsoft.Web/sites@2021-03-01' = {
     siteConfig: {
       appSettings: [
         {
-          name: 'WEBSITE_LOAD_CERTIFICATES=*"'
+          name: 'AzureWebJobsStorage'
+          value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccountName};EndpointSuffix=${environment().suffixes.storage};AccountKey=${storageAccount.listKeys().keys[0].value}'
+        }
+        {
+          name: 'WEBSITE_CONTENTAZUREFILECONNECTIONSTRING'
+          value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccountName};EndpointSuffix=${environment().suffixes.storage};AccountKey=${storageAccount.listKeys().keys[0].value}'
+        }
+        {
+          name: 'FUNCTIONS_EXTENSION_VERSION'
+          value: '~4'
+        }
+        {
+          name: 'WEBSITE_LOAD_CERTIFICATES'
           value: '*'
+        }
+        {
+          name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
+          value: applicationInsights.properties.InstrumentationKey
         }
         {
           name: 'FUNCTIONS_WORKER_RUNTIME'
@@ -126,6 +148,7 @@ resource function 'Microsoft.Web/sites/functions@2021-03-01' = {
           authLevel: 'function'
           methods: [
             'get'
+            'post'
           ]
         }
         {

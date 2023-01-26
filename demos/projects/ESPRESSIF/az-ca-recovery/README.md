@@ -2,6 +2,42 @@
 
 Trust Bundle Recovery allows a mechanism for your device to recover connection to Azure resources should the CA certificates expire or otherwise become invalid. This requires an additional, separate "recovery" DPS instance and device credential, only to be used for recovery of the CA certificate. Should CA verification fail, the device will connect to the recovery DPS instance, ignoring TLS CA cert validation, and will be returned a signed trust bundle recovery payload from DPS. This payload contains the complete and updated collection of CA certificates, asymmetrically signed by a root key created by the user. The device receives this payload, verifies the authenticity by decrypting and comparing the signature using the saved public key, and then installs the certificates into the device's non-volatile storage (NVS). This permanent storage allows the new certificates to be loaded again should the device restart, removing the need for the device to use the recovery endpoint again. From that point on, the device can connect to the usual DPS endpoint and provisioned hub with full CA trust validation.
 
+**NOTE**: This sample does not use NVS encryption. It is advised to use NVS encryption so that write operations to the NVS trust bundle section are performed only by those authorized to. For more information on implementing this, [please see here](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/storage/nvs_flash.html#security-tampering-and-robustness).
+
+## Sequence Diagram
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Device
+    participant DPS_operational
+    participant DPS_recovery
+    participant CustomAllocation
+
+    Note right of Device: Device firmware contains:CA TrustBundle &  version<br>RecoveryKey, Device Recovery Identity and IDScope
+
+    loop retry count
+        Device-->>DPS_operational: Connect
+        DPS_operational-->>Device: Invalid CA Certificate
+    end
+
+    Note left of Device: Initiate Recovery
+    Device-->>DPS_recovery: Connect using Device Recovery Identity and IDScope
+    Note right of Device: !! Ignore CA validation !!
+    Note right of Device: Custom Payload: Current TrustBundle version
+
+
+    DPS_recovery-->>CustomAllocation: Recovery Identity
+    CustomAllocation-->>DPS_recovery: Custom Payload
+    Note left of CustomAllocation: Payload: <br> CA TrustBundle, Device Recovery Identity,<br> version, expiryTime <br> Sign(data=payload, key=RecoveryKey)
+    DPS_recovery-->>Device: Registration Information (including Custom Payload)
+    Device-->>Device: Verify Custom Payload Signature,<br> version and expiryTime
+    Device-->>Device: Install CA TrustBundle
+    Note left of Device: End Recovery
+    Device-->>DPS_operational: Connect
+    DPS_operational-->>Device: Valid CA Certificate
+```
+
 ## What you need
 
 - [ESPRESSIF ESP32 Board](https://www.espressif.com/en/products/devkits)
@@ -51,13 +87,77 @@ You may also need to enable long path support for both Microsoft Windows and git
 - Windows: <https://docs.microsoft.com/windows/win32/fileio/maximum-file-path-limitation?tabs=cmd#enable-long-paths-in-windows-10-version-1607-and-later>
 - Git: as Administrator run `git config --system core.longpaths true`
 
-## Prepare the TLS CA Trust Bundle in the NVS
+## Set Up Azure Resources
 
-Run the sample called `az-nvs-cert-bundle` in the `/ESPRESSIF` directory to load the v1.0 trust bundle in your ESP device. This will purposely save an incomplete trust bundle in your devices's NVS, which will then be loaded for the IoT application. Once the CA validation fails in this sample, the device will then move into the recovery phase which fetches the new and complete certificate trust bundle.
+In order to create the resources to use for the recovery process, we are going to use an Azure Resource Manager (ARM) template. The file detailing all the resources to be deployed is located in [demos/sample_azure_iot_ca_recovery/ca-recovery-template.bicep](../../../sample_azure_iot_ca_recovery/ca-recovery-template.bicep). You will login to the Azure CLI, and then deploy the resources to a subscription and resource group of your choosing.
+
+### Deploy Resources
+
+Using powershell, navigate to the `demos/sample_azure_iot_ca_recovery` directory.
+
+From there, run the following
+
+```powershell
+
+# For any < > value, substitute in the value of your choice.
+az login
+az account set --subscription <subscription id>
+
+# To see a list of locations, run the following and look for `name` values.
+az account list-locations
+
+# Create a resource group
+az group create --name '<name>' --location '<location>'
+
+# Deploy the resources
+az deployment group create --name '<deployment name>' --resource-group '<name>' --template-file './ca-recovery-arm.bicep' --parameters location='<location>' resourcePrefix='<your prefix'
+```
+
+### Create and Import Signing Certificate
+
+Generate the certificate which will be used to sign the recovery payload.
+
+```powershell
+openssl genrsa -out recovery-private-key.pem 2048
+openssl req -new -key recovery-private-key.pem -x509 -days 36500 -out recovery-public-cert.pem
+
+# You might not need the -legacy flag
+openssl pkcs12 -export -in recovery-public-cert.pem -inkey recovery-private-key.pem -out recovery-key-pairs.pfx -legacy
+```
+
+Find the Azure Function which was deployed in your resource group. We will add the certificate to your Azure Function.
+
+![img](./images/AzureFunctionCertificate.png)
+
+Make sure to import the password which you may have added to the certificate.
+
+![img](./images/AzureFunctionCertificateImport.png)
+
+Once that is imported, find the thumbprint for the certificate.
+
+![img](./images/AzureFunctionCertificateThumbprint.png)
+
+Make note or copy the thumbprint. Create an application setting for the function called `CERT_THUMBPRINT`.
+
+![img](./images/AzureFunctionCertificateConfig.png)
+
+### Create Enrollment Group with Custom Allocation
+
+Navigate to your DPS instance, select `Manage enrollments` on the left side, and create a `Group Enrollment`. For authenticaiton, use `Symmetric key`. Under `Select how your want to assign devices to hubs`, select `Custom (Use Azure Function)`.
+
+![img](./images/AzureGroupEnrollment.png)
+
+As you scroll down, select the Azure Function which was deployed previously.
+
+Select `Save` and make note of the Group Enrollment Key.
 
 ## Create a Derived Shared Access Key for Group Enrollment
 
-To use the custom allocation policy with the recovery Azure function, you have to create a derived SAS key from the group enrollment key. To create one, [follow the directions here](https://learn.microsoft.com/azure/iot-dps/concepts-symmetric-key-attestation?tabs=azure-cli#group-enrollments) and save the derived key to be used later.
+To use the custom allocation policy with the recovery Azure function, you have to create a derived SAS key from the group enrollment key. To create one, [follow the directions here](https://learn.microsoft.com/azure/iot-dps/concepts-symmetric-key-attestation?tabs=azure-cli#group-enrollments) and save the derived key to be used later. You may use a registration id of your choice.
+
+## Prepare the TLS CA Trust Bundle in the NVS
+
+[Run the sample called az-nvs-cert-bundle](../az-nvs-cert-bundle/README.md) in the `/ESPRESSIF` directory to load the version 1 trust bundle in your ESP device. This will purposely save an incomplete trust bundle in your devices's NVS, which will then be loaded for the IoT application. Once the CA validation fails in this sample, the device will then move into the recovery phase which fetches the new and complete certificate trust bundle.
 
 ## Prepare the sample
 
@@ -72,6 +172,8 @@ On a [console with ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/lates
 ```shell
 idf.py menuconfig
 ```
+
+Under menu item `Component config`, go to `ESP-TLS`, check the `Allow potentially insecure options` option and then select the "Skip server certificate validation" option there. Hit the `Esc` key two times to return back to the top level.
 
 Under menu item `Azure IoT middleware for FreeRTOS Sample Configuration`, update the following configuration values:
 
@@ -100,10 +202,14 @@ Parameter | Value
 Save the configuration (`Shift + S`) inside the sample folder in a file with name `sdkconfig`.
 After that, close the configuration utility (`Shift + Q`).
 
-You must also update the signing root key which is located in `demo_config.h`, titled `ucAzureIoTRecoveryRootKeyN`. You can get the hex value of the modulus (N value) using the below command.
+You must also update the signing root key which is located in `demo_config.h`, titled `ucAzureIoTRecoveryRootKeyN`, and  the exponent (E) value `ucAzureIoTRecoveryRootKeyE`. You can get the hex value of the modulus (N value) using the below command. **Note** that most times the exponent is defaulted to 65537 (0x10001). If that is the case, you may use `{ 0x01, 0x00, 0x01 }` for the exponent. Otherwise, see the below command to check your exponent value and format it appropriately.
 
 ```bash
-openssl x509 -in <your-public-cert>.pem -modulus -noout | sed s/Modulus=// | sed -r 's/../0x&, /g'
+# Modulus
+openssl x509 -in recovery-public-cert.pem -modulus -noout | sed s/Modulus=// | sed -r 's/../0x&, /g'
+
+# Exponent
+openssl x509 -in recovery-public-cert.pem --text -noout | grep Exponent | sed -r 's/.*Exponent: .*\((.*)\)/\1/g'
 ```
 
 ## Build the image

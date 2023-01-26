@@ -152,10 +152,14 @@ static uint8_t ucAzureIoTRecoveryRootKeyN[] =
 
 
 /**
- * @brief CA Recovery signing key N value (modulus)
+ * @brief CA Recovery signing key E value (exponent)
+ * 
+ * Example for 65537 (0x10001)
+ * 
+ * { 0x01, 0x00, 0x01 }
  * 
  */
-static uint8_t ucAzureIoTRecoveryRootKeyE[] = { 0x01, 0x00, 0x01 };
+static uint8_t ucAzureIoTRecoveryRootKeyE[] = {};
 
 #define democonfigRECOVERY_SIGNING_KEY_E ucAzureIoTRecoveryRootKeyE
 
