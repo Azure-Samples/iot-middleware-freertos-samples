@@ -2,12 +2,18 @@
  * Licensed under the MIT License. */
 
 /*
-// Usage (from this directory)
-// Location examples: 'East US' 'West US 2'
 
+# For any < > value, substitute in the value of your choice.
 az login
 az account set --subscription <subscription id>
+
+# To see a list of locations, run the following and look for `name` values.
+az account list-locations
+
+# Create a resource group
 az group create --name '<name>' --location '<location>'
+
+# Deploy the resources
 az deployment group create --name <deployment name --resource-group '<name>' --template-file './ca-recovery-arm.bicep' --parameters location='<location>'
 
 */
