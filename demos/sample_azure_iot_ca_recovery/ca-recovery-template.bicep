@@ -14,7 +14,7 @@ az account list-locations
 az group create --name '<name>' --location '<location>'
 
 # Deploy the resources
-az deployment group create --name <deployment name --resource-group '<name>' --template-file './ca-recovery-arm.bicep' --parameters location='<location>'
+az deployment group create --name '<deployment name>' --resource-group '<name>' --template-file './ca-recovery-arm.bicep' --parameters location='<location>'
 
 */
 
