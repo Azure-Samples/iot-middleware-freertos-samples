@@ -29,7 +29,7 @@
 ENTRY(Reset_Handler)
 
 HEAP_SIZE  = DEFINED(__heap_size__)  ? __heap_size__  : 0x1000;
-STACK_SIZE = DEFINED(__stack_size__) ? __stack_size__ : 0x0400;
+STACK_SIZE = DEFINED(__stack_size__) ? __stack_size__ : 0x1000;
 VECTOR_RAM_SIZE = DEFINED(__ram_vector_table__) ? 0x00000400 : 0;
 NCACHE_HEAP_START = DEFINED(__heap_noncacheable__) ? 0x82000000 - HEAP_SIZE : 0x81E00000 - HEAP_SIZE;
 NCACHE_HEAP_SIZE  = DEFINED(__heap_noncacheable__) ? HEAP_SIZE : 0x0000;
@@ -37,22 +37,22 @@ NCACHE_HEAP_SIZE  = DEFINED(__heap_noncacheable__) ? HEAP_SIZE : 0x0000;
 /* Specify the memory areas */
 MEMORY
 {
-  m_flash_config        (RX)  : ORIGIN = 0x60000000, LENGTH = 0x00001000
-  m_ivt                 (RX)  : ORIGIN = 0x60001000, LENGTH = 0x00001000
+  m_flash_config        (RX)  : ORIGIN = 0x60000000, LENGTH = 0x00001000?
+  m_ivt                 (RX)  : ORIGIN = 0x60001000, LENGTH = 0x00001000?
   m_interrupts          (RX)  : ORIGIN = 0x60002000, LENGTH = 0x00000400
   m_text                (RX)  : ORIGIN = 0x60002400, LENGTH = 0x007FDC00
-  m_data                (RW)  : ORIGIN = 0x80000000, LENGTH = DEFINED(__heap_noncacheable__) ? 0x01E00000 : 0x01E00000 - HEAP_SIZE
-  m_ncache              (RW)  : ORIGIN = 0x81E00000, LENGTH = DEFINED(__heap_noncacheable__) ? 0x00200000 - HEAP_SIZE : 0x00200000
-  m_data2               (RW)  : ORIGIN = 0x20000000, LENGTH = 0x00020000
-  m_data3               (RW)  : ORIGIN = 0x20200000, LENGTH = 0x000C0000
-  m_heap                (RW)  : ORIGIN = NCACHE_HEAP_START, LENGTH = HEAP_SIZE
+  m_data                (RW)  : ORIGIN = 0x20000000, LENGTH = 0x00020000
+  m_ncache              (RW)  : ORIGIN = 0x81E00000, LENGTH = 0x00200000
+  m_data2               (RW)  : ORIGIN = 0x20200000, LENGTH = 0x000C0000
+  m_data3               (RW)  : ORIGIN = 0x80000000, LENGTH = 0x01E00000
+  m_heap                (RW)  : ORIGIN = NCACHE_HEAP_START, LENGTH = HEAP_SIZE?
 }
 
 /* Define output sections */
 SECTIONS
 {
   __NCACHE_REGION_START = ORIGIN(m_ncache);
-  __NCACHE_REGION_SIZE  = LENGTH(m_ncache) + NCACHE_HEAP_SIZE;
+  __NCACHE_REGION_SIZE  = LENGTH(m_ncache);
 
   .flash_config :
   {
@@ -97,6 +97,12 @@ SECTIONS
     KEEP (*(.init))
     KEEP (*(.fini))
     . = ALIGN(4);
+  } > m_text
+
+  .text : ALIGN(4)
+  {
+      *(EXCLUDE_FILE(*fsl_flexspi.o *flexspi_nor_flash_ops.o) .text*)       *(.rodata .rodata.* .constdata .constdata.*)
+      . = ALIGN(4);
   } > m_text
 
   .ARM.extab :
@@ -183,8 +189,8 @@ SECTIONS
     __interrupts_ram_end__ = .; /* Define a global symbol at data end */
   } > m_data
 
-  __VECTOR_RAM = DEFINED(__ram_vector_table__) ? __VECTOR_RAM__ : ORIGIN(m_interrupts);
-  __RAM_VECTOR_TABLE_SIZE_BYTES = DEFINED(__ram_vector_table__) ? (__interrupts_ram_end__ - __interrupts_ram_start__) : 0x0;
+  __VECTOR_RAM = ORIGIN(m_interrupts);
+  __RAM_VECTOR_TABLE_SIZE_BYTES = 0x0;
 
   .data : AT(__DATA_ROM)
   {
