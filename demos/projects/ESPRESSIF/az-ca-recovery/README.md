@@ -59,13 +59,17 @@ sequenceDiagram
 
     Install `git` following the [official website](https://git-scm.com/).
 
-2. ESP-IDF
+1. ESP-IDF
 
     On Windows, install the ESPRESSIF ESP-IDF using this [download link](https://dl.espressif.com/dl/esp-idf/?idf=4.4).
 
     For other Operating Systems or to update an existing installation, follow [Espressif official documentation](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html#get-started).
 
-3. Azure IoT Embedded middleware for FreeRTOS
+1. Azure CLI and Azure IoT Module
+
+    See steps to install both [here](https://learn.microsoft.com/azure/iot-hub-device-update/create-update?source=recommendations#prerequisites).
+
+1. Azure IoT Embedded middleware for FreeRTOS
 
 Clone the following repo to download all sample device code, setup scripts, and offline versions of the documentation.
 
