@@ -55,8 +55,6 @@ sequenceDiagram
   | Have an instance of [IoT Hub Device Provisioning Service](https://docs.microsoft.com/azure/iot-dps/quick-setup-auto-provision#create-a-new-iot-hub-device-provisioning-service) |
   | Have an [individual enrollment](https://docs.microsoft.com/azure/iot-dps/how-to-manage-enrollments#create-a-device-enrollment) created in your instance of DPS using your preferred authentication method* |
 
-  **Instructions on how to create an X.509 cert for tests can be found [here](https://github.com/Azure/azure-sdk-for-c/blob/main/sdk/samples/iot/docs/how_to_iot_hub_samples_linux.md#configure-and-run-the-samples) (Step 1). Please note that you might need to install some of the [prerequisites](https://github.com/Azure/azure-sdk-for-c/blob/main/sdk/samples/iot/docs/how_to_iot_hub_samples_linux.md#prerequisites) like OpenSSL.**
-
 ## Install prerequisites
 
 1. GIT
@@ -138,7 +136,7 @@ openssl req -new -key recovery-private-key.pem -x509 -days 36500 -out recovery-p
 openssl pkcs12 -export -in recovery-public-cert.pem -inkey recovery-private-key.pem -out recovery-key-pairs.pfx -legacy
 ```
 
-Find the Azure Function App which was deployed in your resource group. Under `Settings`, we will add the certificate (`recovery-key-pairs.pfx`) to your Azure Function App with the `Certificates` section.
+Find the Azure Function App which was deployed in your resource group. Under `Settings`, we will add the certificate (`recovery-key-pairs.pfx`) to the `Certificates` section.
 
 ![img](./images/AzureFunctionCertificate.png)
 
@@ -150,7 +148,7 @@ Once that is imported, find the thumbprint for the certificate.
 
 ![img](./images/AzureFunctionCertificateThumbprint.png)
 
-Make note or copy the thumbprint. Create an application setting for the function called `CERT_THUMBPRINT`with the thumbprint as the value. Click Save.
+Make note or copy the thumbprint. Create an application setting for the function called `CERT_THUMBPRINT` with the thumbprint as the value. Click Save.
 
 ![img](./images/AzureFunctionCertificateConfig.png)
 
@@ -170,7 +168,7 @@ To use the custom allocation policy with the recovery Azure function, you have t
 
 ## Prepare the TLS CA Trust Bundle in the NVS
 
-[Follow the README linked here to run the sample called az-nvs-cert-bundle](../az-nvs-cert-bundle/README.md) in the `demos/projects/ESPRESSIF` directory to load the version 1 trust bundle in your ESP device. This will purposely save an incomplete trust bundle in your devices's NVS, which will then be loaded for the `az-ca-recovery` application. Once the CA validation fails in `az-ca-recovery` sample, the device will then move into the recovery phase which fetches the new and complete certificate trust bundle.
+[Follow the README linked here to run the sample called az-nvs-cert-bundle](../az-nvs-cert-bundle/README.md) in the `demos/projects/ESPRESSIF` directory to load the version 1 trust bundle in your ESP device. This will purposely save an incomplete trust bundle in your devices's NVS, which will then be loaded for the `az-ca-recovery` application. Once the CA validation fails in the `az-ca-recovery` sample, the device will then move into the recovery phase which fetches the new and complete certificate trust bundle.
 
 ## Prepare the sample
 
