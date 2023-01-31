@@ -749,7 +749,7 @@ static void prvAzureDemoTask( void * pvParameters )
                                               ucSignatureValidateScratchBuffer,
                                               sizeof( ucSignatureValidateScratchBuffer ) );
         configASSERT( xResult == eAzureIoTSuccess );
-        LogInfo( ( "Trust bundle Signature Successfully Validated\r\n" ) );
+        LogInfo( ( "Trust bundle signature successfully validated\r\n" ) );
 
         /* Check version */
         uint32_t ulCurrentBundleVersion;
@@ -763,7 +763,7 @@ static void prvAzureDemoTask( void * pvParameters )
         }
         else
         {
-            LogInfo( ( "Trust bundle version valid\r\n" ) );
+            LogInfo( ( "Trust bundle version validated\r\n" ) );
         }
 
         /*Check expiration time */
@@ -777,7 +777,7 @@ static void prvAzureDemoTask( void * pvParameters )
         }
         else
         {
-            LogInfo( ( "Trust bundle not expired\r\n" ) );
+            LogInfo( ( "Trust bundle expiration validated\r\n" ) );
         }
 
         LogInfo( ( "Unescaping the trust bundle cert\r\n" ) );
