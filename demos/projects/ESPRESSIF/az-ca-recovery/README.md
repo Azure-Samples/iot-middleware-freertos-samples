@@ -47,7 +47,7 @@ sequenceDiagram
 - [ESPRESSIF ESP32 Board](https://www.espressif.com/en/products/devkits)
 - Wi-Fi 2.4 GHz
 - USB 2.0 A male to Micro USB male data cable
-- [ESP-IDF](https://idf.espressif.com/): This guide was tested against [ESP-IDF v4.4.3](https://github.com/espressif/esp-idf/tree/v4.4.3).
+- [ESP-IDF](https://idf.espressif.com/): This guide was tested against ESP-IDF [v4.4.3](https://github.com/espressif/esp-idf/tree/v4.4.3) and [v5.0](https://github.com/espressif/esp-idf/tree/v5.0).
 - To run this sample we will use the Device Provisioning Service to provision your device automatically. **Note** that even when using DPS, you still need an IoT Hub created and connected to DPS.
 
   | DPS |
@@ -63,7 +63,7 @@ sequenceDiagram
 
 1. ESP-IDF
 
-    On Windows, install the ESPRESSIF ESP-IDF using this [download link](https://dl.espressif.com/dl/esp-idf/?idf=4.4).
+    On Windows, install the ESPRESSIF ESP-IDF using this [download link](https://dl.espressif.com/dl/esp-idf).
 
     For other Operating Systems or to update an existing installation, follow [Espressif official documentation](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html#get-started).
 
@@ -180,7 +180,7 @@ At this point, you should have the following services and values:
 
 | Service | Details |
 | --- | --- |
-| **[OPERATIONAL]** Device Provisioning Service | - You should have this already created, with an individual enrollment.<br>- Have available:<br>&nbsp;&nbsp;- Registration ID<br>&nbsp;&nbsp;- ID Scope<br>&nbsp;&nbsp;- Shared Access Key. |
+| **[OPERATIONAL]** Device Provisioning Service | - You should have this already created, with an individual enrollment.<br>- Have available:<br>&nbsp;&nbsp;- Registration ID<br>&nbsp;&nbsp;- ID Scope<br>&nbsp;&nbsp;- Shared Access Key |
 | **[OPERATIONAL]** IoT Hub | - Make sure it is connected to Operational Device Provisioning Service. |
 | **[RECOVERY]** Device Provisioning Service | - This was deployed previously by the ARM template.<br>- Have available:<br>&nbsp;&nbsp;- Registration ID<br>&nbsp;&nbsp;- ID Scope<br>&nbsp;&nbsp;- Derived Shared Access Key |
 | **[RECOVERY]** IoT Hub | - Deployed previously by the ARM template.<br>- Device will not connect to this. Only there to satisfy the Device Provisioning Service.<br>- Nothing to do. |

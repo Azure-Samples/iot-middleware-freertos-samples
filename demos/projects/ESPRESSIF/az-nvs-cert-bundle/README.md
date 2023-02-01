@@ -4,7 +4,7 @@ This sample will read and write a certificate trust bundle (root ca certs) to th
 
 ## Instructions
 
-In an ESPIDF shell, run the following:
+In an ESPIDF shell, navigate to the `demos/projects/ESPRESSIF/az-nvs-cert-bundle` and run the following:
 
 ```bash
 idf.py --no-ccache -B "C:\esptrustbundle" build
