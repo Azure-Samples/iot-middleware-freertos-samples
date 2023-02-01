@@ -721,7 +721,7 @@ static void prvAzureDemoTask( void * pvParameters )
         AzureIoTCARecovery_RecoveryPayload xRecoveryPayload;
         AzureIoTJSONReader_t xJSONReader;
 
-        LogInfo( ( "Received Trust Bundle:\r\n" ) );
+        LogInfo( ( "Received trust bundle:\r\n" ) );
         LogInfo( ( "%.*s", az_span_size( xAzureIoTProvisioningClient._internal.xRegisterResponse.registration_state.payload ),
                    az_span_ptr( xAzureIoTProvisioningClient._internal.xRegisterResponse.registration_state.payload ) ) );
         xResult = AzureIoTJSONReader_Init( &xJSONReader,
@@ -737,7 +737,7 @@ static void prvAzureDemoTask( void * pvParameters )
                    xRecoveryPayload.xTrustBundle.ulVersion,
                    xRecoveryPayload.xTrustBundle.ulCertificatesLength ) );
 
-        LogInfo( ( "Validating Trust Bundle Signature\r\n" ) );
+        LogInfo( ( "Validating trust bundle signature\r\n" ) );
         xResult = AzureIoTSample_RS256Verify( ( uint8_t * ) xRecoveryPayload.pucTrustBundleJSONObjectText,
                                               xRecoveryPayload.ulTrustBundleJSONObjectTextLength,
                                               ( uint8_t * ) xRecoveryPayload.pucPayloadSignature,
@@ -749,7 +749,7 @@ static void prvAzureDemoTask( void * pvParameters )
                                               ucSignatureValidateScratchBuffer,
                                               sizeof( ucSignatureValidateScratchBuffer ) );
         configASSERT( xResult == eAzureIoTSuccess );
-        LogInfo( ( "Trust Bundle Signature Successfully Validated\r\n" ) );
+        LogInfo( ( "Trust bundle signature successfully validated\r\n" ) );
 
         /* Check version */
         uint32_t ulCurrentBundleVersion;
@@ -761,6 +761,10 @@ static void prvAzureDemoTask( void * pvParameters )
                         ulCurrentBundleVersion, xRecoveryPayload.xTrustBundle.ulVersion ) );
             configASSERT( false );
         }
+        else
+        {
+            LogInfo( ( "Trust bundle version validated\r\n" ) );
+        }
 
         /*Check expiration time */
         uint64_t ullCurrentTime = ullGetUnixTime();
@@ -770,6 +774,10 @@ static void prvAzureDemoTask( void * pvParameters )
             LogError( ( "Trust bundle validity expired | current (%llu) payload (%llu).\r\n",
                         ullCurrentTime, xRecoveryPayload.xTrustBundle.ullExpiryTimeSecs ) );
             configASSERT( false );
+        }
+        else
+        {
+            LogInfo( ( "Trust bundle expiration validated\r\n" ) );
         }
 
         LogInfo( ( "Unescaping the trust bundle cert\r\n" ) );

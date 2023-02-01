@@ -38,7 +38,7 @@ menu "Azure IoT middleware for FreeRTOS Main Task Configuration"
     endchoice
 
     config AZURE_IOT_DEVICE_SYMMETRIC_KEY
-        string "Azure IoT Device Symmetric Key"
+        string "[OPERATIONAL] Azure IoT Device Symmetric Key"
         default ""
         depends on AZURE_IOT_AUTH_METHOD_SYMMETRIC_KEY
         help
@@ -78,13 +78,13 @@ menu "Azure IoT middleware for FreeRTOS Main Task Configuration"
             Set it to true to enable this sample to be provisioned by Azure Device Provisioning Service.
 
     config AZURE_DPS_ID_SCOPE
-        string "Azure Device Provisioning Service ID Scope"
+        string "[OPERATIONAL] Azure Device Provisioning Service ID Scope"
         default ""
         help
             "Set the Azure Device Provisioning Service ID Scope."
 
     config AZURE_DPS_REGISTRATION_ID
-        string "Azure Device Provisioning Service Registration ID"
+        string "[OPERATIONAL] Azure Device Provisioning Service Registration ID"
         default ""
         help
             "Set the Azure Device Provisioning Service Registration ID."
