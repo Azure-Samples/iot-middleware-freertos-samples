@@ -14,28 +14,33 @@ sequenceDiagram
     participant DPS_recovery
     participant CustomAllocation
 
-    Note right of Device: Device firmware contains:CA TrustBundle &  version<br>RecoveryKey, Device Recovery Identity and IDScope
+    Note right of CustomAllocation: .NET Azure Function provisioned with a RSA<br> certificate stored within the Certificate Store:<br>-RSASign_Pub(N, e)<br>-RSASign_Pri
 
-    loop retry count
-        Device-->>DPS_operational: Connect
-        DPS_operational-->>Device: Invalid CA Certificate
-    end
+    Note right of Device: Device firmware additions:<br>-TrustBundle,   version=1<br>-RSASign_Pub(N, e)<br>-DPS_Recovery Identity (IDScope, registrationID, SharedAccessKey)
+
+    Device-->>DPS_operational: Connect
+    Note right of DPS_operational: To reduce the number of recovery attempts<br> for devices that may encounter <br>a WiFi Captive Portal, we recommend<br> retrying prior to initiating recovery.
+
+    DPS_operational-->>Device: Invalid CA Certificate
 
     Note left of Device: Initiate Recovery
-    Device-->>DPS_recovery: Connect using Device Recovery Identity and IDScope
+    Device-->>DPS_recovery: Connect using DPS_Recovery Identity
     Note right of Device: !! Ignore CA validation !!
-    Note right of Device: Custom Payload: Current TrustBundle version
+    Note right of Device: !! Important !!: the credentials, device name, etc.<br> may be recorded by a man-in-the-middle observer.
 
 
-    DPS_recovery-->>CustomAllocation: Recovery Identity
+    DPS_recovery-->>CustomAllocation: Recovery Identity, CA TrustBundle version
+    CustomAllocation-->>CustomAllocation: Verify device CA TrustBundle version
     CustomAllocation-->>DPS_recovery: Custom Payload
-    Note left of CustomAllocation: Payload: <br> CA TrustBundle, Device Recovery Identity,<br> version, expiryTime <br> Sign(data=payload, key=RecoveryKey)
+    Note left of CustomAllocation:1. Payload: -CA TrustBundle, new_version=2<br>-Device registrationID<br>-expiryTime=NOW + 2min<br><br>2.RSA_Sign(data=Payload, key=RSASign_Pri)
     DPS_recovery-->>Device: Registration Information (including Custom Payload)
-    Device-->>Device: Verify Custom Payload Signature,<br> version and expiryTime
-    Device-->>Device: Install CA TrustBundle
+    Device-->>Device: RSA_Verify(data=Payload, key=RSASign_Pub),<br> new_version > version and expiryTime > NOW
+    Device-->>Device: Update CA TrustBundle
+    Device-->>Device: Update TrustBundle version
     Note left of Device: End Recovery
     Device-->>DPS_operational: Connect
     DPS_operational-->>Device: Valid CA Certificate
+    Device-->>DPS_operational: Resume normal operation.
 ```
 
 ## What you need
