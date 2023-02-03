@@ -45,7 +45,7 @@ For a video deep dive into this repo and the source code, please see the Microso
 
 ### Azure Device Update
 
-You can interact with Azure Device Update, remotely updating your Azure IoT Hub devices through the samples below:
+You can interact with [Azure Device Update](https://github.com/Azure/azure-iot-middleware-freertos/blob/main/docs/how_to_use_adu_client.md), remotely updating your Azure IoT Hub devices through the samples below:
 
 - ESPRESSIF:
   - [ESP32](demos/projects/ESPRESSIF/adu/README.md)
