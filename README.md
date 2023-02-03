@@ -13,20 +13,11 @@ The [Azure IoT middleware for FreeRTOS repo](https://github.com/Azure/azure-iot-
 
 We have two sets of samples:
 
-- **Azure IoT Central**: These samples leverage Azure IoT Central, Azure DPS (Device Provisioning Service) and, Plug and Play. Azure subscription is not required during the initial 7 days of the [IoT Central Free Trial](https://azure.microsoft.com/pricing/details/iot-central/#pricing).
 - **Azure IoT Hub**: These samples leverage Azure IoT Hub, DPS (Device Provisioning) and Plug and Play.
 
+- **Azure IoT Central**: These samples leverage Azure IoT Central, Azure DPS (Device Provisioning Service) and, Plug and Play. Azure subscription is not required during the initial 7 days of the [IoT Central Free Trial](https://azure.microsoft.com/pricing/details/iot-central/#pricing).
+
 There are several other alternatives to get MCU-based devices connected to Azure. See [Other Azure IoT SDKs](https://learn.microsoft.com/azure/iot-develop/concepts-using-c-sdk-and-embedded-c-sdk) to learn more.
-
-### IoT Central Samples
-
-Below you will find samples for development kits showing how to use the Azure IoT middleware for FreeRTOS connected to Azure IoT Central. The following samples support these development kits:
-
-- ESPRESSIF:
-  - [ESP32-Azure IoT Kit](demos/projects/ESPRESSIF/aziotkit/GSG.md)
-
-- STMicroelectronics:
-  - [B-L475E-IOT01A](demos/projects/ST/b-l475e-iot01a/GSG.md)
 
 ### IoT Hub Samples:
 
@@ -52,6 +43,29 @@ For a video deep dive into this repo and the source code, please see the Microso
 
 [<img src="./docs/resources/deep-dive-video.jpg" width="50%">](https://youtu.be/PNykfuJ3VDs)
 
+### Azure Device Update
+
+You can interact with Azure Device Update, remotely updating your Azure IoT Hub devices through the samples below:
+
+- ESPRESSIF:
+  - [ESP32](demos/projects/ESPRESSIF/adu/README.md)
+
+- STMicroelectronics:
+  - [B-L475E-IOT01A](demos/projects/ST/b-l475e-iot01a/ADU.md)
+
+- PC Simulation:
+  - [Linux](demos/projects/PC/linux/ADU.md)
+
+### IoT Central Samples
+
+Below you will find samples for development kits showing how to use the Azure IoT middleware for FreeRTOS connected to Azure IoT Central. The following samples support these development kits:
+
+- ESPRESSIF:
+  - [ESP32-Azure IoT Kit](demos/projects/ESPRESSIF/aziotkit/GSG.md)
+
+- STMicroelectronics:
+  - [B-L475E-IOT01A](demos/projects/ST/b-l475e-iot01a/GSG.md)
+
 ### Plug and Play Sample
 
 The easiest way to interact with the Plug and Play sample from the IoT service side is to use Azure IoT Explorer.  To interact with the device sample:
@@ -65,19 +79,6 @@ The easiest way to interact with the Plug and Play sample from the IoT service s
   - You will now be able to interact with the Plug and Play device.
 
 Additional instructions for using Azure IoT Explorer are available [here](https://github.com/Azure/azure-iot-explorer/#plug-and-play).
-
-### Azure Device Update
-
-You can interact with Azure Device Update, remotely updating your Azure IoT Hub devices through the samples below:
-
-- ESPRESSIF:
-  - [ESP32](demos/projects/ESPRESSIF/adu/README.md)
-
-- STMicroelectronics:
-  - [B-L475E-IOT01A](demos/projects/ST/b-l475e-iot01a/ADU.md)
-
-- PC Simulation:
-  - [Linux](demos/projects/PC/linux/ADU.md)
 
 ## Support
 
