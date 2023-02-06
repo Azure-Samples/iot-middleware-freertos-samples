@@ -166,7 +166,7 @@ Select `Save` and make note of the Group Enrollment Key.
 
 ## Create a Derived Shared Access Key for Group Enrollment
 
-To use the custom allocation policy with the recovery Azure function, you have to create a derived SAS key from the group enrollment key. To create one, use the following Azure CLI command or [follow the directions here for other options](https://learn.microsoft.com/azure/iot-dps/concepts-symmetric-key-attestation?tabs=azure-cli#group-enrollments). You may use a registration id of your choice. Make sure to save this for the [RECOVERY] Derived Shared Access Key later.
+To use the custom allocation policy with the recovery Azure function, you have to create a derived SAS key from the group enrollment key. To create one, use the following Azure CLI command or [follow the directions here for other options](https://learn.microsoft.com/azure/iot-dps/concepts-symmetric-key-attestation?tabs=azure-cli#group-enrollments). You may use a registration id of your choice. Make sure to save this for the [RECOVERY] Derived Shared Access Key later. The `--key` parameter should be the group enrollment "Primary Key".
 
 ```bash
 az iot dps enrollment-group compute-device-key --key "<key>" --registration-id "<registration id>"
