@@ -248,7 +248,7 @@ For bash:
 openssl x509 -in recovery-public-cert.pem -modulus -noout | sed s/Modulus=// | sed -r 's/../0x&, /g'
 
 # Exponent
-openssl x509 -in recovery-public-cert.pem --text -noout | grep Exponent | sed -r 's/.*Exponent: .*\((.*)\)/\1/g'
+openssl x509 -in recovery-public-cert.pem -text -noout | grep Exponent | sed -r 's/.*Exponent: .*\((.*)\)/\1/g'
 ```
 
 For Powershell:
@@ -258,7 +258,7 @@ For Powershell:
 openssl x509 -in recovery-public-cert.pem -modulus -noout | ForEach-Object { $_ -replace 'Modulus=', '' } | ForEach-Object { $_ -replace '(..)', '0x$1, ' }
 
 # Exponent
-openssl x509 -in recovery-public-cert.pem --text -noout | Select-String Exponent |  ForEach-Object { $_ -replace 'Exponent: .*\((.*)\)', '$1' }
+openssl x509 -in recovery-public-cert.pem -text -noout | Select-String Exponent |  ForEach-Object { $_ -replace 'Exponent: .*\((.*)\)', '$1' }
 ```
 
 ## Build the image
