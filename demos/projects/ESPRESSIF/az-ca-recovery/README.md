@@ -1,6 +1,6 @@
 # Perform Trust Bundle Recovery with an ESPRESSIF ESP32 using Azure IoT Middleware for FreeRTOS
 
-Trust Bundle Recovery allows a mechanism for your device to recover connection to Azure resources should the CA certificates expire or otherwise become invalid. This requires an additional, separate "recovery" DPS instance and device credential, only to be used for recovery of the CA certificate. Should CA verification fail, the device will connect to the recovery DPS instance, ignoring TLS CA cert validation, and will be returned a signed trust bundle recovery payload from DPS. This payload contains the complete and updated collection of CA certificates, asymmetrically signed by a root key created by the user. The device receives this payload, compares the signature using the saved public key, and then installs the certificates into the device's non-volatile storage (NVS). This permanent storage allows the new certificates to be loaded again should the device restart, removing the need for the device to use the recovery endpoint again. From that point on, the device can connect to the usual DPS endpoint and provisioned hub with full CA trust validation.
+Trust Bundle Recovery allows a mechanism for your device to recover connection to operational Azure resources should the CA certificates expire or otherwise become invalid. This requires an additional, separate "recovery" DPS instance and device credential, only to be used for recovery of the CA certificate. Should CA verification fail while connecting to operational IoT services, the device will connect to the recovery DPS instance, ignoring TLS CA cert validation, and will be returned a signed trust bundle recovery payload from DPS. This payload contains the complete and updated collection of CA certificates, asymmetrically signed by a root key created by the user. The device receives this payload, compares the signature using the saved public key, and then installs the certificates into the device's non-volatile storage (NVS). This permanent storage allows the new certificates to be loaded again should the device restart, removing the need for the device to use the recovery endpoint again. From that point on, the device can connect to the operational DPS endpoint and provisioned hub with full CA trust validation.
 
 ## IMPORTANT SECURITY WARNINGS
 
@@ -117,9 +117,11 @@ az account list-locations | ConvertFrom-Json | format-table -Property name
 # Create a resource group
 az group create --name '<name>' --location '<location>'
 
-# Deploy the resources
-# For the `resourcePrefix`, choose a unique, short name with only letter characters which
-# will be prepended to all of the deployed resources.
+# Deploy the resources. This may take a couple minutes.
+#  - `resourcePrefix`: choose a unique, short name with only lower case letter characters which
+#                      will be prepended to all of the deployed resources.
+#  - `name`: choose a name to give this deployment, between 3 and 24 characters in length and
+#            use numbers and lower-case letters only.
 az deployment group create --name '<deployment name>' --resource-group '<name>' --template-file './ca-recovery-arm.bicep' --parameters location='<location>' resourcePrefix='<your prefix>'
 ```
 
