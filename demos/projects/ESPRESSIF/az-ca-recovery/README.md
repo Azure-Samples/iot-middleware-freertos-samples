@@ -1,6 +1,6 @@
 # Perform Trust Bundle Recovery with an ESPRESSIF ESP32 using Azure IoT Middleware for FreeRTOS
 
-Trust Bundle Recovery allows a mechanism for your device to recover connection to Azure resources should the CA certificates expire or otherwise become invalid. This requires an additional, separate "recovery" DPS instance and device credential, only to be used for recovery of the CA certificate. Should CA verification fail, the device will connect to the recovery DPS instance, ignoring TLS CA cert validation, and will be returned a signed trust bundle recovery payload from DPS. This payload contains the complete and updated collection of CA certificates, asymmetrically signed by a root key created by the user. The device receives this payload, compares the signature using the saved public key, and then installs the certificates into the device's non-volatile storage (NVS). This permanent storage allows the new certificates to be loaded again should the device restart, removing the need for the device to use the recovery endpoint again. From that point on, the device can connect to the usual DPS endpoint and provisioned hub with full CA trust validation.
+Trust Bundle Recovery allows a mechanism for your device to recover connection to operational Azure resources should the TLS CA certificates expire or otherwise become invalid. This requires an additional, separate "recovery" DPS instance and device credential, only to be used for recovery of the CA certificates. Should CA verification fail while connecting to operational IoT services, the device should connect to the recovery DPS instance, ignoring the TLS CA cert validation, and will be returned a signed CA trust bundle recovery payload from the recovery DPS. This payload contains the complete and updated collection of the current CA certificates, asymmetrically signed by a root key created by the user. The device receives this payload, compares the signature using the saved public key, and then after successful validation, installs the certificates into the device's non-volatile storage (NVS). This permanent storage allows the new certificates to be loaded again should the device restart, removing the need for the device to reconnect to the recovery endpoint again. From that point on, the device can connect to the operational DPS endpoint and provisioned hub with full CA trust validation enabled.
 
 ## IMPORTANT SECURITY WARNINGS
 
@@ -117,9 +117,11 @@ az account list-locations | ConvertFrom-Json | format-table -Property name
 # Create a resource group
 az group create --name '<name>' --location '<location>'
 
-# Deploy the resources
-# For the `resourcePrefix`, choose a unique, short name with only letter characters which
-# will be prepended to all of the deployed resources.
+# Deploy the resources. This may take a couple minutes.
+#  - `resourcePrefix`: choose a unique, short name with only lower-case letters which
+#                      will be prepended to all of the deployed resources.
+#  - `name`: choose a name to give this deployment, between 3 and 24 characters in length and
+#            use numbers and lower-case letters only.
 az deployment group create --name '<deployment name>' --resource-group '<name>' --template-file './ca-recovery-arm.bicep' --parameters location='<location>' resourcePrefix='<your prefix>'
 ```
 
@@ -164,7 +166,11 @@ Select `Save` and make note of the Group Enrollment Key.
 
 ## Create a Derived Shared Access Key for Group Enrollment
 
-To use the custom allocation policy with the recovery Azure function, you have to create a derived SAS key from the group enrollment key. To create one, [follow the directions here](https://learn.microsoft.com/azure/iot-dps/concepts-symmetric-key-attestation?tabs=azure-cli#group-enrollments) and save the derived key to be used later. You may use a registration id of your choice.
+To use the custom allocation policy with the recovery Azure function, you have to create a derived SAS key from the group enrollment key. To create one, use the following Azure CLI command or [follow the directions here for other options](https://learn.microsoft.com/azure/iot-dps/concepts-symmetric-key-attestation?tabs=azure-cli#group-enrollments). You may use a registration id of your choice. Make sure to save this for the [RECOVERY] Derived Shared Access Key later. The `--key` parameter should be the group enrollment "Primary Key".
+
+```bash
+az iot dps enrollment-group compute-device-key --key "<key>" --registration-id "<registration id>"
+```
 
 ## Prepare the TLS CA Trust Bundle in the NVS
 
@@ -216,8 +222,8 @@ Under menu item `Azure IoT middleware for FreeRTOS Main Task Configuration`, upd
 Parameter | Value
 ---------|----------
  `Enable Device Provisioning Sample` | _{Check this option to enable DPS in the sample}_
- `Azure Device Provisioning Service ID Scope` | _{Your ID scope value}_
- `Azure Device Provisioning Service Registration ID` | _{Your Device Registration ID value}_
+ `[OPERATIONAL] Azure Device Provisioning Service ID Scope` | _{Your ID scope value}_
+ `[OPERATIONAL] Azure Device Provisioning Service Registration ID` | _{Your Device Registration ID value}_
  `[RECOVERY] Azure Device Provisioning Service ID Scope` | _{Your ID scope value for the recovery instance}_
  `[RECOVERY] Azure Device Provisioning Service Registration ID.` | _{Your Device Registration ID value for the recovery instance}_
 
@@ -225,22 +231,34 @@ Select your desired authentication method with the `Azure IoT Authentication Met
 
 Parameter | Value
 ---------|----------
- `Azure IoT Device Symmetric Key` | _{Your Device Provisioning device symmetric key}_
- `[RECOVERY] Azure IoT Device Symmetric Key` | _{Your Device Provisioning device symmetric key for the recovery instance}_
+ `[OPERATIONAL] Azure IoT Device Symmetric Key` | _{Your Device Provisioning device symmetric key for the operational DPS instance}_
+ `[RECOVERY] Azure IoT Device Symmetric Key` | _{Your Device Provisioning device symmetric key for the recovery DPS instance}_
 
 Save the configuration (`Shift + S`) inside the sample folder in a file with name `sdkconfig`.
 After that, close the configuration utility (`Shift + Q`).
 
 #### Signing Certificate
 
-You must also update the signing root key which is located in `demo_config.h`, titled `ucAzureIoTRecoveryRootKeyN`, and  the exponent (E) value `ucAzureIoTRecoveryRootKeyE`. You can get the hex value of the modulus (N value) using the below command. **Note** that most times the exponent is defaulted to 65537 (0x10001). If that is the case, you may use `{ 0x01, 0x00, 0x01 }` for the exponent. Otherwise, see the below command to check your exponent value and format it appropriately.
+You must also update the signing root key which is located in `config/demo_config.h`, titled `ucAzureIoTRecoveryRootKeyN`, and  the exponent (E) value `ucAzureIoTRecoveryRootKeyE`. You can get the hex value of the modulus (N value) using the below command. **Note** that most times the exponent is defaulted to 65537 (0x10001). If that is the case, you may use `{ 0x01, 0x00, 0x01 }` for the exponent. Otherwise, see the below command to check your exponent value and format it appropriately.
+
+For bash:
 
 ```bash
 # Modulus
 openssl x509 -in recovery-public-cert.pem -modulus -noout | sed s/Modulus=// | sed -r 's/../0x&, /g'
 
 # Exponent
-openssl x509 -in recovery-public-cert.pem --text -noout | grep Exponent | sed -r 's/.*Exponent: .*\((.*)\)/\1/g'
+openssl x509 -in recovery-public-cert.pem -text -noout | grep Exponent | sed -r 's/.*Exponent: .*\((.*)\)/\1/g'
+```
+
+For Powershell:
+
+```powershell
+# Modulus
+openssl x509 -in recovery-public-cert.pem -modulus -noout | ForEach-Object { $_ -replace 'Modulus=', '' } | ForEach-Object { $_ -replace '(..)', '0x$1, ' }
+
+# Exponent
+openssl x509 -in recovery-public-cert.pem -text -noout | Select-String Exponent |  ForEach-Object { $_ -replace 'Exponent: .*\((.*)\)', '$1' }
 ```
 
 ## Build the image
