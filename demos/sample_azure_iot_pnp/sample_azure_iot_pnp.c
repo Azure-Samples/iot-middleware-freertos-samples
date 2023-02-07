@@ -257,11 +257,16 @@ static void prvDispatchPropertiesUpdate( AzureIoTHubClientPropertiesResponse_t *
     }
     else
     {
-        AzureIoTResult_t xResult = AzureIoTHubClient_SendPropertiesReported( &xAzureIoTHubClient,
-                                                                             ucReportedPropertiesUpdate,
-                                                                             ulReportedPropertiesUpdateLength,
-                                                                             NULL );
-        configASSERT( xResult == eAzureIoTSuccess );
+        AzureIoTResult_t xResult;
+
+        if( ( xResult = AzureIoTHubClient_SendPropertiesReported( &xAzureIoTHubClient,
+                                                                  ucReportedPropertiesUpdate,
+                                                                  ulReportedPropertiesUpdateLength,
+                                                                  NULL ) ) != eAzureIoTSuccess )
+        {
+            LogError( ( "Send properties reported failed: error=0x%08x\r\n", xResult ) );
+            configPanicHandler();
+        }
     }
 }
 /*-----------------------------------------------------------*/
@@ -385,8 +390,8 @@ static void prvAzureDemoTask( void * pvParameters )
                                                                democonfigIOTHUB_PORT,
                                                                &xNetworkCredentials, &xNetworkContext ) ) != 0 )
         {
-            LogError( ( "Error connecting to server\r\nRestarting device...\r\n" ) );
-            configRestartDevice();
+            LogError( ( "Error connecting to server\r\n" ) );
+            configPanicHandler();
         }
 
         /* Fill in Transport Interface send and receive function pointers. */
@@ -418,8 +423,8 @@ static void prvAzureDemoTask( void * pvParameters )
                                                 ullGetUnixTime,
                                                 &xTransport ) ) != eAzureIoTSuccess )
         {
-            LogError( ( "Failed to initialize IoT Hub client\r\nRestarting device...\r\n" ) );
-            configRestartDevice();
+            LogError( ( "Failed to initialize IoT Hub client\r\n" ) );
+            configPanicHandler();
         }
 
         #ifdef democonfigDEVICE_SYMMETRIC_KEY
@@ -462,8 +467,8 @@ static void prvAzureDemoTask( void * pvParameters )
             {
                 if( ( xResult = prvTelemetryLoop( ulScratchBufferLength ) ) != eAzureIoTSuccess )
                 {
-                    LogError( ( "Telemetry loop failed: error=0x%08x\r\nRestarting device...\r\n", xResult ) );
-                    configRestartDevice();
+                    LogError( ( "Telemetry loop failed: error=0x%08x\r\n", xResult ) );
+                    configPanicHandler();
                 }
             }
 
@@ -499,8 +504,8 @@ static void prvAzureDemoTask( void * pvParameters )
 
         if( xResult != eAzureIoTSuccess )
         {
-            LogError( ( "Sample loop failed: error=0x%08x\nRestarting device...\r\n", xResult ) );
-            configRestartDevice();
+            LogError( ( "Sample loop failed: error=0x%08x\n", xResult ) );
+            configPanicHandler();
         }
     }
 }
@@ -574,8 +579,8 @@ static AzureIoTResult_t prvTelemetryLoop( uint32_t ulScratchBufferLength )
         if( ( ulStatus = prvConnectToServerWithBackoffRetries( democonfigENDPOINT, democonfigIOTHUB_PORT,
                                                                pXNetworkCredentials, &xNetworkContext ) ) != 0 )
         {
-            LogError( ( "Error connecting to server\r\nRestarting device...\r\n" ) );
-            configRestartDevice();
+            LogError( ( "Error connecting to server\r\n" ) );
+            configPanicHandler();
         }
 
         /* Fill in Transport Interface send and receive function pointers. */
@@ -594,8 +599,8 @@ static AzureIoTResult_t prvTelemetryLoop( uint32_t ulScratchBufferLength )
 
             if( ( ulStatus = getRegistrationId( &registration_id ) ) != 0 )
             {
-                LogError( ( "Error getting registration ID\r\nRestarting device...\r\n" ) );
-                configRestartDevice();
+                LogError( ( "Error getting registration ID\r\n" ) );
+                configPanicHandler();
             }
 
 #undef democonfigREGISTRATION_ID
