@@ -29,7 +29,7 @@ sequenceDiagram
     Note right of Device: !! Important !!: the credentials, device name, etc.<br> may be recorded by a man-in-the-middle observer.
 
 
-    DPS_recovery-->>CustomAllocation: Recovery Identity, CA TrustBundle version
+    DPS_recovery-->>CustomAllocation: Recovery Identity
     CustomAllocation-->>CustomAllocation: Verify device CA TrustBundle version
     CustomAllocation-->>DPS_recovery: Custom Payload
     Note left of CustomAllocation:1. Payload: -CA TrustBundle, new_version=2<br>-Device registrationID<br>-expiryTime=NOW + 2min<br><br>2.RSA_Sign(data=Payload, key=RSASign_Pri)
