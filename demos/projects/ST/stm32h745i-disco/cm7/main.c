@@ -28,7 +28,7 @@ static void MPU_Config( void );
 static void MX_RNG_Init( void );
 static void MX_USART3_UART_Init( void );
 static char cPrintString[ 512 ];
-static uint64_t ulGlobalEntryTime = 1673769600;
+static uint64_t ulGlobalEntryTime = 1707465600;
 
 /*
  * Prototypes for the demos that can be started from this project.
