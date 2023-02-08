@@ -336,22 +336,22 @@ static uint32_t prvSetupRecoveryNetworkCredentials( NetworkCredentials_t * pxNet
 
 static void runRecovery( NetworkCredentials_t * xNetworkCredentials,
                          uint8_t ** pucIotHubHostname,
-                         uint8_t ** pucIotHubDeviceId,
                          uint32_t * pulIothubHostnameLength,
+                         uint8_t ** pucIotHubDeviceId,
                          uint32_t * pulIothubDeviceIdLength )
 {
     LogInfo( ( "In recovery\r\n" ) );
 
-    memset( &xNetworkCredentials, 0, sizeof( xNetworkCredentials ) );
-    ulStatus = prvSetupRecoveryNetworkCredentials( &xNetworkCredentials );
+    memset( xNetworkCredentials, 0, sizeof( *xNetworkCredentials ) );
+    uint32_t ulStatus = prvSetupRecoveryNetworkCredentials( xNetworkCredentials );
     configASSERT( ulStatus == 0 );
 
-    if( ( ulStatus = prvRunRecovery( &xNetworkCredentials ) ) != 0 )
+    if( ( ulStatus = prvRunRecovery( xNetworkCredentials ) ) != 0 )
     {
         LogError( ( "Failed to run recovery error code = 0x%08x\r\n", ulStatus ) );
         configASSERT( ulStatus == 0 );
     }
-    else if( ( ulStatus = prvSetupNetworkCredentials( &xNetworkCredentials ) ) != 0 )
+    else if( ( ulStatus = prvSetupNetworkCredentials( xNetworkCredentials ) ) != 0 )
     {
         LogError( ( "Could not set network credentials\r\n" ) );
         configASSERT( ulStatus == 0 );
