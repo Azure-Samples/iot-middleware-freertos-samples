@@ -605,8 +605,6 @@ static void prvAzureDemoTask( void * pvParameters )
 
         if( ulTLSStatus == eTLSTransportCAVerifyFailed )
         {
-            LogInfo( ( "In recovery\r\n" ) );
-
             return sampleazureiotRECOVERY_INITIATED;
         }
 
