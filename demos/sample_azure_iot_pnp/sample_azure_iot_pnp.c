@@ -607,66 +607,83 @@ static AzureIoTResult_t prvTelemetryLoop( uint32_t ulScratchBufferLength )
         #define democonfigREGISTRATION_ID    registration_id
         #endif /* ifdef democonfigUSE_HSM */
 
-        xResult = AzureIoTProvisioningClient_Init( &xAzureIoTProvisioningClient,
-                                                   ( const uint8_t * ) democonfigENDPOINT,
-                                                   sizeof( democonfigENDPOINT ) - 1,
-                                                   ( const uint8_t * ) democonfigID_SCOPE,
-                                                   sizeof( democonfigID_SCOPE ) - 1,
-                                                   ( const uint8_t * ) democonfigREGISTRATION_ID,
-                                                   #ifdef democonfigUSE_HSM
-                                                       strlen( democonfigREGISTRATION_ID ),
-                                                   #else
-                                                       sizeof( democonfigREGISTRATION_ID ) - 1,
-                                                   #endif
-                                                   NULL, ucMQTTMessageBuffer, sizeof( ucMQTTMessageBuffer ),
-                                                   ullGetUnixTime,
-                                                   &xTransport );
-        configASSERT( xResult == eAzureIoTSuccess );
-
-        #ifdef democonfigDEVICE_SYMMETRIC_KEY
-            xResult = AzureIoTProvisioningClient_SetSymmetricKey( &xAzureIoTProvisioningClient,
-                                                                  ( const uint8_t * ) democonfigDEVICE_SYMMETRIC_KEY,
-                                                                  sizeof( democonfigDEVICE_SYMMETRIC_KEY ) - 1,
-                                                                  Crypto_HMAC );
-            configASSERT( xResult == eAzureIoTSuccess );
-        #endif /* democonfigDEVICE_SYMMETRIC_KEY */
-
-        xResult = AzureIoTProvisioningClient_SetRegistrationPayload( &xAzureIoTProvisioningClient,
-                                                                     ( const uint8_t * ) sampleazureiotPROVISIONING_PAYLOAD,
-                                                                     sizeof( sampleazureiotPROVISIONING_PAYLOAD ) - 1 );
-        configASSERT( xResult == eAzureIoTSuccess );
-
-        do
+        if( ( xResult = AzureIoTProvisioningClient_Init( &xAzureIoTProvisioningClient,
+                                                         ( const uint8_t * ) democonfigENDPOINT,
+                                                         sizeof( democonfigENDPOINT ) - 1,
+                                                         ( const uint8_t * ) democonfigID_SCOPE,
+                                                         sizeof( democonfigID_SCOPE ) - 1,
+                                                         ( const uint8_t * ) democonfigREGISTRATION_ID,
+                                                         #ifdef democonfigUSE_HSM
+                                                             strlen( democonfigREGISTRATION_ID ),
+                                                         #else
+                                                             sizeof( democonfigREGISTRATION_ID ) - 1,
+                                                         #endif
+                                                         NULL, ucMQTTMessageBuffer, sizeof( ucMQTTMessageBuffer ),
+                                                         ullGetUnixTime,
+                                                         &xTransport ) ) != eAzureIoTSuccess )
         {
-            xResult = AzureIoTProvisioningClient_Register( &xAzureIoTProvisioningClient,
-                                                           sampleazureiotProvisioning_Registration_TIMEOUT_MS );
-        } while( xResult == eAzureIoTErrorPending );
-
-        if( xResult == eAzureIoTSuccess )
-        {
-            LogInfo( ( "Successfully acquired IoT Hub name and Device ID" ) );
+            LogError( ( "Provisioning client init failed\r\n" ) );
         }
         else
         {
-            LogInfo( ( "Error geting IoT Hub name and Device ID: 0x%08x", ( uint16_t ) xResult ) );
+            #ifdef democonfigDEVICE_SYMMETRIC_KEY
+                xResult = AzureIoTProvisioningClient_SetSymmetricKey( &xAzureIoTProvisioningClient,
+                                                                      ( const uint8_t * ) democonfigDEVICE_SYMMETRIC_KEY,
+                                                                      sizeof( democonfigDEVICE_SYMMETRIC_KEY ) - 1,
+                                                                      Crypto_HMAC );
+                configASSERT( xResult == eAzureIoTSuccess );
+            #endif /* democonfigDEVICE_SYMMETRIC_KEY */
+
+            if( ( xResult = AzureIoTProvisioningClient_SetRegistrationPayload( &xAzureIoTProvisioningClient,
+                                                                               ( const uint8_t * ) sampleazureiotPROVISIONING_PAYLOAD,
+                                                                               sizeof( sampleazureiotPROVISIONING_PAYLOAD ) - 1 ) ) != eAzureIoTSuccess )
+            {
+                LogError( ( "Set registration payload failed\r\n" ) );
+            }
+            else
+            {
+                do
+                {
+                    xResult = AzureIoTProvisioningClient_Register( &xAzureIoTProvisioningClient,
+                                                                   sampleazureiotProvisioning_Registration_TIMEOUT_MS );
+                } while( xResult == eAzureIoTErrorPending );
+
+                if( xResult != eAzureIoTSuccess )
+                {
+                    LogInfo( ( "Error getting IoT Hub name and Device ID: 0x%08x", ( uint16_t ) xResult ) );
+                }
+                else
+                {
+                    LogInfo( ( "Successfully acquired IoT Hub name and Device ID" ) );
+
+                    if( ( xResult = AzureIoTProvisioningClient_GetDeviceAndHub( &xAzureIoTProvisioningClient,
+                                                                                ucSampleIotHubHostname, &ucSamplepIothubHostnameLength,
+                                                                                ucSampleIotHubDeviceId, &ucSamplepIothubDeviceIdLength ) ) != eAzureIoTSuccess )
+                    {
+                        LogError( ( "Get device and hub failed\r\n" ) );
+                    }
+                    else
+                    {
+                        AzureIoTProvisioningClient_Deinit( &xAzureIoTProvisioningClient );
+
+                        /* Close the network connection.  */
+                        TLS_Socket_Disconnect( &xNetworkContext );
+
+                        *ppucIothubHostname = ucSampleIotHubHostname;
+                        *pulIothubHostnameLength = ucSamplepIothubHostnameLength;
+                        *ppucIothubDeviceId = ucSampleIotHubDeviceId;
+                        *pulIothubDeviceIdLength = ucSamplepIothubDeviceIdLength;
+                    }
+                }
+            }
         }
 
-        configASSERT( xResult == eAzureIoTSuccess );
-
-        xResult = AzureIoTProvisioningClient_GetDeviceAndHub( &xAzureIoTProvisioningClient,
-                                                              ucSampleIotHubHostname, &ucSamplepIothubHostnameLength,
-                                                              ucSampleIotHubDeviceId, &ucSamplepIothubDeviceIdLength );
-        configASSERT( xResult == eAzureIoTSuccess );
-
-        AzureIoTProvisioningClient_Deinit( &xAzureIoTProvisioningClient );
-
-        /* Close the network connection.  */
-        TLS_Socket_Disconnect( &xNetworkContext );
-
-        *ppucIothubHostname = ucSampleIotHubHostname;
-        *pulIothubHostnameLength = ucSamplepIothubHostnameLength;
-        *ppucIothubDeviceId = ucSampleIotHubDeviceId;
-        *pulIothubDeviceIdLength = ucSamplepIothubDeviceIdLength;
+        if( xResult != eAzureIoTSuccess )
+        {
+            LogError( ( "Getting IoT Hub info failed: error=0x%08x\n", xResult ) );
+            configPanicHandler();
+            return 1;
+        }
 
         return 0;
     }
