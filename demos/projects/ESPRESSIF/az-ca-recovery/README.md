@@ -466,3 +466,7 @@ I (6322) tls_freertos: (Network connection 0x3ffc8c4c) Connection to contoso-iot
 ...
 ```
 </details>
+
+## Troubleshooting
+
+- If you receive a message from DPS that the "Custom Allocation failed" with the return code of `400`, make sure you added the certificate thumbprint to the Azure Function ([see here for details](#create-and-import-signing-certificate)).
