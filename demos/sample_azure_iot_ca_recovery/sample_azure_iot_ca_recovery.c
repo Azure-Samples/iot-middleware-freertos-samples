@@ -349,19 +349,19 @@ static void runRecovery( NetworkCredentials_t * xNetworkCredentials,
     if( ( ulStatus = prvRunRecovery( xNetworkCredentials ) ) != 0 )
     {
         LogError( ( "Failed to run recovery error code = 0x%08x\r\n", ulStatus ) );
-        configASSERT( ulStatus == 0 );
+        configASSERT( false );
     }
     else if( ( ulStatus = prvSetupNetworkCredentials( xNetworkCredentials ) ) != 0 )
     {
         LogError( ( "Could not set network credentials\r\n" ) );
-        configASSERT( ulStatus == 0 );
+        configASSERT( false );
     }
     else if( ( ulStatus = prvIoTHubInfoGet( xNetworkCredentials, pucIotHubHostname,
                                             pulIothubHostnameLength, pucIotHubDeviceId,
                                             pulIothubDeviceIdLength ) ) != 0 )
     {
         LogError( ( "Failed to run DPS after recovery!: error code = 0x%08x\r\n", ulStatus ) );
-        configASSERT( ulStatus == 0 );
+        configASSERT( false );
     }
 }
 
@@ -453,7 +453,7 @@ static void prvAzureDemoTask( void * pvParameters )
             if( ulTLSStatus == eTLSTransportCAVerifyFailed )
             {
                 LogError( ( "Failed to connect to IoT Hub: Server verification failed after recovery attempt.\r\n" ) );
-                configASSERT( ulStatus == 0 );
+                configASSERT( false );
             }
         }
 
