@@ -231,4 +231,11 @@ extern void vLoggingPrintf( const char * pcFormatString,
  */
 #define democonfigIOTHUB_PORT            ( 8883 )
 
+#include <stdlib.h>
+
+/**
+ * @brief Defines device restart function, used by the common sample modules.
+ */
+#define configRestartDevice()    exit( EXIT_FAILURE )
+
 #endif /* DEMO_CONFIG_H */

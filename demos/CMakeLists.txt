@@ -8,6 +8,8 @@ endif()
 string(TOLOWER ${BOARD} BOARD_L)
 string(TOUPPER ${BOARD} BOARD_U)
 
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/common)
+
 # Target for sample task
 if(NOT (TARGET SAMPLE::AZUREIOT))
     add_library(SAMPLE::AZUREIOT INTERFACE IMPORTED)
