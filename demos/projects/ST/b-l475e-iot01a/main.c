@@ -67,7 +67,7 @@ xSemaphoreHandle xWifiSemaphoreHandle;
 static UART_HandleTypeDef xConsoleUart;
 /* Use by the pseudo random number generator. */
 static UBaseType_t ulNextRand;
-static uint64_t ulGlobalEntryTime = 1673769600;
+static uint64_t ulGlobalEntryTime = 1707465600;
 
 /* Private function prototypes -----------------------------------------------*/
 static void Init_MEM1_Sensors( void );
