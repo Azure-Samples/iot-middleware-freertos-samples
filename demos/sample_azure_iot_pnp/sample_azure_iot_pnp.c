@@ -258,7 +258,7 @@ static void prvDispatchPropertiesUpdate( AzureIoTHubClientPropertiesResponse_t *
     {
         LogError( ( "Failed to send response to writable properties update, length of response is zero." ) );
     }
-    else if ( ulReportedPropertiesUpdateLength == -1 )
+    else if( ulReportedPropertiesUpdateLength == -1 )
     {
         LogError( ( "Error sending response to writable properties update" ) );
     }
