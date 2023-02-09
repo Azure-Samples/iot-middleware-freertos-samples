@@ -52,7 +52,7 @@ uint32_t ulCreateTelemetry( uint8_t * pucTelemetryData,
  * @param[out] pucPropertiesData    Pointer to uint8_t* that will contain the reported properties payload.
  * @param[in]  ulPropertiesDataSize Size of `pucPropertiesData`
  *
- * @return uint32_t The number of bytes written in `pucPropertiesData`.
+ * @return uint32_t The number of bytes written in `pucPropertiesData` or -1 if there's an error
  */
 uint32_t ulCreateReportedPropertiesUpdate( uint8_t * pucPropertiesData,
                                            uint32_t ulPropertiesDataSize );
