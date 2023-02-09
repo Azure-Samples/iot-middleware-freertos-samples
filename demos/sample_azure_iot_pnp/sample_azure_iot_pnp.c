@@ -33,6 +33,9 @@
 /* Data Interface Definition */
 #include "sample_azure_iot_pnp_data_if.h"
 
+/* Common Sample Helpers */
+#include "sample_azure_common.h"
+
 /*-----------------------------------------------------------*/
 
 /* Compile time error for undefined configs. */
@@ -265,7 +268,7 @@ static void prvDispatchPropertiesUpdate( AzureIoTHubClientPropertiesResponse_t *
                                                                   NULL ) ) != eAzureIoTSuccess )
         {
             LogError( ( "Send properties reported failed: error=0x%08x\r\n", xResult ) );
-            configPanicHandler();
+            panic_handler();
         }
     }
 }
@@ -391,7 +394,7 @@ static void prvAzureDemoTask( void * pvParameters )
                                                                &xNetworkCredentials, &xNetworkContext ) ) != 0 )
         {
             LogError( ( "Error connecting to server\r\n" ) );
-            configPanicHandler();
+            panic_handler();
         }
 
         /* Fill in Transport Interface send and receive function pointers. */
@@ -424,7 +427,7 @@ static void prvAzureDemoTask( void * pvParameters )
                                                 &xTransport ) ) != eAzureIoTSuccess )
         {
             LogError( ( "Failed to initialize IoT Hub client\r\n" ) );
-            configPanicHandler();
+            panic_handler();
         }
 
         #ifdef democonfigDEVICE_SYMMETRIC_KEY
@@ -468,7 +471,7 @@ static void prvAzureDemoTask( void * pvParameters )
                 if( ( xResult = prvTelemetryLoop( ulScratchBufferLength ) ) != eAzureIoTSuccess )
                 {
                     LogError( ( "Telemetry loop failed: error=0x%08x\r\n", xResult ) );
-                    configPanicHandler();
+                    panic_handler();
                 }
             }
 
@@ -505,7 +508,7 @@ static void prvAzureDemoTask( void * pvParameters )
         if( xResult != eAzureIoTSuccess )
         {
             LogError( ( "Sample loop failed: error=0x%08x\n", xResult ) );
-            configPanicHandler();
+            panic_handler();
         }
     }
 }
@@ -580,7 +583,7 @@ static AzureIoTResult_t prvTelemetryLoop( uint32_t ulScratchBufferLength )
                                                                pXNetworkCredentials, &xNetworkContext ) ) != 0 )
         {
             LogError( ( "Error connecting to server\r\n" ) );
-            configPanicHandler();
+            panic_handler();
         }
 
         /* Fill in Transport Interface send and receive function pointers. */
@@ -600,7 +603,7 @@ static AzureIoTResult_t prvTelemetryLoop( uint32_t ulScratchBufferLength )
             if( ( ulStatus = getRegistrationId( &registration_id ) ) != 0 )
             {
                 LogError( ( "Error getting registration ID\r\n" ) );
-                configPanicHandler();
+                panic_handler();
             }
 
 #undef democonfigREGISTRATION_ID
@@ -681,7 +684,7 @@ static AzureIoTResult_t prvTelemetryLoop( uint32_t ulScratchBufferLength )
         if( xResult != eAzureIoTSuccess )
         {
             LogError( ( "Getting IoT Hub info failed: error=0x%08x\n", xResult ) );
-            configPanicHandler();
+            panic_handler();
             return 1;
         }
 
