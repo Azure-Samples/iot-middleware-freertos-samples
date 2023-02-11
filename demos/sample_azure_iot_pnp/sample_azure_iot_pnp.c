@@ -536,11 +536,11 @@ static AzureIoTResult_t prvTelemetryLoop( uint32_t ulScratchBufferLength )
         /* Hook for sending update to reported properties */
         ulReportedPropertiesUpdateLength = ulCreateReportedPropertiesUpdate( ucReportedPropertiesUpdate, sizeof( ucReportedPropertiesUpdate ) );
 
-        if( ulReportedPropertiesUpdateLength == 0 || ulReportedPropertiesUpdateLength == -1 )
+        if( ( ulReportedPropertiesUpdateLength == 0 ) || ( ulReportedPropertiesUpdateLength == -1 ) )
         {
-            LogError( ( "Error creating reported properties update"));
+            LogError( ( "Error creating reported properties update" ) );
         }
-        else if ( ulReportedPropertiesUpdateLength > 0 )
+        else if( ulReportedPropertiesUpdateLength > 0 )
         {
             xResult = AzureIoTHubClient_SendPropertiesReported( &xAzureIoTHubClient, ucReportedPropertiesUpdate, ulReportedPropertiesUpdateLength, NULL );
         }
