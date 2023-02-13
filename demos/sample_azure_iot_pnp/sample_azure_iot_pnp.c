@@ -430,7 +430,7 @@ static void prvAzureDemoTask( void * pvParameters )
                                                 ullGetUnixTime,
                                                 &xTransport ) ) != eAzureIoTSuccess )
         {
-            LogError( ( "Failed to initialize IoT Hub client\r\n" ) );
+            LogError( ( "Failed to initialize IoT Hub client: error=0x%08x\r\n", xResult ) );
             panic_handler();
         }
 

@@ -12,14 +12,14 @@
 #include "demo_config.h"
 
 #if NDEBUG
-    #define panic_handler()                                                         \
+    #define panic_handler()                                                                           \
     vLoggingPrintf( "[ERROR] [%s:%s:%d]\r\nRestarting device...\r\n", __FILE__, __func__, __LINE__ ); \
     configRestartDevice()
 #else
-    #define panic_handler()                                    \
-    vLoggingPrintf( "[ERROR] [%s:%s:%d]\r\n", __FILE__, __func__, __LINE__ );    \
-    vLoggingPrintf( "Looping to enable attaching a debugger\r\n" ); \
-    taskDISABLE_INTERRUPTS();                                       \
+    #define panic_handler()                                                   \
+    vLoggingPrintf( "[ERROR] [%s:%s:%d]\r\n", __FILE__, __func__, __LINE__ ); \
+    vLoggingPrintf( "Looping to enable attaching a debugger\r\n" );           \
+    taskDISABLE_INTERRUPTS();                                                 \
     for( ; ; ) {; }
 #endif
 
