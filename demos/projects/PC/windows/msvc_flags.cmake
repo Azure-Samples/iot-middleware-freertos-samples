@@ -7,7 +7,7 @@ set(MCU_C_FLAGS "/wd4127" /D_DEBUG
 add_compile_options(
       $<$<CONFIG:>:/MT> #---------|
       $<$<CONFIG:Debug>:/MTd> #---|-- Statically link the runtime libraries
-      $<$<CONFIG:Release>:/MT> #--|
+      $<$<CONFIG:Release>:/MD> #--|
       ${MCU_C_FLAGS})
 add_link_options(/NODEFAULTLIB:libcmtd.lib)
 

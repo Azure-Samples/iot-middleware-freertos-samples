@@ -61,9 +61,9 @@ static AzureIoTResult_t prvBase64Decode( uint8_t * base64Encoded,
 
 AzureIoTResult_t AzureIoTPlatform_Init( AzureADUImage_t * const pxAduImage )
 {
-    (void) pxAduImage;
+    ( void ) pxAduImage;
 
-    // TODO: Fill in initialization for NXP flash writing capability.
+    /* TODO: Fill in initialization for NXP flash writing capability. */
 
     LogInfo( ( "AzureIoTPlatform_Init()\r\n" ) );
     // status_t status;
@@ -135,8 +135,8 @@ AzureIoTResult_t AzureIoTPlatform_Init( AzureADUImage_t * const pxAduImage )
 
 int64_t AzureIoTPlatform_GetSingleFlashBootBankSize()
 {
-    // TODO: Fill in returning of flash bank size (to make sure we don't install an image larger than that)
-    
+    /* TODO: Fill in returning of flash bank size (to make sure we don't install an image larger than that) */
+
     LogInfo( ( "AzureIoTPlatform_GetSingleFlashBootBankSize()\r\n" ) );
 
     return INT64_MAX;
@@ -147,12 +147,12 @@ AzureIoTResult_t AzureIoTPlatform_WriteBlock( AzureADUImage_t * const pxAduImage
                                               uint8_t * const pData,
                                               uint32_t ulBlockSize )
 {
-    (void)pxAduImage;
-    (void)ulOffset;
-    (void)pData;
-    (void)ulBlockSize;
+    ( void ) pxAduImage;
+    ( void ) ulOffset;
+    ( void ) pData;
+    ( void ) ulBlockSize;
 
-    // TODO: Fill in to write pData of size ulBlockSize to ulOffset in memory.
+    /* TODO: Fill in to write pData of size ulBlockSize to ulOffset in memory. */
 
     LogInfo( ( "AzureIoTPlatform_WriteBlock(): offset %i\r\n", ulOffset ) );
 
@@ -163,11 +163,11 @@ AzureIoTResult_t AzureIoTPlatform_VerifyImage( AzureADUImage_t * const pxAduImag
                                                uint8_t * pucSHA256Hash,
                                                uint32_t ulSHA256HashLength )
 {
-    (void)pxAduImage;
-    (void)pucSHA256Hash;
-    (void)ulSHA256HashLength;
+    ( void ) pxAduImage;
+    ( void ) pucSHA256Hash;
+    ( void ) ulSHA256HashLength;
 
-    // TODO: Fill in to verify bytes written to flash bank match the SHA256 given by pucSHA256Hash.
+    /* TODO: Fill in to verify bytes written to flash bank match the SHA256 given by pucSHA256Hash. */
 
     LogInfo( ( "AzureIoTPlatform_VerifyImage()\r\n" ) );
 
@@ -176,9 +176,9 @@ AzureIoTResult_t AzureIoTPlatform_VerifyImage( AzureADUImage_t * const pxAduImag
 
 AzureIoTResult_t AzureIoTPlatform_EnableImage( AzureADUImage_t * const pxAduImage )
 {
-    (void)pxAduImage;
+    ( void ) pxAduImage;
 
-    // TODO: Fill in to program board to decide which memory bank to use on reboot.
+    /* TODO: Fill in to program board to decide which memory bank to use on reboot. */
 
     LogInfo( ( "AzureIoTPlatform_EnableImage()\r\n" ) );
 

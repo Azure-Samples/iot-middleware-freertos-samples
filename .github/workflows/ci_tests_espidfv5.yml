@@ -1,0 +1,20 @@
+name: ESP-IDF v5.0 CI Tests
+
+on: 
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    steps:
+    - uses: docker://espressif/idf:v5.0
+    - uses: actions/checkout@v2
+    - name: Submodules Init
+      uses: snickerbockers/submodules-init@v4
+    - name: Build ESP32 Samples (ESP-IDF v5.0)
+      run: docker run -v "${PWD}:/iot-middleware-freertos-samples" -w /iot-middleware-freertos-samples espressif/idf:v5.0 .github/scripts/ci_tests.sh -esp
