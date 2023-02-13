@@ -163,7 +163,6 @@ static uint8_t ucAzureIoTRecoveryRootKeyE[] = {};
 
 #define democonfigRECOVERY_SIGNING_KEY_E ucAzureIoTRecoveryRootKeyE
 
-
 /**
  * @brief Client's X509 Certificate.
  *

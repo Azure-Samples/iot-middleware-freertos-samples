@@ -334,6 +334,39 @@ static uint32_t prvSetupRecoveryNetworkCredentials( NetworkCredentials_t * pxNet
 }
 /*-----------------------------------------------------------*/
 
+static void runRecovery( NetworkCredentials_t * xNetworkCredentials,
+                         uint8_t ** pucIotHubHostname,
+                         uint32_t * pulIothubHostnameLength,
+                         uint8_t ** pucIotHubDeviceId,
+                         uint32_t * pulIothubDeviceIdLength )
+{
+    LogInfo( ( "In recovery\r\n" ) );
+
+    memset( xNetworkCredentials, 0, sizeof( *xNetworkCredentials ) );
+    uint32_t ulStatus = prvSetupRecoveryNetworkCredentials( xNetworkCredentials );
+    configASSERT( ulStatus == 0 );
+
+    if( ( ulStatus = prvRunRecovery( xNetworkCredentials ) ) != 0 )
+    {
+        LogError( ( "Failed to run recovery error code = 0x%08x\r\n", ulStatus ) );
+        configASSERT( false );
+    }
+    else if( ( ulStatus = prvSetupNetworkCredentials( xNetworkCredentials ) ) != 0 )
+    {
+        LogError( ( "Could not set network credentials\r\n" ) );
+        configASSERT( false );
+    }
+    else if( ( ulStatus = prvIoTHubInfoGet( xNetworkCredentials, pucIotHubHostname,
+                                            pulIothubHostnameLength, pucIotHubDeviceId,
+                                            pulIothubDeviceIdLength ) ) != 0 )
+    {
+        LogError( ( "Failed to run DPS after recovery!: error code = 0x%08x\r\n", ulStatus ) );
+        configASSERT( false );
+    }
+}
+
+/*-----------------------------------------------------------*/
+
 /**
  * @brief Azure IoT demo task that gets started in the platform specific project.
  *  In this demo task, middleware API's are used to connect to Azure IoT Hub.
@@ -381,27 +414,9 @@ static void prvAzureDemoTask( void * pvParameters )
         {
             if( ulStatus == sampleazureiotRECOVERY_INITIATED )
             {
-                memset( &xNetworkCredentials, 0, sizeof( xNetworkCredentials ) );
-                ulStatus = prvSetupRecoveryNetworkCredentials( &xNetworkCredentials );
-                configASSERT( ulStatus == 0 );
-
-                if( ( ulStatus = prvRunRecovery( &xNetworkCredentials ) ) != 0 )
-                {
-                    LogError( ( "Failed to run recovery error code = 0x%08x\r\n", ulStatus ) );
-                    configASSERT( ulStatus == 0 );
-                }
-                else if( ( ulStatus = prvSetupNetworkCredentials( &xNetworkCredentials ) ) != 0 )
-                {
-                    LogError( ( "Could not set network credentials\r\n" ) );
-                    configASSERT( ulStatus == 0 );
-                }
-                else if( ( ulStatus = prvIoTHubInfoGet( &xNetworkCredentials, &pucIotHubHostname,
-                                                        &pulIothubHostnameLength, &pucIotHubDeviceId,
-                                                        &pulIothubDeviceIdLength ) ) != 0 )
-                {
-                    LogError( ( "Failed to run DPS after recovery!: error code = 0x%08x\r\n", ulStatus ) );
-                    configASSERT( ulStatus == 0 );
-                }
+                runRecovery( &xNetworkCredentials, &pucIotHubHostname,
+                             &pulIothubHostnameLength, &pucIotHubDeviceId,
+                             &pulIothubDeviceIdLength );
             }
             else
             {
@@ -424,6 +439,23 @@ static void prvAzureDemoTask( void * pvParameters )
         TlsTransportStatus_t ulTLSStatus = prvConnectToServerWithBackoffRetries( ( const char * ) pucIotHubHostname,
                                                                                  democonfigIOTHUB_PORT,
                                                                                  &xNetworkCredentials, &xNetworkContext );
+
+        if( ulTLSStatus == eTLSTransportCAVerifyFailed )
+        {
+            runRecovery( &xNetworkCredentials, &pucIotHubHostname,
+                         &pulIothubHostnameLength, &pucIotHubDeviceId,
+                         &pulIothubDeviceIdLength );
+
+            TlsTransportStatus_t ulTLSStatus = prvConnectToServerWithBackoffRetries( ( const char * ) pucIotHubHostname,
+                                                                                     democonfigIOTHUB_PORT,
+                                                                                     &xNetworkCredentials, &xNetworkContext );
+
+            if( ulTLSStatus == eTLSTransportCAVerifyFailed )
+            {
+                LogError( ( "Failed to connect to IoT Hub: Server verification failed after recovery attempt.\r\n" ) );
+                configASSERT( false );
+            }
+        }
 
         /* Fill in Transport Interface send and receive function pointers. */
         xTransport.pxNetworkContext = &xNetworkContext;
@@ -573,8 +605,6 @@ static void prvAzureDemoTask( void * pvParameters )
 
         if( ulTLSStatus == eTLSTransportCAVerifyFailed )
         {
-            LogInfo( ( "In recovery\r\n" ) );
-
             return sampleazureiotRECOVERY_INITIATED;
         }
 
@@ -721,7 +751,7 @@ static void prvAzureDemoTask( void * pvParameters )
         AzureIoTCARecovery_RecoveryPayload xRecoveryPayload;
         AzureIoTJSONReader_t xJSONReader;
 
-        LogInfo( ( "Received Trust Bundle:\r\n" ) );
+        LogInfo( ( "Received trust bundle:\r\n" ) );
         LogInfo( ( "%.*s", az_span_size( xAzureIoTProvisioningClient._internal.xRegisterResponse.registration_state.payload ),
                    az_span_ptr( xAzureIoTProvisioningClient._internal.xRegisterResponse.registration_state.payload ) ) );
         xResult = AzureIoTJSONReader_Init( &xJSONReader,
@@ -737,7 +767,7 @@ static void prvAzureDemoTask( void * pvParameters )
                    xRecoveryPayload.xTrustBundle.ulVersion,
                    xRecoveryPayload.xTrustBundle.ulCertificatesLength ) );
 
-        LogInfo( ( "Validating Trust Bundle Signature\r\n" ) );
+        LogInfo( ( "Validating trust bundle signature\r\n" ) );
         xResult = AzureIoTSample_RS256Verify( ( uint8_t * ) xRecoveryPayload.pucTrustBundleJSONObjectText,
                                               xRecoveryPayload.ulTrustBundleJSONObjectTextLength,
                                               ( uint8_t * ) xRecoveryPayload.pucPayloadSignature,
@@ -749,7 +779,7 @@ static void prvAzureDemoTask( void * pvParameters )
                                               ucSignatureValidateScratchBuffer,
                                               sizeof( ucSignatureValidateScratchBuffer ) );
         configASSERT( xResult == eAzureIoTSuccess );
-        LogInfo( ( "Trust Bundle Signature Successfully Validated\r\n" ) );
+        LogInfo( ( "Trust bundle signature successfully validated\r\n" ) );
 
         /* Check version */
         uint32_t ulCurrentBundleVersion;
@@ -761,6 +791,10 @@ static void prvAzureDemoTask( void * pvParameters )
                         ulCurrentBundleVersion, xRecoveryPayload.xTrustBundle.ulVersion ) );
             configASSERT( false );
         }
+        else
+        {
+            LogInfo( ( "Trust bundle version validated\r\n" ) );
+        }
 
         /*Check expiration time */
         uint64_t ullCurrentTime = ullGetUnixTime();
@@ -770,6 +804,10 @@ static void prvAzureDemoTask( void * pvParameters )
             LogError( ( "Trust bundle validity expired | current (%llu) payload (%llu).\r\n",
                         ullCurrentTime, xRecoveryPayload.xTrustBundle.ullExpiryTimeSecs ) );
             configASSERT( false );
+        }
+        else
+        {
+            LogInfo( ( "Trust bundle expiration validated\r\n" ) );
         }
 
         LogInfo( ( "Unescaping the trust bundle cert\r\n" ) );

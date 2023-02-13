@@ -36,4 +36,10 @@
 
 /************ End of logging configuration ****************/
 
+/**
+ * @brief Set the config value to a larger value to receive the recovery payload
+ * 
+ */
+#define azureiotconfigPROVISIONING_REQUEST_PAYLOAD_MAX (6000)
+
 #endif /* AZURE_IOT_CONFIG_H */
