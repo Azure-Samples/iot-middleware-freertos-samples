@@ -424,14 +424,14 @@ static void prvAzureDemoTask( void * pvParameters )
 
         /* Sending a default property (Content-Type). */
         xResult = AzureIoTMessage_PropertiesAppend( &xPropertyBag,
-            ( uint8_t * ) AZ_IOT_MESSAGE_PROPERTIES_CONTENT_TYPE, sizeof( AZ_IOT_MESSAGE_PROPERTIES_CONTENT_TYPE ) - 1,
-            ( uint8_t * ) sampleazureiotMESSAGE_CONTENT_TYPE, sizeof( sampleazureiotMESSAGE_CONTENT_TYPE ) - 1 );
+                                                    ( uint8_t * ) AZ_IOT_MESSAGE_PROPERTIES_CONTENT_TYPE, sizeof( AZ_IOT_MESSAGE_PROPERTIES_CONTENT_TYPE ) - 1,
+                                                    ( uint8_t * ) sampleazureiotMESSAGE_CONTENT_TYPE, sizeof( sampleazureiotMESSAGE_CONTENT_TYPE ) - 1 );
         configASSERT( xResult == eAzureIoTSuccess );
 
         /* Sending a default property (Content-Encoding). */
         xResult = AzureIoTMessage_PropertiesAppend( &xPropertyBag,
-            ( uint8_t * ) AZ_IOT_MESSAGE_PROPERTIES_CONTENT_ENCODING, sizeof( AZ_IOT_MESSAGE_PROPERTIES_CONTENT_ENCODING ) - 1,
-            ( uint8_t * ) sampleazureiotMESSAGE_CONTENT_ENCODING, sizeof( sampleazureiotMESSAGE_CONTENT_ENCODING ) - 1 );
+                                                    ( uint8_t * ) AZ_IOT_MESSAGE_PROPERTIES_CONTENT_ENCODING, sizeof( AZ_IOT_MESSAGE_PROPERTIES_CONTENT_ENCODING ) - 1,
+                                                    ( uint8_t * ) sampleazureiotMESSAGE_CONTENT_ENCODING, sizeof( sampleazureiotMESSAGE_CONTENT_ENCODING ) - 1 );
         configASSERT( xResult == eAzureIoTSuccess );
 
         /* How to send an user-defined custom property. */
