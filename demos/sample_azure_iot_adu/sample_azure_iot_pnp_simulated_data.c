@@ -70,14 +70,7 @@ static uint8_t ucADUScratchBuffer[ azureiotjwsSCRATCH_BUFFER_SIZE ];
 
 /* Device values */
 static double xDeviceCurrentTemperature = sampleazureiotDEFAULT_START_TEMP_CELSIUS;
-static double xDeviceMaximumTemperature = sampleazureiotDEFAULT_START_TEMP_CELSIUS;
-static double xDeviceMinimumTemperature = sampleazureiotDEFAULT_START_TEMP_CELSIUS;
-static double xDeviceTemperatureSummation = sampleazureiotDEFAULT_START_TEMP_CELSIUS;
-static uint32_t ulDeviceTemperatureCount = sampleazureiotDEFAULT_START_TEMP_COUNT;
-static double xDeviceAverageTemperature = sampleazureiotDEFAULT_START_TEMP_CELSIUS;
 
-/* Command buffers */
-static uint8_t ucCommandStartTimeValueBuffer[ 32 ];
 /*-----------------------------------------------------------*/
 
 /* ADU.200702.R */
@@ -166,82 +159,6 @@ static AzureIoTJWS_RootKey_t xADURootKeys[] =
         .ulRootKeyExponentLength = sizeof( ucAzureIoTADURootKeyE200702 )
     }
 };
-
-/*-----------------------------------------------------------*/
-
-/**
- * @brief Generate max min payload.
- */
-static AzureIoTResult_t prvInvokeMaxMinCommand( AzureIoTJSONReader_t * pxReader,
-                                                AzureIoTJSONWriter_t * pxWriter )
-{
-    AzureIoTResult_t xResult;
-    uint32_t ulSinceTimeLength;
-
-    /* Get the start time */
-    if( ( xResult = AzureIoTJSONReader_NextToken( pxReader ) )
-        != eAzureIoTSuccess )
-    {
-        LogError( ( "Error getting next token: result 0x%08x", xResult ) );
-    }
-    else if( ( xResult = AzureIoTJSONReader_GetTokenString( pxReader,
-                                                            ucCommandStartTimeValueBuffer,
-                                                            sizeof( ucCommandStartTimeValueBuffer ),
-                                                            &ulSinceTimeLength ) )
-             != eAzureIoTSuccess )
-    {
-        LogError( ( "Error getting token string: result 0x%08x", xResult ) );
-    }
-    else if( ( xResult = AzureIoTJSONWriter_AppendBeginObject( pxWriter ) )
-             != eAzureIoTSuccess )
-    {
-        LogError( ( "Error appending begin object: result 0x%08x", xResult ) );
-    }
-    else if( ( xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( pxWriter, ( const uint8_t * ) sampleazureiotCOMMAND_MAX_TEMP,
-                                                                           sizeof( sampleazureiotCOMMAND_MAX_TEMP ) - 1,
-                                                                           xDeviceMaximumTemperature, sampleazureiotDOUBLE_DECIMAL_PLACE_DIGITS ) )
-             != eAzureIoTSuccess )
-    {
-        LogError( ( "Error appending max temp: result 0x%08x", xResult ) );
-    }
-    else if( ( xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( pxWriter, ( const uint8_t * ) sampleazureiotCOMMAND_MIN_TEMP,
-                                                                           sizeof( sampleazureiotCOMMAND_MIN_TEMP ) - 1,
-                                                                           xDeviceMinimumTemperature, sampleazureiotDOUBLE_DECIMAL_PLACE_DIGITS ) )
-             != eAzureIoTSuccess )
-    {
-        LogError( ( "Error appending min temp: result 0x%08x", xResult ) );
-    }
-    else if( ( xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( pxWriter, ( const uint8_t * ) sampleazureiotCOMMAND_TEMP_VERSION,
-                                                                           sizeof( sampleazureiotCOMMAND_TEMP_VERSION ) - 1,
-                                                                           xDeviceAverageTemperature, sampleazureiotDOUBLE_DECIMAL_PLACE_DIGITS ) )
-             != eAzureIoTSuccess )
-    {
-        LogError( ( "Error appending average temp: result 0x%08x", xResult ) );
-    }
-    else if( ( xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( pxWriter, ( const uint8_t * ) sampleazureiotCOMMAND_START_TIME,
-                                                                           sizeof( sampleazureiotCOMMAND_START_TIME ) - 1,
-                                                                           ucCommandStartTimeValueBuffer, ulSinceTimeLength ) )
-             != eAzureIoTSuccess )
-    {
-        LogError( ( "Error appending start time: result 0x%08x", xResult ) );
-    }
-    /* Faking the end time to simplify dependencies on <time.h> */
-    else if( ( xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( pxWriter, ( const uint8_t * ) sampleazureiotCOMMAND_END_TIME,
-                                                                           sizeof( sampleazureiotCOMMAND_END_TIME ) - 1,
-                                                                           ( const uint8_t * ) sampleazureiotCOMMAND_FAKE_END_TIME,
-                                                                           sizeof( sampleazureiotCOMMAND_FAKE_END_TIME ) - 1 ) )
-             != eAzureIoTSuccess )
-    {
-        LogError( ( "Error appending end time: result 0x%08x", xResult ) );
-    }
-    else if( ( xResult = AzureIoTJSONWriter_AppendEndObject( pxWriter ) )
-             != eAzureIoTSuccess )
-    {
-        LogError( ( "Error appending end object: result 0x%08x", xResult ) );
-    }
-
-    return xResult;
-}
 /*-----------------------------------------------------------*/
 
 static void prvSkipPropertyAndValue( AzureIoTJSONReader_t * pxReader )
@@ -256,75 +173,6 @@ static void prvSkipPropertyAndValue( AzureIoTJSONReader_t * pxReader )
 
     xResult = AzureIoTJSONReader_NextToken( pxReader );
     configASSERT( xResult == eAzureIoTSuccess );
-}
-/*-----------------------------------------------------------*/
-
-/**
- * @brief Update local device temperature values based on new requested temperature.
- */
-static void prvUpdateLocalProperties( double xNewTemperatureValue,
-                                      uint32_t ulPropertyVersion,
-                                      bool * pxOutMaxTempChanged )
-{
-    *pxOutMaxTempChanged = false;
-    xDeviceCurrentTemperature = xNewTemperatureValue;
-
-    /* Update maximum or minimum temperatures. */
-    if( xDeviceCurrentTemperature > xDeviceMaximumTemperature )
-    {
-        xDeviceMaximumTemperature = xDeviceCurrentTemperature;
-        *pxOutMaxTempChanged = true;
-    }
-    else if( xDeviceCurrentTemperature < xDeviceMinimumTemperature )
-    {
-        xDeviceMinimumTemperature = xDeviceCurrentTemperature;
-    }
-
-    /* Calculate the new average temperature. */
-    ulDeviceTemperatureCount++;
-    xDeviceTemperatureSummation += xDeviceCurrentTemperature;
-    xDeviceAverageTemperature = xDeviceTemperatureSummation / ulDeviceTemperatureCount;
-
-    LogInfo( ( "Client updated desired temperature variables locally." ) );
-    LogInfo( ( "Current Temperature: %2f", xDeviceCurrentTemperature ) );
-    LogInfo( ( "Maximum Temperature: %2f", xDeviceMaximumTemperature ) );
-    LogInfo( ( "Minimum Temperature: %2f", xDeviceMinimumTemperature ) );
-    LogInfo( ( "Average Temperature: %2f", xDeviceAverageTemperature ) );
-}
-/*-----------------------------------------------------------*/
-
-/**
- * @brief Gets the reported properties payload with the maximum temperature value.
- */
-static uint32_t prvGetNewMaxTemp( double xUpdatedTemperature,
-                                  uint8_t * ucReportedPropertyPayloadBuffer,
-                                  uint32_t ulReportedPropertyPayloadBufferSize )
-{
-    AzureIoTResult_t xResult;
-    AzureIoTJSONWriter_t xWriter;
-    int32_t lBytesWritten;
-
-    /* Initialize the JSON writer with the buffer to which we will write the payload with the new temperature. */
-    xResult = AzureIoTJSONWriter_Init( &xWriter, ucReportedPropertyPayloadBuffer, ulReportedPropertyPayloadBufferSize );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTJSONWriter_AppendBeginObject( &xWriter );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTJSONWriter_AppendPropertyName( &xWriter, ( const uint8_t * ) sampleazureiotPROPERTY_MAX_TEMPERATURE_TEXT,
-                                                     sizeof( sampleazureiotPROPERTY_MAX_TEMPERATURE_TEXT ) - 1 );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTJSONWriter_AppendDouble( &xWriter, xUpdatedTemperature, sampleazureiotDOUBLE_DECIMAL_PLACE_DIGITS );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTJSONWriter_AppendEndObject( &xWriter );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    lBytesWritten = AzureIoTJSONWriter_GetBytesUsed( &xWriter );
-    configASSERT( lBytesWritten > 0 );
-
-    return lBytesWritten;
 }
 /*-----------------------------------------------------------*/
 
