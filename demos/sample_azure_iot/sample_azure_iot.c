@@ -82,7 +82,14 @@
  * @remark Message properties must be url-encoded.
  *         This message property is not required to send telemetry.
  */
-#define sampleazureiotMESSAGE_CONTENT_TYPE                    "text%2Fhtml%3B%20charset%3Dus-ascii"
+#define sampleazureiotMESSAGE_CONTENT_TYPE                    "text%2Fplain"
+
+/**
+ * @brief  The content encoding of the Telemetry message published in this example.
+ * @remark Message properties must be url-encoded.
+ *         This message property is not required to send telemetry.
+ */
+#define sampleazureiotMESSAGE_CONTENT_ENCODING                "us-ascii"
 
 /**
  * @brief The reported property payload to send to IoT Hub
@@ -140,7 +147,7 @@ uint64_t ullGetUnixTime( void );
     static AzureIoTProvisioningClient_t xAzureIoTProvisioningClient;
 #endif /* democonfigENABLE_DPS_SAMPLE */
 
-static uint8_t ucPropertyBuffer[ 64 ];
+static uint8_t ucPropertyBuffer[ 80 ];
 static uint8_t ucScratchBuffer[ 128 ];
 
 /* Each compilation unit must define the NetworkContext struct. */
@@ -419,6 +426,12 @@ static void prvAzureDemoTask( void * pvParameters )
         xResult = AzureIoTMessage_PropertiesAppend( &xPropertyBag,
             ( uint8_t * ) AZ_IOT_MESSAGE_PROPERTIES_CONTENT_TYPE, sizeof( AZ_IOT_MESSAGE_PROPERTIES_CONTENT_TYPE ) - 1,
             ( uint8_t * ) sampleazureiotMESSAGE_CONTENT_TYPE, sizeof( sampleazureiotMESSAGE_CONTENT_TYPE ) - 1 );
+        configASSERT( xResult == eAzureIoTSuccess );
+
+        /* Sending a default property (Content-Encoding). */
+        xResult = AzureIoTMessage_PropertiesAppend( &xPropertyBag,
+            ( uint8_t * ) AZ_IOT_MESSAGE_PROPERTIES_CONTENT_ENCODING, sizeof( AZ_IOT_MESSAGE_PROPERTIES_CONTENT_ENCODING ) - 1,
+            ( uint8_t * ) sampleazureiotMESSAGE_CONTENT_ENCODING, sizeof( sampleazureiotMESSAGE_CONTENT_ENCODING ) - 1 );
         configASSERT( xResult == eAzureIoTSuccess );
 
         /* How to send an user-defined custom property. */
