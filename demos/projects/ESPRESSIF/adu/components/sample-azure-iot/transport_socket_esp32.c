@@ -117,7 +117,6 @@ SocketTransportStatus_t Azure_Socket_Connect( NetworkContext_t * pNetworkContext
         if( pNetworkContext != NULL )
         {
             esp_transport_close( pxEspSocketTransport->xTransport );
-            esp_transport_destroy( pxEspSocketTransport->xTransport );
             esp_transport_list_destroy(pxEspSocketTransport->xTransportList);
             vPortFree(pxEspSocketTransport);
         }
@@ -154,8 +153,6 @@ void Azure_Socket_Close( NetworkContext_t * pNetworkContext )
     /* Attempting to terminate socket connection. */
     esp_transport_close( pxEspSocketTransport->xTransport );
 
-    /* Free socket contexts. */
-    esp_transport_destroy( pxEspSocketTransport->xTransport );
     /* Destroy list of transports */
     esp_transport_list_destroy(pxEspSocketTransport->xTransportList);
     vPortFree( pxEspSocketTransport );

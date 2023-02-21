@@ -1,5 +1,5 @@
 /* Copyright (c) Microsoft Corporation.
-   Licensed under the MIT License. */
+ * Licensed under the MIT License. */
 
 #ifndef AZURE_IOT_CONFIG_H
 #define AZURE_IOT_CONFIG_H
@@ -42,9 +42,9 @@ extern void vLoggingPrintf( const char * pcFormatString,
 
 /* Middleware logging */
 #define AZLogError( message )    SdkLog( ( "[ERROR] [AZ IoT] [%s:%d]", __FILE__, __LINE__ ) ); SdkLog( message ); SdkLog( ( "\r\n" ) )
-#define AZLogWarn( message )     SdkLog( ( "[WARN] [AZ IoT] ") ); SdkLog( message ); SdkLog( ( "\r\n" ) )
-#define AZLogInfo( message )     SdkLog( ( "[INFO] [AZ IoT] ") ); SdkLog( message ); SdkLog( ( "\r\n" ) )
-#define AZLogDebug( message )    SdkLog( ( "[DEBUG] [AZ IoT] ") ); SdkLog( message ); SdkLog( ( "\r\n" ) )
+#define AZLogWarn( message )     SdkLog( ( "[WARN] [AZ IoT] " ) ); SdkLog( message ); SdkLog( ( "\r\n" ) )
+#define AZLogInfo( message )     SdkLog( ( "[INFO] [AZ IoT] " ) ); SdkLog( message ); SdkLog( ( "\r\n" ) )
+#define AZLogDebug( message )    SdkLog( ( "[DEBUG] [AZ IoT] " ) ); SdkLog( message ); SdkLog( ( "\r\n" ) )
 
 #include "logging_stack.h"
 /************ End of logging configuration ****************/

@@ -1,5 +1,5 @@
 /* Copyright (c) Microsoft Corporation.
-   Licensed under the MIT License. */
+ * Licensed under the MIT License. */
 
 /* Standard includes. */
 #include <stdarg.h>
@@ -368,7 +368,7 @@ void vApplicationGetTimerTaskMemory( StaticTask_t ** ppxTimerTaskTCBBuffer,
 
 uint64_t ullGetUnixTime( void )
 {
-    return (uint64_t) time(NULL);
+    return ( uint64_t ) time( NULL );
 }
 /*-----------------------------------------------------------*/
 
