@@ -16,11 +16,12 @@ static const char * TAG = "ca-trust-bundle-storage";
 #define AZURE_TRUST_BUNDLE_NAME            "az-tb"
 #define AZURE_TRUST_BUNDLE_VERSION_NAME    "az-tb-ver"
 
-AzureIoTResult_t AzureIoTCAStorage_ReadTrustBundleVersion(uint32_t * ulTrustBundleVersion )
+AzureIoTResult_t AzureIoTCAStorage_ReadTrustBundleVersion( uint32_t * ulTrustBundleVersion )
 {
-  nvs_handle_t xNVSHandle;
-  esp_err_t err;
-  err = nvs_open( CA_CERT_NAMESPACE, NVS_READWRITE, &xNVSHandle );
+    nvs_handle_t xNVSHandle;
+    esp_err_t err;
+
+    err = nvs_open( CA_CERT_NAMESPACE, NVS_READWRITE, &xNVSHandle );
 
     if( err != ESP_OK )
     {

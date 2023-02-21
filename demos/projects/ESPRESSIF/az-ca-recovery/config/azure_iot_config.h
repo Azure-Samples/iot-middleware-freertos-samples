@@ -1,5 +1,5 @@
 /* Copyright (c) Microsoft Corporation.
-   Licensed under the MIT License. */
+ * Licensed under the MIT License. */
 
 #ifndef AZURE_IOT_CONFIG_H
 #define AZURE_IOT_CONFIG_H
@@ -22,24 +22,24 @@
     #define LIBRARY_LOG_NAME    "AZ IOT"
 #endif
 
-#define SINGLE_PARENTHESIS_LOGE( x, ... ) ESP_LOGE( LIBRARY_LOG_NAME, x, ##__VA_ARGS__ )
-#define AZLogError( message )             SINGLE_PARENTHESIS_LOGE message
+#define SINGLE_PARENTHESIS_LOGE( x, ... )    ESP_LOGE( LIBRARY_LOG_NAME, x, ## __VA_ARGS__ )
+#define AZLogError( message )                SINGLE_PARENTHESIS_LOGE message
 
-#define SINGLE_PARENTHESIS_LOGI( x, ... ) ESP_LOGI( LIBRARY_LOG_NAME, x, ##__VA_ARGS__ )
-#define AZLogInfo( message )              SINGLE_PARENTHESIS_LOGI message
+#define SINGLE_PARENTHESIS_LOGI( x, ... )    ESP_LOGI( LIBRARY_LOG_NAME, x, ## __VA_ARGS__ )
+#define AZLogInfo( message )                 SINGLE_PARENTHESIS_LOGI message
 
-#define SINGLE_PARENTHESIS_LOGW( x, ... ) ESP_LOGW( LIBRARY_LOG_NAME, x, ##__VA_ARGS__ )
-#define AZLogWarn( message )              SINGLE_PARENTHESIS_LOGW message
+#define SINGLE_PARENTHESIS_LOGW( x, ... )    ESP_LOGW( LIBRARY_LOG_NAME, x, ## __VA_ARGS__ )
+#define AZLogWarn( message )                 SINGLE_PARENTHESIS_LOGW message
 
-#define SINGLE_PARENTHESIS_LOGD( x, ... ) ESP_LOGD( LIBRARY_LOG_NAME, x, ##__VA_ARGS__ )
-#define AZLogDebug( message )             SINGLE_PARENTHESIS_LOGD message
+#define SINGLE_PARENTHESIS_LOGD( x, ... )    ESP_LOGD( LIBRARY_LOG_NAME, x, ## __VA_ARGS__ )
+#define AZLogDebug( message )                SINGLE_PARENTHESIS_LOGD message
 
 /************ End of logging configuration ****************/
 
 /**
  * @brief Set the config value to a larger value to receive the recovery payload
- * 
+ *
  */
-#define azureiotconfigPROVISIONING_REQUEST_PAYLOAD_MAX (6000)
+#define azureiotconfigPROVISIONING_REQUEST_PAYLOAD_MAX    ( 6000 )
 
 #endif /* AZURE_IOT_CONFIG_H */
