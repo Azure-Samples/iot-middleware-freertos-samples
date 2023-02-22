@@ -97,7 +97,7 @@ target_link_libraries(${PROJECT_NAME}-pnp PRIVATE
 
 add_map_file(${PROJECT_NAME}-pnp ${PROJECT_NAME}-pnp.map)
 
-# Add demo files and dependencies for PnP Sample
+# Add demo files and dependencies for recovery sample
 add_executable(test_ca_recovery
   ${CMAKE_CURRENT_LIST_DIR}/tests/main.c
   ${CMAKE_CURRENT_LIST_DIR}/tests/mock_needed_functions.c
