@@ -447,7 +447,12 @@ static void prvAzureDemoTask( void * pvParameters )
                 xResult = AzureIoTHubClient_SendTelemetry( &xAzureIoTHubClient,
                                                            ucScratchBuffer, ulScratchBufferLength,
                                                            NULL, eAzureIoTHubMessageQoS1, NULL );
-                configASSERT( xResult == eAzureIoTSuccess );
+
+                if( xResult != eAzureIoTSuccess )
+                {
+                    LogError( ( "Error sending telemetry. Reconnecting to the service\r\n" ) );
+                    break;
+                }
             }
 
             /* Hook for sending update to reported properties */
@@ -456,13 +461,23 @@ static void prvAzureDemoTask( void * pvParameters )
             if( ulReportedPropertiesUpdateLength > 0 )
             {
                 xResult = AzureIoTHubClient_SendPropertiesReported( &xAzureIoTHubClient, ucReportedPropertiesUpdate, ulReportedPropertiesUpdateLength, NULL );
-                configASSERT( xResult == eAzureIoTSuccess );
+
+                if( xResult != eAzureIoTSuccess )
+                {
+                    LogError( ( "Error sending reported properties. Reconnecting to the service\r\n" ) );
+                    break;
+                }
             }
 
             LogInfo( ( "Attempt to receive publish message from IoT Hub.\r\n" ) );
             xResult = AzureIoTHubClient_ProcessLoop( &xAzureIoTHubClient,
                                                      sampleazureiotPROCESS_LOOP_TIMEOUT_MS );
-            configASSERT( xResult == eAzureIoTSuccess );
+
+            if( xResult != eAzureIoTSuccess )
+            {
+                LogError( ( "Error in process loop. Reconnecting to the service\r\n" ) );
+                break;
+            }
 
             /* Leave Connection Idle for some time. */
             LogInfo( ( "Keeping Connection Idle...\r\n\r\n" ) );
@@ -487,7 +502,6 @@ static void prvAzureDemoTask( void * pvParameters )
 
         /* Wait for some time between two iterations to ensure that we do not
          * bombard the IoT Hub. */
-        LogInfo( ( "Demo completed successfully.\r\n" ) );
         LogInfo( ( "Short delay before starting the next iteration.... \r\n\r\n" ) );
         vTaskDelay( sampleazureiotDELAY_BETWEEN_DEMO_ITERATIONS_TICKS );
     }
