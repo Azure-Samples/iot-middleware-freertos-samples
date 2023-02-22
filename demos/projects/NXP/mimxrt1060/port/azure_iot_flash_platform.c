@@ -32,6 +32,11 @@
 
 #define azureiotflashSHA_256_SIZE    32
 
+extern status_t flexspi_nor_get_vendor_id(FLEXSPI_Type *base, uint8_t *vendorId);
+extern status_t flexspi_nor_flash_erase_sector(FLEXSPI_Type *base, uint32_t address);
+// extern status_t flexspi_nor_flash_page_program(FLEXSPI_Type *base, uint32_t dstAddr, const uint32_t *src);
+extern status_t flexspi_nor_enable_quad_mode(FLEXSPI_Type *base);
+
 static uint8_t ucPartitionReadBuffer[ 32 ];
 static uint8_t ucDecodedManifestHash[ azureiotflashSHA_256_SIZE ];
 static uint8_t ucCalculatedHash[ azureiotflashSHA_256_SIZE ];
@@ -129,6 +134,50 @@ AzureIoTResult_t AzureIoTPlatform_Init( AzureADUImage_t * const pxAduImage )
     
 
     // Nor_Flash_Read();
+
+    uint8_t vendorID = 0;
+    status = flexspi_nor_get_vendor_id(EXAMPLE_FLEXSPI, &vendorID);
+    if (status != kStatus_Success)
+    {
+        LogError(("Get Vendor ID Failure!"));
+        return eAzureIoTErrorFailed;
+    }
+
+    LogInfo(("Flash Vendor ID: 0x%x\r\n", vendorID));
+
+    // status = flexspi_nor_enable_quad_mode(EXAMPLE_FLEXSPI);
+    // if (status != kStatus_Success)
+    // {
+    //     LogError(("Enable Quad Mode Failure!"));
+    //     return eAzureIoTErrorFailed;
+    // }
+
+    // LogInfo(("Erasing Serial NOR over FlexSPI...\r\n"));
+
+    // status = flexspi_nor_flash_erase_sector(EXAMPLE_FLEXSPI, EXAMPLE_SECTOR * SECTOR_SIZE);
+
+    // if (status != kStatus_Success)
+    // {
+    //     LogError(("Erase Sector Failure!"));
+    //     return eAzureIoTErrorFailed;
+    // }
+
+    // uint8_t *nor_read_buffer = pvPortMalloc(256);
+    // if (NULL == nor_read_buffer)
+    // {
+    //     LogError(("nor_read_buffer memory allocation failed!\r\n"));
+    //     return eAzureIoTErrorFailed;
+    // }
+
+    // memcpy(nor_read_buffer, (void *)(EXAMPLE_FLEXSPI_AMBA_BASE + EXAMPLE_SECTOR * SECTOR_SIZE), FLASH_PAGE_SIZE);
+    // for (uint16_t i = 0; i < FLASH_PAGE_SIZE; i++)
+    // {
+    //     if (0xFF != nor_read_buffer[i])
+    //     {
+    //         LogError(("Erase data -  read out data value incorrect !\r\n "));
+    //         return eAzureIoTErrorFailed;
+    //     }
+    // }
 
     return 1;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2021 NXP
+ * Copyright 2020 NXP
  * All rights reserved.
  *
  *
@@ -8,19 +8,20 @@
 #ifndef _APP_H_
 #define _APP_H_
 
+/*${header:start}*/
+#include "fsl_cache.h"
+/*${header:end}*/
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
 /*${macro:start}*/
-#define EXAMPLE_FLEXSPI                 FLEXSPI
-#define FLASH_SIZE                      0x2000 /* 64Mb/KByte */
-#define EXAMPLE_FLEXSPI_AMBA_BASE       FlexSPI_AMBA_BASE
-#define FLASH_PAGE_SIZE                 256
-#define EXAMPLE_SECTOR                  20
-#define SECTOR_SIZE                     0x1000 /* 4K */
-#define EXAMPLE_FLEXSPI_CLOCK           kCLOCK_FlexSpi
-#define FLASH_PORT                      kFLEXSPI_PortA1
-#define EXAMPLE_FLEXSPI_RX_SAMPLE_CLOCK kFLEXSPI_ReadSampleClkLoopbackFromDqsPad
+#define EXAMPLE_FLEXSPI           FLEXSPI
+#define FLASH_SIZE                0x2000 /* 64Mb/KByte */
+#define EXAMPLE_FLEXSPI_AMBA_BASE FlexSPI_AMBA_BASE
+#define FLASH_PAGE_SIZE           256
+#define EXAMPLE_SECTOR            100
+#define SECTOR_SIZE               0x1000 /* 4K */
+#define EXAMPLE_FLEXSPI_CLOCK     kCLOCK_FlexSpi
 
 #define NOR_CMD_LUT_SEQ_IDX_READ_NORMAL        7
 #define NOR_CMD_LUT_SEQ_IDX_READ_FAST          13
@@ -42,26 +43,9 @@
 #define FLASH_BUSY_STATUS_POL    1
 #define FLASH_BUSY_STATUS_OFFSET 0
 
-/*
- * If cache is enabled, this example should maintain the cache to make sure
- * CPU core accesses the memory, not cache only.
- */
 #define CACHE_MAINTAIN 1
 
 /*${macro:end}*/
-
-/*******************************************************************************
- * Variables
- ******************************************************************************/
-/*${variable:start}*/
-#if (defined CACHE_MAINTAIN) && (CACHE_MAINTAIN == 1)
-typedef struct _flexspi_cache_status
-{
-    volatile bool DCacheEnableFlag;
-    volatile bool ICacheEnableFlag;
-} flexspi_cache_status_t;
-#endif
-/*${variable:end}*/
 
 /*******************************************************************************
  * Prototypes
