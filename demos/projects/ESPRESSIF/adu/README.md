@@ -76,8 +76,6 @@ Viewing the device twin on the portal, the "tag" section should look similar to 
 
 ![img](../../../../docs/resources/tagged-twin.png)
 
-
-
 ### Prepare the Sample
 
 To connect the ESPRESSIF ESP32 to Azure, you will update the sample configuration, build the image, and flash the image to the device.
@@ -145,34 +143,18 @@ To build the device image, run the following command (the path `"C:\espbuild"` i
 
 2. Find the COM port mapped for the device on your system.
 
-    On **Windows**, go to `Device Manager`, `Ports (COM & LTP)`. Look for a "CP210x"-based device and take note of the COM port mapped for your device (e.g. "COM5").
+    On **Windows**, you may use the following command
+
+    ```powershell
+    Get-WMIObject Win32_SerialPort | Select-Object Name,DeviceID,Description,PNPDeviceID
+    ```
+
+    Look for a device with `CP210x-` in the title. The COM port should be something similar to `COM5`.
 
     On **Linux**, save and run the following script:
 
-    ```shell
-    #!/bin/bash
-    # Copyright (c) Microsoft Corporation.
-    # Licensed under the MIT License. */
-
-    # Lists all USB devices and their paths
-
-    for sysdevpath in $(find /sys/bus/usb/devices/usb*/ -name dev); do
-        (
-            syspath="${sysdevpath%/dev}"
-            devname="$(udevadm info -q name -p $syspath)"
-            [[ "$devname" == "bus/"* ]] && exit
-            eval "$(udevadm info -q property --export -p $syspath)"
-            [[ -z "$ID_SERIAL" ]] && exit
-            echo "/dev/$devname - $ID_SERIAL"
-        )
-    done
-    ```
-
-    Considering the script was saved as `list-usb-devices.sh`, run:
-
-    ```bash
-    chmod 777 ./list-usb-devices.sh
-    ./list-usb-devices.sh
+        ```shell
+    ls -l /dev/serial/by-id/
     ```
 
     Look for a "CP2102"-based entry and take note of the path mapped for your device (e.g. "/dev/ttyUSB0").
@@ -199,6 +181,7 @@ To build the device image, run the following command (the path `"C:\espbuild"` i
     ```shell
     idf.py -p /dev/ttyUSB0 flash
     ```
+
     </details>
 
 At some point after the device connects to Azure IoT Hub, look for this splash message:
