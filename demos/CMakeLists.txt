@@ -16,6 +16,15 @@ if(NOT (TARGET SAMPLE::AZUREIOT))
       ${CMAKE_CURRENT_SOURCE_DIR}/sample_azure_iot/sample_azure_iot.c)
 endif()
 
+# Target for sample task
+if(NOT (TARGET SAMPLE::AZUREIOTCARECOVERY))
+    add_library(SAMPLE::AZUREIOTCARECOVERY INTERFACE IMPORTED)
+
+    target_sources(SAMPLE::AZUREIOTCARECOVERY INTERFACE 
+      ${CMAKE_CURRENT_SOURCE_DIR}/sample_azure_iot_ca_recovery/sample_azure_iot_ca_recovery.c
+      )
+endif()
+
 # Target for adu sample task
 if(NOT (TARGET SAMPLE::AZUREIOTADU))
     add_library(SAMPLE::AZUREIOTADU INTERFACE IMPORTED)

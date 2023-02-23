@@ -577,7 +577,14 @@ static TlsTransportStatus_t tlsHandshake( NetworkContext_t * pxNetworkContext,
                         lMbedtlsError, mbedtlsHighLevelCodeOrDefault( lMbedtlsError ),
                         mbedtlsLowLevelCodeOrDefault( lMbedtlsError ) ) );
 
-            xRetVal = eTLSTransportHandshakeFailed;
+            if( lMbedtlsError == MBEDTLS_ERR_X509_CERT_VERIFY_FAILED )
+            {
+                xRetVal = eTLSTransportCAVerifyFailed;
+            }
+            else
+            {
+                xRetVal = eTLSTransportHandshakeFailed;
+            }
         }
         else
         {
