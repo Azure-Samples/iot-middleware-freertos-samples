@@ -148,7 +148,7 @@ idf.py --no-ccache -B "C:\espbuild" build
 
     On **Linux**, run the following:
 
-        ```shell
+    ```shell
     ls -l /dev/serial/by-id/
     ```
 
