@@ -300,6 +300,6 @@ This sample can include either IoT Hub only or both IoT Hub and DPS services. Th
 |  | Middleware library size | | Total Size | |
 |---------|----------|---------|---------|---------
 | **Sample** | **Flash (code,rodata)** | **DRAM,IRAM (bss,data)** | **Flash (code,rodata)** | **DRAM,IRAM (bss,data)** |
-| IoT Hub + DPS + ADU | 51.49 KB | 112 bytes | 715.51 KB | 55.22 KB
-| IoT Hub + ADU | 40.24 KB | 112 bytes | 703.18 KB | 48.34 KB
+| IoT Hub + DPS + ADU | 51.49 KB | 112 bytes | 715.51 KB | 133.96 KB
+| IoT Hub + ADU | 40.24 KB | 112 bytes | 703.18 KB | 127.08 KB
 | IoT Hub only | 28.73 KB | 12 bytes | 694.65 KB | 118.34 KB
