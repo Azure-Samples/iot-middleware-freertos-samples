@@ -147,7 +147,7 @@ To build the device image, run the following command (the path `"C:\espbuild"` i
 
     Look for a device with `CP210x-` in the title. The COM port should be something similar to `COM5`.
 
-    On **Linux**, save and run the following script:
+    On **Linux**, run the following:
 
     ```shell
     ls -l /dev/serial/by-id/

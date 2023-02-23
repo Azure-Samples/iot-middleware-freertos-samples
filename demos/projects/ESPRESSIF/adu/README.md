@@ -143,7 +143,7 @@ To build the device image, run the following command (the path `"C:\espbuild"` i
 
 2. Find the COM port mapped for the device on your system.
 
-    On **Windows**, you may use the following command
+    On **Windows**, you may use the following command:
 
     ```powershell
     Get-WMIObject Win32_SerialPort | Select-Object Name,DeviceID,Description,PNPDeviceID
@@ -151,9 +151,9 @@ To build the device image, run the following command (the path `"C:\espbuild"` i
 
     Look for a device with `CP210x-` in the title. The COM port should be something similar to `COM5`.
 
-    On **Linux**, save and run the following script:
+    On **Linux**, run the following:
 
-        ```shell
+    ```shell
     ls -l /dev/serial/by-id/
     ```
 

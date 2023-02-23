@@ -138,7 +138,7 @@ idf.py --no-ccache -B "C:\espbuild" build
 
 2. Find the COM port mapped for the device on your system.
 
-    On **Windows**, you may use the following command
+    On **Windows**, you may use the following:
 
     ```powershell
     Get-WMIObject Win32_SerialPort | Select-Object Name,DeviceID,Description,PNPDeviceID
@@ -146,7 +146,7 @@ idf.py --no-ccache -B "C:\espbuild" build
 
     Look for a device with `CP210x-` in the title. The COM port should be something similar to `COM5`.
 
-    On **Linux**, save and run the following script:
+    On **Linux**, run the following:
 
         ```shell
     ls -l /dev/serial/by-id/
