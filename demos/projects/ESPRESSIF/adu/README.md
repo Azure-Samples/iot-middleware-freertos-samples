@@ -284,3 +284,22 @@ Once the device reboots, you should see on the console, output that looks like t
 ![img](../../../../docs/resources/new-version-device-output.png)
 
 Note the section which states `Version 1.1`. Congratulations! Your ESP32 is now running new, updated software!
+
+## Size Chart
+
+The following chart shows the RAM and ROM usage for the ESPRESSIF ESP32 microcontroller.
+
+- Build options: Compile optimized for size (-Os) and no logging (-DLIBRARY_LOG_LEVEL=LOG_NONE).
+- Commands used: `idf.py size` and `idf.py size-components`
+
+This sample can include either IoT Hub only or both IoT Hub and DPS services. The table below shows RAM/ROM sizes considering:
+
+- Middleware libraries only – represents the libraries for Azure IoT connection and features.
+- Total size – which includes the Azure IoT middleware for FreeRTOS, Mbed TLS, FreeRTOS, CoreMQTT and the HAL for the dev kit.
+
+|  | Middleware library size | | Total Size | |
+|---------|----------|---------|---------|---------
+| **Sample** | **Flash (code,rodata)** | **DRAM,IRAM (bss,data)** | **Flash (code,rodata)** | **DRAM,IRAM (bss,data)** |
+| IoT Hub + DPS + ADU | 51.49 KB | 112 bytes | 715.51 KB | 133.96 KB
+| IoT Hub + ADU | 40.24 KB | 112 bytes | 703.18 KB | 127.08 KB
+| IoT Hub only | 28.73 KB | 12 bytes | 694.65 KB | 118.34 KB
