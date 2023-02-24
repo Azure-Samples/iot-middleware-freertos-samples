@@ -41,12 +41,11 @@ MEMORY
   m_ivt                 (RX)  : ORIGIN = 0x60001000, LENGTH = 0x00001000
   m_interrupts          (RX)  : ORIGIN = 0x60002000, LENGTH = 0x00000400
   m_text                (RX)  : ORIGIN = 0x60002400, LENGTH = 0x007FDC00
-  m_data                (RW)  : ORIGIN = 0x80000000, LENGTH = DEFINED(__heap_noncacheable__) ? 0x01E00000 : 0x01E00000 - HEAP_SIZE /* SRAM_DTC */
-  m_sram                (RWX) : ORIGIN = 0x0,        LENGTH = 0x20000 /* 128K bytes (alias RAM2) */
-  m_ncache              (RW)  : ORIGIN = 0x81E00000, LENGTH = DEFINED(__heap_noncacheable__) ? 0x00200000 - HEAP_SIZE : 0x00200000 /*  NC_RAM_00 */
-  m_data2               (RW)  : ORIGIN = 0x20000000, LENGTH = 0x00020000 /*  SRAM_OC */
-  m_data3               (RW)  : ORIGIN = 0x20200000, LENGTH = 0x000C0000 /*  BOARD_SDRAM */
-  m_heap                (RW)  : ORIGIN = NCACHE_HEAP_START, LENGTH = HEAP_SIZE /*?*/
+  m_data                (RW)  : ORIGIN = 0x80000000, LENGTH = DEFINED(__heap_noncacheable__) ? 0x01E00000 : 0x01E00000 - HEAP_SIZE
+  m_ncache              (RW)  : ORIGIN = 0x81E00000, LENGTH = DEFINED(__heap_noncacheable__) ? 0x00200000 - HEAP_SIZE : 0x00200000
+  m_data2               (RW)  : ORIGIN = 0x20000000, LENGTH = 0x00020000
+  m_data3               (RW)  : ORIGIN = 0x20200000, LENGTH = 0x000C0000
+  m_heap                (RW)  : ORIGIN = NCACHE_HEAP_START, LENGTH = HEAP_SIZE
 }
 
 /* Define output sections */
@@ -84,40 +83,29 @@ SECTIONS
     . = ALIGN(4);
   } > m_interrupts
 
-  
-
   /* The program code and other data goes into internal RAM */
   .text :
   {
-    /* .text sections (code) */
-    /* .text* sections (code) */
-    /* .rodata sections (constants, strings, etc.) */
-    /* .rodata* sections (constants, strings, etc.) */
-    *(EXCLUDE_FILE(*flexspi_nor_flash_ops.c.obj *fsl_flexspi.c.obj) .text*)       *(.rodata .rodata.* .constdata .constdata.*)
     . = ALIGN(4);
+    *(EXCLUDE_FILE(
+        /* Exclude flash and frequently executed functions from XIP */
+        *flexspi_nor_flash_ops.c.obj
+        *fsl_flexspi.c.obj
+    ) .text)                 /* .text sections (code) */
+    *(EXCLUDE_FILE(
+        /* Exclude flash and frequently executed functions from XIP */
+        *flexspi_nor_flash_ops.c.obj
+        *fsl_flexspi.c.obj
+    ) .text*)                /* .text* sections (code) */
+    *(.rodata)               /* .rodata sections (constants, strings, etc.) */
+    *(.rodata*)              /* .rodata* sections (constants, strings, etc.) */
     *(.glue_7)               /* glue arm to thumb code */
     *(.glue_7t)              /* glue thumb to arm code */
     *(.eh_frame)
     KEEP (*(.init))
     KEEP (*(.fini))
     . = ALIGN(4);
-  } > m_text  
-
-  .data_RAM2 : ALIGN(4)
-  {
-    FILL(0xff)
-    PROVIDE(__start_data_RAM2 = .) ;
-    PROVIDE(__start_data_m_sram = .) ;
-    *(.ramfunc.$RAM2)
-    *(.ramfunc.$SRAM_ITC)
-    
-    *flexspi_nor_flash_ops.c.obj(.text*)
-    *fsl_flexspi.c.obj(.text*)
-    . = ALIGN(4) ;
-    PROVIDE(__end_data_RAM2 = .) ;
-    PROVIDE(__end_data_m_sram = .) ;
-  } > m_sram
- 
+  } > m_text
 
   .ARM.extab :
   {
@@ -130,8 +118,6 @@ SECTIONS
     *(.ARM.exidx*)
     __exidx_end = .;
   } > m_text
-
-  
 
  .ctors :
   {
@@ -214,12 +200,17 @@ SECTIONS
     __DATA_RAM = .;
     __data_start__ = .;      /* create a global symbol at data start */
     *(m_usb_dma_init_data)
+    /* Explicit placement of flash and frequently executed functions in RAM */
+    *flexspi_nor_flash_ops.c.obj
+    *fsl_flexspi.c.obj
+    /* Explicit placement of flash and frequently executed functions in RAM */
     *(.data)                 /* .data sections */
     *(.data*)                /* .data* sections */
     KEEP(*(.jcr*))
     . = ALIGN(4);
     __data_end__ = .;        /* define a global symbol at data end */
   } > m_data
+
   __NDATA_ROM = __DATA_ROM + (__data_end__ - __data_start__);
   .ncache.init : AT(__NDATA_ROM)
   {
@@ -237,7 +228,7 @@ SECTIONS
   } > m_ncache
 
   __DATA_END = __NDATA_ROM + (__noncachedata_init_end__ - __noncachedata_start__);
-  text_end = ORIGIN(m_text) + LENGTH(m_text); /* check that this calculates the right thing later */
+  text_end = ORIGIN(m_text) + LENGTH(m_text);
   ASSERT(__DATA_END <= text_end, "region m_text overflowed with text and data")
 
   /* Uninitialized data section */
@@ -250,7 +241,7 @@ SECTIONS
     *(m_usb_dma_noninit_data)
     *(.bss)
     *(.bss*)
-    *(COMMON) /* all uninitialized data */
+    *(COMMON)
     . = ALIGN(4);
     __bss_end__ = .;
     __END_BSS = .;

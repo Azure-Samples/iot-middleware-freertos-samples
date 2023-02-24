@@ -1,27 +1,26 @@
 /*
- * Copyright 2020 NXP
+ * Copyright 2018 NXP
  * All rights reserved.
  *
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef _APP_H_
-#define _APP_H_
+#ifndef _FLEXSPI_FLASH_H_
+#define _FLEXSPI_FLASH_H_
 
-/*${header:start}*/
-#include "fsl_cache.h"
-/*${header:end}*/
+#include "fsl_flexspi.h"
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
 /*${macro:start}*/
 #define EXAMPLE_FLEXSPI           FLEXSPI
-#define FLASH_SIZE                0x2000 /* 64Mb/KByte */
+#define FLASH_SIZE_KB                             0x1000 /* 0x2000= 64Mb/KByte */
 #define EXAMPLE_FLEXSPI_AMBA_BASE FlexSPI_AMBA_BASE
 #define FLASH_PAGE_SIZE           256
-#define EXAMPLE_SECTOR            100
+#define EXAMPLE_SECTOR            21
 #define SECTOR_SIZE               0x1000 /* 4K */
 #define EXAMPLE_FLEXSPI_CLOCK     kCLOCK_FlexSpi
+#define FLEXSPI_BASE_ADDRESS_MASK                 ( FLASH_SIZE_KB * 0x400 - 1 )
 
 #define NOR_CMD_LUT_SEQ_IDX_READ_NORMAL        7
 #define NOR_CMD_LUT_SEQ_IDX_READ_FAST          13
@@ -37,13 +36,16 @@
 #define NOR_CMD_LUT_SEQ_IDX_EXITQPI            11
 #define NOR_CMD_LUT_SEQ_IDX_READSTATUSREG      12
 #define NOR_CMD_LUT_SEQ_IDX_ERASECHIP          5
+#define NOR_CMD_LUT_SEQ_IDX_ERASEBLOCK_32KB    14
+#define NOR_CMD_LUT_SEQ_IDX_ERASEBLOCK_64KB    15
 
 #define CUSTOM_LUT_LENGTH        60
-#define FLASH_QUAD_ENABLE        0x40
 #define FLASH_BUSY_STATUS_POL    1
 #define FLASH_BUSY_STATUS_OFFSET 0
 
-#define CACHE_MAINTAIN 1
+#define FLASH_ERASE_TYPE_SECTOR                   0
+#define FLASH_ERASE_TYPE_BLOCK32KB                1
+#define FLASH_ERASE_TYPE_BLOCK64KB                2
 
 /*${macro:end}*/
 
@@ -65,6 +67,17 @@ static inline void flexspi_clock_init(void)
     CLOCK_SetDiv(kCLOCK_FlexspiDiv, 2);   /* flexspi clock 120M. */
 #endif
 }
+
+status_t sfw_flash_erase( uint32_t address,
+                          size_t len );
+status_t sfw_flash_write( uint32_t dstAddr,
+                          const void * src,
+                          size_t len );
+status_t sfw_flash_read( uint32_t dstAddr,
+                         void * buf,
+                         size_t len );
+status_t sfw_flash_init( void );
+
 /*${prototype:end}*/
 
-#endif /* _APP_H_ */
+#endif /* _FLEXSPI_FLASH_H_ */

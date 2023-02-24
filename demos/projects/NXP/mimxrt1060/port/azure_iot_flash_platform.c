@@ -4,8 +4,8 @@
 #include <string.h>
 
 #include "azure_iot_flash_platform.h"
-// #include "mflash_drv.h"
-// #include "mflash_file.h"
+/* #include "mflash_drv.h" */
+/* #include "mflash_file.h" */
 
 #include "azure_iot_flash_platform_port.h"
 /* Logging */
@@ -15,31 +15,30 @@
 
 #include "mbedtls/md.h"
 
-#include "fsl_flexspi.h"
-#include "app.h"
-
-// #include "fsl_nor_flash.h"
-
-// #include "fsl_flexspi_nor_flash.h"
-
-// #include "fsl_adapter_flash.h"
-
-// #include "flexspi_nor_flash.h"
-
+// #include "fsl_flexspi.h"
 // #include "flexspi_flash.h"
+#include "flash_info.h"
+#include "sbl_ota_flag.h"
 
-// #include "fsl_adapter_flash.h"
+/* #include "fsl_nor_flash.h" */
+
+/* #include "fsl_flexspi_nor_flash.h" */
+
+/* #include "fsl_adapter_flash.h" */
+
+/* #include "flexspi_nor_flash.h" */
+
+/* #include "flexspi_flash.h" */
+
+/* #include "fsl_adapter_flash.h" */
 
 #define azureiotflashSHA_256_SIZE    32
 
-extern status_t flexspi_nor_get_vendor_id(FLEXSPI_Type *base, uint8_t *vendorId);
-extern status_t flexspi_nor_flash_erase_sector(FLEXSPI_Type *base, uint32_t address);
-// extern status_t flexspi_nor_flash_page_program(FLEXSPI_Type *base, uint32_t dstAddr, const uint32_t *src);
-extern status_t flexspi_nor_enable_quad_mode(FLEXSPI_Type *base);
 
 static uint8_t ucPartitionReadBuffer[ 32 ];
 static uint8_t ucDecodedManifestHash[ azureiotflashSHA_256_SIZE ];
 static uint8_t ucCalculatedHash[ azureiotflashSHA_256_SIZE ];
+static uint32_t dstAddr;
 
 static AzureIoTResult_t prvBase64Decode( uint8_t * base64Encoded,
                                          size_t ulBase64EncodedLength,
@@ -66,7 +65,7 @@ static AzureIoTResult_t prvBase64Decode( uint8_t * base64Encoded,
 
 AzureIoTResult_t AzureIoTPlatform_Init( AzureADUImage_t * const pxAduImage )
 {
-    ( void ) pxAduImage;
+    AzureIoTResult_t xResult = eAzureIoTSuccess;
 
     /* TODO: Fill in initialization for NXP flash writing capability. */
 
@@ -135,51 +134,95 @@ AzureIoTResult_t AzureIoTPlatform_Init( AzureADUImage_t * const pxAduImage )
 
     // Nor_Flash_Read();
 
-    uint8_t vendorID = 0;
-    status = flexspi_nor_get_vendor_id(EXAMPLE_FLEXSPI, &vendorID);
-    if (status != kStatus_Success)
+    // uint8_t vendorID = 0;
+    // status = flexspi_nor_get_vendor_id( EXAMPLE_FLEXSPI, &vendorID );
+
+    // if( status != kStatus_Success )
+    // {
+    //     LogError( ( "Get Vendor ID Failure!" ) );
+    //     return eAzureIoTErrorFailed;
+    // }
+
+    // LogInfo( ( "Flash Vendor ID: 0x%x\r\n", vendorID ) );
+
+    /* status = flexspi_nor_enable_quad_mode(EXAMPLE_FLEXSPI); */
+    /* if (status != kStatus_Success) */
+    /* { */
+    /*     LogError(("Enable Quad Mode Failure!")); */
+    /*     return eAzureIoTErrorFailed; */
+    /* } */
+
+    /* LogInfo(("Erasing Serial NOR over FlexSPI...\r\n")); */
+
+    /* status = flexspi_nor_flash_erase_sector(EXAMPLE_FLEXSPI, EXAMPLE_SECTOR * SECTOR_SIZE); */
+
+    /* if (status != kStatus_Success) */
+    /* { */
+    /*     LogError(("Erase Sector Failure!")); */
+    /*     return eAzureIoTErrorFailed; */
+    /* } */
+
+    /* uint8_t *nor_read_buffer = pvPortMalloc(256); */
+    /* if (NULL == nor_read_buffer) */
+    /* { */
+    /*     LogError(("nor_read_buffer memory allocation failed!\r\n")); */
+    /*     return eAzureIoTErrorFailed; */
+    /* } */
+
+    /* memcpy(nor_read_buffer, (void *)(EXAMPLE_FLEXSPI_AMBA_BASE + EXAMPLE_SECTOR * SECTOR_SIZE), FLASH_PAGE_SIZE); */
+    /* for (uint16_t i = 0; i < FLASH_PAGE_SIZE; i++) */
+    /* { */
+    /*     if (0xFF != nor_read_buffer[i]) */
+    /*     { */
+    /*         LogError(("Erase data -  read out data value incorrect !\r\n ")); */
+    /*         return eAzureIoTErrorFailed; */
+    /*     } */
+    /* } */
+
+    /* Process initialize requests.  */       
+    uint8_t image_position;
+    volatile uint32_t primask;
+    
+    sfw_flash_read(REMAP_FLAG_ADDRESS, &image_position, 1);
+    if(image_position == 0x01)
     {
-        LogError(("Get Vendor ID Failure!"));
+        dstAddr = FLASH_AREA_IMAGE_2_OFFSET;
+        pxAduImage->xUpdatePartition = FLASH_AREA_IMAGE_2_OFFSET;
+    }
+    else if(image_position == 0x02)
+    {
+        dstAddr = FLASH_AREA_IMAGE_1_OFFSET;
+        pxAduImage->xUpdatePartition = FLASH_AREA_IMAGE_1_OFFSET;
+    }
+    else
+    {
+        LogError(("Invalid image position!"));
         return eAzureIoTErrorFailed;
     }
 
-    LogInfo(("Flash Vendor ID: 0x%x\r\n", vendorID));
-
-    // status = flexspi_nor_enable_quad_mode(EXAMPLE_FLEXSPI);
-    // if (status != kStatus_Success)
+    /* Process firmware preprocess requests before writing firmware.
+        Such as: erase the flash at once to improve the speed.  */
+    // uint32_t sec_num = 0;
+    // if((pxAduImage->ulImageFileSize) % FLASH_AREA_IMAGE_SECTOR_SIZE)
     // {
-    //     LogError(("Enable Quad Mode Failure!"));
-    //     return eAzureIoTErrorFailed;
+    //     sec_num = (uint32_t)(pxAduImage->ulImageFileSize / FLASH_AREA_IMAGE_SECTOR_SIZE) + 1;
     // }
-
-    // LogInfo(("Erasing Serial NOR over FlexSPI...\r\n"));
-
-    // status = flexspi_nor_flash_erase_sector(EXAMPLE_FLEXSPI, EXAMPLE_SECTOR * SECTOR_SIZE);
-
-    // if (status != kStatus_Success)
+    // else
     // {
-    //     LogError(("Erase Sector Failure!"));
-    //     return eAzureIoTErrorFailed;
+    //     sec_num = (uint32_t)(pxAduImage->ulImageFileSize / FLASH_AREA_IMAGE_SECTOR_SIZE);
     // }
+    
+    primask = DisableGlobalIRQ();
+    status = sfw_flash_erase(dstAddr, FLASH_AREA_IMAGE_1_SIZE); //sec_num * FLASH_AREA_IMAGE_SECTOR_SIZE);
+    EnableGlobalIRQ(primask);
 
-    // uint8_t *nor_read_buffer = pvPortMalloc(256);
-    // if (NULL == nor_read_buffer)
-    // {
-    //     LogError(("nor_read_buffer memory allocation failed!\r\n"));
-    //     return eAzureIoTErrorFailed;
-    // }
+    if (status) 
+    {
+        LogError(("erase failed.\r\n"));
+        xResult = eAzureIoTErrorFailed;
+    } 
 
-    // memcpy(nor_read_buffer, (void *)(EXAMPLE_FLEXSPI_AMBA_BASE + EXAMPLE_SECTOR * SECTOR_SIZE), FLASH_PAGE_SIZE);
-    // for (uint16_t i = 0; i < FLASH_PAGE_SIZE; i++)
-    // {
-    //     if (0xFF != nor_read_buffer[i])
-    //     {
-    //         LogError(("Erase data -  read out data value incorrect !\r\n "));
-    //         return eAzureIoTErrorFailed;
-    //     }
-    // }
-
-    return 1;
+    return xResult;
 }
 
 int64_t AzureIoTPlatform_GetSingleFlashBootBankSize()
@@ -188,7 +231,7 @@ int64_t AzureIoTPlatform_GetSingleFlashBootBankSize()
 
     LogInfo( ( "AzureIoTPlatform_GetSingleFlashBootBankSize()\r\n" ) );
 
-    return INT64_MAX;
+    return FLASH_AREA_IMAGE_1_SIZE;
 }
 
 AzureIoTResult_t AzureIoTPlatform_WriteBlock( AzureADUImage_t * const pxAduImage,
@@ -205,7 +248,37 @@ AzureIoTResult_t AzureIoTPlatform_WriteBlock( AzureADUImage_t * const pxAduImage
 
     LogInfo( ( "AzureIoTPlatform_WriteBlock(): offset %i\r\n", ulOffset ) );
 
-    return eAzureIoTSuccess;
+    // uint32_t pucNextWriteAddr = pxAduImage->xUpdatePartition + ulOffset;
+    // // uint8_t * pucNextReadAddr = pData;
+    AzureIoTResult_t xResult = eAzureIoTSuccess;
+    // // uint32_t ulEndOfBlock = pxAduImage->xUpdatePartition + ulOffset + ulBlockSize;
+    // volatile uint32_t primask;
+    // status_t status;
+
+    // primask = DisableGlobalIRQ();
+    // status = sfw_flash_write(pucNextWriteAddr, pData, ulBlockSize);
+    // EnableGlobalIRQ(primask);
+
+    // while( pucNextWriteAddr < ulEndOfBlock )
+    // {
+    //     if( HAL_FLASH_Program( FLASH_TYPEPROGRAM_DOUBLEWORD, ( uint32_t ) pucNextWriteAddr, ( uint64_t ) *( uint32_t * ) pucNextReadAddr | ( ( uint64_t ) *( uint32_t * ) ( pucNextReadAddr + 4 ) ) << 32 ) != HAL_OK )
+    //     {
+    //         /* Error occurred while writing data in Flash memory */
+    //         xResult = eAzureIoTErrorFailed;
+    //         break;
+    //     }
+
+    //     pucNextWriteAddr += azureiotflashL475_DOUBLE_WORD_SIZE;
+    //     pucNextReadAddr += azureiotflashL475_DOUBLE_WORD_SIZE;
+    // }
+
+    // HAL_FLASH_Lock();
+    // if (status)
+    // {
+    //     xResult = eAzureIoTErrorFailed;
+    // }
+
+    return xResult;
 }
 
 AzureIoTResult_t AzureIoTPlatform_VerifyImage( AzureADUImage_t * const pxAduImage,
