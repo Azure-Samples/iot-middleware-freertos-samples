@@ -280,7 +280,7 @@ To build the device image, run the following command (the path `"C:\espbuild"` i
 
 2. Find the COM port mapped for the device on your system.
 
-    On **Windows**, run the following:
+    On **Windows** (and using powershell), run the following:
 
     ```powershell
     Get-WMIObject Win32_SerialPort | Select-Object Name,DeviceID,Description,PNPDeviceID
