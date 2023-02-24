@@ -280,38 +280,18 @@ To build the device image, run the following command (the path `"C:\espbuild"` i
 
 2. Find the COM port mapped for the device on your system.
 
-    On **Windows**, run the following powershell script.
+    On **Windows** (and using powershell), run the following:
 
     ```powershell
     Get-WMIObject Win32_SerialPort | Select-Object Name,DeviceID,Description,PNPDeviceID
     ```
 
-    On **Linux**, save and run the following script:
+     Look for a device with `CP210x-` in the title. The COM port should be something similar to `COM5`.
+
+    On **Linux**, run the following:
 
     ```shell
-    #!/bin/bash
-    # Copyright (c) Microsoft Corporation.
-    # Licensed under the MIT License. */
-
-    # Lists all USB devices and their paths
-
-    for sysdevpath in $(find /sys/bus/usb/devices/usb*/ -name dev); do
-        (
-            syspath="${sysdevpath%/dev}"
-            devname="$(udevadm info -q name -p $syspath)"
-            [[ "$devname" == "bus/"* ]] && exit
-            eval "$(udevadm info -q property --export -p $syspath)"
-            [[ -z "$ID_SERIAL" ]] && exit
-            echo "/dev/$devname - $ID_SERIAL"
-        )
-    done
-    ```
-
-    Considering the script was saved as `list-usb-devices.sh`, run:
-
-    ```bash
-    chmod 777 ./list-usb-devices.sh
-    ./list-usb-devices.sh
+    ls -l /dev/serial/by-id/
     ```
 
     Look for a "CP2102"-based entry and take note of the path mapped for your device (e.g. "/dev/ttyUSB0").
