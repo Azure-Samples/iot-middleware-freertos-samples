@@ -17,6 +17,11 @@ cd iot-middleware-freertos-samples
 git submodule update --init --recursive
 ```
 
+You may also need to enable long path support for both Microsoft Windows and git:
+
+- Windows: <https://docs.microsoft.com/windows/win32/fileio/maximum-file-path-limitation?tabs=cmd#enable-long-paths-in-windows-10-version-1607-and-later>
+- Git: as Administrator run `git config --system core.longpaths true`
+
 ## Install Prerequisites
 
 - [CMake](https://cmake.org/download/) (Version 3.13 or higher)
