@@ -22,19 +22,18 @@ In order to create the resources, we are going to use an Azure Resource Manager 
 
 If you chose the Cloud Shell option, open an instance of the Azure Cloud Shell by going to the top of your Azure Portal browser window and selecting the terminal icon. On hover, it should say "Cloud Shell".
 
-Once that is open, click the "Upload/Download" icon and select the `azure-iot-arm.bicep` file in the same directory as this README. You should now see the file listed if you run the `ls` command in your terminal
+Once that is open, click the "Upload/Download" icon and find and upload the `azure-iot-arm.bicep` file in the same directory as this README. You should now see the file listed if you run the `ls` command in your terminal.
 
-If you chose the local CLI option, on your command line with the Azure CLI installed, navigate to the `demos/` directory where this README is located.
+If you chose the local CLI option, on your command line with the Azure CLI installed, navigate to the `demos/` directory where this README is located. Run the `az login` command to make sure you are logged in to your account.
 
 Once you have done either of those, run the following
 
 ```bash
 
 # For any < > value, substitute in the value of your choice.
-az login
-az account list
 
 # Find the subscription ID of your choice
+az account list
 az account set --subscription <subscription id>
 
 # To see a list of locations, run the following and look for `name` values.
