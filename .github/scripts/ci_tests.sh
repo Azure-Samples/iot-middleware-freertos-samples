@@ -40,25 +40,25 @@ function sample_build() {
 
     if [ $vendor == "ESPRESSIF" ]
     then
-      idf.py build -DCMAKE_BUILD_TYPE=$buildver -C ./demos/projects/ESPRESSIF/$board
+      idf.py build -DCMAKE_BUILD_TYPE=$buildver -C ./demos/projects/ESPRESSIF/esp32/$board
       echo -e "::group::Print Size for $board $buildver"
-      ninja -C ./demos/projects/ESPRESSIF/$board/build size-components
+      ninja -C ./demos/projects/ESPRESSIF/esp32/$board/build size-components
     elif [ $vendor == "ESPRESSIF-ATECC" ]
     then
       echo -e "::group::Cleaning Repo"
       git config --global --add safe.directory ${PWD}
       git clean -xdf
       echo -e "::group::Configuring ESP32 with ATECC"
-      rm -f ./demos/projects/ESPRESSIF/$board/sdkconfig.defaults
-      cp -f ./.github/scripts/atecc-sdkconfig.defaults ./demos/projects/ESPRESSIF/$board/sdkconfig.defaults
+      rm -f ./demos/projects/ESPRESSIF/esp32/$board/sdkconfig.defaults
+      cp -f ./.github/scripts/atecc-sdkconfig.defaults ./demos/projects/ESPRESSIF/esp32/$board/sdkconfig.defaults
       echo -e "::group::IDF reconfigure - download ESP-CryptoauthLib"
-      idf.py reconfigure -C ./demos/projects/ESPRESSIF/$board
+      idf.py reconfigure -C ./demos/projects/ESPRESSIF/esp32/$board
       echo -e "::group::IDF reconfigure - configure ESP-CryptoauthLib"
-      idf.py reconfigure -C ./demos/projects/ESPRESSIF/$board
+      idf.py reconfigure -C ./demos/projects/ESPRESSIF/esp32/$board
       echo -e "::group::IDF build"
-      idf.py build -DCMAKE_BUILD_TYPE=$buildver -C ./demos/projects/ESPRESSIF/$board
+      idf.py build -DCMAKE_BUILD_TYPE=$buildver -C ./demos/projects/ESPRESSIF/esp32/$board
       echo -e "::group::Print Size for $board $buildver"
-      ninja -C ./demos/projects/ESPRESSIF/$board/build size-components
+      ninja -C ./demos/projects/ESPRESSIF/esp32/$board/build size-components
     elif [ $vendor == "PC" ]
     then
       echo -e "::group::Build PC with GCC"
@@ -91,37 +91,37 @@ do
         "-esp")
             echo -e "::group::Building sample for ESPRESSIF ESP32 port"
             sample_build "ESPRESSIF" "adu" "build" "Debug"
-            exit_if_binary_does_not_exist "./demos/projects/ESPRESSIF/adu/build" "azure_iot_freertos_esp32.bin"
+            exit_if_binary_does_not_exist "./demos/projects/ESPRESSIF/esp32/adu/build" "azure_iot_freertos_esp32.bin"
             echo -e "::group::Building sample for ESPRESSIF ESP32 port - Debug"
             sample_build "ESPRESSIF" "esp32" "build" "Debug"
-            exit_if_binary_does_not_exist "./demos/projects/ESPRESSIF/esp32/build" "azure_iot_freertos_esp32.bin"
+            exit_if_binary_does_not_exist "./demos/projects/ESPRESSIF/esp32/esp32/build" "azure_iot_freertos_esp32.bin"
             sample_build "ESPRESSIF" "aziotkit" "build" "Debug"
-            exit_if_binary_does_not_exist "./demos/projects/ESPRESSIF/aziotkit/build" "azure_iot_freertos_esp32.bin"
+            exit_if_binary_does_not_exist "./demos/projects/ESPRESSIF/esp32/aziotkit/build" "azure_iot_freertos_esp32.bin"
             sample_build "ESPRESSIF" "az-nvs-cert-bundle" "build" "Debug"
-            exit_if_binary_does_not_exist "./demos/projects/ESPRESSIF/az-nvs-cert-bundle/build" "az-nvs-cert-bundle.bin"
+            exit_if_binary_does_not_exist "./demos/projects/ESPRESSIF/esp32/az-nvs-cert-bundle/build" "az-nvs-cert-bundle.bin"
 
             rm -rf build
 
             echo -e "::group::Building sample for ESPRESSIF ESP32 port - Release"
             sample_build "ESPRESSIF" "adu" "build" "Release"
-            exit_if_binary_does_not_exist "./demos/projects/ESPRESSIF/adu/build" "azure_iot_freertos_esp32.bin"
+            exit_if_binary_does_not_exist "./demos/projects/ESPRESSIF/esp32/adu/build" "azure_iot_freertos_esp32.bin"
             sample_build "ESPRESSIF" "esp32" "build" "Release"
-            exit_if_binary_does_not_exist "./demos/projects/ESPRESSIF/esp32/build" "azure_iot_freertos_esp32.bin"
+            exit_if_binary_does_not_exist "./demos/projects/ESPRESSIF/esp32/esp32/build" "azure_iot_freertos_esp32.bin"
             sample_build "ESPRESSIF" "aziotkit" "build" "Release"
-            exit_if_binary_does_not_exist "./demos/projects/ESPRESSIF/aziotkit/build" "azure_iot_freertos_esp32.bin"
+            exit_if_binary_does_not_exist "./demos/projects/ESPRESSIF/esp32/aziotkit/build" "azure_iot_freertos_esp32.bin"
             sample_build "ESPRESSIF" "az-nvs-cert-bundle" "build" "Release"
-            exit_if_binary_does_not_exist "./demos/projects/ESPRESSIF/az-nvs-cert-bundle/build" "az-nvs-cert-bundle.bin"
+            exit_if_binary_does_not_exist "./demos/projects/ESPRESSIF/esp32/az-nvs-cert-bundle/build" "az-nvs-cert-bundle.bin"
             ;;
         "-esp-atecc")
             echo -e "::group::Building sample for ESPRESSIF ESP32 with ATECC608 port - Debug"
             sample_build "ESPRESSIF-ATECC" "esp32" "build" "Debug"
-            exit_if_binary_does_not_exist "./demos/projects/ESPRESSIF/esp32/build" "azure_iot_freertos_esp32.bin"
+            exit_if_binary_does_not_exist "./demos/projects/ESPRESSIF/esp32/esp32/build" "azure_iot_freertos_esp32.bin"
 
             rm -rf build
 
             echo -e "::group::Building sample for ESPRESSIF ESP32 with ATECC608 port - Release"
             sample_build "ESPRESSIF-ATECC" "esp32" "build" "Release"
-            exit_if_binary_does_not_exist "./demos/projects/ESPRESSIF/esp32/build" "azure_iot_freertos_esp32.bin"
+            exit_if_binary_does_not_exist "./demos/projects/ESPRESSIF/esp32/esp32/build" "azure_iot_freertos_esp32.bin"
             ;;
         "-nxp")
             fetch_freertos
