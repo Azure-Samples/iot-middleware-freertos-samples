@@ -40,7 +40,7 @@ sudo .github/scripts/init_linux_port_vm_network.sh
 
 > After running the sample, to remove any changes done by this script run it again with `--clean`.
 
-* To run this sample you can use a device previously created in your IoT Hub or have the Azure IoT Middleware for FreeRTOS provision your device automatically using DPS. **Note** that even when using DPS, you still need an IoT Hub created and connected to DPS.
+* To run this sample you can use a device previously created in your IoT Hub or have the Azure IoT Middleware for FreeRTOS provision your device automatically using DPS. **Note** that even when using DPS, you still need an IoT Hub created and connected to DPS. If you haven't deployed the necessary Azure resources yet, [you may use the guide here](https://github.com/Azure-Samples/iot-middleware-freertos-samples/blob/main/docs/azure-bicep-deployment.md).
 
 IoT Hub | DPS
 ---------|----------
