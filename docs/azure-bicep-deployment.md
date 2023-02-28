@@ -42,7 +42,7 @@ az account list-locations | ConvertFrom-Json | format-table -Property name
 # Create a resource group
 az group create --name '<name>' --location '<location>'
 
-# Deploy the resources. This may take a couple minutes.
+# Deploy the resources. This will take a couple minutes.
 #  - `resourcePrefix`: choose a unique, short name with only lower-case letters which
 #                      will be prepended to all of the deployed resources.
 #  - `name`: choose a name to give this deployment, between 3 and 24 characters in length and
