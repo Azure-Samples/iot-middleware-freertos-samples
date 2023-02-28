@@ -1,17 +1,17 @@
 # Azure IoT Bicep Deployment
 
-This guide will detail how to easily deploy the necessary Azure resources to run our samples using the command line and the Azure CLI. The following resources and skew levels will be deployed:
+This guide will detail how to easily deploy the necessary Azure resources to run our samples using the command line and the Azure CLI. The following resources and sku levels will be deployed:
 
 - Azure IoT Hub (S1)
 - Azure Device Provisioning Service (S1)
 
 ## Prerequisites
 
-- An Azure Account ([link here if you do not already have one](https://azure.microsoft.com/free/search/).
+- An Azure Account ([link here if you do not already have one](https://azure.microsoft.com/free/search/)).
 
 - One of the following:
     - Have open an Azure Portal "Cloud Shell". This doesn't require any installation of further tools and may be easier for most people.
-    - The latest version of Azure CLI and Azure IoT Module
+    - The latest version of Azure CLI and Azure IoT Module.
         See steps to install both [here](https://learn.microsoft.com/azure/iot-hub-device-update/create-update?source=recommendations#prerequisites).
 
 ## Set Up Azure Resources
