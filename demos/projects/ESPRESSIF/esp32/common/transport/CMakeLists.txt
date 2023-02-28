@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MIT
 
 set(ROOT_PATH
-    ${CMAKE_CURRENT_LIST_DIR}/../../../../../..
+    ${CMAKE_CURRENT_LIST_DIR}/../../../../../../..
 )
 
 file(GLOB_RECURSE COMPONENT_SOURCES

@@ -2,7 +2,11 @@
 # SPDX-License-Identifier: MIT
 
 set(ROOT_PATH
-    ${CMAKE_CURRENT_LIST_DIR}/../../../../../..
+    ${CMAKE_CURRENT_LIST_DIR}/../../../../../../..
+)
+
+set(TRANSPORT_PATH
+    ${ROOT_PATH}/demos/projects/ESPRESSIF/esp32/common/transport
 )
 
 if (DEFINED CONFIG_AZURE_SAMPLE_USE_PLUG_AND_PLAY AND CONFIG_AZURE_SAMPLE_USE_PLUG_AND_PLAY MATCHES "y")
@@ -31,14 +35,14 @@ endif()
 idf_component_get_property(MBEDTLS_DIR mbedtls COMPONENT_DIR)
 
 list(APPEND COMPONENT_SOURCES
-    ${CMAKE_CURRENT_LIST_DIR}/backoff_algorithm.c
-    ${CMAKE_CURRENT_LIST_DIR}/transport_tls_esp32.c
-    ${CMAKE_CURRENT_LIST_DIR}/crypto_esp32.c
+    ${TRANSPORT_PATH}/backoff_algorithm.c
+    ${TRANSPORT_PATH}/transport_tls_esp32.c
+    ${TRANSPORT_PATH}/crypto_esp32.c
 )
 
 set(COMPONENT_INCLUDE_DIRS
     ${CMAKE_CURRENT_LIST_DIR}/../../config
-    ${CMAKE_CURRENT_LIST_DIR}
+    ${TRANSPORT_PATH}
     ${MBEDTLS_DIR}/mbedtls/include
     ${ROOT_PATH}/demos/common/transport
     ${ROOT_PATH}/demos/common/utilities
