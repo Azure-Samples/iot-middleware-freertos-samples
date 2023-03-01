@@ -197,7 +197,7 @@ set(BSP_L4_BOARDS
     STM32L476G-Discovery STM32L496G-Discovery
 )
 set(BSP_L4_COMPONENTS
-    cs42l51 cs43l22 cy8c4014lqi ft3x67 ft6x06 ft5336 hts221 hx8347g hx8347i 
+    cs42l51 cs43l22 cy8c4014lqi ft3x67 ft6x06 ft5336 hx8347g hx8347i 
     iss66wvh8m8 l3gd20 lis3mdl lps22hb ls016b8uy lsm6dsl lsm303c lsm303dlhc 
     m24sr mfxstm32l152 mx25lm51245g mx25r6435f n25q128a n25q256a ov9655 
     rk043fn48h st7735 st7789h2 stmpe811 stmpe1600 wm8994
