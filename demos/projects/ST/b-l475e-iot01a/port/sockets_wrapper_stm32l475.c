@@ -101,7 +101,7 @@ typedef struct STSecureSocket
 
 static STSecureSocket_t xSockets[ wificonfigMAX_SOCKETS ];
 static const TickType_t xSemaphoreWaitTicks = pdMS_TO_TICKS( 60000 );
-extern xSemaphoreHandle xWifiSemaphoreHandle;
+extern SemaphoreHandle_t xWifiSemaphoreHandle;
 
 /*-----------------------------------------------------------*/
 

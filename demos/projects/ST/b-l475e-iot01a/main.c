@@ -61,7 +61,7 @@ extern SPI_HandleTypeDef hspi;
 RTC_HandleTypeDef xHrtc;
 RNG_HandleTypeDef xHrng;
 StaticSemaphore_t xSemaphoreBuffer;
-xSemaphoreHandle xWifiSemaphoreHandle;
+SemaphoreHandle_t xWifiSemaphoreHandle;
 
 /* Private variables ---------------------------------------------------------*/
 static UART_HandleTypeDef xConsoleUart;

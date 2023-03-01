@@ -61,7 +61,7 @@ static const char * TAG = "sample_azureiot";
 
 static bool g_timeInitialized = false;
 
-static xSemaphoreHandle s_semph_get_ip_addrs;
+static SemaphoreHandle_t s_semph_get_ip_addrs;
 static esp_ip4_addr_t s_ip_addr;
 /*-----------------------------------------------------------*/
 
