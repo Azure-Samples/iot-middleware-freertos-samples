@@ -1,5 +1,5 @@
 /* Copyright (c) Microsoft Corporation.
-   Licensed under the MIT License. */
+ * Licensed under the MIT License. */
 
 #include "azure_sample_crypto.h"
 
@@ -15,9 +15,12 @@ uint32_t Crypto_Init()
 }
 /*-----------------------------------------------------------*/
 
-uint32_t Crypto_HMAC( const uint8_t * pucKey, uint32_t ulKeyLength,
-                      const uint8_t * pucData, uint32_t ulDataLength,
-                      uint8_t * pucOutput, uint32_t ulOutputLength,
+uint32_t Crypto_HMAC( const uint8_t * pucKey,
+                      uint32_t ulKeyLength,
+                      const uint8_t * pucData,
+                      uint32_t ulDataLength,
+                      uint8_t * pucOutput,
+                      uint32_t ulOutputLength,
                       uint32_t * pulBytesCopied )
 {
     uint32_t ulRet;
