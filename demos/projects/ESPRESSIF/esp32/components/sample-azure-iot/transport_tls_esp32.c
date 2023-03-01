@@ -224,6 +224,7 @@ uint32_t getRegistrationId( char **ppcRegistrationId ) {
 typedef struct EspTlsTransportParams
 {
     esp_transport_handle_t xTransport;
+    esp_transport_list_handle_t xTransportList;
     uint32_t ulReceiveTimeoutMs;
     uint32_t ulSendTimeoutMs;
 } EspTlsTransportParams_t;
@@ -275,11 +276,14 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pNetworkContext,
       return eTLSTransportInsufficientMemory;
     }
 
+    pxEspTlsTransport->xTransportList = esp_transport_list_init();
     pxEspTlsTransport->xTransport = esp_transport_ssl_init( );
     pxEspTlsTransport->ulReceiveTimeoutMs = ulReceiveTimeoutMs;
     pxEspTlsTransport->ulSendTimeoutMs = ulSendTimeoutMs;
 
     esp_transport_ssl_enable_global_ca_store(pxEspTlsTransport->xTransport);
+
+    esp_transport_list_add(pxEspTlsTransport->xTransportList, pxEspTlsTransport->xTransport, "_ssl");
 
     pxTlsParams->xSSLContext = (void*)pxEspTlsTransport;
 
@@ -348,8 +352,9 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pNetworkContext,
         if( pxEspTlsTransport != NULL )
         {
             esp_transport_close( pxEspTlsTransport->xTransport );
-            esp_transport_destroy( pxEspTlsTransport->xTransport );
+            esp_transport_list_destroy(pxEspTlsTransport->xTransportList);
             vPortFree(pxEspTlsTransport);
+            pxTlsParams->xSSLContext = NULL;
         }
     }
     else
@@ -385,8 +390,9 @@ void TLS_Socket_Disconnect( NetworkContext_t * pNetworkContext )
     esp_transport_close( pxEspTlsTransport->xTransport );
 
     /* Free TLS contexts. */
-    esp_transport_destroy( pxEspTlsTransport->xTransport );
+    esp_transport_list_destroy(pxEspTlsTransport->xTransportList);
     vPortFree(pxEspTlsTransport);
+    pxTlsParams->xSSLContext = NULL;
 }
 /*-----------------------------------------------------------*/
 
