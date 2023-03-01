@@ -5,28 +5,24 @@ set(ROOT_PATH
     ${CMAKE_CURRENT_LIST_DIR}/../../../../../..
 )
 
-set(COMMON_PATH
+set(ESP_COMMON_PATH
     ${ROOT_PATH}/demos/projects/ESPRESSIF/common
-)
-
-file(GLOB_RECURSE COMPONENT_SOURCES
-    ${ROOT_PATH}/demos/sample_azure_iot_ca_recovery/*.c
-    ${ROOT_PATH}/demos/common/azure_ca_recovery/azure_ca_recovery_parse.c
-    ${ROOT_PATH}/demos/common/azure_ca_recovery/azure_ca_recovery_mbedtls_rsa_verify.c
 )
 
 idf_component_get_property(MBEDTLS_DIR mbedtls COMPONENT_DIR)
 
-list(APPEND COMPONENT_SOURCES
-    ${COMMON_PATH}/azure_trust_bundle_storage_esp.c
-    ${COMMON_PATH}/transport/backoff_algorithm.c
-    ${COMMON_PATH}/transport/transport_tls_esp32.c
-    ${COMMON_PATH}/transport/crypto_esp32.c
+set(COMPONENT_SOURCES
+    ${ROOT_PATH}/demos/sample_azure_iot_adu/sample_azure_iot_adu.c
+    ${ROOT_PATH}/demos/sample_azure_iot_adu/sample_azure_iot_pnp_simulated_data.c
+    ${ESP_COMMON_PATH}/transport/backoff_algorithm.c
+    ${ESP_COMMON_PATH}/transport/transport_tls_esp32.c
+    ${ESP_COMMON_PATH}/transport/transport_socket_esp32.c
+    ${ESP_COMMON_PATH}/transport/crypto_esp32.c
 )
 
 set(COMPONENT_INCLUDE_DIRS
     ${CMAKE_CURRENT_LIST_DIR}/../../config
-    ${COMMON_PATH}/transport
+    ${ESP_COMMON_PATH}/transport
     ${MBEDTLS_DIR}/mbedtls/include
     ${ROOT_PATH}/demos/common/transport
     ${ROOT_PATH}/demos/common/utilities
