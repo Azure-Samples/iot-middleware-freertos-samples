@@ -73,7 +73,7 @@ static const char * TAG = "sample_azureiotkit";
 
 static bool xTimeInitialized = false;
 
-static xSemaphoreHandle xSemphGetIpAddrs;
+static SemaphoreHandle_t xSemphGetIpAddrs;
 static esp_ip4_addr_t xIpAddress;
 
 /*-----------------------------------------------------------*/
