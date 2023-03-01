@@ -276,6 +276,7 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pNetworkContext,
       return eTLSTransportInsufficientMemory;
     }
 
+    // Create a transport list into which we put the transport.
     pxEspTlsTransport->xTransportList = esp_transport_list_init();
     pxEspTlsTransport->xTransport = esp_transport_ssl_init( );
     pxEspTlsTransport->ulReceiveTimeoutMs = ulReceiveTimeoutMs;
