@@ -36,7 +36,7 @@ esp_err_t iot_hts221_write_byte(hts221_handle_t sensor, uint8_t reg_addr, uint8_
     i2c_master_write_byte(cmd, (sens->dev_addr << 1) | WRITE_BIT, ACK_CHECK_EN);
     i2c_master_write_byte(cmd, reg_addr, ACK_CHECK_EN);
     i2c_master_write_byte(cmd, data, ACK_CHECK_EN);
-    ret = iot_i2c_bus_cmd_begin(sens->bus, cmd, 1000 / portTICK_RATE_MS);
+    ret = iot_i2c_bus_cmd_begin(sens->bus, cmd, 1000 / portTICK_PERIOD_MS);
     i2c_cmd_link_delete(cmd);
     if (ret == ESP_FAIL) {
         return ret;
@@ -65,7 +65,7 @@ esp_err_t iot_hts221_read_byte(hts221_handle_t sensor, uint8_t reg, uint8_t *dat
     i2c_master_write_byte(cmd, (sens->dev_addr << 1) | WRITE_BIT, ACK_CHECK_EN);
     i2c_master_write_byte(cmd, reg, ACK_CHECK_EN);
     i2c_master_stop(cmd);
-    ret = iot_i2c_bus_cmd_begin(sens->bus, cmd, 1000 / portTICK_RATE_MS);
+    ret = iot_i2c_bus_cmd_begin(sens->bus, cmd, 1000 / portTICK_PERIOD_MS);
     i2c_cmd_link_delete(cmd);
     if (ret == ESP_FAIL) {
         return ret;
@@ -76,7 +76,7 @@ esp_err_t iot_hts221_read_byte(hts221_handle_t sensor, uint8_t reg, uint8_t *dat
     i2c_master_write_byte(cmd, (sens->dev_addr << 1) | READ_BIT, ACK_CHECK_EN);
     i2c_master_read_byte(cmd, data, NACK_VAL);
     i2c_master_stop(cmd);
-    ret = iot_i2c_bus_cmd_begin(sens->bus, cmd, 1000 / portTICK_RATE_MS);
+    ret = iot_i2c_bus_cmd_begin(sens->bus, cmd, 1000 / portTICK_PERIOD_MS);
     i2c_cmd_link_delete(cmd);
     return ret;
 }

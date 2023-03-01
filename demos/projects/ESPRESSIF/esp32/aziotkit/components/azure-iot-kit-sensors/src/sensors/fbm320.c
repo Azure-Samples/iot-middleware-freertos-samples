@@ -277,14 +277,14 @@ esp_err_t fbm320_update_data(fbm320_handle_t sensor)
 	ret = fbm320_startMeasure_temp(sensor);
 	if (ret < 0)
 		goto exit;
-	vTaskDelay(10 / portTICK_RATE_MS);
+	vTaskDelay(10 / portTICK_PERIOD_MS);
 	ret = fbm320_get_raw_temperature(sensor);
 	if (ret < 0)
 		goto exit;
 	ret = fbm320_startMeasure_press(sensor);
 	if (ret < 0)
 		goto exit;
-	vTaskDelay(30 / portTICK_RATE_MS);
+	vTaskDelay(30 / portTICK_PERIOD_MS);
 	ret = fbm320_get_raw_pressure(sensor);
 	if (ret < 0)
 		goto exit;

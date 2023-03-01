@@ -162,7 +162,7 @@ esp_err_t mag3110_read_axis(mag3110_handle_t sensor, uint8_t axis, uint16_t *val
 	if (ret == ESP_FAIL)
 		return ret;
 
-	vTaskDelay(10 / portTICK_RATE_MS); //needs at least 1.3us free time between start and stop
+	vTaskDelay(10 / portTICK_PERIOD_MS); //needs at least 1.3us free time between start and stop
 
 	ret = mag3110_esp32_i2c_read_byte(sensor, lsbAddress, &lsb);
 	if (ret == ESP_FAIL)
@@ -292,7 +292,7 @@ esp_err_t mag3110_set_DR_OS(mag3110_handle_t sensor, uint8_t DROS)
 
 	//If we attempt to write to CTRL_REG1 right after going into standby
 	//It might fail to modify the other bits
-	vTaskDelay(100 / portTICK_RATE_MS);
+	vTaskDelay(100 / portTICK_PERIOD_MS);
 
 	//Get the current control register
 	uint8_t current, new;
@@ -304,7 +304,7 @@ esp_err_t mag3110_set_DR_OS(mag3110_handle_t sensor, uint8_t DROS)
 	if (ret == ESP_FAIL)
 		goto exit;
 
-	vTaskDelay(100 / portTICK_RATE_MS);
+	vTaskDelay(100 / portTICK_PERIOD_MS);
 
 	//Start sampling again if we were before
 	if (was_active)
@@ -370,7 +370,7 @@ esp_err_t mag3110_set_offset(mag3110_handle_t sensor, uint8_t axis, uint16_t off
 	if (ret == ESP_FAIL)
 		return ret;
 
-	vTaskDelay(15 / portTICK_RATE_MS);
+	vTaskDelay(15 / portTICK_PERIOD_MS);
 
 	ret = mag3110_esp32_i2c_write_byte(sensor,lsbAddress, (uint8_t)offset & 0xFF);
 	if (ret == ESP_FAIL)
