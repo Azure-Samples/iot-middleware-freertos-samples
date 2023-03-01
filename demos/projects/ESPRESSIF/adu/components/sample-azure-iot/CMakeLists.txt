@@ -19,21 +19,21 @@ idf_component_get_property(MBEDTLS_DIR mbedtls COMPONENT_DIR)
 
 list(APPEND COMPONENT_SOURCES
     ${COMMON_PATH}/azure_trust_bundle_storage_esp.c
-    ${TRANSPORT_PATH}/transport/backoff_algorithm.c
-    ${TRANSPORT_PATH}/transport/transport_tls_esp32.c
-    ${TRANSPORT_PATH}/transport/crypto_esp32.c
+    ${COMMON_PATH}/transport/backoff_algorithm.c
+    ${COMMON_PATH}/transport/transport_tls_esp32.c
+    ${COMMON_PATH}/transport/crypto_esp32.c
 )
 
 set(COMPONENT_INCLUDE_DIRS
     ${CMAKE_CURRENT_LIST_DIR}/../../config
     ${COMMON_PATH}/transport
     ${MBEDTLS_DIR}/mbedtls/include
-    ${ROOT_PATH}/demos/common/azure_ca_recovery
     ${ROOT_PATH}/demos/common/transport
     ${ROOT_PATH}/demos/common/utilities
+    ${ROOT_PATH}/demos/sample_azure_iot_adu
 )
 
 idf_component_register(
     SRCS ${COMPONENT_SOURCES}
     INCLUDE_DIRS ${COMPONENT_INCLUDE_DIRS}
-    REQUIRES nvs_flash mbedtls tcp_transport coreMQTT azure-sdk-for-c azure-iot-middleware-freertos)
+    REQUIRES mbedtls tcp_transport azure-iot-middleware-freertos)
