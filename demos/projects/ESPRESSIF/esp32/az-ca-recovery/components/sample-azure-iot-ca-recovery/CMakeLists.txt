@@ -31,7 +31,7 @@ endif()
 idf_component_get_property(MBEDTLS_DIR mbedtls COMPONENT_DIR)
 
 list(APPEND COMPONENT_SOURCES
-    ${ROOT_PATH}/demos/projects/ESPRESSIF/common/azure_trust_bundle_storage_esp.c
+    ${ROOT_PATH}/demos/projects/ESPRESSIF/esp32/common/azure_trust_bundle_storage_esp.c
     ${TRANSPORT_PATH}/backoff_algorithm.c
     ${TRANSPORT_PATH}/transport_tls_esp32.c
     ${TRANSPORT_PATH}/crypto_esp32.c
