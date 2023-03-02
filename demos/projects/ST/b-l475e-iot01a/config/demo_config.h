@@ -236,7 +236,7 @@ extern void vLoggingPrintf( const char * pcFormatString,
 /**
  * @brief Defines device restart function, used by the common sample modules.
  */
-#define configRestartDevice()    HAL_NVIC_SystemReset()
+#define democonfigRestartDevice()    HAL_NVIC_SystemReset()
 
 /**
  * @brief Wifi SSID

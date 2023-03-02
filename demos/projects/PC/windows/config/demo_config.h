@@ -236,6 +236,6 @@ extern void vLoggingPrintf( const char * pcFormatString,
 /**
  * @brief Defines device restart function, used by the common sample modules.
  */
-#define configRestartDevice()    exit( EXIT_FAILURE )
+#define democonfigRestartDevice()    abort()
 
 #endif /* DEMO_CONFIG_H */

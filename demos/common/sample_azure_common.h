@@ -12,15 +12,16 @@
 #include "demo_config.h"
 
 #if NDEBUG
-    #define panic_handler()                                                                           \
-    vLoggingPrintf( "[ERROR] [%s:%s:%d]\r\nRestarting device...\r\n", __FILE__, __func__, __LINE__ ); \
-    configRestartDevice()
+    #define panic_handler()                                                                                \
+    do { vLoggingPrintf( "[ERROR] [%s:%s:%d]\r\nRestarting device...\r\n", __FILE__, __func__, __LINE__ ); \
+         democonfigRestartDevice();                                                                        \
+    } while( 0 )
 #else
-    #define panic_handler()                                                   \
-    vLoggingPrintf( "[ERROR] [%s:%s:%d]\r\n", __FILE__, __func__, __LINE__ ); \
-    vLoggingPrintf( "Looping to enable attaching a debugger\r\n" );           \
-    taskDISABLE_INTERRUPTS();                                                 \
-    for( ; ; ) {; }
+    #define panic_handler()                                                        \
+    do { vLoggingPrintf( "[ERROR] [%s:%s:%d]\r\n", __FILE__, __func__, __LINE__ ); \
+         vLoggingPrintf( "Looping to enable attaching a debugger\r\n" );           \
+         for( ; ; ) {; }                                                           \
+    } while( 0 )
 #endif
 
 #endif /* ifndef SAMPLE_AZURE_COMMON_IF_H */
