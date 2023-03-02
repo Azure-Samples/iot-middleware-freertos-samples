@@ -55,6 +55,7 @@
 #include "string.h"
 #include "stdbool.h"
 #include "stdio.h"
+#include "stdlib.h"
 #include "es_wifi_conf.h"
 
 /* Exported Constants --------------------------------------------------------*/
@@ -363,6 +364,9 @@ ES_WIFI_Status_t  ES_WIFI_StoreKey( ES_WIFIObject_t *Obj,
                                     uint8_t credSet,
                                     uint8_t* key,
                                     uint16_t keyLength );
+
+ES_WIFI_Status_t ES_WIFI_GetTime(   ES_WIFIObject_t *Obj,
+                                    uint32_t* pTime );
 
 #ifdef __cplusplus
 }
