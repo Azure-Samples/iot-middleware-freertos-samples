@@ -99,6 +99,8 @@ include(driver_phy-common)
 
 include(driver_dcp)
 
+include(driver_snvs_hp)
+
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
 target_link_libraries(${PROJECT_NAME} PRIVATE
     FreeRTOS::Timers

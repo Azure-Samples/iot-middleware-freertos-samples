@@ -341,6 +341,15 @@ void sys_mark_tcpip_thread( void );
 /* Define random number generator function */
 #define LWIP_RAND()    ( ( u32_t ) rand() )
 
+/* SNTP definitions */
+#define LWIP_SNTP 1
+#define SNTP_SUPPORT 1
+#define SNTP_SERVER_DNS 1
+#define SNTP_UPDATE_DELAY 86400
+
+extern void setTimeRTC( uint32_t sec );
+#define SNTP_SET_SYSTEM_TIME( sec ) setTimeRTC( sec )
+
 /* Debug */
 
 /*#define LWIP_DEBUG 1
