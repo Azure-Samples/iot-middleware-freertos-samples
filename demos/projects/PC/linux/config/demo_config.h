@@ -220,17 +220,24 @@ extern void vLoggingPrintf( const char * pcFormatString,
  * @brief Set the stack size of the main demo task.
  *
  */
-#define democonfigDEMO_STACKSIZE             ( 2 * 1024U )
+#define democonfigDEMO_STACKSIZE         ( 2 * 1024U )
 
 /**
  * @brief Size of the network buffer for MQTT packets.
  */
-#define democonfigNETWORK_BUFFER_SIZE        ( 5 * 1024U )
+#define democonfigNETWORK_BUFFER_SIZE    ( 5 * 1024U )
 
 /**
  * @brief IoTHub endpoint port.
  */
-#define democonfigIOTHUB_PORT                ( 8883 )
+#define democonfigIOTHUB_PORT            ( 8883 )
+
+#include <stdlib.h>
+
+/**
+ * @brief Defines device restart function, used by the common sample modules.
+ */
+#define democonfigRestartDevice()    abort()
 
 /* 2^16 */
 #define democonfigCHUNK_DOWNLOAD_SIZE        65536
