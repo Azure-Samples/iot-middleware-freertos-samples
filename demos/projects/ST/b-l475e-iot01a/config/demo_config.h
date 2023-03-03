@@ -236,19 +236,7 @@ extern void vLoggingPrintf( const char * pcFormatString,
 /**
  * @brief Defines device restart function, used by the common sample modules.
  */
-#define configRestartDevice()    HAL_NVIC_SystemReset()
-
-#if NDEBUG
-    #define configPanicHandler()                                 \
-    vLoggingPrintf( "[ERROR] [%s:%d]\r\nRestarting device...\r\n", __func__, __LINE__ ); \
-    configRestartDevice()
-#else
-    #define configPanicHandler()                                    \
-    vLoggingPrintf( "[ERROR] [%s:%d]\r\n", __func__, __LINE__ );    \
-    vLoggingPrintf( "Looping to enable attaching a debugger\r\n" ); \
-    taskDISABLE_INTERRUPTS();                                       \
-    for( ; ; ) {; }
-#endif
+#define democonfigRestartDevice()    HAL_NVIC_SystemReset()
 
 /**
  * @brief Wifi SSID

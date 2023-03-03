@@ -219,9 +219,14 @@
 #define democonfigIOTHUB_PORT            8883
 
 /**
+ * @brief Defines device restart function, used by the common sample modules.
+ */
+#define democonfigRestartDevice()    esp_restart()
+
+/**
  * @brief Defines configRAND32, used by the common sample modules.
  */
-#define configRAND32()    ( rand() / RAND_MAX )
+#define configRAND32()               ( rand() / RAND_MAX )
 
 #define democonfigCHUNK_DOWNLOAD_SIZE        4096
 

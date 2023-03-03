@@ -235,14 +235,14 @@
 #define democonfigIOTHUB_PORT            8883
 
 /**
- * @brief Defines configRAND32, used by the common sample modules.
- */
-#define configRAND32()           ( rand() / RAND_MAX )
-
-/**
  * @brief Defines device restart function, used by the common sample modules.
  */
-#define configRestartDevice()    esp_restart()
+#define democonfigRestartDevice()    esp_restart()
+
+/**
+ * @brief Defines configRAND32, used by the common sample modules.
+ */
+#define configRAND32()               ( rand() / RAND_MAX )
 
 /**
  * @brief Defines the macro for HSM usage depending on whether

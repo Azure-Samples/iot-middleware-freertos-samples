@@ -236,8 +236,7 @@ extern void vLoggingPrintf( const char * pcFormatString,
 /**
  * @brief Defines device restart function, used by the common sample modules.
  */
-#define configRestartDevice()    NVIC_SystemReset()
-
+#define democonfigRestartDevice()    NVIC_SystemReset()
 
 #define democonfigCHUNK_DOWNLOAD_SIZE        4096
 
