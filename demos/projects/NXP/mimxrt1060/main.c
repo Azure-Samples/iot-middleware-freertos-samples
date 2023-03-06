@@ -263,6 +263,9 @@ void vApplicationDaemonTaskStartupHook( void )
 {
     prvNetworkUp();
 
+    /* make the last update fully effective */
+    write_image_ok();
+
     /* Demos that use the network are created after the network is
      * up. */
     configPRINTF( ( "---------STARTING DEMO---------\r\n" ) );

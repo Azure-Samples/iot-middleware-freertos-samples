@@ -36,11 +36,11 @@ static AzureIoTResult_t prvBase64Decode( uint8_t * base64Encoded,
 
     if( az_result_failed( xCoreResult = az_base64_decode( outputSpan, encodedSpan, ( int32_t * ) outputSize ) ) )
     {
-        LogError( ( "az_base64_decode failed: core error=0x%08x", xCoreResult ) );
+        AZLogError( ( "az_base64_decode failed: core error=0x%08x", xCoreResult ) );
         return eAzureIoTErrorFailed;
     }
 
-    LogInfo( ( "Unencoded the base64 encoding\r\n" ) );
+    AZLogInfo( ( "Unencoded the base64 encoding\r\n" ) );
 
     return eAzureIoTSuccess;
 }
@@ -55,9 +55,6 @@ AzureIoTResult_t AzureIoTPlatform_Init( AzureADUImage_t * const pxAduImage )
     uint8_t ucImagePosition;
     volatile uint32_t ulPrimask;
 
-    /* make the last update fully effective */
-    write_image_ok();
-
     sfw_flash_read( REMAP_FLAG_ADDRESS, &ucImagePosition, 1 );
 
     if( ucImagePosition == 0x01 )
@@ -70,7 +67,7 @@ AzureIoTResult_t AzureIoTPlatform_Init( AzureADUImage_t * const pxAduImage )
     }
     else
     {
-        LogError( ( "Invalid image position! Will write to image 2" ) );
+        AZLogError( ( "Invalid image position! Will write to image 2" ) );
         pxAduImage->xUpdatePartition = FLASH_AREA_IMAGE_2_OFFSET;
     }
 
@@ -80,7 +77,7 @@ AzureIoTResult_t AzureIoTPlatform_Init( AzureADUImage_t * const pxAduImage )
 
     if( xStatus )
     {
-        LogError( ( "Error erasing flash.\r\n" ) );
+        AZLogError( ( "Error erasing flash.\r\n" ) );
         xResult = eAzureIoTErrorFailed;
     }
 
@@ -122,12 +119,12 @@ AzureIoTResult_t AzureIoTPlatform_VerifyImage( AzureADUImage_t * const pxAduImag
     uint32_t ulOutputSize;
     uint32_t ulReadSize;
 
-    LogInfo( ( "Base64 Encoded Hash from ADU: %.*s", ulSHA256HashLength, pucSHA256Hash ) );
+    AZLogInfo( ( "Base64 Encoded Hash from ADU: %.*s", ulSHA256HashLength, pucSHA256Hash ) );
     xResult = prvBase64Decode( pucSHA256Hash, ulSHA256HashLength, ucDecodedManifestHash, azureiotflashSHA_256_SIZE, ( size_t * ) &ulOutputSize );
 
     if( xResult != eAzureIoTSuccess )
     {
-        LogError( ( "Unable to decode base64 SHA256\r\n" ) );
+        AZLogError( ( "Unable to decode base64 SHA256\r\n" ) );
         return eAzureIoTErrorFailed;
     }
 
@@ -138,7 +135,7 @@ AzureIoTResult_t AzureIoTPlatform_VerifyImage( AzureADUImage_t * const pxAduImag
     mbedtls_md_setup( &ctx, mbedtls_md_info_from_type( md_type ), 0 );
     mbedtls_md_starts( &ctx );
 
-    LogInfo( ( "Starting the mbedtls calculation: image size %d\r\n", pxAduImage->ulImageFileSize ) );
+    AZLogInfo( ( "Starting the mbedtls calculation: image size %d\r\n", pxAduImage->ulImageFileSize ) );
 
     for( size_t ulOffset = 0; ulOffset < pxAduImage->ulImageFileSize; ulOffset += sizeof( ucPartitionReadBuffer ) )
     {
@@ -148,35 +145,35 @@ AzureIoTResult_t AzureIoTPlatform_VerifyImage( AzureADUImage_t * const pxAduImag
         mbedtls_md_update( &ctx, ( const unsigned char * ) ucPartitionReadBuffer, ulReadSize );
     }
 
-    LogInfo( ( "mbedtls calculation completed\r\n" ) );
+    AZLogInfo( ( "mbedtls calculation completed\r\n" ) );
 
     mbedtls_md_finish( &ctx, ucCalculatedHash );
     mbedtls_md_free( &ctx );
 
     if( memcmp( ucDecodedManifestHash, ucCalculatedHash, azureiotflashSHA_256_SIZE ) == 0 )
     {
-        LogInfo( ( "SHAs match\r\n" ) );
+        AZLogInfo( ( "SHAs match\r\n" ) );
         xResult = eAzureIoTSuccess;
     }
     else
     {
-        LogError( ( "SHAs do not match\r\n" ) );
-        LogInfo( ( "Wanted: " ) );
+        AZLogError( ( "SHAs do not match\r\n" ) );
+        AZLogInfo( ( "Wanted: " ) );
 
         for( int i = 0; i < azureiotflashSHA_256_SIZE; ++i )
         {
-            LogInfo( ( "%x", ucDecodedManifestHash[ i ] ) );
+            AZLogInfo( ( "%x", ucDecodedManifestHash[ i ] ) );
         }
 
-        LogInfo( ( "\r\n" ) );
-        LogInfo( ( "Calculated: " ) );
+        AZLogInfo( ( "\r\n" ) );
+        AZLogInfo( ( "Calculated: " ) );
 
         for( int i = 0; i < azureiotflashSHA_256_SIZE; ++i )
         {
-            LogInfo( ( "%x", ucCalculatedHash[ i ] ) );
+            AZLogInfo( ( "%x", ucCalculatedHash[ i ] ) );
         }
 
-        LogInfo( ( "\r\n" ) );
+        AZLogInfo( ( "\r\n" ) );
 
         xResult = eAzureIoTErrorFailed;
     }
