@@ -18,7 +18,6 @@
 
 #define azureiotflashSHA_256_SIZE    32
 
-
 static uint8_t ucPartitionReadBuffer[ 32 ];
 static uint8_t ucDecodedManifestHash[ azureiotflashSHA_256_SIZE ];
 static uint8_t ucCalculatedHash[ azureiotflashSHA_256_SIZE ];
@@ -52,37 +51,38 @@ AzureIoTResult_t AzureIoTPlatform_Init( AzureADUImage_t * const pxAduImage )
     pxAduImage->ulImageFileSize = 0;
 
     AzureIoTResult_t xResult = eAzureIoTSuccess;
-    status_t status;
-    uint8_t image_position;
-    volatile uint32_t primask;
+    status_t xStatus;
+    uint8_t ucImagePosition;
+    volatile uint32_t ulPrimask;
 
-    // make the last update fully effective
+    /* make the last update fully effective */
     write_image_ok();
-    
-    sfw_flash_read(REMAP_FLAG_ADDRESS, &image_position, 1);
-    if(image_position == 0x01)
+
+    sfw_flash_read( REMAP_FLAG_ADDRESS, &ucImagePosition, 1 );
+
+    if( ucImagePosition == 0x01 )
     {
         pxAduImage->xUpdatePartition = FLASH_AREA_IMAGE_2_OFFSET;
     }
-    else if(image_position == 0x02)
+    else if( ucImagePosition == 0x02 )
     {
         pxAduImage->xUpdatePartition = FLASH_AREA_IMAGE_1_OFFSET;
     }
     else
     {
-        LogError(("Invalid image position! Will write to image 2"));
+        LogError( ( "Invalid image position! Will write to image 2" ) );
         pxAduImage->xUpdatePartition = FLASH_AREA_IMAGE_2_OFFSET;
     }
 
-    primask = DisableGlobalIRQ();
-    status = sfw_flash_erase(pxAduImage->xUpdatePartition, FLASH_AREA_IMAGE_1_SIZE);
-    EnableGlobalIRQ(primask);
+    ulPrimask = DisableGlobalIRQ();
+    xStatus = sfw_flash_erase( pxAduImage->xUpdatePartition, FLASH_AREA_IMAGE_1_SIZE );
+    EnableGlobalIRQ( ulPrimask );
 
-    if (status)
+    if( xStatus )
     {
-        LogError(("Error erasing flash.\r\n"));
+        LogError( ( "Error erasing flash.\r\n" ) );
         xResult = eAzureIoTErrorFailed;
-    } 
+    }
 
     return xResult;
 }
@@ -99,14 +99,14 @@ AzureIoTResult_t AzureIoTPlatform_WriteBlock( AzureADUImage_t * const pxAduImage
 {
     uint32_t pucNextWriteAddr = pxAduImage->xUpdatePartition + ulOffset;
     AzureIoTResult_t xResult = eAzureIoTSuccess;
-    volatile uint32_t primask;
-    status_t status;
+    volatile uint32_t ulPrimask;
+    status_t xStatus;
 
-    primask = DisableGlobalIRQ();
-    status = sfw_flash_write(pucNextWriteAddr, pData, ulBlockSize);
-    EnableGlobalIRQ(primask);
+    ulPrimask = DisableGlobalIRQ();
+    xStatus = sfw_flash_write( pucNextWriteAddr, pData, ulBlockSize );
+    EnableGlobalIRQ( ulPrimask );
 
-    if (status)
+    if( xStatus )
     {
         xResult = eAzureIoTErrorFailed;
     }
@@ -143,7 +143,7 @@ AzureIoTResult_t AzureIoTPlatform_VerifyImage( AzureADUImage_t * const pxAduImag
     for( size_t ulOffset = 0; ulOffset < pxAduImage->ulImageFileSize; ulOffset += sizeof( ucPartitionReadBuffer ) )
     {
         ulReadSize = pxAduImage->ulImageFileSize - ulOffset < sizeof( ucPartitionReadBuffer ) ? pxAduImage->ulImageFileSize - ulOffset : sizeof( ucPartitionReadBuffer );
-        sfw_flash_read(( pxAduImage->xUpdatePartition + ulOffset ), ucPartitionReadBuffer, ulReadSize);
+        sfw_flash_read( ( pxAduImage->xUpdatePartition + ulOffset ), ucPartitionReadBuffer, ulReadSize );
 
         mbedtls_md_update( &ctx, ( const unsigned char * ) ucPartitionReadBuffer, ulReadSize );
     }
