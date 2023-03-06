@@ -550,7 +550,6 @@ static void prvInitializeSNTP( void )
     
     configPRINTF( ("> SNTP Initialized: %lu\r\n",
                 unixTime) );
-    
 }
 /*-----------------------------------------------------------*/
 
