@@ -185,13 +185,23 @@ AzureIoTResult_t AzureIoTPlatform_Init( AzureADUImage_t * const pxAduImage )
     /*     } */
     /* } */
 
-    /* Process initialize requests.  */     
+    /* Process initialize requests.  */ 
+    // struct remap_trailer s_remap_trailer;
+    // sfw_flash_read(REMAP_FLAG_ADDRESS, &s_remap_trailer, 32);    
+
+    // enable_image();
+
+
     write_image_ok();
     LogInfo(("Write image ok\r\n"));
+
+    // NVIC_SystemReset();
     uint8_t image_position;
+    
     volatile uint32_t primask;
     
     sfw_flash_read(REMAP_FLAG_ADDRESS, &image_position, 1);
+    // sfw_flash_read(REMAP_FLAG_ADDRESS, &s_remap_trailer, 32);
     if(image_position == 0x01)
     {
         dstAddr = FLASH_AREA_IMAGE_2_OFFSET;
@@ -207,7 +217,10 @@ AzureIoTResult_t AzureIoTPlatform_Init( AzureADUImage_t * const pxAduImage )
     else
     {
         LogError(("Invalid image position!"));
-        return eAzureIoTErrorFailed;
+        dstAddr = FLASH_AREA_IMAGE_2_OFFSET;
+        pxAduImage->xUpdatePartition = FLASH_AREA_IMAGE_2_OFFSET;
+        LogInfo(("Write to image 2\r\n"));
+        // return eAzureIoTErrorFailed;
     }
 
     /* Process firmware preprocess requests before writing firmware.
@@ -292,80 +305,73 @@ AzureIoTResult_t AzureIoTPlatform_VerifyImage( AzureADUImage_t * const pxAduImag
                                                uint8_t * pucSHA256Hash,
                                                uint32_t ulSHA256HashLength )
 {
-    ( void ) pxAduImage;
-    ( void ) pucSHA256Hash;
-    ( void ) ulSHA256HashLength;
-
-    /* TODO: Fill in to verify bytes written to flash bank match the SHA256 given by pucSHA256Hash. */
-
     LogInfo( ( "AzureIoTPlatform_VerifyImage()\r\n" ) );
 
-    // int xResult;
-    // uint32_t ulOutputSize;
-    // uint32_t ulReadSize;
+    int xResult;
+    uint32_t ulOutputSize;
+    uint32_t ulReadSize;
 
-    // LogInfo( ( "Base64 Encoded Hash from ADU: %.*s", ulSHA256HashLength, pucSHA256Hash ) );
-    // xResult = prvBase64Decode( pucSHA256Hash, ulSHA256HashLength, ucDecodedManifestHash, azureiotflashSHA_256_SIZE, ( size_t * ) &ulOutputSize );
+    LogInfo( ( "Base64 Encoded Hash from ADU: %.*s", ulSHA256HashLength, pucSHA256Hash ) );
+    xResult = prvBase64Decode( pucSHA256Hash, ulSHA256HashLength, ucDecodedManifestHash, azureiotflashSHA_256_SIZE, ( size_t * ) &ulOutputSize );
 
-    // if( xResult != eAzureIoTSuccess )
-    // {
-    //     LogError( ( "Unable to decode base64 SHA256\r\n" ) );
-    //     return eAzureIoTErrorFailed;
-    // }
+    if( xResult != eAzureIoTSuccess )
+    {
+        LogError( ( "Unable to decode base64 SHA256\r\n" ) );
+        return eAzureIoTErrorFailed;
+    }
 
-    // mbedtls_md_context_t ctx;
-    // mbedtls_md_type_t md_type = MBEDTLS_MD_SHA256;
+    mbedtls_md_context_t ctx;
+    mbedtls_md_type_t md_type = MBEDTLS_MD_SHA256;
 
-    // mbedtls_md_init( &ctx );
-    // mbedtls_md_setup( &ctx, mbedtls_md_info_from_type( md_type ), 0 );
-    // mbedtls_md_starts( &ctx );
+    mbedtls_md_init( &ctx );
+    mbedtls_md_setup( &ctx, mbedtls_md_info_from_type( md_type ), 0 );
+    mbedtls_md_starts( &ctx );
 
-    // LogInfo( ( "Starting the mbedtls calculation: image size %d\r\n", pxAduImage->ulImageFileSize ) );
+    LogInfo( ( "Starting the mbedtls calculation: image size %d\r\n", pxAduImage->ulImageFileSize ) );
 
-    // for( size_t ulOffset = 0; ulOffset < pxAduImage->ulImageFileSize; ulOffset += sizeof( ucPartitionReadBuffer ) )
-    // {
-    //     ulReadSize = pxAduImage->ulImageFileSize - ulOffset < sizeof( ucPartitionReadBuffer ) ? pxAduImage->ulImageFileSize - ulOffset : sizeof( ucPartitionReadBuffer );
-    //     sfw_flash_read(( pxAduImage->xUpdatePartition + ulOffset ), ucPartitionReadBuffer, ulReadSize);
-    //     // memcpy( ucPartitionReadBuffer, ( pxAduImage->xUpdatePartition + ulOffset ), ulReadSize );
+    for( size_t ulOffset = 0; ulOffset < pxAduImage->ulImageFileSize; ulOffset += sizeof( ucPartitionReadBuffer ) )
+    {
+        ulReadSize = pxAduImage->ulImageFileSize - ulOffset < sizeof( ucPartitionReadBuffer ) ? pxAduImage->ulImageFileSize - ulOffset : sizeof( ucPartitionReadBuffer );
+        sfw_flash_read(( pxAduImage->xUpdatePartition + ulOffset ), ucPartitionReadBuffer, ulReadSize);
+        // memcpy( ucPartitionReadBuffer, ( pxAduImage->xUpdatePartition + ulOffset ), ulReadSize );
 
-    //     mbedtls_md_update( &ctx, ( const unsigned char * ) ucPartitionReadBuffer, ulReadSize );
-    // }
+        mbedtls_md_update( &ctx, ( const unsigned char * ) ucPartitionReadBuffer, ulReadSize );
+    }
 
-    // LogInfo( ( "mbedtls calculation completed\r\n" ) );
+    LogInfo( ( "mbedtls calculation completed\r\n" ) );
 
-    // mbedtls_md_finish( &ctx, ucCalculatedHash );
-    // mbedtls_md_free( &ctx );
+    mbedtls_md_finish( &ctx, ucCalculatedHash );
+    mbedtls_md_free( &ctx );
 
-    // if( memcmp( ucDecodedManifestHash, ucCalculatedHash, azureiotflashSHA_256_SIZE ) == 0 )
-    // {
-    //     LogInfo( ( "SHAs match\r\n" ) );
-    //     xResult = eAzureIoTSuccess;
-    // }
-    // else
-    // {
-    //     LogError( ( "SHAs do not match\r\n" ) );
-    //     LogInfo( ( "Wanted: " ) );
+    if( memcmp( ucDecodedManifestHash, ucCalculatedHash, azureiotflashSHA_256_SIZE ) == 0 )
+    {
+        LogInfo( ( "SHAs match\r\n" ) );
+        xResult = eAzureIoTSuccess;
+    }
+    else
+    {
+        LogError( ( "SHAs do not match\r\n" ) );
+        LogInfo( ( "Wanted: " ) );
 
-    //     for( int i = 0; i < azureiotflashSHA_256_SIZE; ++i )
-    //     {
-    //         LogInfo( ( "%x", ucDecodedManifestHash[ i ] ) );
-    //     }
+        for( int i = 0; i < azureiotflashSHA_256_SIZE; ++i )
+        {
+            LogInfo( ( "%x", ucDecodedManifestHash[ i ] ) );
+        }
 
-    //     LogInfo( ( "\r\n" ) );
-    //     LogInfo( ( "Calculated: " ) );
+        LogInfo( ( "\r\n" ) );
+        LogInfo( ( "Calculated: " ) );
 
-    //     for( int i = 0; i < azureiotflashSHA_256_SIZE; ++i )
-    //     {
-    //         LogInfo( ( "%x", ucCalculatedHash[ i ] ) );
-    //     }
+        for( int i = 0; i < azureiotflashSHA_256_SIZE; ++i )
+        {
+            LogInfo( ( "%x", ucCalculatedHash[ i ] ) );
+        }
 
-    //     LogInfo( ( "\r\n" ) );
+        LogInfo( ( "\r\n" ) );
 
-    //     xResult = eAzureIoTErrorFailed;
-    // }
+        xResult = eAzureIoTErrorFailed;
+    }
 
-    // return xResult;
-    return eAzureIoTSuccess;
+    return xResult;
 }
 
 AzureIoTResult_t AzureIoTPlatform_EnableImage( AzureADUImage_t * const pxAduImage )
@@ -376,6 +382,15 @@ AzureIoTResult_t AzureIoTPlatform_EnableImage( AzureADUImage_t * const pxAduImag
 
     LogInfo( ( "AzureIoTPlatform_EnableImage()\r\n" ) );
     /* Set the new firmware for next boot.  */
+    // uint8_t image_position;
+    
+    // sfw_flash_read(REMAP_FLAG_ADDRESS, &image_position, 1);
+    // struct remap_trailer s_remap_trailer;
+    // sfw_flash_read(REMAP_FLAG_ADDRESS, &s_remap_trailer, 32);
+    // s_remap_trailer.image_position = image_position == 0x2 ? 0x1 : 0x2;
+    // uint32_t off = REMAP_FLAG_ADDRESS;
+    // LogInfo( ( "setting image position to %x\r\n", s_remap_trailer.image_position ) );
+    // sfw_flash_write(off, (void *)&s_remap_trailer, IMAGE_TRAILER_SIZE);
     enable_image();
 
     return eAzureIoTSuccess;
