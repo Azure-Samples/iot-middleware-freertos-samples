@@ -8,17 +8,8 @@
 #ifndef __SBL_OTA_FLAG_H__
 #define __SBL_OTA_FLAG_H__
 
-// #define REMAP_FLAG_ADDRESS (FLASH_AREA_IMAGE_1_OFFSET - 32UL)
 #define REMAP_FLAG_ADDRESS 0xFFFE0UL
 #define IMAGE_VERSION_OFFSET 0x14
-
-/* MCU SFW Flash Map */
-
-#define BOOT_FLASH_BASE 0x60000000
-#define BOOT_FLASH_HEADER 0x60010000
-#define BOOT_FLASH_ACT_APP 0x60100000
-#define BOOT_FLASH_CAND_APP 0x60200000
-#define BOOT_FLASH_CUSTOMER 0x603f0000
 
 #define BOOT_FLAG_SET       1
 
@@ -65,8 +56,5 @@ struct swap_trailer {
 void enable_image(void);
 
 void write_image_ok(void);
-
-int8_t image_version_cmp(const struct image_version *ver1, const struct image_version *ver2);
-
 
 #endif
