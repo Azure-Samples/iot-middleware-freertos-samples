@@ -33,24 +33,13 @@ STACK_SIZE = DEFINED(__stack_size__) ? __stack_size__ : 0x0400;
 VECTOR_RAM_SIZE = DEFINED(__ram_vector_table__) ? 0x00000400 : 0;
 NCACHE_HEAP_START = DEFINED(__heap_noncacheable__) ? 0x82000000 - HEAP_SIZE : 0x81E00000 - HEAP_SIZE;
 NCACHE_HEAP_SIZE  = DEFINED(__heap_noncacheable__) ? HEAP_SIZE : 0x0000;
-/* MCU SFW Flash Map */
-
-BOOT_FLASH_BASE = 0x60000000;
-BOOT_FLASH_HEADER = 0x60010000;
-BOOT_FLASH_ACT_APP = 0x60100000;
-BOOT_FLASH_CAND_APP = 0x60200000;
-BOOT_FLASH_CUSTOMER = 0x603f0000;
 
 /* Specify the memory areas */
 MEMORY
 {
-  /* m_flash_config        (RX)  : ORIGIN = 0x60100000, LENGTH = 0x00001000
-  m_ivt                 (RX)  : ORIGIN = 0x60101000, LENGTH = 0x00001000
-  m_interrupts          (RX)  : ORIGIN = 0x60102000, LENGTH = 0x00000400
-  m_text                (RX)  : ORIGIN = 0x60102400, LENGTH = 0x007FDC00 */
-  m_image_hdr           (RX)  : ORIGIN = BOOT_FLASH_ACT_APP, LENGTH = 0x00000400
-  m_interrupts          (RX)  : ORIGIN = BOOT_FLASH_ACT_APP + 0x400, LENGTH = 0x00000400
-  m_text                (RX)  : ORIGIN = BOOT_FLASH_ACT_APP + 0x400 + 0x400, LENGTH = BOOT_FLASH_CAND_APP - 0x1000 - BOOT_FLASH_ACT_APP - 0x400 - 0x400
+  m_image_hdr           (RX)  : ORIGIN = 0x60100000, LENGTH = 0x00000400
+  m_interrupts          (RX)  : ORIGIN = 0x60100400 LENGTH = 0x00000400
+  m_text                (RX)  : ORIGIN = 0x60100800, LENGTH = 0xFE800
   m_data                (RW)  : ORIGIN = 0x80000000, LENGTH = DEFINED(__heap_noncacheable__) ? 0x01E00000 : 0x01E00000 - HEAP_SIZE
   m_ncache              (RW)  : ORIGIN = 0x81E00000, LENGTH = DEFINED(__heap_noncacheable__) ? 0x00200000 - HEAP_SIZE : 0x00200000
   m_data2               (RW)  : ORIGIN = 0x20000000, LENGTH = 0x00020000
@@ -71,7 +60,7 @@ SECTIONS
         __boot_hdr_start__ = ABSOLUTE(.) ;
         KEEP(*(.image_header))
         . = 0x400 ;
-    } >m_image_hdr
+    } > m_image_hdr
 
   /* The startup code goes first into internal RAM */
   .interrupts :
@@ -91,13 +80,11 @@ SECTIONS
         /* Exclude flash and frequently executed functions from XIP */
         *flexspi_nor_flash_ops.c.obj
         *fsl_flexspi.c.obj
-        *azure_iot_flash_platform.c.obj
     ) .text)                 /* .text sections (code) */
     *(EXCLUDE_FILE(
         /* Exclude flash and frequently executed functions from XIP */
         *flexspi_nor_flash_ops.c.obj
         *fsl_flexspi.c.obj
-        *azure_iot_flash_platform.c.obj
     ) .text*)                /* .text* sections (code) */
     *(.rodata)               /* .rodata sections (constants, strings, etc.) */
     *(.rodata*)              /* .rodata* sections (constants, strings, etc.) */
@@ -205,8 +192,6 @@ SECTIONS
     /* Explicit placement of flash and frequently executed functions in RAM */
     *flexspi_nor_flash_ops.c.obj
     *fsl_flexspi.c.obj
-    *azure_iot_flash_platform.c.obj
-    /* Explicit placement of flash and frequently executed functions in RAM */
     *(.data)                 /* .data sections */
     *(.data*)                /* .data* sections */
     KEEP(*(.jcr*))
