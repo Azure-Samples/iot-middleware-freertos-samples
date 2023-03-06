@@ -9,7 +9,6 @@
 #include "sbl_ota_flag.h"
 #include "flexspi_flash.h"
 
-#ifdef SAMPLE_NONE_SECURE
 #ifndef SFW_STANDALONE_XIP
 /* image header, size 1KB */
 #if defined(__CC_ARM) || defined(__ARMCC_VERSION) || defined(__GNUC__)
@@ -19,7 +18,6 @@
 #endif
 
 const char __image_header[1024] = {0x3D, 0xB8, 0xF3, 0x96, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04};
-#endif
 #endif
 
 const uint32_t boot_img_magic[] = {
@@ -44,7 +42,6 @@ void enable_image(void)
     off = REMAP_FLAG_ADDRESS + 16;
     
     PRINTF("write magic number offset = 0x%x\r\n", off);
-    PRINTF("wrong image enable\r\n");
 
     primask = DisableGlobalIRQ();
     status = sfw_flash_write(off, (void *)&s_remap_trailer.magic, IMAGE_TRAILER_SIZE - 16);
@@ -65,18 +62,18 @@ void write_image_ok(void)
     sfw_flash_read(REMAP_FLAG_ADDRESS, &s_remap_trailer, 32);
     
     primask = DisableGlobalIRQ();
-    status = sfw_flash_erase(0xff000, 0x1000);
+    status = sfw_flash_erase(FLASH_AREA_IMAGE_1_OFFSET - SECTOR_SIZE, SECTOR_SIZE);
     
     EnableGlobalIRQ(primask);
     
     memset((void *)s_remap_trailer.magic, 0xff, IMAGE_TRAILER_SIZE - 16);
 
     s_remap_trailer.image_ok = 0xFF;
+    s_remap_trailer.pad1[3] = 0x0;
     
     off = REMAP_FLAG_ADDRESS;
 
     PRINTF("Write OK flag: off = 0x%x\r\n", off);
-    PRINTF("wrong write image ok\r\n");
     
     primask = DisableGlobalIRQ();
     status = sfw_flash_write(off, (void *)&s_remap_trailer, IMAGE_TRAILER_SIZE);
