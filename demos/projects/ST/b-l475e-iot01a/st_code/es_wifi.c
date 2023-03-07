@@ -2534,4 +2534,32 @@ ES_WIFI_Status_t  ES_WIFI_StoreKey( ES_WIFIObject_t *Obj,
   UNLOCK_WIFI();
   return ret;
 }
+
+/**
+ * @brief Obtain time from clock
+ * 
+ * @param Obj: pointer to module handle
+ * @param pTime: pointer to variable to store time
+ * @return Operation Status.
+ */
+ES_WIFI_Status_t ES_WIFI_GetTime(   ES_WIFIObject_t *Obj,
+                                    uint32_t* pTime )
+{
+  ES_WIFI_Status_t ret = ES_WIFI_STATUS_ERROR;
+  LOCK_WIFI();
+
+  sprintf( ( char* )( Obj->CmdData ), "GT\r");
+
+  ret = AT_ExecuteCommand( Obj, Obj->CmdData, Obj->CmdData );
+  char* strTime = ( char* ) Obj->CmdData + 2;
+
+  if ( ret == ES_WIFI_STATUS_OK )
+  {
+    *pTime = strtoul( strTime, 0L, 10 );
+  }
+
+  UNLOCK_WIFI();
+  return ret;
+}
+
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

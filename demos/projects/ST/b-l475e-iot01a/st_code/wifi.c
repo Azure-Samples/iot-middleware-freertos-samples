@@ -594,4 +594,22 @@ WIFI_Status_t WIFI_GetModuleName(char *ModuleName)
   }
   return ret;
 }
+
+/**
+ * @brief Return time from clock
+ * 
+ * @param pTime : Pointer to variable to store time in
+ * @return Operation status
+ */
+WIFI_Status_t WIFI_GetTime(uint32_t *pTime)
+{
+  WIFI_Status_t ret = WIFI_STATUS_ERROR;
+  
+  if (ES_WIFI_GetTime(&EsWifiObj, pTime) == ES_WIFI_STATUS_OK)
+  {
+    ret = WIFI_STATUS_OK;
+  }
+
+  return ret;
+}
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

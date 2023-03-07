@@ -67,7 +67,6 @@ xSemaphoreHandle xWifiSemaphoreHandle;
 static UART_HandleTypeDef xConsoleUart;
 /* Use by the pseudo random number generator. */
 static UBaseType_t ulNextRand;
-static uint64_t ulGlobalEntryTime = 1707465600;
 
 /* Private function prototypes -----------------------------------------------*/
 static void Init_MEM1_Sensors( void );
@@ -102,6 +101,9 @@ static void prvInitializeHeap( void );
 /*-----------------------------------------------------------*/
 
 static BaseType_t prvInitializeWifi( void );
+/*-----------------------------------------------------------*/
+
+static BaseType_t prvInitializeSNTP( void );
 /*-----------------------------------------------------------*/
 
 void vLoggingPrintf( const char * pcFormat,
@@ -240,7 +242,38 @@ static BaseType_t prvInitializeWifi( void )
 
     return ret;
 }
+/*-----------------------------------------------------------*/
 
+static BaseType_t prvInitializeSNTP( void )
+{
+    BaseType_t ret = 0;
+    uint32_t unixTime = 0;
+
+    configPRINTF( ( "ES-WIFI Initializing Time.\r\n" ) );
+
+    do
+    {
+        if( WIFI_GetTime( &unixTime ) != WIFI_STATUS_OK )
+        {
+            configPRINTF( ( "!!!ERROR: ES-WIFI Get Time Failed.\r\n" ) );
+            ret = -1;
+        }
+
+        if( unixTime < democonfigSNTP_INIT_WAIT )
+        {
+            configPRINTF( ( "ES-WIFI Failed to get time. Retrying.\r\n" ) );
+            HAL_Delay( democonfigSNTP_INIT_RETRY_DELAY );
+        }
+    } while( ( unixTime < democonfigSNTP_INIT_WAIT ) && ( ret == 0 ) );
+
+    if( ret == 0 )
+    {
+        configPRINTF( ( "> ES-WIFI Time Initialized: %lu\r\n",
+                        unixTime ) );
+    }
+
+    return ret;
+}
 /*-----------------------------------------------------------*/
 
 /* configUSE_STATIC_ALLOCATION is set to 1, so the application must provide an
@@ -365,6 +398,11 @@ static void prvMiscInitialization( void )
     Init_MEM1_Sensors();
 
     if( prvInitializeWifi() != 0 )
+    {
+        Error_Handler();
+    }
+
+    if( prvInitializeSNTP() != 0 )
     {
         Error_Handler();
     }
@@ -761,19 +799,10 @@ int mbedtls_platform_entropy_poll( void * data,
 
 uint64_t ullGetUnixTime( void )
 {
-    TickType_t xTickCount = 0;
-    uint64_t ulTime = 0UL;
+    uint32_t unixTime;
 
-    /* Get the current tick count. */
-    xTickCount = xTaskGetTickCount();
+    WIFI_GetTime( &unixTime );
 
-    /* Convert the ticks to milliseconds. */
-    ulTime = ( uint64_t ) xTickCount / configTICK_RATE_HZ;
-
-    /* Reduce ulGlobalEntryTimeMs from obtained time so as to always return the
-     * elapsed time in the application. */
-    ulTime = ( uint64_t ) ( ulTime + ulGlobalEntryTime );
-
-    return ulTime;
+    return ( uint64_t ) unixTime;
 }
 /*-----------------------------------------------------------*/

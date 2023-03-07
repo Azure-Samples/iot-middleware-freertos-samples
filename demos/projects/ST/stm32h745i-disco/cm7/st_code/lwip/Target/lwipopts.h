@@ -120,6 +120,16 @@
 #define LWIP_SO_SNDTIMEO 1
 //#define LWIP_TIMEVAL_PRIVATE (0)
 
+#define LWIP_UDP 1
+#define LWIP_SNTP 1
+#define SNTP_SUPPORT 1
+#define SNTP_SERVER_DNS 1
+#define SNTP_UPDATE_DELAY 86400
+#define MEMP_NUM_SYS_TIMEOUT 13
+
+extern void setTimeRTC( uint32_t sec );
+#define SNTP_SET_SYSTEM_TIME( sec ) setTimeRTC( sec ) 
+
  extern int uxRand();
  #define rand    uxRand
 

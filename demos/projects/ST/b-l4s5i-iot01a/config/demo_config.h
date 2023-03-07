@@ -262,4 +262,7 @@ extern void vLoggingPrintf( const char * pcFormatString,
 #define democonfigADU_UPDATE_NAME            "STM32L4S5I"
 #define democonfigADU_UPDATE_VERSION         "1.0"
 
+#define democonfigSNTP_INIT_WAIT             1000000000U
+#define democonfigSNTP_INIT_RETRY_DELAY      5000
+
 #endif /* DEMO_CONFIG_H */
