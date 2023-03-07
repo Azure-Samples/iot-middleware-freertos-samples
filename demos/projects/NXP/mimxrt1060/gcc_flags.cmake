@@ -18,7 +18,6 @@ set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} " \
     -DSERIAL_PORT_TYPE_UART=1 \
     -DXIP_BOOT_HEADER_ENABLE=1 \
     -DXIP_BOOT_HEADER_DCD_ENABLE=1 \
-    -DSOC_REMAP_ENABLE \
     -DSKIP_SYSCLK_INIT \
     -DDATA_SECTION_IS_CACHEABLE=1 \
     -DCPU_MIMXRT1062DVL6A \
@@ -47,9 +46,17 @@ set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} " \
     -Xlinker -print-memory-usage \
     -Xlinker -static \ 
     -Xlinker -z -Xlinker muldefs \
-    -Xlinker --whole-archive \
-    -T${CMAKE_CURRENT_SOURCE_DIR}/MIMXRT1062xxxxx_sdram.ld")
+    -Xlinker --whole-archive")    
 
 function(add_map_file TARGET_NAME MAP_FILE_NAME)
     target_link_options(${TARGET_NAME} PRIVATE -Wl,-Map=${MAP_FILE_NAME})
+endfunction()
+
+function(add_adu_linker TARGET_NAME)
+    target_compile_options(${TARGET_NAME} PRIVATE -DSOC_REMAP_ENABLE)
+    target_link_options(${TARGET_NAME} PRIVATE -T${CMAKE_CURRENT_SOURCE_DIR}/MIMXRT1062xxxxx_flexspi_nor.ld)
+endfunction()
+
+function(add_linker TARGET_NAME)
+    target_link_options(${TARGET_NAME} PRIVATE -T${CMAKE_CURRENT_SOURCE_DIR}/MIMXRT1062xxxxx_sdram.ld)
 endfunction()

@@ -103,6 +103,7 @@ include(driver_phy-common)
 include(driver_dcp)
 
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
+add_linker(${PROJECT_NAME})
 target_link_libraries(${PROJECT_NAME} PRIVATE
     FreeRTOS::Timers
     FreeRTOS::Heap::5
@@ -129,6 +130,7 @@ add_custom_command(TARGET ${PROJECT_NAME}
     VERBATIM)
 
 add_executable(${PROJECT_NAME}-pnp ${PROJECT_SOURCES})
+add_linker(${PROJECT_NAME}-pnp)
 target_link_libraries(${PROJECT_NAME}-pnp PRIVATE
     FreeRTOS::Timers
     FreeRTOS::Heap::5
@@ -159,6 +161,8 @@ add_executable(
     ${PROJECT_SOURCES}
     ${CMAKE_CURRENT_LIST_DIR}/port/azure_iot_flash_platform.c
 )
+add_adu_linker(${PROJECT_NAME}-adu)
+target_compile_definitions(${PROJECT_NAME}-adu PRIVATE -DADU_SAMPLE)
 target_link_libraries(${PROJECT_NAME}-adu PRIVATE
     FreeRTOS::Timers
     FreeRTOS::Heap::5

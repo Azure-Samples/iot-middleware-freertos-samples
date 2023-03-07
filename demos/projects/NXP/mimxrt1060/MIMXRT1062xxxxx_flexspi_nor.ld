@@ -37,10 +37,9 @@ NCACHE_HEAP_SIZE  = DEFINED(__heap_noncacheable__) ? HEAP_SIZE : 0x0000;
 /* Specify the memory areas */
 MEMORY
 {
-  m_flash_config        (RX)  : ORIGIN = 0x60000000, LENGTH = 0x00001000
-  m_ivt                 (RX)  : ORIGIN = 0x60001000, LENGTH = 0x00001000
-  m_interrupts          (RX)  : ORIGIN = 0x60002000, LENGTH = 0x00000400
-  m_text                (RX)  : ORIGIN = 0x60002400, LENGTH = 0x007FDC00
+  m_image_hdr           (RX)  : ORIGIN = 0x60100000, LENGTH = 0x00000400
+  m_interrupts          (RX)  : ORIGIN = 0x60100400 LENGTH = 0x00000400
+  m_text                (RX)  : ORIGIN = 0x60100800, LENGTH = 0xFE800
   m_data                (RW)  : ORIGIN = 0x80000000, LENGTH = DEFINED(__heap_noncacheable__) ? 0x01E00000 : 0x01E00000 - HEAP_SIZE
   m_ncache              (RW)  : ORIGIN = 0x81E00000, LENGTH = DEFINED(__heap_noncacheable__) ? 0x00200000 - HEAP_SIZE : 0x00200000
   m_data2               (RW)  : ORIGIN = 0x20000000, LENGTH = 0x00020000
@@ -54,24 +53,14 @@ SECTIONS
   __NCACHE_REGION_START = ORIGIN(m_ncache);
   __NCACHE_REGION_SIZE  = LENGTH(m_ncache) + NCACHE_HEAP_SIZE;
 
-  .flash_config :
-  {
-    . = ALIGN(4);
-    __FLASH_BASE = .;
-    KEEP(* (.boot_hdr.conf))     /* flash config section */
-    . = ALIGN(4);
-  } > m_flash_config
-
-  ivt_begin= ORIGIN(m_flash_config) + LENGTH(m_flash_config);
-
-  .ivt : AT(ivt_begin)
-  {
-    . = ALIGN(4);
-	KEEP(* (.boot_hdr.ivt))           /* ivt section */
-	KEEP(* (.boot_hdr.boot_data))     /* boot section */
-	KEEP(* (.boot_hdr.dcd_data))      /* dcd section */
-    . = ALIGN(4);
-  } > m_ivt
+  /* Image Vector Table and Boot Data for booting from external flash */
+    .boot_hdr : ALIGN(4)
+    {
+        FILL(0xff)
+        __boot_hdr_start__ = ABSOLUTE(.) ;
+        KEEP(*(.image_header))
+        . = 0x400 ;
+    } > m_image_hdr
 
   /* The startup code goes first into internal RAM */
   .interrupts :
@@ -87,8 +76,16 @@ SECTIONS
   .text :
   {
     . = ALIGN(4);
-    *(.text)                 /* .text sections (code) */
-    *(.text*)                /* .text* sections (code) */
+    *(EXCLUDE_FILE(
+        /* Exclude flash and frequently executed functions from XIP */
+        *flexspi_nor_flash_ops.c.obj
+        *fsl_flexspi.c.obj
+    ) .text)                 /* .text sections (code) */
+    *(EXCLUDE_FILE(
+        /* Exclude flash and frequently executed functions from XIP */
+        *flexspi_nor_flash_ops.c.obj
+        *fsl_flexspi.c.obj
+    ) .text*)                /* .text* sections (code) */
     *(.rodata)               /* .rodata sections (constants, strings, etc.) */
     *(.rodata*)              /* .rodata* sections (constants, strings, etc.) */
     *(.glue_7)               /* glue arm to thumb code */
@@ -192,12 +189,16 @@ SECTIONS
     __DATA_RAM = .;
     __data_start__ = .;      /* create a global symbol at data start */
     *(m_usb_dma_init_data)
+    /* Explicit placement of flash and frequently executed functions in RAM */
+    *flexspi_nor_flash_ops.c.obj
+    *fsl_flexspi.c.obj
     *(.data)                 /* .data sections */
     *(.data*)                /* .data* sections */
     KEEP(*(.jcr*))
     . = ALIGN(4);
     __data_end__ = .;        /* define a global symbol at data end */
   } > m_data
+
   __NDATA_ROM = __DATA_ROM + (__data_end__ - __data_start__);
   .ncache.init : AT(__NDATA_ROM)
   {
