@@ -23,8 +23,8 @@ void vApplicationDaemonTaskStartupHook( void );
 RNG_HandleTypeDef xHrng;
 RTC_HandleTypeDef xHrtc;
 UART_HandleTypeDef huart3;
-static const char *pTimeServers[] = { "pool.ntp.org", "time.nist.gov" };
-const size_t numTimeServers = sizeof( pTimeServers ) / sizeof ( char * );
+static const char * pTimeServers[] = { "pool.ntp.org", "time.nist.gov" };
+const size_t numTimeServers = sizeof( pTimeServers ) / sizeof( char * );
 
 /* Private function prototypes -----------------------------------------------*/
 static void SystemClock_Config( void );
@@ -51,17 +51,17 @@ static void prvInitializeRTC( void );
 
 /**
  * @brief Sets Real Time Clock
- * 
+ *
  * @param[in] sec Unsigned integer to set to
  */
 void setTimeRTC( uint32_t sec );
 
 /**
  * @brief Gets unix time from Real Time Clock
- * 
+ *
  * @param[out] pTime Pointer variable to store unix time in.
  */
-static void getTimeRTC( uint32_t* pTime );
+static void getTimeRTC( uint32_t * pTime );
 
 /*
  * Get board specific unix time.
@@ -669,29 +669,31 @@ int mbedtls_platform_entropy_poll( void * data,
 /*-----------------------------------------------------------*/
 
 static void prvInitializeSNTP( void )
-{   
+{
     uint32_t unixTime = 0;
 
     sntp_setoperatingmode( SNTP_OPMODE_POLL );
-    for ( uint8_t i = 0; i < numTimeServers; i++ )
+
+    for( uint8_t i = 0; i < numTimeServers; i++ )
     {
         sntp_setservername( i, pTimeServers[ i ] );
     }
+
     sntp_init();
 
     do
     {
         getTimeRTC( &unixTime );
 
-        if ( unixTime < democonfigSNTP_INIT_WAIT )
+        if( unixTime < democonfigSNTP_INIT_WAIT )
         {
-            configPRINTF( ("SNTP not queried yet. Retrying.\r\n") );
-            vTaskDelay ( democonfigSNTP_INIT_RETRY_DELAY / portTICK_PERIOD_MS );
+            configPRINTF( ( "SNTP not queried yet. Retrying.\r\n" ) );
+            vTaskDelay( democonfigSNTP_INIT_RETRY_DELAY / portTICK_PERIOD_MS );
         }
-    } while ( unixTime < democonfigSNTP_INIT_WAIT );
-    
-    configPRINTF( ("> SNTP Initialized: %lu\r\n",
-                unixTime) );
+    } while( unixTime < democonfigSNTP_INIT_WAIT );
+
+    configPRINTF( ( "> SNTP Initialized: %lu\r\n",
+                    unixTime ) );
 }
 /*-----------------------------------------------------------*/
 
@@ -699,26 +701,26 @@ static void prvInitializeRTC( void )
 {
     xHrtc.Instance = RTC;
     xHrtc.Init.HourFormat = RTC_HOURFORMAT_24;
-    xHrtc.Init.AsynchPrediv   = 127;
-    xHrtc.Init.SynchPrediv    = 255;
-    xHrtc.Init.OutPut         = RTC_OUTPUT_DISABLE;
+    xHrtc.Init.AsynchPrediv = 127;
+    xHrtc.Init.SynchPrediv = 255;
+    xHrtc.Init.OutPut = RTC_OUTPUT_DISABLE;
     xHrtc.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
-    xHrtc.Init.OutPutType     = RTC_OUTPUT_TYPE_OPENDRAIN;
+    xHrtc.Init.OutPutType = RTC_OUTPUT_TYPE_OPENDRAIN;
 
-    if ( HAL_RTC_Init( &xHrtc ) != HAL_OK )
+    if( HAL_RTC_Init( &xHrtc ) != HAL_OK )
     {
         Error_Handler();
     }
 
-    setTimeRTC( 0 ); // Initializing at epoch.
+    setTimeRTC( 0 ); /* Initializing at epoch. */
 }
 /*-----------------------------------------------------------*/
 
-static void getTimeRTC( uint32_t* pTime )
+static void getTimeRTC( uint32_t * pTime )
 {
     struct tm calTime;
-    RTC_TimeTypeDef sTime = {0};
-    RTC_DateTypeDef sDate = {0};
+    RTC_TimeTypeDef sTime = { 0 };
+    RTC_DateTypeDef sDate = { 0 };
 
     HAL_RTC_GetTime( &xHrtc, &sTime, RTC_FORMAT_BIN );
     HAL_RTC_GetDate( &xHrtc, &sDate, RTC_FORMAT_BIN );
@@ -739,10 +741,10 @@ void setTimeRTC( uint32_t sec )
 {
     struct tm calTime;
     time_t unixTime = sec;
-    RTC_TimeTypeDef sTime = {0};
-    RTC_DateTypeDef sDate = {0};
+    RTC_TimeTypeDef sTime = { 0 };
+    RTC_DateTypeDef sDate = { 0 };
 
-    gmtime_r( &unixTime, &calTime ); 
+    gmtime_r( &unixTime, &calTime );
 
     sTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
     sTime.StoreOperation = RTC_STOREOPERATION_RESET;
@@ -765,6 +767,7 @@ void setTimeRTC( uint32_t sec )
 uint64_t ullGetUnixTime( void )
 {
     uint32_t unixTime;
+
     getTimeRTC( &unixTime );
     return ( uint64_t ) unixTime;
 }

@@ -249,28 +249,27 @@ static BaseType_t prvInitializeSNTP( void )
     BaseType_t ret = 0;
     uint32_t unixTime = 0;
 
-    configPRINTF( ("ES-WIFI Initializing Time.\r\n") );
+    configPRINTF( ( "ES-WIFI Initializing Time.\r\n" ) );
 
     do
     {
-        if ( WIFI_GetTime( &unixTime ) != WIFI_STATUS_OK )
+        if( WIFI_GetTime( &unixTime ) != WIFI_STATUS_OK )
         {
-            configPRINTF( ("!!!ERROR: ES-WIFI Get Time Failed.\r\n") );
+            configPRINTF( ( "!!!ERROR: ES-WIFI Get Time Failed.\r\n" ) );
             ret = -1;
         }
 
-        if ( unixTime < democonfigSNTP_INIT_WAIT )
+        if( unixTime < democonfigSNTP_INIT_WAIT )
         {
-            configPRINTF( ("ES-WIFI Failed to get time. Retrying.\r\n") );
-            HAL_Delay ( democonfigSNTP_INIT_RETRY_DELAY );
+            configPRINTF( ( "ES-WIFI Failed to get time. Retrying.\r\n" ) );
+            HAL_Delay( democonfigSNTP_INIT_RETRY_DELAY );
         }
+    } while( ( unixTime < democonfigSNTP_INIT_WAIT ) && ( ret == 0 ) );
 
-    } while ( ( unixTime < democonfigSNTP_INIT_WAIT ) && ( ret == 0 ) );
-
-    if ( ret == 0 )
+    if( ret == 0 )
     {
-        configPRINTF( ("> ES-WIFI Time Initialized: %lu\r\n",
-                    unixTime) );
+        configPRINTF( ( "> ES-WIFI Time Initialized: %lu\r\n",
+                        unixTime ) );
     }
 
     return ret;
@@ -801,7 +800,7 @@ int mbedtls_platform_entropy_poll( void * data,
 uint64_t ullGetUnixTime( void )
 {
     uint32_t unixTime;
-    
+
     WIFI_GetTime( &unixTime );
 
     return ( uint64_t ) unixTime;

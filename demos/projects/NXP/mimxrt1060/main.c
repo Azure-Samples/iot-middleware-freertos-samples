@@ -92,7 +92,7 @@
     #define mainNETIF_INIT_FN    ethernetif0_init
 #endif /* mainNETIF_INIT_FN */
 
-#define NTP_EPOCH           ( 1900 )
+#define NTP_EPOCH                ( 1900 )
 
 /*******************************************************************************
  * Variables
@@ -105,8 +105,8 @@ static ethernetif_config_t xEnetConfig =
     .phyHandle  = &xPhyHandle,
     .macAddress = mainConfigMAC_ADDR,
 };
-static const char *pTimeServers[] = { "pool.ntp.org", "time.nist.gov" };
-const size_t numTimeServers = sizeof( pTimeServers ) / sizeof ( char * );
+static const char * pTimeServers[] = { "pool.ntp.org", "time.nist.gov" };
+const size_t numTimeServers = sizeof( pTimeServers ) / sizeof( char * );
 
 /*
  * Prototypes for the demos that can be started from this project.
@@ -127,17 +127,17 @@ static void prvInitializeRTC( void );
 
 /**
  * @brief Sets Real Time Clock
- * 
+ *
  * @param[in] sec Unsigned integer to set to
  */
 void setTimeRTC( uint32_t sec );
 
 /**
  * @brief Gets unix time from Real Time Clock
- * 
+ *
  * @param[out] pTime Pointer variable to store time in.
  */
-static void getTimeRTC( uint32_t* pTime );
+static void getTimeRTC( uint32_t * pTime );
 
 /*******************************************************************************
  * Code
@@ -528,34 +528,36 @@ static void prvInitializeSNTP( void )
 {
     uint32_t unixTime = 0;
 
-    configPRINTF( ("Initializing SNTP.\r\n") );
+    configPRINTF( ( "Initializing SNTP.\r\n" ) );
 
     sntp_setoperatingmode( SNTP_OPMODE_POLL );
-    for ( uint8_t i = 0; i < numTimeServers; i++ )
+
+    for( uint8_t i = 0; i < numTimeServers; i++ )
     {
         sntp_setservername( i, pTimeServers[ i ] );
     }
+
     sntp_init();
 
     do
     {
         getTimeRTC( &unixTime );
 
-        if ( unixTime < democonfigSNTP_INIT_WAIT )
+        if( unixTime < democonfigSNTP_INIT_WAIT )
         {
-            configPRINTF( ("SNTP not queried yet. Retrying.\r\n") );
-            vTaskDelay ( democonfigSNTP_INIT_RETRY_DELAY / portTICK_PERIOD_MS );
+            configPRINTF( ( "SNTP not queried yet. Retrying.\r\n" ) );
+            vTaskDelay( democonfigSNTP_INIT_RETRY_DELAY / portTICK_PERIOD_MS );
         }
-    } while ( unixTime < democonfigSNTP_INIT_WAIT );
-    
-    configPRINTF( ("> SNTP Initialized: %lu\r\n",
-                unixTime) );
+    } while( unixTime < democonfigSNTP_INIT_WAIT );
+
+    configPRINTF( ( "> SNTP Initialized: %lu\r\n",
+                    unixTime ) );
 }
 /*-----------------------------------------------------------*/
 
 static void prvInitializeRTC( void )
 {
-    configPRINTF( ("Initializing RTC.\r\n") );
+    configPRINTF( ( "Initializing RTC.\r\n" ) );
 
     snvs_hp_rtc_config_t snvsRtcConfig;
     snvs_hp_rtc_datetime_t sInitDateTime;
@@ -563,7 +565,7 @@ static void prvInitializeRTC( void )
     SNVS_HP_RTC_GetDefaultConfig( &snvsRtcConfig );
     SNVS_HP_RTC_Init( SNVS, &snvsRtcConfig );
 
-    // Unix epoch
+    /* Unix epoch */
     sInitDateTime.year = 1970U;
     sInitDateTime.month = 1U;
     sInitDateTime.day = 1U;
@@ -574,7 +576,7 @@ static void prvInitializeRTC( void )
     SNVS_HP_RTC_SetDatetime( SNVS, &sInitDateTime );
     SNVS_HP_RTC_StartTimer( SNVS );
 
-    configPRINTF( ("> RTC Initialized.\r\n") );
+    configPRINTF( ( "> RTC Initialized.\r\n" ) );
 }
 /*-----------------------------------------------------------*/
 
@@ -585,19 +587,19 @@ void setTimeRTC( uint32_t sec )
     snvs_hp_rtc_datetime_t sDateTime;
 
     gmtime_r( &unixTime, &calTime );
-    
+
     sDateTime.second = calTime.tm_sec;
     sDateTime.minute = calTime.tm_min;
     sDateTime.hour = calTime.tm_hour;
     sDateTime.day = calTime.tm_mday;
-    sDateTime.month = calTime.tm_mon + 1; // Account for different month range.
+    sDateTime.month = calTime.tm_mon + 1; /* Account for different month range. */
     sDateTime.year = calTime.tm_year + NTP_EPOCH;
 
     SNVS_HP_RTC_SetDatetime( SNVS, &sDateTime );
 }
 /*-----------------------------------------------------------*/
 
-static void getTimeRTC( uint32_t* pTime )
+static void getTimeRTC( uint32_t * pTime )
 {
     struct tm calTime;
     snvs_hp_rtc_datetime_t sDateTime;
@@ -608,7 +610,7 @@ static void getTimeRTC( uint32_t* pTime )
     calTime.tm_min = sDateTime.minute;
     calTime.tm_hour = sDateTime.hour;
     calTime.tm_mday = sDateTime.day;
-    calTime.tm_mon = sDateTime.month - 1; // Account for different month range.
+    calTime.tm_mon = sDateTime.month - 1; /* Account for different month range. */
     calTime.tm_year = sDateTime.year - NTP_EPOCH;
 
     *pTime = mktime( &calTime );
@@ -618,6 +620,7 @@ static void getTimeRTC( uint32_t* pTime )
 uint64_t ullGetUnixTime( void )
 {
     uint32_t unixTime;
+
     getTimeRTC( &unixTime );
     return ( uint64_t ) unixTime;
 }

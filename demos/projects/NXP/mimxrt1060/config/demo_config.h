@@ -240,7 +240,7 @@ extern void vLoggingPrintf( const char * pcFormatString,
 #define democonfigADU_UPDATE_NAME            "MIMXRT1060"
 #define democonfigADU_UPDATE_VERSION         "1.0"
 
-#define democonfigSNTP_INIT_WAIT             1672531200U // January 1, 2023
+#define democonfigSNTP_INIT_WAIT             1672531200U /* January 1, 2023 */
 #define democonfigSNTP_INIT_RETRY_DELAY      5000
 
 #endif /* DEMO_CONFIG_H */
