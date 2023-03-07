@@ -13,7 +13,7 @@
 - [Ninja build system](https://github.com/ninja-build/ninja/releases) (Version 1.10 or higher)
 - [GNU Arm Embedded Toolchain](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads) (Version 9 or higher)
 - Terminal tool like [Termite](https://www.compuphase.com/software_termite.htm), Putty, Tera Term, etc.
-- To run this sample you can use a device previously created in your IoT Hub or have the Azure IoT middleware for FreeRTOS provision your device automatically using DPS. **Note** that even when using DPS, you still need an IoT Hub created and connected to DPS.
+- To run this sample you can use a device previously created in your IoT Hub or have the Azure IoT Middleware for FreeRTOS provision your device automatically using DPS. **Note** that even when using DPS, you still need an IoT Hub created and connected to DPS. If you haven't deployed the necessary Azure resources yet, [you may use the guide here](https://github.com/Azure-Samples/iot-middleware-freertos-samples/blob/main/docs/azure-bicep-deployment.md).
 
 IoT Hub | DPS
 ---------|----------

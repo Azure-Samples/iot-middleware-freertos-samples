@@ -17,12 +17,17 @@ cd iot-middleware-freertos-samples
 git submodule update --init --recursive
 ```
 
+You may also need to enable long path support for both Microsoft Windows and git:
+
+- Windows: <https://docs.microsoft.com/windows/win32/fileio/maximum-file-path-limitation?tabs=cmd#enable-long-paths-in-windows-10-version-1607-and-later>
+- Git: as Administrator run `git config --system core.longpaths true`
+
 ## Install Prerequisites
 
 - [CMake](https://cmake.org/download/) (Version 3.13 or higher)
 - [Npcap](https://npcap.com/dist/) (Version 1.6) (WinPCap may also work on older systems). If you have Wireshark installed then this step might not be necessary, although it may install a newer version that doesn't work. You can check the version you have installed in Settings -> Apps -> Installed apps -> search for `npcap`. Npcap/WinPCap is needed to create an Ethernet interface to be used by the simulator. Make sure the install directory is on your Path Environment variable (`C:\Program Files\Npcap`).
 - Ethernet connection - Npcap only works over ethernet.
-- To run this sample you can use a device previously created in your IoT Hub or have the Azure IoT Middleware for FreeRTOS provision your device automatically using DPS. **Note** that even when using DPS, you still need an IoT Hub created and connected to DPS.
+- To run this sample you can use a device previously created in your IoT Hub or have the Azure IoT Middleware for FreeRTOS provision your device automatically using DPS. **Note** that even when using DPS, you still need an IoT Hub created and connected to DPS. If you haven't deployed the necessary Azure resources yet, [you may use the guide here](https://github.com/Azure-Samples/iot-middleware-freertos-samples/blob/main/docs/azure-bicep-deployment.md).
 
 IoT Hub | DPS
 ---------|----------
