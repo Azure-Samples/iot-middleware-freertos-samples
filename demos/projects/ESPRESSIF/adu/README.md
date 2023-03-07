@@ -76,8 +76,6 @@ Viewing the device twin on the portal, the "tag" section should look similar to 
 
 ![img](../../../../docs/resources/tagged-twin.png)
 
-
-
 ### Prepare the Sample
 
 To connect the ESPRESSIF ESP32 to Azure, you will update the sample configuration, build the image, and flash the image to the device.
@@ -145,34 +143,18 @@ To build the device image, run the following command (the path `"C:\espbuild"` i
 
 2. Find the COM port mapped for the device on your system.
 
-    On **Windows**, go to `Device Manager`, `Ports (COM & LTP)`. Look for a "CP210x"-based device and take note of the COM port mapped for your device (e.g. "COM5").
+    On **Windows** (and using powershell), run the following:
 
-    On **Linux**, save and run the following script:
-
-    ```shell
-    #!/bin/bash
-    # Copyright (c) Microsoft Corporation.
-    # Licensed under the MIT License. */
-
-    # Lists all USB devices and their paths
-
-    for sysdevpath in $(find /sys/bus/usb/devices/usb*/ -name dev); do
-        (
-            syspath="${sysdevpath%/dev}"
-            devname="$(udevadm info -q name -p $syspath)"
-            [[ "$devname" == "bus/"* ]] && exit
-            eval "$(udevadm info -q property --export -p $syspath)"
-            [[ -z "$ID_SERIAL" ]] && exit
-            echo "/dev/$devname - $ID_SERIAL"
-        )
-    done
+    ```powershell
+    Get-WMIObject Win32_SerialPort | Select-Object Name,DeviceID,Description,PNPDeviceID
     ```
 
-    Considering the script was saved as `list-usb-devices.sh`, run:
+    Look for a device with `CP210x-` in the title. The COM port should be something similar to `COM5`.
 
-    ```bash
-    chmod 777 ./list-usb-devices.sh
-    ./list-usb-devices.sh
+    On **Linux**, run the following:
+
+    ```shell
+    ls -l /dev/serial/by-id/
     ```
 
     Look for a "CP2102"-based entry and take note of the path mapped for your device (e.g. "/dev/ttyUSB0").
@@ -199,6 +181,7 @@ To build the device image, run the following command (the path `"C:\espbuild"` i
     ```shell
     idf.py -p /dev/ttyUSB0 flash
     ```
+
     </details>
 
 At some point after the device connects to Azure IoT Hub, look for this splash message:
@@ -284,3 +267,22 @@ Once the device reboots, you should see on the console, output that looks like t
 ![img](../../../../docs/resources/new-version-device-output.png)
 
 Note the section which states `Version 1.1`. Congratulations! Your ESP32 is now running new, updated software!
+
+## Size Chart
+
+The following chart shows the RAM and ROM usage for the ESPRESSIF ESP32 microcontroller.
+
+- Build options: Compile optimized for size (-Os) and no logging (-DLIBRARY_LOG_LEVEL=LOG_NONE).
+- Commands used: `idf.py size` and `idf.py size-components`
+
+This sample can include either IoT Hub only or both IoT Hub and DPS services. The table below shows RAM/ROM sizes considering:
+
+- Middleware libraries only – represents the libraries for Azure IoT connection and features.
+- Total size – which includes the Azure IoT middleware for FreeRTOS, Mbed TLS, FreeRTOS, CoreMQTT and the HAL for the dev kit.
+
+|  | Middleware library size | | Total Size | |
+|---------|----------|---------|---------|---------
+| **Sample** | **Flash (code,rodata)** | **DRAM,IRAM (bss,data)** | **Flash (code,rodata)** | **DRAM,IRAM (bss,data)** |
+| IoT Hub + DPS + ADU | 51.49 KB | 112 bytes | 715.51 KB | 133.96 KB
+| IoT Hub + ADU | 40.24 KB | 112 bytes | 703.18 KB | 127.08 KB
+| IoT Hub only | 28.73 KB | 12 bytes | 694.65 KB | 118.34 KB

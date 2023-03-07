@@ -6,11 +6,14 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
+#include <time.h>
 
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
+#include "demo_config.h"
 #include "task.h"
 #include "lwip.h"
+#include "lwip/apps/sntp.h"
 
 /*-----------------------------------------------------------*/
 
@@ -20,6 +23,8 @@ void vApplicationDaemonTaskStartupHook( void );
 RNG_HandleTypeDef xHrng;
 RTC_HandleTypeDef xHrtc;
 UART_HandleTypeDef huart3;
+static const char * pTimeServers[] = { "pool.ntp.org", "time.nist.gov" };
+const size_t numTimeServers = sizeof( pTimeServers ) / sizeof( char * );
 
 /* Private function prototypes -----------------------------------------------*/
 static void SystemClock_Config( void );
@@ -28,12 +33,35 @@ static void MPU_Config( void );
 static void MX_RNG_Init( void );
 static void MX_USART3_UART_Init( void );
 static char cPrintString[ 512 ];
-static uint64_t ulGlobalEntryTime = 1707465600;
 
 /*
  * Prototypes for the demos that can be started from this project.
  */
 extern void vStartDemoTask( void );
+
+/**
+ * @brief Initializes LWIP SNTP.
+ */
+static void prvInitializeSNTP( void );
+
+/**
+ * @brief Initialize Real Time Clock
+ */
+static void prvInitializeRTC( void );
+
+/**
+ * @brief Sets Real Time Clock
+ *
+ * @param[in] sec Unsigned integer to set to
+ */
+void setTimeRTC( uint32_t sec );
+
+/**
+ * @brief Gets unix time from Real Time Clock
+ *
+ * @param[out] pTime Pointer variable to store unix time in.
+ */
+static void getTimeRTC( uint32_t * pTime );
 
 /*
  * Get board specific unix time.
@@ -117,6 +145,8 @@ int uxRand( void )
 void vApplicationDaemonTaskStartupHook( void )
 {
     MX_LWIP_Init();
+    prvInitializeRTC();
+    prvInitializeSNTP();
 
     /* Demos that use the network are created after the network is
      * up. */
@@ -638,21 +668,107 @@ int mbedtls_platform_entropy_poll( void * data,
 }
 /*-----------------------------------------------------------*/
 
+static void prvInitializeSNTP( void )
+{
+    uint32_t unixTime = 0;
+
+    sntp_setoperatingmode( SNTP_OPMODE_POLL );
+
+    for( uint8_t i = 0; i < numTimeServers; i++ )
+    {
+        sntp_setservername( i, pTimeServers[ i ] );
+    }
+
+    sntp_init();
+
+    do
+    {
+        getTimeRTC( &unixTime );
+
+        if( unixTime < democonfigSNTP_INIT_WAIT )
+        {
+            configPRINTF( ( "SNTP not queried yet. Retrying.\r\n" ) );
+            vTaskDelay( democonfigSNTP_INIT_RETRY_DELAY / portTICK_PERIOD_MS );
+        }
+    } while( unixTime < democonfigSNTP_INIT_WAIT );
+
+    configPRINTF( ( "> SNTP Initialized: %lu\r\n",
+                    unixTime ) );
+}
+/*-----------------------------------------------------------*/
+
+static void prvInitializeRTC( void )
+{
+    xHrtc.Instance = RTC;
+    xHrtc.Init.HourFormat = RTC_HOURFORMAT_24;
+    xHrtc.Init.AsynchPrediv = 127;
+    xHrtc.Init.SynchPrediv = 255;
+    xHrtc.Init.OutPut = RTC_OUTPUT_DISABLE;
+    xHrtc.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
+    xHrtc.Init.OutPutType = RTC_OUTPUT_TYPE_OPENDRAIN;
+
+    if( HAL_RTC_Init( &xHrtc ) != HAL_OK )
+    {
+        Error_Handler();
+    }
+
+    setTimeRTC( 0 ); /* Initializing at epoch. */
+}
+/*-----------------------------------------------------------*/
+
+static void getTimeRTC( uint32_t * pTime )
+{
+    struct tm calTime;
+    RTC_TimeTypeDef sTime = { 0 };
+    RTC_DateTypeDef sDate = { 0 };
+
+    HAL_RTC_GetTime( &xHrtc, &sTime, RTC_FORMAT_BIN );
+    HAL_RTC_GetDate( &xHrtc, &sDate, RTC_FORMAT_BIN );
+
+    calTime.tm_sec = sTime.Seconds;
+    calTime.tm_min = sTime.Minutes;
+    calTime.tm_hour = sTime.Hours;
+    calTime.tm_isdst = sTime.DayLightSaving;
+    calTime.tm_mday = sDate.Date;
+    calTime.tm_mon = sDate.Month;
+    calTime.tm_year = sDate.Year;
+
+    *pTime = mktime( &calTime );
+}
+/*-----------------------------------------------------------*/
+
+void setTimeRTC( uint32_t sec )
+{
+    struct tm calTime;
+    time_t unixTime = sec;
+    RTC_TimeTypeDef sTime = { 0 };
+    RTC_DateTypeDef sDate = { 0 };
+
+    gmtime_r( &unixTime, &calTime );
+
+    sTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
+    sTime.StoreOperation = RTC_STOREOPERATION_RESET;
+    sTime.TimeFormat = RTC_HOURFORMAT_24;
+    sTime.Seconds = calTime.tm_sec;
+    sTime.SecondFraction = 0;
+    sTime.SubSeconds = 0;
+    sTime.Minutes = calTime.tm_min;
+    sTime.Hours = calTime.tm_hour;
+    sDate.WeekDay = calTime.tm_wday;
+    sDate.Date = calTime.tm_mday;
+    sDate.Month = calTime.tm_mon;
+    sDate.Year = calTime.tm_year;
+
+    HAL_RTC_SetTime( &xHrtc, &sTime, RTC_FORMAT_BIN );
+    HAL_RTC_SetDate( &xHrtc, &sDate, RTC_FORMAT_BIN );
+}
+/*-----------------------------------------------------------*/
+
 uint64_t ullGetUnixTime( void )
 {
-    TickType_t xTickCount = 0;
-    uint64_t ulTime = 0UL;
+    uint32_t unixTime;
 
-    /* Get the current tick count. */
-    xTickCount = xTaskGetTickCount();
-
-    /* Convert the ticks to milliseconds. */
-    ulTime = ( uint64_t ) xTickCount / configTICK_RATE_HZ;
-
-    /* Reduce ulGlobalEntryTimeMs from obtained time so as to always return the
-     * elapsed time in the application. */
-    ulTime = ( uint64_t ) ( ulTime + ulGlobalEntryTime );
-
-    return ulTime;
+    getTimeRTC( &unixTime );
+    return ( uint64_t ) unixTime;
 }
 /*-----------------------------------------------------------*/

@@ -159,6 +159,9 @@ WIFI_Status_t       WIFI_ModuleFirmwareUpdate(const char *url);
 WIFI_Status_t       WIFI_GetModuleID(char *Id);
 WIFI_Status_t       WIFI_GetModuleFwRevision(char *rev);
 WIFI_Status_t       WIFI_GetModuleName(char *ModuleName);
+
+WIFI_Status_t       WIFI_GetTime(uint32_t *pTime);
+
 #ifdef __cplusplus
 }
 #endif

@@ -9,7 +9,8 @@ if(NOT (TARGET LWIP))
     file(GLOB LWIP_PATH_SOURCES ${LWIP_PATH}/src/api/*.c
             ${LWIP_PATH}/src/core/ipv4/*.c
             ${LWIP_PATH}/src/core/*.c
-            ${LWIP_PATH}/src/netif/*.c)
+            ${LWIP_PATH}/src/netif/*.c
+            ${LWIP_PATH}/src/apps/sntp/*.c)
 
     target_sources(LWIP INTERFACE ${LWIP_PATH_SOURCES})
     target_include_directories(LWIP INTERFACE

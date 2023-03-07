@@ -7,7 +7,7 @@
 - Wi-Fi 2.4 GHz
 - USB 2.0 A male to Micro USB male data cable
 - [ESP-IDF](https://idf.espressif.com/): This guide was tested against [ESP-IDF v4.4.3](https://github.com/espressif/esp-idf/tree/v4.4.3).
-- To run this sample you can use a device previously created in your IoT Hub or have the Azure IoT Middleware for FreeRTOS provision your device automatically using DPS. **Note** that even when using DPS, you still need an IoT Hub created and connected to DPS.
+- To run this sample you can use a device previously created in your IoT Hub or have the Azure IoT Middleware for FreeRTOS provision your device automatically using DPS. **Note** that even when using DPS, you still need an IoT Hub created and connected to DPS. If you haven't deployed the necessary Azure resources yet, [you may use the guide here](https://github.com/Azure-Samples/iot-middleware-freertos-samples/blob/main/docs/azure-bicep-deployment.md).
 
 IoT Hub | DPS
 ---------|----------
@@ -138,34 +138,18 @@ idf.py --no-ccache -B "C:\espbuild" build
 
 2. Find the COM port mapped for the device on your system.
 
-    On **Windows**, go to `Device Manager`, `Ports (COM & LTP)`. Look for a "CP210x"-based device and take note of the COM port mapped for your device (e.g. "COM5").
+    On **Windows** (and using powershell), run the following:
 
-    On **Linux**, save and run the following script:
-
-    ```shell
-    #!/bin/bash
-    # Copyright (c) Microsoft Corporation.
-    # Licensed under the MIT License. */
-
-    # Lists all USB devices and their paths
-
-    for sysdevpath in $(find /sys/bus/usb/devices/usb*/ -name dev); do
-        (
-            syspath="${sysdevpath%/dev}"
-            devname="$(udevadm info -q name -p $syspath)"
-            [[ "$devname" == "bus/"* ]] && exit
-            eval "$(udevadm info -q property --export -p $syspath)"
-            [[ -z "$ID_SERIAL" ]] && exit
-            echo "/dev/$devname - $ID_SERIAL"
-        )
-    done
+    ```powershell
+    Get-WMIObject Win32_SerialPort | Select-Object Name,DeviceID,Description,PNPDeviceID
     ```
 
-    Considering the script was saved as `list-usb-devices.sh`, run:
+    Look for a device with `CP210x-` in the title. The COM port should be something similar to `COM5`.
 
-    ```bash
-    chmod 777 ./list-usb-devices.sh
-    ./list-usb-devices.sh
+    On **Linux**, run the following:
+
+    ```shell
+    ls -l /dev/serial/by-id/
     ```
 
     Look for a "CP2102"-based entry and take note of the path mapped for your device (e.g. "/dev/ttyUSB0").

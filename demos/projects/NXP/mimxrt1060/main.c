@@ -8,6 +8,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdarg.h>
+#include <time.h>
 
 #include "board.h"
 
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 
 #include "FreeRTOS.h"
+#include "demo_config.h"
 #include "task.h"
 
 #include "lwip/netifapi.h"
@@ -29,6 +31,7 @@
 #include "lwip/dhcp.h"
 #include "lwip/dns.h"
 #include "lwip/prot/dhcp.h"
+#include "lwip/apps/sntp.h"
 #include "netif/ethernet.h"
 #include "enet_ethernetif.h"
 #include "fsl_phy.h"
@@ -40,6 +43,7 @@
 #include "fsl_iomuxc.h"
 #include "fsl_phyksz8081.h"
 #include "fsl_enet_mdio.h"
+#include "fsl_snvs_hp.h"
 
 #include "fsl_common.h"
 
@@ -94,6 +98,8 @@
     #define mainNETIF_INIT_FN    ethernetif0_init
 #endif /* mainNETIF_INIT_FN */
 
+#define NTP_EPOCH                ( 1900 )
+
 /*******************************************************************************
  * Variables
  ******************************************************************************/
@@ -105,7 +111,8 @@ static ethernetif_config_t xEnetConfig =
     .phyHandle  = &xPhyHandle,
     .macAddress = mainConfigMAC_ADDR,
 };
-static uint64_t ulGlobalEntryTime = 1707465600;
+static const char * pTimeServers[] = { "pool.ntp.org", "time.nist.gov" };
+const size_t numTimeServers = sizeof( pTimeServers ) / sizeof( char * );
 
 /*
  * Prototypes for the demos that can be started from this project.
@@ -113,6 +120,30 @@ static uint64_t ulGlobalEntryTime = 1707465600;
 extern void vStartDemoTask( void );
 
 static void prvNetworkUp( void );
+
+/**
+ * @brief Initializes LWIP SNTP.
+ */
+static void prvInitializeSNTP( void );
+
+/**
+ * @brief Initialize Real Time Clock
+ */
+static void prvInitializeRTC( void );
+
+/**
+ * @brief Sets Real Time Clock
+ *
+ * @param[in] sec Unsigned integer to set to
+ */
+void setTimeRTC( uint32_t sec );
+
+/**
+ * @brief Gets unix time from Real Time Clock
+ *
+ * @param[out] pTime Pointer variable to store time in.
+ */
+static void getTimeRTC( uint32_t * pTime );
 
 /*******************************************************************************
  * Code
@@ -269,6 +300,9 @@ int uxRand( void )
 void vApplicationDaemonTaskStartupHook( void )
 {
     prvNetworkUp();
+    prvInitializeRTC();
+    prvInitializeSNTP();
+    
     #ifdef ADU_SAMPLE
         /* make the last update fully effective */
         write_image_ok();
@@ -506,22 +540,105 @@ void * pvPortCalloc( size_t xNum,
 }
 /*-----------------------------------------------------------*/
 
+static void prvInitializeSNTP( void )
+{
+    uint32_t unixTime = 0;
+
+    configPRINTF( ( "Initializing SNTP.\r\n" ) );
+
+    sntp_setoperatingmode( SNTP_OPMODE_POLL );
+
+    for( uint8_t i = 0; i < numTimeServers; i++ )
+    {
+        sntp_setservername( i, pTimeServers[ i ] );
+    }
+
+    sntp_init();
+
+    do
+    {
+        getTimeRTC( &unixTime );
+
+        if( unixTime < democonfigSNTP_INIT_WAIT )
+        {
+            configPRINTF( ( "SNTP not queried yet. Retrying.\r\n" ) );
+            vTaskDelay( democonfigSNTP_INIT_RETRY_DELAY / portTICK_PERIOD_MS );
+        }
+    } while( unixTime < democonfigSNTP_INIT_WAIT );
+
+    configPRINTF( ( "> SNTP Initialized: %lu\r\n",
+                    unixTime ) );
+}
+/*-----------------------------------------------------------*/
+
+static void prvInitializeRTC( void )
+{
+    configPRINTF( ( "Initializing RTC.\r\n" ) );
+
+    snvs_hp_rtc_config_t snvsRtcConfig;
+    snvs_hp_rtc_datetime_t sInitDateTime;
+
+    SNVS_HP_RTC_GetDefaultConfig( &snvsRtcConfig );
+    SNVS_HP_RTC_Init( SNVS, &snvsRtcConfig );
+
+    /* Unix epoch */
+    sInitDateTime.year = 1970U;
+    sInitDateTime.month = 1U;
+    sInitDateTime.day = 1U;
+    sInitDateTime.hour = 0U;
+    sInitDateTime.minute = 0U;
+    sInitDateTime.second = 0U;
+
+    SNVS_HP_RTC_SetDatetime( SNVS, &sInitDateTime );
+    SNVS_HP_RTC_StartTimer( SNVS );
+
+    configPRINTF( ( "> RTC Initialized.\r\n" ) );
+}
+/*-----------------------------------------------------------*/
+
+void setTimeRTC( uint32_t sec )
+{
+    struct tm calTime;
+    time_t unixTime = sec;
+    snvs_hp_rtc_datetime_t sDateTime;
+
+    gmtime_r( &unixTime, &calTime );
+
+    sDateTime.second = calTime.tm_sec;
+    sDateTime.minute = calTime.tm_min;
+    sDateTime.hour = calTime.tm_hour;
+    sDateTime.day = calTime.tm_mday;
+    sDateTime.month = calTime.tm_mon + 1; /* Account for different month range. */
+    sDateTime.year = calTime.tm_year + NTP_EPOCH;
+
+    SNVS_HP_RTC_SetDatetime( SNVS, &sDateTime );
+}
+/*-----------------------------------------------------------*/
+
+static void getTimeRTC( uint32_t * pTime )
+{
+    struct tm calTime;
+    snvs_hp_rtc_datetime_t sDateTime;
+
+    SNVS_HP_RTC_GetDatetime( SNVS, &sDateTime );
+
+    calTime.tm_sec = sDateTime.second;
+    calTime.tm_min = sDateTime.minute;
+    calTime.tm_hour = sDateTime.hour;
+    calTime.tm_mday = sDateTime.day;
+    calTime.tm_mon = sDateTime.month - 1; /* Account for different month range. */
+    calTime.tm_year = sDateTime.year - NTP_EPOCH;
+
+    *pTime = mktime( &calTime );
+}
+/*-----------------------------------------------------------*/
+
 uint64_t ullGetUnixTime( void )
 {
-    TickType_t xTickCount = 0;
-    uint64_t ulTime = 0UL;
+    uint32_t unixTime;
 
-    /* Get the current tick count. */
-    xTickCount = xTaskGetTickCount();
-
-    /* Convert the ticks to milliseconds. */
-    ulTime = ( uint64_t ) xTickCount / configTICK_RATE_HZ;
-
-    /* Reduce ulGlobalEntryTimeMs from obtained time so as to always return the
-     * elapsed time in the application. */
-    ulTime = ( uint64_t ) ( ulTime + ulGlobalEntryTime );
-
-    return ulTime;
+    getTimeRTC( &unixTime );
+    return ( uint64_t ) unixTime;
 }
 /*-----------------------------------------------------------*/
 
