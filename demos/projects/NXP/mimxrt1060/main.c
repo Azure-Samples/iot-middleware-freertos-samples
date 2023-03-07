@@ -14,7 +14,7 @@
 #ifdef ADU_SAMPLE
     #include "flexspi_flash.h"
     #include "sbl_ota_flag.h"
-#endif    
+#endif
 
 
 #include "pin_mux.h"
@@ -219,9 +219,9 @@ int main( void )
     BOARD_InitBootClocks();
     BOARD_InitDebugConsole();
 
-#ifdef ADU_SAMPLE
-    sfw_flash_init();
-#endif
+    #ifdef ADU_SAMPLE
+        sfw_flash_init();
+    #endif
 
     BOARD_InitModuleClock();
 
@@ -269,11 +269,10 @@ int uxRand( void )
 void vApplicationDaemonTaskStartupHook( void )
 {
     prvNetworkUp();
-#ifdef ADU_SAMPLE
-    /* make the last update fully effective */
-    write_image_ok();
-    configPRINTF( ( "---------STARTING ADU DEMO---------\r\n" ) );
-#endif    
+    #ifdef ADU_SAMPLE
+        /* make the last update fully effective */
+        write_image_ok();
+    #endif
 
     /* Demos that use the network are created after the network is
      * up. */
