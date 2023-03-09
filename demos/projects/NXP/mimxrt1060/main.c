@@ -302,7 +302,7 @@ void vApplicationDaemonTaskStartupHook( void )
     prvNetworkUp();
     prvInitializeRTC();
     prvInitializeSNTP();
-    
+
     #ifdef ADU_SAMPLE
         /* make the last update fully effective */
         write_image_ok();
