@@ -118,6 +118,7 @@ AzureIoTResult_t AzureIoTPlatform_VerifyImage( AzureADUImage_t * const pxAduImag
     int xResult;
     uint32_t ulOutputSize;
     uint32_t ulReadSize;
+    volatile uint32_t ulPrimask;
 
     AZLogInfo( ( "Base64 Encoded Hash from ADU: %.*s", ulSHA256HashLength, pucSHA256Hash ) );
     xResult = prvBase64Decode( pucSHA256Hash, ulSHA256HashLength, ucDecodedManifestHash, azureiotflashSHA_256_SIZE, ( size_t * ) &ulOutputSize );
@@ -140,7 +141,9 @@ AzureIoTResult_t AzureIoTPlatform_VerifyImage( AzureADUImage_t * const pxAduImag
     for( size_t ulOffset = 0; ulOffset < pxAduImage->ulImageFileSize; ulOffset += sizeof( ucPartitionReadBuffer ) )
     {
         ulReadSize = pxAduImage->ulImageFileSize - ulOffset < sizeof( ucPartitionReadBuffer ) ? pxAduImage->ulImageFileSize - ulOffset : sizeof( ucPartitionReadBuffer );
-        sfw_flash_read( ( pxAduImage->xUpdatePartition + ulOffset ), ucPartitionReadBuffer, ulReadSize );
+        ulPrimask = DisableGlobalIRQ();
+        sfw_flash_read_ipc( ( pxAduImage->xUpdatePartition + ulOffset ), ucPartitionReadBuffer, ulReadSize );
+        EnableGlobalIRQ( ulPrimask );
 
         mbedtls_md_update( &ctx, ( const unsigned char * ) ucPartitionReadBuffer, ulReadSize );
     }

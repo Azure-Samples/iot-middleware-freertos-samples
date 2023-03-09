@@ -77,6 +77,7 @@ status_t sfw_flash_read( uint32_t dstAddr,
                          void * buf,
                          size_t len );
 status_t sfw_flash_init( void );
+status_t sfw_flash_read_ipc(uint32_t address, uint8_t *buffer, uint32_t length);
 
 /*${prototype:end}*/
 
