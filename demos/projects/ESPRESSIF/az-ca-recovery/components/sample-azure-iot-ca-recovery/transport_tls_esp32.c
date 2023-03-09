@@ -348,6 +348,11 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pNetworkContext,
         }
     #endif /* ifdef democonfigUSE_HSM */
 
+	if( pxEspTlsTransport == NULL )
+	{
+        xReturnStatus = eTLSTransportConnectFailure;
+	}
+	else
     if( esp_transport_connect( pxEspTlsTransport->xTransport, pHostName, usPort, ulReceiveTimeoutMs ) < 0 )
     {
         /* TODO: Find more precise return code for CA validation failed https://github.com/espressif/esp-idf/issues/10515 */
