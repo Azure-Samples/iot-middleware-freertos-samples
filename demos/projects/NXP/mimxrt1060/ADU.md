@@ -30,7 +30,7 @@ This sample will allow you to update an NXP MIMXRT1060-EVK Evaluation kit over t
 
 1. Azure CLI and Azure IoT Module
 
-    See steps to install both [here](https://learn.microsoft.com/en-us/azure/iot-hub-device-update/create-update?source=recommendations#prerequisites).
+    See steps to install both [here](https://learn.microsoft.com/azure/iot-hub-device-update/create-update?source=recommendations#prerequisites).
 
 1. [CMake](https://cmake.org/download/) (Version 3.13 or higher)
 1. [Ninja build system](https://github.com/ninja-build/ninja/releases) (Version 1.10 or higher)
