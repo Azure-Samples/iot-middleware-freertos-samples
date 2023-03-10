@@ -7,6 +7,8 @@ This sample will allow you to update an NXP MIMXRT1060-EVK Evaluation kit over t
   - [Tag Your Device](#tag-your-device)
   - [Prepare the Sample](#prepare-the-sample)
   - [Build the Image](#build-the-image)
+  - [Flash the Bootloader](#flash-the-bootloader)
+  - [Confirm Device Bootloader Details](#confirm-device-bootloader-details)
   - [Flash the Image](#flash-the-image)
   - [Confirm Device Connection Details](#confirm-device-connection-details)
 - [Prepare the ADU Service](#prepare-the-adu-service)
