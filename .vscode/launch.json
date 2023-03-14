@@ -53,10 +53,24 @@
             "request": "launch",
             "servertype":"jlink",
             "postStartSessionCommands": ["monitor reset"],
-            // TODO: Currently debuger fails with runToMain true.
+            // TODO: #357 Currently debugger fails with runToMain true.
             //"runToMain": true,
             "rtos": "FreeRTOS",
             "executable": "${workspaceFolder}/mimxrt1060/demos/projects/NXP/mimxrt1060/iot-middleware-sample.elf",
+            "device": "MIMXRT1062xxx6A",
+            "svdFile": "${workspaceFolder}/.vscode/MIMXRT1062.svd",
+            "preLaunchTask": "Build NXP mimxrt1060"
+        },
+        {
+            "name": "NXP mimxrt1060 ADU: Local J-Link",
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype":"jlink",
+            "postStartSessionCommands": ["monitor reset"],
+            // TODO: #357 Currently debugger fails with runToMain true.
+            //"runToMain": true,
+            "rtos": "FreeRTOS",
+            "executable": "${workspaceFolder}/mimxrt1060/demos/projects/NXP/mimxrt1060/iot-middleware-sample-adu.elf",
             "device": "MIMXRT1062xxx6A",
             "svdFile": "${workspaceFolder}/.vscode/MIMXRT1062.svd",
             "preLaunchTask": "Build NXP mimxrt1060"
