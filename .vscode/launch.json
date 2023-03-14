@@ -53,7 +53,7 @@
             "request": "launch",
             "servertype":"jlink",
             "postStartSessionCommands": ["monitor reset"],
-            // TODO: Currently debuger fails with runToMain true.
+            // TODO: #357 Currently debugger fails with runToMain true.
             //"runToMain": true,
             "rtos": "FreeRTOS",
             "executable": "${workspaceFolder}/mimxrt1060/demos/projects/NXP/mimxrt1060/iot-middleware-sample.elf",
@@ -67,7 +67,7 @@
             "request": "launch",
             "servertype":"jlink",
             "postStartSessionCommands": ["monitor reset"],
-            // TODO: Currently debuger fails with runToMain true.
+            // TODO: #357 Currently debugger fails with runToMain true.
             //"runToMain": true,
             "rtos": "FreeRTOS",
             "executable": "${workspaceFolder}/mimxrt1060/demos/projects/NXP/mimxrt1060/iot-middleware-sample-adu.elf",
