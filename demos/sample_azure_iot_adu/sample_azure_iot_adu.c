@@ -444,7 +444,13 @@ static AzureIoTResult_t prvDownloadUpdateImageIntoFlash( int32_t ullTimeoutInSec
 
     xHTTPNetworkContext.pParams = &xHTTPSocketTransportParams;
 
-    AzureIoTPlatform_Init( &xImage );
+    xResult = AzureIoTPlatform_Init( &xImage );
+
+    if( xResult != eAzureIoTSuccess )
+    {
+        LogError( ( "[ADU] Error initializing platform." ) );
+        return xResult;
+    }
 
     LogInfo( ( "[ADU] Step: eAzureIoTADUUpdateStepFirmwareDownloadStarted" ) );
 

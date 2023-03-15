@@ -26,6 +26,7 @@ nxp_mcux_sdk_fetch()
 lwip_fetch()
 
 list(APPEND CMAKE_MODULE_PATH ${NXP_MCUX_SDK_PATH})
+list(APPEND CMAKE_MODULE_PATH ${NXP_MCUX_SDK_PATH}/CMSIS/Include)
 
 find_package(LWIP)
 
@@ -65,6 +66,8 @@ include(component_serial_manager)
 
 include(component_lists)
 
+include(driver_nor_flash-controller-flexspi)
+
 include(component_serial_manager_uart)
 
 include(driver_lpuart)
@@ -102,6 +105,7 @@ include(driver_dcp)
 include(driver_snvs_hp)
 
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
+add_linker(${PROJECT_NAME})
 target_link_libraries(${PROJECT_NAME} PRIVATE
     FreeRTOS::Timers
     FreeRTOS::Heap::5
@@ -128,6 +132,7 @@ add_custom_command(TARGET ${PROJECT_NAME}
     VERBATIM)
 
 add_executable(${PROJECT_NAME}-pnp ${PROJECT_SOURCES})
+add_linker(${PROJECT_NAME}-pnp)
 target_link_libraries(${PROJECT_NAME}-pnp PRIVATE
     FreeRTOS::Timers
     FreeRTOS::Heap::5
@@ -158,6 +163,8 @@ add_executable(
     ${PROJECT_SOURCES}
     ${CMAKE_CURRENT_LIST_DIR}/port/azure_iot_flash_platform.c
 )
+add_adu_linker(${PROJECT_NAME}-adu)
+target_compile_definitions(${PROJECT_NAME}-adu PRIVATE -DADU_SAMPLE)
 target_link_libraries(${PROJECT_NAME}-adu PRIVATE
     FreeRTOS::Timers
     FreeRTOS::Heap::5

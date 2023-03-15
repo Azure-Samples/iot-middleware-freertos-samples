@@ -12,6 +12,12 @@
 
 #include "board.h"
 
+#ifdef ADU_SAMPLE
+    #include "flexspi_flash.h"
+    #include "sbl_ota_flag.h"
+#endif
+
+
 #include "pin_mux.h"
 #include <stdbool.h>
 
@@ -243,6 +249,11 @@ int main( void )
     BOARD_InitBootPins();
     BOARD_InitBootClocks();
     BOARD_InitDebugConsole();
+
+    #ifdef ADU_SAMPLE
+        sfw_flash_init();
+    #endif
+
     BOARD_InitModuleClock();
 
     IOMUXC_EnableMode( IOMUXC_GPR, kIOMUXC_GPR_ENET1TxClkOutputDir, true );
@@ -291,6 +302,11 @@ void vApplicationDaemonTaskStartupHook( void )
     prvNetworkUp();
     prvInitializeRTC();
     prvInitializeSNTP();
+
+    #ifdef ADU_SAMPLE
+        /* make the last flash update fully effective */
+        write_image_ok();
+    #endif
 
     /* Demos that use the network are created after the network is
      * up. */
