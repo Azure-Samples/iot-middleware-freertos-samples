@@ -304,7 +304,7 @@ void vApplicationDaemonTaskStartupHook( void )
     prvInitializeSNTP();
 
     #ifdef ADU_SAMPLE
-        /* make the last update fully effective */
+        /* make the last flash update fully effective */
         write_image_ok();
     #endif
 

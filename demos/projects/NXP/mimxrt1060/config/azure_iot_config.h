@@ -40,7 +40,7 @@ extern void vLoggingPrintf( const char * pcFormatString,
     #define SdkLog( message )    vLoggingPrintf message
 #endif
 
-/* Middleware logging */
+/* Middleware logging for NXP platform */
 #if LIBRARY_LOG_LEVEL >= LOG_ERROR
     #define AZLogError( message )    SdkLog( message ); SdkLog( ( "\r\n" ) )
 #endif

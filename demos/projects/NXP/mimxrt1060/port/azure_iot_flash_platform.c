@@ -53,15 +53,15 @@ AzureIoTResult_t AzureIoTPlatform_Init( AzureADUImage_t * const pxAduImage )
     AzureIoTResult_t xResult = eAzureIoTSuccess;
     status_t xStatus;
     uint8_t ucImagePosition;
-    volatile uint32_t ulPrimask;
+    uint32_t ulPrimask;
 
     sfw_flash_read( REMAP_FLAG_ADDRESS, &ucImagePosition, 1 );
 
-    if( ucImagePosition == 0x01 )
+    if( ucImagePosition == FLASH_AREA_IMAGE_1_POSITION )
     {
         pxAduImage->xUpdatePartition = FLASH_AREA_IMAGE_2_OFFSET;
     }
-    else if( ucImagePosition == 0x02 )
+    else if( ucImagePosition == FLASH_AREA_IMAGE_2_POSITION )
     {
         pxAduImage->xUpdatePartition = FLASH_AREA_IMAGE_1_OFFSET;
     }
@@ -96,7 +96,7 @@ AzureIoTResult_t AzureIoTPlatform_WriteBlock( AzureADUImage_t * const pxAduImage
 {
     uint32_t pucNextWriteAddr = pxAduImage->xUpdatePartition + ulOffset;
     AzureIoTResult_t xResult = eAzureIoTSuccess;
-    volatile uint32_t ulPrimask;
+    uint32_t ulPrimask;
     status_t xStatus;
 
     ulPrimask = DisableGlobalIRQ();
@@ -105,6 +105,7 @@ AzureIoTResult_t AzureIoTPlatform_WriteBlock( AzureADUImage_t * const pxAduImage
 
     if( xStatus )
     {
+        AZLogError( ( "Error writing to flash.\r\n" ) );
         xResult = eAzureIoTErrorFailed;
     }
 
@@ -118,14 +119,14 @@ AzureIoTResult_t AzureIoTPlatform_VerifyImage( AzureADUImage_t * const pxAduImag
     int xResult;
     uint32_t ulOutputSize;
     uint32_t ulReadSize;
-    volatile uint32_t ulPrimask;
+    uint32_t ulPrimask;
 
     AZLogInfo( ( "Base64 Encoded Hash from ADU: %.*s", ulSHA256HashLength, pucSHA256Hash ) );
     xResult = prvBase64Decode( pucSHA256Hash, ulSHA256HashLength, ucDecodedManifestHash, azureiotflashSHA_256_SIZE, ( size_t * ) &ulOutputSize );
 
     if( xResult != eAzureIoTSuccess )
     {
-        AZLogError( ( "Unable to decode base64 SHA256\r\n" ) );
+        AZLogError( ( "Unable to decode image hash SHA256\r\n" ) );
         return eAzureIoTErrorFailed;
     }
 
