@@ -34,7 +34,7 @@ This sample will allow you to update an NXP MIMXRT1060-EVK Evaluation kit over t
 
 1. [CMake](https://cmake.org/download/) (Version 3.13 or higher)
 1. [Ninja build system](https://github.com/ninja-build/ninja/releases) (Version 1.10 or higher)
-1. [GNU arm-none-eabi Embedded Toolchain](https://developer.arm.com/downloads/-/gnu-rm) (Version 10.3-2021.10 has been tested with this sample)
+1. [GNU arm-none-eabi Embedded Toolchain](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads) (Version 10.3-2021.10 has been tested with this sample)
 1. Serial terminal tool like [Termite](https://www.compuphase.com/software_termite.htm), Putty, Tera Term, etc.
 1. A debugger to load the image to the device, such as in [VS Code](VSCodeDebug.md), or the [MCUXpresso IDE](MCUXpressoDebug.md).
 

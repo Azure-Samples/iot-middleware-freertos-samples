@@ -16,16 +16,12 @@
 ## Prerequisites
 
 * Install the [MCUXpresso IDE](https://www.nxp.com/design/software/development-software/mcuxpresso-software-and-tools-/mcuxpresso-integrated-development-environment-ide:MCUXpresso-IDE).
-* Download the build SDK for the EVK-MIMXRT1060 at [mcuxpresso.nxp.com](mcuxpresso.nxp.com)
-    1. Select Development Board
-    1. Filter by EVK-MIMXRT1060 and select this board
-    1. Click `Build MCUXpresso SDK` (any version is fine)
-    1. Select any configuration options and click `Download SDK`
-    1. Click `Download SDK Archive including documentation`
-    1. Open the location of the downloaded .zip file
+* Download the device SDK for the EVK-MIMXRT1060
     1. Open MCUXpresso IDE
-    1. Click `Window` -> `Show View` -> `Installed SDKs`
-    1. Drag and drop the downloaded .zip file in the `Installed SDKs` tab
+    1. Click `Help` -> `Welcome` if the welcome screen is not already opened
+    1. Click `Download and Install SDKs`
+    1. Filter by `evkmimxrt1060`
+    1. Click `Install`
 * Create a new dummy MCUXpresso IDE project for the NXP MIMXRT1060-EVK Evaluation kit
 ![img](media/MCUXpresso-board-selection.png)
 
