@@ -64,7 +64,7 @@ You may also need to enable long path support for both Microsoft Windows and git
 
 ### Tag Your Device
 
-Add the `"ADUGroup"` tag to the device's top-level twin document. This is used to group device together, and you may choose whichever title you prefer.
+Add the `"ADUGroup"` tag to the device's top-level twin document. This is used to group devices together, and you may choose whichever title you prefer.
 
 ```json
 "tags": {
@@ -215,7 +215,7 @@ Open a new instance of the ESP-IDF console and navigate to the adu sample direct
 
 Modify the version of the image as below:
 
-On file `iot-middleware-freertos-samples\demos\projects\ESPRESSIF\adu\config\demo_config.h` ([found here](https://github.com/Azure-Samples/iot-middleware-freertos-samples/blob/de7d6493cdac5f946cf966a9cabc2411a9bfaa29/demos/projects/ESPRESSIF/adu/config/demo_config.h#L495))
+On file `./demos/projects/ESPRESSIF/adu/config/demo_config.h` ([found here](https://github.com/Azure-Samples/iot-middleware-freertos-samples/blob/de7d6493cdac5f946cf966a9cabc2411a9bfaa29/demos/projects/ESPRESSIF/adu/config/demo_config.h#L495))
 
 Change
 

@@ -72,7 +72,7 @@ git submodule update --init --recursive
 
 ### Tag Your Device
 
-Add the `"ADUGroup"` tag to the device's top-level twin document. This is used to group device together, and you may choose whichever title you prefer.
+Add the `"ADUGroup"` tag to the device's top-level twin document. This is used to group devices together, and you may choose whichever title you prefer.
 
 ```json
 "tags": {
@@ -88,7 +88,7 @@ Viewing the device twin on the portal, the "tag" section should look similar to 
 
 To connect the STM DevKit to Azure, you'll modify a configuration file for Wi-Fi and Azure IoT settings, rebuild the image, and flash the image to the device.
 
-Update the file `iot-middleware-freertos-samples/demos/projects/ST/b-l475e-iot01a/config/demo_config.h` with your configuration values.
+Update the file `./demos/projects/ST/b-l475e-iot01a/config/demo_config.h` with your configuration values.
 
 Set the **Wi-Fi parameters** to the following values for your local environment.
 
@@ -175,7 +175,7 @@ For other prerequisite help, please see the links below. If none of the links ap
 
 Modify the version of the image as below:
 
-On file `iot-middleware-freertos-samples\demos\projects\ST\b-l475e-iot01a\config\demo_config.h` ([found here](https://github.com/Azure-Samples/iot-middleware-freertos-samples/blob/vaavva/stm32l475-adu-sample/demos/projects/ST/b-l475e-iot01a/config/demo_config.h#L515))
+On file `./demos/projects/ST/b-l475e-iot01a/config/demo_config.h` ([found here](https://github.com/Azure-Samples/iot-middleware-freertos-samples/blob/vaavva/stm32l475-adu-sample/demos/projects/ST/b-l475e-iot01a/config/demo_config.h#L515))
 
 Change
 

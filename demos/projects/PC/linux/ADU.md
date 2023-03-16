@@ -145,7 +145,7 @@ For other prerequisite help, please see the links below. If none of the links ap
 
 Modify the version of the image as below:
 
-On file `iot-middleware-freertos-samples\demos\projects\PC\linux\config\demo_config.h` ([found here](https://github.com/Azure-Samples/iot-middleware-freertos-samples/blob/7d9e2008a293f1786431afcc5328d39baa99dffd/demos/projects/PC/linux/config/demo_config.h#L485))
+On file `./demos/projects/PC/linux/config/demo_config.h` ([found here](https://github.com/Azure-Samples/iot-middleware-freertos-samples/blob/7d9e2008a293f1786431afcc5328d39baa99dffd/demos/projects/PC/linux/config/demo_config.h#L485))
 
 Change
 

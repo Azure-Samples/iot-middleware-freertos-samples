@@ -34,7 +34,7 @@ This sample will allow you to update an NXP MIMXRT1060-EVK Evaluation kit over t
 
 1. [CMake](https://cmake.org/download/) (Version 3.13 or higher)
 1. [Ninja build system](https://github.com/ninja-build/ninja/releases) (Version 1.10 or higher)
-1. [GNU arm-none-eabi Embedded Toolchain](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads) (Version 9 or higher)
+1. [GNU arm-none-eabi Embedded Toolchain](https://developer.arm.com/downloads/-/gnu-rm) (Version 10.3-2021.10 has been tested with this sample)
 1. Serial terminal tool like [Termite](https://www.compuphase.com/software_termite.htm), Putty, Tera Term, etc.
 1. A debugger to load the image to the device, such as in [VS Code](VSCodeDebug.md), or the [MCUXpresso IDE](MCUXpressoDebug.md).
 
@@ -93,7 +93,7 @@ Viewing the device twin on the portal, the "tag" section should look similar to 
 
 1. Use the Ethernet cable to connect the NXP EVK to an Ethernet port.
 
-1. In File Explorer, find the bootloader at `demos/projects/NXP/mimxrt1060/bootloader/rt1060_sbl.bin` and copy it.
+1. In File Explorer, find the bootloader at `./demos/projects/NXP/mimxrt1060/bootloader/rt1060_sbl.bin` and copy it.
 
 1. In File Explorer, find the  NXP EVK device that's connected to your computer. The device appears as a drive on your system with the drive label `RT1060-EVK`.
 
