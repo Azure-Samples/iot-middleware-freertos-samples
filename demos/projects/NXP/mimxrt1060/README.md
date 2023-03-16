@@ -125,11 +125,3 @@ This sample can includes either IoT Hub only or both IoT Hub and DPS services. T
 |**Sample** | **Flash (text,rodata,data)** | **RAM1,RAM2(dss,data)** | **Flash (text,rodata,data)** | **RAM1,RAM2(dss,data)** |
 | IoT Hub + DPS | 23.96 KB | 12 bytes | 246.89 KB | 195.55 KB
 | IoT Hub only | 11.61 KB | 12 bytes | 234.31 KB | 194.37 KB
-
-## ADU PREVIEW
-
-To get the ADU sample working for the NXP 1060, the user must fill in the code at all `TODO` locations listed here:
-
-- [azure_iot_flash_platform.h](port/azure_iot_flash_platform_port.h)
-- [azure_iot_flash_platform.c](port/azure_iot_flash_platform.c)
-- [demo_config.c](config/demo_config.h)

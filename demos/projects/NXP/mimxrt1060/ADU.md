@@ -5,10 +5,10 @@ This sample will allow you to update an NXP MIMXRT1060-EVK Evaluation kit over t
 - [Prepare the Device](#prepare-the-device)
   - [Install Prerequisites](#install-prerequisites)
   - [Tag Your Device](#tag-your-device)
-  - [Prepare the Sample](#prepare-the-sample)
-  - [Build the Image](#build-the-image)
   - [Flash the Bootloader](#flash-the-bootloader)
   - [Confirm Device Bootloader Details](#confirm-device-bootloader-details)
+  - [Prepare the Sample](#prepare-the-sample)
+  - [Build the Image](#build-the-image)
   - [Flash the Image](#flash-the-image)
   - [Confirm Device Connection Details](#confirm-device-connection-details)
 - [Prepare the ADU Service](#prepare-the-adu-service)
@@ -34,7 +34,7 @@ This sample will allow you to update an NXP MIMXRT1060-EVK Evaluation kit over t
 
 1. [CMake](https://cmake.org/download/) (Version 3.13 or higher)
 1. [Ninja build system](https://github.com/ninja-build/ninja/releases) (Version 1.10 or higher)
-1. [GNU Arm Embedded Toolchain](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads) (Version 9 or higher)
+1. [GNU arm-none-eabi Embedded Toolchain](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads) (Version 9 or higher)
 1. Serial terminal tool like [Termite](https://www.compuphase.com/software_termite.htm), Putty, Tera Term, etc.
 1. A debugger to load the image to the device, such as in [VS Code](VSCodeDebug.md), or the [MCUXpresso IDE](MCUXpressoDebug.md).
 
@@ -75,7 +75,7 @@ git submodule update --init --recursive
 
 ### Tag Your Device
 
-Add the `"ADUGroup"` tag to the device's top-level twin document. This is used to group device together, and you may choose whichever title you prefer.
+Add the `"ADUGroup"` tag to the device's top-level twin document. This is used to group devices together, and you may choose whichever title you prefer.
 
 ```json
 "tags": {
@@ -86,39 +86,6 @@ Add the `"ADUGroup"` tag to the device's top-level twin document. This is used t
 Viewing the device twin on the portal, the "tag" section should look similar to the following. Don't worry if you do or do not have a `"deviceUpdate"` section in the `"ADUGroup"` tag. ADU adds that as a default group.
 
 ![img](../../../../docs/resources/tagged-twin.png)
-
-### Prepare the Sample
-
-To connect the MIMXRT1060-EVK to Azure, you'll modify a configuration file for Azure IoT settings, rebuild the image, and flash the image to the device.
-
-Update the file `iot-middleware-freertos-samples/demos/projects/NXP/mimxrt1060/config/demo_config.h` with your configuration values.
-
-If you're using a device previously created in your **IoT Hub** with SAS authentication, disable DPS by commenting out `#define democonfigENABLE_DPS_SAMPLE` and setting the following parameters:
-
-Parameter | Value
----------|----------
- `democonfigDEVICE_ID` | _{Your Device ID value}_
- `democonfigHOSTNAME` | _{Your Azure IoT Hub Host name value}_
- `democonfigDEVICE_SYMMETRIC_KEY` | _{Your Primary Key value}_
-
-If you're using **DPS** with an individual enrollment with SAS authentication, set the following parameters:
-
-Parameter | Value
----------|----------
- `democonfigID_SCOPE` | _{Your DPS ID scope value}_
- `democonfigREGISTRATION_ID` | _{Your Device Registration ID value}_
- `democonfigDEVICE_SYMMETRIC_KEY` | _{Your Primary Key value}_
-
-### Build the Image
-
-To build the device image, navigate to the `iot-middleware-freertos-samples` directory and run the following commands:
-
-  ```bash
-    cmake -G Ninja -DBOARD=mimxrt1060 -DVENDOR=NXP -Bmimxrt1060 .
-    cmake --build mimxrt1060
-  ```
-
-After the build completes, confirm that a folder named `mimxrt1060/` was created and it contains a file named `demo/projects/NXP/mimxrt1060/iot-middleware-sample-adu.bin`.
 
 ### Flash the Bootloader
 
@@ -160,6 +127,39 @@ bad image magic 0xffffffff
 Unable to find bootable image
 ```
 
+### Prepare the Sample
+
+To connect the MIMXRT1060-EVK to Azure, you'll modify a configuration file for Azure IoT settings, rebuild the image, and flash the image to the device.
+
+Update the file `./demos/projects/NXP/mimxrt1060/config/demo_config.h` with your configuration values.
+
+If you're using a device previously created in your **IoT Hub** with SAS authentication, disable DPS by commenting out `#define democonfigENABLE_DPS_SAMPLE` and setting the following parameters:
+
+Parameter | Value
+---------|----------
+ `democonfigDEVICE_ID` | _{Your Device ID value}_
+ `democonfigHOSTNAME` | _{Your Azure IoT Hub Host name value}_
+ `democonfigDEVICE_SYMMETRIC_KEY` | _{Your Primary Key value}_
+
+If you're using **DPS** with an individual enrollment with SAS authentication, set the following parameters:
+
+Parameter | Value
+---------|----------
+ `democonfigID_SCOPE` | _{Your DPS ID scope value}_
+ `democonfigREGISTRATION_ID` | _{Your Device Registration ID value}_
+ `democonfigDEVICE_SYMMETRIC_KEY` | _{Your Primary Key value}_
+
+### Build the Image
+
+To build the device image, navigate to the `iot-middleware-freertos-samples` directory and run the following commands:
+
+  ```bash
+    cmake -G Ninja -DBOARD=mimxrt1060 -DVENDOR=NXP -Bmimxrt1060 .
+    cmake --build mimxrt1060
+  ```
+
+After the build completes, confirm that a folder named `mimxrt1060/` was created and it contains a file named `demos/projects/NXP/mimxrt1060/iot-middleware-sample-adu.bin`.
+
 ### Flash the Image
 
 Use your debugger (instructions for VS Code [here](VSCodeDebug.md) or MCUXpresso [here](MCUXpressoDebug.md)) to run the ADU sample.
@@ -197,7 +197,7 @@ For other prerequisite help, please see the links below. If none of the links ap
 
 Modify the version of the image as below:
 
-On file `iot-middleware-freertos-samples\demos\projects\NXP\mimxrt1060\config\demo_config.h` ([found here](https://github.com/Azure-Samples/iot-middleware-freertos-samples/blob/main/demos/projects/NXP/mimxrt1060/config/demo_config.h#L241))
+On file `./demos/projects/NXP/mimxrt1060/config/demo_config.h` ([found here](https://github.com/Azure-Samples/iot-middleware-freertos-samples/blob/main/demos/projects/NXP/mimxrt1060/config/demo_config.h#L241))
 
 Change
 

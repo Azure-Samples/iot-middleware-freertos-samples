@@ -50,6 +50,9 @@ You can interact with [Azure Device Update](https://github.com/Azure/azure-iot-m
 - ESPRESSIF:
   - [ESP32](demos/projects/ESPRESSIF/adu/README.md)
 
+- NXP:
+  - [MIMXRT1060-EVK](demos/projects/NXP/mimxrt1060/ADU.md)
+
 - STMicroelectronics:
   - [B-L475E-IOT01A](demos/projects/ST/b-l475e-iot01a/ADU.md)
 
