@@ -133,7 +133,7 @@ To connect the MIMXRT1060-EVK to Azure, you'll modify a configuration file for A
 
 Update the file `./demos/projects/NXP/mimxrt1060/config/demo_config.h` with your configuration values.
 
-If you're using a device previously created in your **IoT Hub** with SAS authentication, disable DPS by commenting out `#define democonfigENABLE_DPS_SAMPLE` and setting the following parameters:
+If you're using a device previously created in your **IoT Hub** with SAS authentication, disable DPS by commenting out `#define democonfigENABLE_DPS_SAMPLE` and set the following parameters:
 
 Parameter | Value
 ---------|----------

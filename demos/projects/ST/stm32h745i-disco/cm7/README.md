@@ -57,7 +57,7 @@ To connect the STM DevKit to Azure, you'll modify a configuration file for Wi-Fi
 
 Update the file `iot-middleware-freertos-samples/demos/projects/ST/stm32h745i-disco/cm7/config/demo_config.h` with your configuration values.
 
-If you're using a device previously created in your **IoT Hub** with SAS authentication, disable DPS by commenting out `#define democonfigENABLE_DPS_SAMPLE` and setting the following parameters:
+If you're using a device previously created in your **IoT Hub** with SAS authentication, disable DPS by commenting out `#define democonfigENABLE_DPS_SAMPLE` and set the following parameters:
 
 Parameter | Value 
 ---------|----------
