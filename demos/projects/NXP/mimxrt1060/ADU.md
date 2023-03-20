@@ -5,10 +5,10 @@ This sample will allow you to update an NXP MIMXRT1060-EVK Evaluation kit over t
 - [Prepare the Device](#prepare-the-device)
   - [Install Prerequisites](#install-prerequisites)
   - [Tag Your Device](#tag-your-device)
-  - [Prepare the Sample](#prepare-the-sample)
-  - [Build the Image](#build-the-image)
   - [Flash the Bootloader](#flash-the-bootloader)
   - [Confirm Device Bootloader Details](#confirm-device-bootloader-details)
+  - [Prepare the Sample](#prepare-the-sample)
+  - [Build the Image](#build-the-image)
   - [Flash the Image](#flash-the-image)
   - [Confirm Device Connection Details](#confirm-device-connection-details)
 - [Prepare the ADU Service](#prepare-the-adu-service)
@@ -34,9 +34,9 @@ This sample will allow you to update an NXP MIMXRT1060-EVK Evaluation kit over t
 
 1. [CMake](https://cmake.org/download/) (Version 3.13 or higher)
 1. [Ninja build system](https://github.com/ninja-build/ninja/releases) (Version 1.10 or higher)
-1. [GNU Arm Embedded Toolchain](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads) (Version 9 or higher)
+1. [GNU arm-none-eabi Embedded Toolchain](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads) (This sample was tested against Version 10.3)
 1. Serial terminal tool like [Termite](https://www.compuphase.com/software_termite.htm), Putty, Tera Term, etc.
-1. A debugger to load the image to the device, such as in [VS Code](VSCodeDebug.md), or the [MCUXpresso IDE](MCUXpressoDebug.md).
+1. A way to load the image to the device, such as [VS Code](VSCodeDebug.md), the [MCUXpresso IDE](LoadADUApplication.md#using-mcuxpresso-ide), or JLink/openocd on the [command line](LoadADUApplication.md#using-command-line).
 
 To run this sample you can use a device previously created on your Azure IoT Hub or you may have the Azure IoT middleware for FreeRTOS provision your device automatically using Azure Device Provisioning Services (DPS). **Note** that even when using DPS, you still need an IoT Hub created and connected to DPS.
 
@@ -75,7 +75,7 @@ git submodule update --init --recursive
 
 ### Tag Your Device
 
-Add the `"ADUGroup"` tag to the device's top-level twin document. This is used to group device together, and you may choose whichever title you prefer.
+Add the `"ADUGroup"` tag to the device's top-level twin document. This is used to group devices together, and you may choose whichever title you prefer.
 
 ```json
 "tags": {
@@ -87,46 +87,13 @@ Viewing the device twin on the portal, the "tag" section should look similar to 
 
 ![img](../../../../docs/resources/tagged-twin.png)
 
-### Prepare the Sample
-
-To connect the MIMXRT1060-EVK to Azure, you'll modify a configuration file for Azure IoT settings, rebuild the image, and flash the image to the device.
-
-Update the file `iot-middleware-freertos-samples/demos/projects/NXP/mimxrt1060/config/demo_config.h` with your configuration values.
-
-If you're using a device previously created in your **IoT Hub** with SAS authentication, disable DPS by commenting out `#define democonfigENABLE_DPS_SAMPLE` and setting the following parameters:
-
-Parameter | Value
----------|----------
- `democonfigDEVICE_ID` | _{Your Device ID value}_
- `democonfigHOSTNAME` | _{Your Azure IoT Hub Host name value}_
- `democonfigDEVICE_SYMMETRIC_KEY` | _{Your Primary Key value}_
-
-If you're using **DPS** with an individual enrollment with SAS authentication, set the following parameters:
-
-Parameter | Value
----------|----------
- `democonfigID_SCOPE` | _{Your DPS ID scope value}_
- `democonfigREGISTRATION_ID` | _{Your Device Registration ID value}_
- `democonfigDEVICE_SYMMETRIC_KEY` | _{Your Primary Key value}_
-
-### Build the Image
-
-To build the device image, navigate to the `iot-middleware-freertos-samples` directory and run the following commands:
-
-  ```bash
-    cmake -G Ninja -DBOARD=mimxrt1060 -DVENDOR=NXP -Bmimxrt1060 .
-    cmake --build mimxrt1060
-  ```
-
-After the build completes, confirm that a folder named `mimxrt1060/` was created and it contains a file named `demo/projects/NXP/mimxrt1060/iot-middleware-sample-adu.bin`.
-
 ### Flash the Bootloader
 
 1. Connect the Micro USB cable to the Micro USB port on the NXP EVK, and then connect it to your computer. After the device powers up, a solid green LED shows the power status.
 
 1. Use the Ethernet cable to connect the NXP EVK to an Ethernet port.
 
-1. In File Explorer, find the bootloader at `demos/projects/NXP/mimxrt1060/bootloader/rt1060_sbl.bin` and copy it.
+1. In File Explorer, find the bootloader at `./demos/projects/NXP/mimxrt1060/bootloader/rt1060_sbl.bin` and copy it.
 
 1. In File Explorer, find the  NXP EVK device that's connected to your computer. The device appears as a drive on your system with the drive label `RT1060-EVK`.
 
@@ -160,9 +127,42 @@ bad image magic 0xffffffff
 Unable to find bootable image
 ```
 
+### Prepare the Sample
+
+To connect the MIMXRT1060-EVK to Azure, you'll modify a configuration file for Azure IoT settings, rebuild the image, and flash the image to the device.
+
+Update the file `./demos/projects/NXP/mimxrt1060/config/demo_config.h` with your configuration values.
+
+If you're using a device previously created in your **IoT Hub** with SAS authentication, disable DPS by commenting out `#define democonfigENABLE_DPS_SAMPLE` and set the following parameters:
+
+Parameter | Value
+---------|----------
+ `democonfigDEVICE_ID` | _{Your Device ID value}_
+ `democonfigHOSTNAME` | _{Your Azure IoT Hub Host name value}_
+ `democonfigDEVICE_SYMMETRIC_KEY` | _{Your Primary Key value}_
+
+If you're using **DPS** with an individual enrollment with SAS authentication, set the following parameters:
+
+Parameter | Value
+---------|----------
+ `democonfigID_SCOPE` | _{Your DPS ID scope value}_
+ `democonfigREGISTRATION_ID` | _{Your Device Registration ID value}_
+ `democonfigDEVICE_SYMMETRIC_KEY` | _{Your Primary Key value}_
+
+### Build the Image
+
+To build the device image, navigate to the `iot-middleware-freertos-samples` directory and run the following commands:
+
+  ```bash
+    cmake -G Ninja -DBOARD=mimxrt1060 -DVENDOR=NXP -Bmimxrt1060 .
+    cmake --build mimxrt1060
+  ```
+
+After the build completes, confirm that a folder named `mimxrt1060/` was created and it contains a file named `demos/projects/NXP/mimxrt1060/iot-middleware-sample-adu.bin`.
+
 ### Flash the Image
 
-Use your debugger (instructions for VS Code [here](VSCodeDebug.md) or MCUXpresso [here](MCUXpressoDebug.md)) to run the ADU sample.
+Use your debugger (instructions for VS Code [here](VSCodeDebug.md), MCUXpresso [here](LoadADUApplication.md#using-mcuxpresso-ide), or JLink/openocd on the command line [here](LoadADUApplication.md#using-command-line)) to flash the ADU sample.
 
 > Note: Copy and pasting the sample binary into the device folder in the File Explorer will overwrite the bootloader. The debugger properly writes required device values to boot from the sample binary (which the ADU agent in the sample does as well). Once the debugger has loaded the sample to the board, the board can be reset the sample can be run without using the debugger.
 
@@ -185,11 +185,14 @@ To create an Azure Device Update instance and connect it to your IoT Hub, please
 
 - [Create an Azure Device Update Instance](https://docs.microsoft.com/azure/iot-hub-device-update/create-device-update-account?tabs=portal)
 
-For other prerequisite help, please see the links below. If none of the links apply to your development environment, you may skip them.
+<details>
+<summary>For other prerequisite help, please see these links. If none of the links apply to your development environment, you may skip them.</summary>
 
 - [Create an Azure IoT Hub](https://docs.microsoft.com/azure/iot-hub/iot-hub-create-through-portal)
   > Important: To use Azure Device Update you must have an Azure IoT Hub with [scale unit](https://learn.microsoft.com/azure/iot-hub/iot-hub-scaling) S1, S2, S3 or a free/standard hub. This sample will not work with a Basic Azure IoT Hub scale unit.
 - [Create Device Provisioning Service Instance](https://docs.microsoft.com/azure/iot-dps/quick-setup-auto-provision)
+
+</details>
 
 ## Deploy the Over the Air Update
 
@@ -197,7 +200,7 @@ For other prerequisite help, please see the links below. If none of the links ap
 
 Modify the version of the image as below:
 
-On file `iot-middleware-freertos-samples\demos\projects\NXP\mimxrt1060\config\demo_config.h` ([found here](https://github.com/Azure-Samples/iot-middleware-freertos-samples/blob/main/demos/projects/NXP/mimxrt1060/config/demo_config.h#L241))
+On file `./demos/projects/NXP/mimxrt1060/config/demo_config.h` ([found here](https://github.com/Azure-Samples/iot-middleware-freertos-samples/blob/main/demos/projects/NXP/mimxrt1060/config/demo_config.h#L241))
 
 Change
 

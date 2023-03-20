@@ -11,7 +11,7 @@
 
 - [CMake](https://cmake.org/download/) (Version 3.13 or higher)
 - [Ninja build system](https://github.com/ninja-build/ninja/releases) (Version 1.10 or higher)
-- [GNU Arm Embedded Toolchain](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads) (Version 9 or higher)
+- [GNU Arm Embedded Toolchain](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads) (This sample was tested against Version 10.3)
 - Terminal tool like [Termite](https://www.compuphase.com/software_termite.htm), Putty, Tera Term, etc.
 - To run this sample you can use a device previously created in your IoT Hub or have the Azure IoT Middleware for FreeRTOS provision your device automatically using DPS. **Note** that even when using DPS, you still need an IoT Hub created and connected to DPS. If you haven't deployed the necessary Azure resources yet, [you may use the guide here](https://github.com/Azure-Samples/iot-middleware-freertos-samples/blob/main/docs/azure-bicep-deployment.md).
 
@@ -57,7 +57,7 @@ To connect the MIMXRT1060-EVK to Azure, you'll modify a configuration file for A
 
 Update the file `iot-middleware-freertos-samples/demos/projects/NXP/mimxrt1060/config/demo_config.h` with your configuration values.
 
-If you're using a device previously created in your **IoT Hub** with SAS authentication, disable DPS by commenting out `#define democonfigENABLE_DPS_SAMPLE` and setting the following parameters:
+If you're using a device previously created in your **IoT Hub** with SAS authentication, disable DPS by commenting out `#define democonfigENABLE_DPS_SAMPLE` and set the following parameters:
 
 Parameter | Value
 ---------|----------
@@ -125,11 +125,3 @@ This sample can includes either IoT Hub only or both IoT Hub and DPS services. T
 |**Sample** | **Flash (text,rodata,data)** | **RAM1,RAM2(dss,data)** | **Flash (text,rodata,data)** | **RAM1,RAM2(dss,data)** |
 | IoT Hub + DPS | 23.96 KB | 12 bytes | 246.89 KB | 195.55 KB
 | IoT Hub only | 11.61 KB | 12 bytes | 234.31 KB | 194.37 KB
-
-## ADU PREVIEW
-
-To get the ADU sample working for the NXP 1060, the user must fill in the code at all `TODO` locations listed here:
-
-- [azure_iot_flash_platform.h](port/azure_iot_flash_platform_port.h)
-- [azure_iot_flash_platform.c](port/azure_iot_flash_platform.c)
-- [demo_config.c](config/demo_config.h)

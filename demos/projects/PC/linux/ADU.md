@@ -78,7 +78,7 @@ Update the file `demo_config.h` with your configuration values.
 nano demos/projects/PC/linux/config/demo_config.h
 ```
 
-If you're using a device previously created in your **IoT Hub** with SAS authentication, disable DPS by commenting out `#define democonfigENABLE_DPS_SAMPLE` and setting the following parameters:
+If you're using a device previously created in your **IoT Hub** with SAS authentication, disable DPS by commenting out `#define democonfigENABLE_DPS_SAMPLE` and set the following parameters:
 
 Parameter | Value
 ---------|----------
@@ -145,7 +145,7 @@ For other prerequisite help, please see the links below. If none of the links ap
 
 Modify the version of the image as below:
 
-On file `iot-middleware-freertos-samples\demos\projects\PC\linux\config\demo_config.h` ([found here](https://github.com/Azure-Samples/iot-middleware-freertos-samples/blob/7d9e2008a293f1786431afcc5328d39baa99dffd/demos/projects/PC/linux/config/demo_config.h#L485))
+On file `./demos/projects/PC/linux/config/demo_config.h` ([found here](https://github.com/Azure-Samples/iot-middleware-freertos-samples/blob/7d9e2008a293f1786431afcc5328d39baa99dffd/demos/projects/PC/linux/config/demo_config.h#L485))
 
 Change
 

@@ -130,10 +130,12 @@ do
             sample_build "NXP" "mimxrt1060" "build_nxp_mimxrt1060" "Debug"
             exit_if_binary_does_not_exist "build_nxp_mimxrt1060" "iot-middleware-sample.elf"
             exit_if_binary_does_not_exist "build_nxp_mimxrt1060" "iot-middleware-sample-pnp.elf"
+            exit_if_binary_does_not_exist "build_nxp_mimxrt1060" "iot-middleware-sample-adu.elf"
 
             echo -e "::group::Print Size for Debug"
             grep -A9 "Linking C executable demos/projects/NXP/mimxrt1060/iot-middleware-sample.elf" build.txt
             grep -A9 "Linking C executable demos/projects/NXP/mimxrt1060/iot-middleware-sample-pnp.elf" build.txt
+            grep -A9 "Linking C executable demos/projects/NXP/mimxrt1060/iot-middleware-sample-adu.elf" build.txt
 
             rm -rf build_nxp_mimxrt1060
 
