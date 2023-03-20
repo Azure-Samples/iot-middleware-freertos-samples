@@ -115,7 +115,7 @@ After running the sample, you can use VS Code to debug your application directly
 
 The following chart shows the RAM and ROM usage for the MIMXRT1060-EVK Evaluation kit from NXP. 
 Build options: CMAKE_BUILD_TYPE=MinSizeRel (-Os) and no logging (-DLIBRARY_LOG_LEVEL=LOG_NONE):
-This sample can includes either IoT Hub only or both IoT Hub and DPS services. The table below shows RAM/ROM sizes considering:
+This sample can include IoT Hub only, or IoT Hub plus DPS services and/or ADU services. The table below shows RAM/ROM sizes considering:
 
 - Middleware libraries only – represents the libraries for Azure IoT connection.
 - Total size – which includes the Azure IoT middleware for FreeRTOS, Mbed TLS, FreeRTOS, CoreMQTT and the HAL for the dev kit.
@@ -123,5 +123,27 @@ This sample can includes either IoT Hub only or both IoT Hub and DPS services. T
 |  | Middleware library size | | Total Size | |
 |---------|----------|---------|---------|---------
 |**Sample** | **Flash (text,rodata,data)** | **RAM1,RAM2(dss,data)** | **Flash (text,rodata,data)** | **RAM1,RAM2(dss,data)** |
-| IoT Hub + DPS | 23.96 KB | 12 bytes | 246.89 KB | 195.55 KB
-| IoT Hub only | 11.61 KB | 12 bytes | 234.31 KB | 194.37 KB
+| IoT Hub only | 16.4 KB | 12 bytes | 247 KB | 194.6 KB
+| IoT Hub + DPS | 31.7 KB | 12 bytes | 262.6 KB | 195.7 KB
+| IoT Hub + ADU | 31.8 KB | 16 bytes | 282.8 KB | 208.4 KB
+| IoT Hub + ADU + DPS | 41.8 KB | 16 bytes | 294.1 KB | 209.5 KB
+
+<details>
+  <summary>How these numbers were calculated:</summary>
+
+  - Flash includes (based on [MIMXRT1062xxxxx_flexspi_nor.ld](./MIMXRT1062xxxxx_flexspi_nor.ld) for ADU samples and [MIMXRT1062xxxxx_sdram.ld](./MIMXRT1062xxxxx_sdram.ld) for non-ADU samples):
+    - .flash_config (for non-ADU samples)
+    - .ivt (for non-ADU samples)
+    - .boot_hdr (for ADU samples)
+    - .interrupts
+    - .text
+    - .ARM
+    - .preinit_array
+    - .init_array
+    - .fini_array
+  - RAM1, RAM2 includes (based on [MIMXRT1062xxxxx_flexspi_nor.ld](./MIMXRT1062xxxxx_flexspi_nor.ld) for ADU samples and [MIMXRT1062xxxxx_sdram.ld](./MIMXRT1062xxxxx_sdram.ld) for non-ADU samples):
+    - .data
+    - .bss
+  - Middleware values were calculated by filtering the map file by any entries with `libaz` in the file path.
+  - Total values were calculated from the map file found at the root of the build directory by summing all values within the above specified sections.
+</details>
