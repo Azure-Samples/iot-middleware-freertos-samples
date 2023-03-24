@@ -13,9 +13,9 @@
 
 /* MCU SFW Flash Map */
 
-#define BOOT_FLASH_BASE 0x60000000
-#define BOOT_FLASH_ACT_APP 0x60100000
-#define BOOT_FLASH_CAND_APP 0x60200000
+#define BOOT_FLASH_BASE        0x60000000
+#define BOOT_FLASH_ACT_APP     0x60100000
+#define BOOT_FLASH_CAND_APP    0x60200000
 
 /* MCU SFW Component */
 
@@ -26,7 +26,7 @@
 
 /* Flash device parameters */
 
-#define COMPONENT_FLASHIAP_SIZE 8388608
+#define COMPONENT_FLASHIAP_SIZE    8388608
 
 /* Platform Drivers Config */
 
@@ -38,4 +38,4 @@
 
 #define COMPONENT_PHY
 
-#endif
+#endif /* ifndef __SFW_H__ */
