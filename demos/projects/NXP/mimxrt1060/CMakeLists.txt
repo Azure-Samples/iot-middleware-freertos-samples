@@ -23,20 +23,36 @@ target_link_libraries(${MCUX_SDK_PROJECT_NAME}
 )
 
 nxp_mcux_sdk_fetch()
+nxp_sfw_fetch()
 lwip_fetch()
 
 list(APPEND CMAKE_MODULE_PATH ${NXP_MCUX_SDK_PATH})
 list(APPEND CMAKE_MODULE_PATH ${NXP_MCUX_SDK_PATH}/CMSIS/Include)
+list(APPEND CMAKE_MODULE_PATH ${NXP_SFW_PATH})
 
 find_package(LWIP)
 
 include_directories(${BOARD_DEMO_CONFIG_PATH})
-include_directories(nxp_code)
-include_directories(nxp_code/lwip)
+include_directories(${NXP_SFW_PATH}/target/evkmimxrt1060/board)
+include_directories(${NXP_SFW_PATH}/target/evkmimxrt1060/board/MCUX_Config)
+include_directories(${NXP_SFW_PATH}/component/lwip/port)
 include_directories(port)
 
-file(GLOB NXPCODE_SOURCES nxp_code/*.c nxp_code/lwip/*.c)
-set(PROJECT_SOURCES ${NXPCODE_SOURCES} main.c)
+file(GLOB NXPCODE_SOURCES 
+    ${NXP_SFW_PATH}/target/evkmimxrt1060/board/MCUX_Config/*.c
+    ${NXP_SFW_PATH}/target/evkmimxrt1060/board/board.c
+    ${NXP_SFW_PATH}/component/lwip/port/*.c)
+
+file(GLOB NXPCODE_SOURCES_ADU 
+    ${NXP_SFW_PATH}/target/evkmimxrt1060/board/flexspi_nor_flash_ops.c
+    ${NXP_SFW_PATH}/firmware/ota_flag/sbl_ota_flag.c
+    ${NXP_SFW_PATH}/component/flashiap/flexspi_flash.c)
+
+file(GLOB NXPCODE_SOURCES_XIP
+    ${NXP_MCUX_SDK_PATH}/boards/evkmimxrt1060/project_template/dcd.c)
+
+set(PROJECT_SOURCES_XIP ${NXPCODE_SOURCES} ${NXPCODE_SOURCES_XIP} main.c)
+set(PROJECT_SOURCES_ADU ${NXPCODE_SOURCES} ${NXPCODE_SOURCES_ADU} main.c)
 
 # configure modules
 set(CONFIG_USE_driver_lpuart true)
@@ -104,7 +120,8 @@ include(driver_dcp)
 
 include(driver_snvs_hp)
 
-add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
+add_executable(${PROJECT_NAME} ${PROJECT_SOURCES_XIP})
+target_include_directories(${PROJECT_NAME} PRIVATE ${NXP_MCUX_SDK_PATH}/boards/evkmimxrt1060/project_template)
 add_linker(${PROJECT_NAME})
 target_link_libraries(${PROJECT_NAME} PRIVATE
     FreeRTOS::Timers
@@ -131,7 +148,8 @@ add_custom_command(TARGET ${PROJECT_NAME}
     COMMENT "Generate Bin file"
     VERBATIM)
 
-add_executable(${PROJECT_NAME}-pnp ${PROJECT_SOURCES})
+add_executable(${PROJECT_NAME}-pnp ${PROJECT_SOURCES_XIP})
+target_include_directories(${PROJECT_NAME}-pnp PRIVATE ${NXP_MCUX_SDK_PATH}/boards/evkmimxrt1060/project_template)
 add_linker(${PROJECT_NAME}-pnp)
 target_link_libraries(${PROJECT_NAME}-pnp PRIVATE
     FreeRTOS::Timers
@@ -160,9 +178,12 @@ add_custom_command(TARGET ${PROJECT_NAME}-pnp
 
 add_executable(
   ${PROJECT_NAME}-adu
-    ${PROJECT_SOURCES}
+    ${PROJECT_SOURCES_ADU}
     ${CMAKE_CURRENT_LIST_DIR}/port/azure_iot_flash_platform.c
 )
+target_include_directories(${PROJECT_NAME}-adu PRIVATE ${NXP_SFW_PATH}/firmware/ota_flag)
+target_include_directories(${PROJECT_NAME}-adu PRIVATE ${NXP_SFW_PATH}/firmware/include)
+target_include_directories(${PROJECT_NAME}-adu PRIVATE ${NXP_SFW_PATH}/component/flashiap)
 add_adu_linker(${PROJECT_NAME}-adu)
 target_compile_definitions(${PROJECT_NAME}-adu PRIVATE -DADU_SAMPLE)
 target_link_libraries(${PROJECT_NAME}-adu PRIVATE

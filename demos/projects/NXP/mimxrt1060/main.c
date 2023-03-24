@@ -13,8 +13,8 @@
 #include "board.h"
 
 #ifdef ADU_SAMPLE
-    #include "flexspi_flash.h"
     #include "sbl_ota_flag.h"
+    #include "flexspi_flash_config.h"
 #endif
 
 

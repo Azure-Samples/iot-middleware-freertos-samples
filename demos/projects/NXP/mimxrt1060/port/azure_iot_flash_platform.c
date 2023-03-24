@@ -14,9 +14,23 @@
 #include "mbedtls/md.h"
 
 #include "flash_info.h"
+#include "flexspi_flash_config.h"
 #include "sbl_ota_flag.h"
 
 #define azureiotflashSHA_256_SIZE    32
+#define FLASH_AREA_IMAGE_1_POSITION     0x01
+#define FLASH_AREA_IMAGE_2_POSITION     0x02
+
+#ifndef SFW_STANDALONE_XIP
+/* image header, size 1KB */
+#if defined(__CC_ARM) || defined(__ARMCC_VERSION) || defined(__GNUC__)
+    __attribute__((section(".image_header")))
+#elif defined(__ICCARM__)
+#pragma location=".image_header"
+#endif
+
+const char __image_header[1024] = {0x3D, 0xB8, 0xF3, 0x96, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04};
+#endif
 
 static uint8_t ucPartitionReadBuffer[ 32 ];
 static uint8_t ucDecodedManifestHash[ azureiotflashSHA_256_SIZE ];
