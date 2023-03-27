@@ -18,6 +18,13 @@ FetchContent_Declare(
 )
 
 FetchContent_Declare(
+    NXP_SFW
+    GIT_REPOSITORY https://github.com/nxp-mcuxpresso/sfw.git
+    GIT_TAG        d7e76dbe1bf481bd7d4a7fbb167005bbfec8db6e
+    GIT_PROGRESS   TRUE
+)
+
+FetchContent_Declare(
     LWIP
     GIT_REPOSITORY https://github.com/lwip-tcpip/lwip.git
     GIT_TAG        STABLE-2_1_2_RELEASE
@@ -53,6 +60,22 @@ function(nxp_mcux_sdk_fetch)
 
         set(NXP_MCUX_SDK_PATH ${nxp_mcux_sdk_SOURCE_DIR} PARENT_SCOPE)
         message(INFO "NXP_MCUX_SDK_PATH set to ${NXP_MCUX_SDK_PATH}")
+    endif()
+endfunction()
+
+function(nxp_sfw_fetch)
+    if(NXP_SFW_PATH)
+        message(INFO "NXP_SFW_PATH specified: {NXP_SFW_PATH}, skipping fetch for NXP SFW")
+    else()
+        FetchContent_GetProperties(NXP_SFW)
+
+        if(NOT NXP_SFW_POPULATED)
+            set(FETCHCONTENT_QUIET FALSE) # To see progress
+            FetchContent_Populate(NXP_SFW)
+        endif()
+
+        set(NXP_SFW_PATH ${nxp_sfw_SOURCE_DIR} PARENT_SCOPE)
+        message(INFO "NXP_SFW_PATH set to ${NXP_SFW_PATH}")
     endif()
 endfunction()
 
