@@ -38,7 +38,7 @@ NCACHE_HEAP_SIZE  = DEFINED(__heap_noncacheable__) ? HEAP_SIZE : 0x0000;
 MEMORY
 {
   m_image_hdr           (RX)  : ORIGIN = 0x60100000, LENGTH = 0x00000400
-  m_interrupts          (RX)  : ORIGIN = 0x60100400 LENGTH = 0x00000400
+  m_interrupts          (RX)  : ORIGIN = 0x60100400, LENGTH = 0x00000400
   m_text                (RX)  : ORIGIN = 0x60100800, LENGTH = 0xFE800
   m_data                (RW)  : ORIGIN = 0x20200000, LENGTH = DEFINED(__heap_noncacheable__) ? 0x000C0000 : 0x000C0000 - HEAP_SIZE
   m_ncache              (RW)  : ORIGIN = 0x20000000, LENGTH = DEFINED(__heap_noncacheable__) ? 0x00020000 - HEAP_SIZE : 0x00020000
