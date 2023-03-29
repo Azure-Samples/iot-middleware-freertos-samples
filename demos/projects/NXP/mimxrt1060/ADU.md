@@ -5,6 +5,7 @@ This sample will allow you to update an NXP MIMXRT1060-EVK Evaluation kit over t
 - [Prepare the Device](#prepare-the-device)
   - [Install Prerequisites](#install-prerequisites)
   - [Tag Your Device](#tag-your-device)
+  - [Prepare the Bootloader](#prepare-the-bootloader)
   - [Flash the Bootloader](#flash-the-bootloader)
   - [Confirm Device Bootloader Details](#confirm-device-bootloader-details)
   - [Prepare the Sample](#prepare-the-sample)
@@ -87,17 +88,42 @@ Viewing the device twin on the portal, the "tag" section should look similar to 
 
 ![img](../../../../docs/resources/tagged-twin.png)
 
+### Prepare the Bootloader
+
+1. Clone the Secure Bootloader (sbl) repo. This guide has been tested with version 1.1.0.
+
+    ```bash
+    git clone https://github.com/nxp-mcuxpresso/sbl.git
+    ```
+
+1. Navigate to the folder: `sbl/target/evkmimxrt1060`.
+1. Open `sblprofile.py` and change the `EXEC_PATH` to your gcc toolchain install path. Example:
+
+    ```python
+    # cross_tool provides the cross compiler
+    # EXEC_PATH is the compiler execute path
+    if  CROSS_TOOL == 'gcc':
+        PLATFORM    = 'gcc'
+        EXEC_PATH   = r'C:\Program Files (x86)\GNU Arm Embedded Toolchain\10 2021.10\bin'
+    ```
+
+1. Double-click the batch file `env.bat` to run it.
+1. Run `scons --menuconfig` to configure the project.
+    1. Enter submenu `MCU SBL Component` -> `secure`
+    1. Type `N` to uncheck `Select image security function`
+    1. Save the configuration and Exit.
+1. Run `scons` to build the bootloader image.
+1. Confirm that the file `sbl/target/evkmimxrt1060/build/sbl.bin` now exists and copy it.
+
 ### Flash the Bootloader
 
 1. Connect the Micro USB cable to the Micro USB port on the NXP EVK, and then connect it to your computer. After the device powers up, a solid green LED shows the power status.
 
 1. Use the Ethernet cable to connect the NXP EVK to an Ethernet port.
 
-1. In File Explorer, find the bootloader at `./demos/projects/NXP/mimxrt1060/bootloader/rt1060_sbl.bin` and copy it.
-
 1. In File Explorer, find the  NXP EVK device that's connected to your computer. The device appears as a drive on your system with the drive label `RT1060-EVK`.
 
-1. Paste the bootloader binary file into the root folder of the NXP EVK. Flashing starts automatically and completes in a few seconds.
+1. Paste the bootloader binary file `sbl.bin` (created and copied in the previous section) into the root folder of the NXP EVK. Flashing starts automatically and completes in a few seconds.
 
 1. Reset the device once flashing completes.
 
@@ -117,7 +143,7 @@ You should see that the output says it does not have a bootable image yet.
 
 ```log
 hello sbl.
-Bootloader Version 0.0.1
+Bootloader Version 1.1.0
 Remap type: none
 
 The image now in PRIMARY_SLOT slot

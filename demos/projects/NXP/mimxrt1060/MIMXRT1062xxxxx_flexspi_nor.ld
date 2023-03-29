@@ -31,19 +31,17 @@ ENTRY(Reset_Handler)
 HEAP_SIZE  = DEFINED(__heap_size__)  ? __heap_size__  : 0x1000;
 STACK_SIZE = DEFINED(__stack_size__) ? __stack_size__ : 0x0400;
 VECTOR_RAM_SIZE = DEFINED(__ram_vector_table__) ? 0x00000400 : 0;
-NCACHE_HEAP_START = DEFINED(__heap_noncacheable__) ? 0x82000000 - HEAP_SIZE : 0x81E00000 - HEAP_SIZE;
+NCACHE_HEAP_START = DEFINED(__heap_noncacheable__) ? 0x20020000 - HEAP_SIZE : 0x202C0000 - HEAP_SIZE;
 NCACHE_HEAP_SIZE  = DEFINED(__heap_noncacheable__) ? HEAP_SIZE : 0x0000;
 
 /* Specify the memory areas */
 MEMORY
 {
   m_image_hdr           (RX)  : ORIGIN = 0x60100000, LENGTH = 0x00000400
-  m_interrupts          (RX)  : ORIGIN = 0x60100400 LENGTH = 0x00000400
+  m_interrupts          (RX)  : ORIGIN = 0x60100400, LENGTH = 0x00000400
   m_text                (RX)  : ORIGIN = 0x60100800, LENGTH = 0xFE800
-  m_data                (RW)  : ORIGIN = 0x80000000, LENGTH = DEFINED(__heap_noncacheable__) ? 0x01E00000 : 0x01E00000 - HEAP_SIZE
-  m_ncache              (RW)  : ORIGIN = 0x81E00000, LENGTH = DEFINED(__heap_noncacheable__) ? 0x00200000 - HEAP_SIZE : 0x00200000
-  m_data2               (RW)  : ORIGIN = 0x20000000, LENGTH = 0x00020000
-  m_data3               (RW)  : ORIGIN = 0x20200000, LENGTH = 0x000C0000
+  m_data                (RW)  : ORIGIN = 0x20200000, LENGTH = DEFINED(__heap_noncacheable__) ? 0x000C0000 : 0x000C0000 - HEAP_SIZE
+  m_ncache              (RW)  : ORIGIN = 0x20000000, LENGTH = DEFINED(__heap_noncacheable__) ? 0x00020000 - HEAP_SIZE : 0x00020000
   m_heap                (RW)  : ORIGIN = NCACHE_HEAP_START, LENGTH = HEAP_SIZE
 }
 
