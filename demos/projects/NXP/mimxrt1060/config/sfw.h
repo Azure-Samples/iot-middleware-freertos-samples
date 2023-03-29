@@ -1,6 +1,9 @@
+/* Copyright (c) Microsoft Corporation.
+ * Licensed under the MIT License. */
+
 /**
  * @file sfw.h
- * @brief Contains required defines to properly use sfw (Secure Firm Ware) code from NXP
+ * @brief Contains required defines to properly use sfw (Secure Firmware) code from NXP
  *
  * @note This file must be named sfw.h, as it's referenced from sfw files.
  */
