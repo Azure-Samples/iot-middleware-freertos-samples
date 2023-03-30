@@ -32,7 +32,7 @@ This sample will allow you to update an STMicroelectronics B-L475E-IOT01A Discov
 
 1. [CMake](https://cmake.org/download/) (Version 3.13 or higher)
 1. [Ninja build system](https://github.com/ninja-build/ninja/releases) (Version 1.10 or higher)
-1. [GNU Arm Embedded Toolchain](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads) (Version 9 or higher)
+1. [GNU Arm Embedded Toolchain](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads) (This sample was tested against Version 10.3)
 1. Serial terminal tool like [Termite](https://www.compuphase.com/software_termite.htm), Putty, Tera Term, etc.
 
 To run this sample you can use a device previously created on your Azure IoT Hub or you may have the Azure IoT middleware for FreeRTOS provision your device automatically using Azure Device Provisioning Services (DPS). **Note** that even when using DPS, you still need an IoT Hub created and connected to DPS.
@@ -72,7 +72,7 @@ git submodule update --init --recursive
 
 ### Tag Your Device
 
-Add the `"ADUGroup"` tag to the device's top-level twin document. This is used to group device together, and you may choose whichever title you prefer.
+Add the `"ADUGroup"` tag to the device's top-level twin document. This is used to group devices together, and you may choose whichever title you prefer.
 
 ```json
 "tags": {
@@ -88,7 +88,7 @@ Viewing the device twin on the portal, the "tag" section should look similar to 
 
 To connect the STM DevKit to Azure, you'll modify a configuration file for Wi-Fi and Azure IoT settings, rebuild the image, and flash the image to the device.
 
-Update the file `iot-middleware-freertos-samples/demos/projects/ST/b-l475e-iot01a/config/demo_config.h` with your configuration values.
+Update the file `./demos/projects/ST/b-l475e-iot01a/config/demo_config.h` with your configuration values.
 
 Set the **Wi-Fi parameters** to the following values for your local environment.
 
@@ -97,7 +97,7 @@ Parameter | Value
  `WIFI_SSID` | _{Your Wi-Fi SSID}_
  `WIFI_PASSWORD` | _{Your Wi-Fi Password}_
 
-If you're using a device previously created in your **IoT Hub** with SAS authentication, disable DPS by commenting out `#define democonfigENABLE_DPS_SAMPLE` and setting the following parameters:
+If you're using a device previously created in your **IoT Hub** with SAS authentication, disable DPS by commenting out `#define democonfigENABLE_DPS_SAMPLE` and set the following parameters:
 
 Parameter | Value 
 ---------|----------
@@ -175,7 +175,7 @@ For other prerequisite help, please see the links below. If none of the links ap
 
 Modify the version of the image as below:
 
-On file `iot-middleware-freertos-samples\demos\projects\ST\b-l475e-iot01a\config\demo_config.h` ([found here](https://github.com/Azure-Samples/iot-middleware-freertos-samples/blob/vaavva/stm32l475-adu-sample/demos/projects/ST/b-l475e-iot01a/config/demo_config.h#L515))
+On file `./demos/projects/ST/b-l475e-iot01a/config/demo_config.h` ([found here](https://github.com/Azure-Samples/iot-middleware-freertos-samples/blob/vaavva/stm32l475-adu-sample/demos/projects/ST/b-l475e-iot01a/config/demo_config.h#L515))
 
 Change
 

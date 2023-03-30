@@ -11,7 +11,7 @@
 
 - [CMake](https://cmake.org/download/) (Version 3.13 or higher)
 - [Ninja build system](https://github.com/ninja-build/ninja/releases) (Version 1.10 or higher)
-- [GNU Arm Embedded Toolchain](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads) (Version 9 or higher)
+- [GNU Arm Embedded Toolchain](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads) (This sample was tested against Version 10.3)
 - Terminal tool like [Termite](https://www.compuphase.com/software_termite.htm), Putty, Tera Term, etc.
 - To run this sample you can use a device previously created in your IoT Hub or have the Azure IoT Middleware for FreeRTOS provision your device automatically using DPS. **Note** that even when using DPS, you still need an IoT Hub created and connected to DPS. If you haven't deployed the necessary Azure resources yet, [you may use the guide here](https://github.com/Azure-Samples/iot-middleware-freertos-samples/blob/main/docs/azure-bicep-deployment.md).
 
@@ -57,7 +57,7 @@ To connect the MIMXRT1060-EVK to Azure, you'll modify a configuration file for A
 
 Update the file `iot-middleware-freertos-samples/demos/projects/NXP/mimxrt1060/config/demo_config.h` with your configuration values.
 
-If you're using a device previously created in your **IoT Hub** with SAS authentication, disable DPS by commenting out `#define democonfigENABLE_DPS_SAMPLE` and setting the following parameters:
+If you're using a device previously created in your **IoT Hub** with SAS authentication, disable DPS by commenting out `#define democonfigENABLE_DPS_SAMPLE` and set the following parameters:
 
 Parameter | Value
 ---------|----------
@@ -115,7 +115,7 @@ After running the sample, you can use VS Code to debug your application directly
 
 The following chart shows the RAM and ROM usage for the MIMXRT1060-EVK Evaluation kit from NXP. 
 Build options: CMAKE_BUILD_TYPE=MinSizeRel (-Os) and no logging (-DLIBRARY_LOG_LEVEL=LOG_NONE):
-This sample can includes either IoT Hub only or both IoT Hub and DPS services. The table below shows RAM/ROM sizes considering:
+This sample can include IoT Hub only, or IoT Hub plus DPS services and/or ADU services. The table below shows RAM/ROM sizes considering:
 
 - Middleware libraries only – represents the libraries for Azure IoT connection.
 - Total size – which includes the Azure IoT middleware for FreeRTOS, Mbed TLS, FreeRTOS, CoreMQTT and the HAL for the dev kit.
@@ -123,13 +123,27 @@ This sample can includes either IoT Hub only or both IoT Hub and DPS services. T
 |  | Middleware library size | | Total Size | |
 |---------|----------|---------|---------|---------
 |**Sample** | **Flash (text,rodata,data)** | **RAM1,RAM2(dss,data)** | **Flash (text,rodata,data)** | **RAM1,RAM2(dss,data)** |
-| IoT Hub + DPS | 23.96 KB | 12 bytes | 246.89 KB | 195.55 KB
-| IoT Hub only | 11.61 KB | 12 bytes | 234.31 KB | 194.37 KB
+| IoT Hub only | 16.4 KB | 12 bytes | 247 KB | 194.6 KB
+| IoT Hub + DPS | 31.7 KB | 12 bytes | 262.6 KB | 195.7 KB
+| IoT Hub + ADU | 31.8 KB | 16 bytes | 282.8 KB | 208.4 KB
+| IoT Hub + ADU + DPS | 41.8 KB | 16 bytes | 294.1 KB | 209.5 KB
 
-## ADU PREVIEW
+<details>
+  <summary>How these numbers were calculated:</summary>
 
-To get the ADU sample working for the NXP 1060, the user must fill in the code at all `TODO` locations listed here:
-
-- [azure_iot_flash_platform.h](port/azure_iot_flash_platform_port.h)
-- [azure_iot_flash_platform.c](port/azure_iot_flash_platform.c)
-- [demo_config.c](config/demo_config.h)
+  - Flash includes (based on [MIMXRT1062xxxxx_flexspi_nor.ld](./MIMXRT1062xxxxx_flexspi_nor.ld) for ADU samples and [MIMXRT1062xxxxx_sdram.ld](./MIMXRT1062xxxxx_sdram.ld) for non-ADU samples):
+    - .flash_config (for non-ADU samples)
+    - .ivt (for non-ADU samples)
+    - .boot_hdr (for ADU samples)
+    - .interrupts
+    - .text
+    - .ARM
+    - .preinit_array
+    - .init_array
+    - .fini_array
+  - RAM1, RAM2 includes (based on [MIMXRT1062xxxxx_flexspi_nor.ld](./MIMXRT1062xxxxx_flexspi_nor.ld) for ADU samples and [MIMXRT1062xxxxx_sdram.ld](./MIMXRT1062xxxxx_sdram.ld) for non-ADU samples):
+    - .data
+    - .bss
+  - Middleware values were calculated by filtering the map file by any entries with `libaz` in the file path.
+  - Total values were calculated from the map file found at the root of the build directory by summing all values within the above specified sections.
+</details>

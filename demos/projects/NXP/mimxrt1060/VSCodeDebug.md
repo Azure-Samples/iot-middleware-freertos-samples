@@ -57,7 +57,7 @@ In order to debug the MIMXRT1060-EVK with Visual Studio Code, this guide require
 
 * On VSCode:
     * Click the Run and Debug icon (or CTRL+SHIFT+D) as indicated in the illustration below by arrow #1
-    * On the drop-down menu, shown in the illustration below by the arrow #2, select `NXP mimxrt1060: Local J-Link`.
+    * On the drop-down menu, shown in the illustration below by the arrow #2, select `NXP mimxrt1060: Local J-Link` for the base sample, or `NXP mimxrt1060 ADU: Local J-Link` for the ADU sample.
     * Click Start Debugging (or F5), shown in the illustration below by the arrow #3.
 
 <img src="media/VSCode.png" width="50%">

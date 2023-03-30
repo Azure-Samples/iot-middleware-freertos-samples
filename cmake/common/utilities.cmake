@@ -10,10 +10,19 @@ FetchContent_Declare(
         GIT_PROGRESS   TRUE
     )
 
+# Note: We can only support this build system through version 2.12.
+# Version 2.13 requires running west (https://github.com/nxp-mcuxpresso/mcux-sdk/issues/109)
 FetchContent_Declare(
     NXP_MCUX_SDK
     GIT_REPOSITORY https://github.com/NXPmicro/mcux-sdk.git
-    GIT_TAG        8e910ea4ecc093943bdfd3afd7e2bf578029f92b
+    GIT_TAG        08209840456f5f543b3debc5603c3dbe2b40a2eb
+    GIT_PROGRESS   TRUE
+)
+
+FetchContent_Declare(
+    NXP_SFW
+    GIT_REPOSITORY https://github.com/nxp-mcuxpresso/sfw.git
+    GIT_TAG        d7e76dbe1bf481bd7d4a7fbb167005bbfec8db6e
     GIT_PROGRESS   TRUE
 )
 
@@ -53,6 +62,22 @@ function(nxp_mcux_sdk_fetch)
 
         set(NXP_MCUX_SDK_PATH ${nxp_mcux_sdk_SOURCE_DIR} PARENT_SCOPE)
         message(INFO "NXP_MCUX_SDK_PATH set to ${NXP_MCUX_SDK_PATH}")
+    endif()
+endfunction()
+
+function(nxp_sfw_fetch)
+    if(NXP_SFW_PATH)
+        message(INFO "NXP_SFW_PATH specified: {NXP_SFW_PATH}, skipping fetch for NXP SFW")
+    else()
+        FetchContent_GetProperties(NXP_SFW)
+
+        if(NOT NXP_SFW_POPULATED)
+            set(FETCHCONTENT_QUIET FALSE) # To see progress
+            FetchContent_Populate(NXP_SFW)
+        endif()
+
+        set(NXP_SFW_PATH ${nxp_sfw_SOURCE_DIR} PARENT_SCOPE)
+        message(INFO "NXP_SFW_PATH set to ${NXP_SFW_PATH}")
     endif()
 endfunction()
 

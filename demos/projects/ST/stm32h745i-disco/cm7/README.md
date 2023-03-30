@@ -10,7 +10,7 @@
 
 - [CMake](https://cmake.org/download/) (Version 3.13 or higher)
 - [Ninja build system](https://github.com/ninja-build/ninja/releases) (Version 1.10 or higher)
-- [GNU Arm Embedded Toolchain](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads) (Version 9 or higher)
+- [GNU Arm Embedded Toolchain](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads) (This sample was tested against Version 10.3)
 - Serial terminal tool like [Termite](https://www.compuphase.com/software_termite.htm), Putty, Tera Term, etc.
 
 To run this sample you can use a device previously created on your Azure IoT Hub or you may have the Azure IoT middleware for FreeRTOS provision your device automatically using Azure Device Provisioning Services (DPS). **Note** that even when using DPS, you still need an IoT Hub created and connected to DPS.
@@ -57,7 +57,7 @@ To connect the STM DevKit to Azure, you'll modify a configuration file for Wi-Fi
 
 Update the file `iot-middleware-freertos-samples/demos/projects/ST/stm32h745i-disco/cm7/config/demo_config.h` with your configuration values.
 
-If you're using a device previously created in your **IoT Hub** with SAS authentication, disable DPS by commenting out `#define democonfigENABLE_DPS_SAMPLE` and setting the following parameters:
+If you're using a device previously created in your **IoT Hub** with SAS authentication, disable DPS by commenting out `#define democonfigENABLE_DPS_SAMPLE` and set the following parameters:
 
 Parameter | Value 
 ---------|----------
