@@ -10,6 +10,8 @@ FetchContent_Declare(
         GIT_PROGRESS   TRUE
     )
 
+# Note: We can only support this build system through version 2.12.
+# Version 2.13 requires running west (https://github.com/nxp-mcuxpresso/mcux-sdk/issues/109)
 FetchContent_Declare(
     NXP_MCUX_SDK
     GIT_REPOSITORY https://github.com/NXPmicro/mcux-sdk.git
