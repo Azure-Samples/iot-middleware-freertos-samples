@@ -4,6 +4,7 @@
 #include "azure_ca_recovery_rsa_verify.h"
 
 #include "azure_iot_config.h"
+#include "azure_iot_jws.h"
 #include "azure/core/az_base64.h"
 
 #include "mbedtls/base64.h"
@@ -69,7 +70,7 @@ AzureIoTResult_t AzureIoTSample_RS256Verify( uint8_t * pucInput,
 
     if( az_result_failed( xCoreResult ) )
     {
-        AZLogError( ( "[RSA] Base64 decode failed: 0x%08x", xCoreResult ) );
+        AZLogError( ( "[RSA] Base64 decode failed: 0x%08x", ( unsigned int ) xCoreResult ) );
         return eAzureIoTErrorFailed;
     }
 
