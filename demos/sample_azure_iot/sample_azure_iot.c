@@ -353,7 +353,6 @@ static void prvAzureDemoTask( void * pvParameters )
 
     for( ; ; )
     {
-        
         /* Attempt to establish TLS session with IoT Hub. If connection fails,
          * retry after a timeout. Timeout value will be exponentially increased
          * until  the maximum number of attempts are reached or the maximum timeout
