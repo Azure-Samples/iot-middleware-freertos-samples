@@ -763,9 +763,9 @@ static void prvAzureDemoTask( void * pvParameters )
         xResult = AzureIoTCARecovery_ParseRecoveryPayload( &xJSONReader, &xRecoveryPayload );
         configASSERT( xResult == eAzureIoTSuccess );
 
-        LogInfo( ( "Parsed Bundle: Version %lu | Length %lu\r\n",
-                   xRecoveryPayload.xTrustBundle.ulVersion,
-                   xRecoveryPayload.xTrustBundle.ulCertificatesLength ) );
+        LogInfo( ( "Parsed Bundle: Version %u | Length %u\r\n",
+                   ( unsigned int ) xRecoveryPayload.xTrustBundle.ulVersion,
+                   ( unsigned int ) xRecoveryPayload.xTrustBundle.ulCertificatesLength ) );
 
         LogInfo( ( "Validating trust bundle signature\r\n" ) );
         xResult = AzureIoTSample_RS256Verify( ( uint8_t * ) xRecoveryPayload.pucTrustBundleJSONObjectText,
@@ -787,8 +787,8 @@ static void prvAzureDemoTask( void * pvParameters )
 
         if( xRecoveryPayload.xTrustBundle.ulVersion <= ulCurrentBundleVersion )
         {
-            LogError( ( "Invalid bundle version: current version = %lu received version = %lu\r\n",
-                        ulCurrentBundleVersion, xRecoveryPayload.xTrustBundle.ulVersion ) );
+            LogError( ( "Invalid bundle version: current version = %u received version = %u\r\n",
+                        ( unsigned int ) ulCurrentBundleVersion, ( unsigned int ) xRecoveryPayload.xTrustBundle.ulVersion ) );
             configASSERT( false );
         }
         else
