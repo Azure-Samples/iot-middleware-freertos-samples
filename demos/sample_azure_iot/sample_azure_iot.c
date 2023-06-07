@@ -222,7 +222,7 @@ static void prvHandleCloudMessage( AzureIoTHubClientCloudToDeviceMessageRequest_
     ( void ) pvContext;
 
     LogInfo( ( "Cloud message payload : %.*s \r\n",
-               pxMessage->ulPayloadLength,
+               ( int ) pxMessage->ulPayloadLength,
                ( const char * ) pxMessage->pvMessagePayload ) );
 }
 /*-----------------------------------------------------------*/
@@ -234,7 +234,7 @@ static void prvHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
                               void * pvContext )
 {
     LogInfo( ( "Command payload : %.*s \r\n",
-               pxMessage->ulPayloadLength,
+               ( int ) pxMessage->ulPayloadLength,
                ( const char * ) pxMessage->pvMessagePayload ) );
 
     AzureIoTHubClient_t * xHandle = ( AzureIoTHubClient_t * ) pvContext;
@@ -274,7 +274,7 @@ static void prvHandlePropertiesMessage( AzureIoTHubClientPropertiesResponse_t * 
     }
 
     LogInfo( ( "Property document payload : %.*s \r\n",
-               pxMessage->ulPayloadLength,
+               ( int ) pxMessage->ulPayloadLength,
                ( const char * ) pxMessage->pvMessagePayload ) );
 }
 /*-----------------------------------------------------------*/
@@ -622,7 +622,7 @@ static uint32_t prvConnectToServerWithBackoffRetries( const char * pcHostName,
      */
     do
     {
-        LogInfo( ( "Creating a TLS connection to %s:%u.\r\n", pcHostName, port ) );
+        LogInfo( ( "Creating a TLS connection to %s:%lu.\r\n", pcHostName, port ) );
         /* Attempt to create a mutually authenticated TLS connection. */
         xNetworkStatus = TLS_Socket_Connect( pxNetworkContext,
                                              pcHostName, port,

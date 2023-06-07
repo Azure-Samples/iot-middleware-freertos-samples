@@ -168,7 +168,7 @@ AzureIoTResult_t AzureIoTCARecovery_ParseRecoveryPayload( AzureIoTJSONReader_t *
         /* TODO: Uncomment once this is a real API (is a private func) */
         /* return AzureIoT_TranslateCoreError(xCoreResult); */
 
-        printf( "az_iot_ca_recovery_parse_recovery_payload Error: 0x%08x\n", xCoreResult );
+        printf( "az_iot_ca_recovery_parse_recovery_payload Error: 0x%08x\n", ( unsigned int ) xCoreResult );
 
         return eAzureIoTErrorFailed;
     }
@@ -182,7 +182,7 @@ AzureIoTResult_t AzureIoTCARecovery_ParseRecoveryPayload( AzureIoTJSONReader_t *
         /* TODO: Uncomment once this is a real API (is a private func) */
         /* return AzureIoT_TranslateCoreError(xCoreResult); */
 
-        printf( "az_json_reader_initError: 0x%08x\n", xCoreResult );
+        printf( "az_json_reader_initError: 0x%08x\n", ( unsigned int ) xCoreResult );
 
         return eAzureIoTErrorFailed;
     }
@@ -194,7 +194,7 @@ AzureIoTResult_t AzureIoTCARecovery_ParseRecoveryPayload( AzureIoTJSONReader_t *
         /* TODO: Uncomment once this is a real API (is a private func) */
         /* return AzureIoT_TranslateCoreError(xCoreResult); */
 
-        printf( "az_iot_ca_recovery_parse_trust_bundle Error: 0x%08x\n", xCoreResult );
+        printf( "az_iot_ca_recovery_parse_trust_bundle Error: 0x%08x\n", ( unsigned int ) xCoreResult );
 
         return eAzureIoTErrorFailed;
     }

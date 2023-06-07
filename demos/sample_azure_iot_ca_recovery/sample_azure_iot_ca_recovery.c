@@ -227,7 +227,7 @@ static void prvHandleCloudMessage( AzureIoTHubClientCloudToDeviceMessageRequest_
     ( void ) pvContext;
 
     LogInfo( ( "Cloud message payload : %.*s \r\n",
-               pxMessage->ulPayloadLength,
+               ( int ) pxMessage->ulPayloadLength,
                ( const char * ) pxMessage->pvMessagePayload ) );
 }
 /*-----------------------------------------------------------*/
@@ -239,7 +239,7 @@ static void prvHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
                               void * pvContext )
 {
     LogInfo( ( "Command payload : %.*s \r\n",
-               pxMessage->ulPayloadLength,
+               ( int ) pxMessage->ulPayloadLength,
                ( const char * ) pxMessage->pvMessagePayload ) );
 
     AzureIoTHubClient_t * xHandle = ( AzureIoTHubClient_t * ) pvContext;
@@ -279,7 +279,7 @@ static void prvHandlePropertiesMessage( AzureIoTHubClientPropertiesResponse_t * 
     }
 
     LogInfo( ( "Property document payload : %.*s \r\n",
-               pxMessage->ulPayloadLength,
+               ( int ) pxMessage->ulPayloadLength,
                ( const char * ) pxMessage->pvMessagePayload ) );
 }
 /*-----------------------------------------------------------*/
@@ -348,7 +348,7 @@ static void runRecovery( NetworkCredentials_t * xNetworkCredentials,
 
     if( ( ulStatus = prvRunRecovery( xNetworkCredentials ) ) != 0 )
     {
-        LogError( ( "Failed to run recovery error code = 0x%08x\r\n", ulStatus ) );
+        LogError( ( "Failed to run recovery error code = 0x%08x\r\n", ( unsigned int ) ulStatus ) );
         configASSERT( false );
     }
     else if( ( ulStatus = prvSetupNetworkCredentials( xNetworkCredentials ) ) != 0 )
@@ -360,7 +360,7 @@ static void runRecovery( NetworkCredentials_t * xNetworkCredentials,
                                             pulIothubHostnameLength, pucIotHubDeviceId,
                                             pulIothubDeviceIdLength ) ) != 0 )
     {
-        LogError( ( "Failed to run DPS after recovery!: error code = 0x%08x\r\n", ulStatus ) );
+        LogError( ( "Failed to run DPS after recovery!: error code = 0x%08x\r\n", ( unsigned int ) ulStatus ) );
         configASSERT( false );
     }
 }
@@ -420,7 +420,7 @@ static void prvAzureDemoTask( void * pvParameters )
             }
             else
             {
-                LogError( ( "Failed on sample_dps_entry!: error code = 0x%08x\r\n", ulStatus ) );
+                LogError( ( "Failed on sample_dps_entry!: error code = 0x%08x\r\n", ( unsigned int ) ulStatus ) );
                 configASSERT( false );
             }
         }
@@ -752,7 +752,7 @@ static void prvAzureDemoTask( void * pvParameters )
         AzureIoTJSONReader_t xJSONReader;
 
         LogInfo( ( "Received trust bundle:\r\n" ) );
-        LogInfo( ( "%.*s", az_span_size( xAzureIoTProvisioningClient._internal.xRegisterResponse.registration_state.payload ),
+        LogInfo( ( "%.*s", ( int ) az_span_size( xAzureIoTProvisioningClient._internal.xRegisterResponse.registration_state.payload ),
                    az_span_ptr( xAzureIoTProvisioningClient._internal.xRegisterResponse.registration_state.payload ) ) );
         xResult = AzureIoTJSONReader_Init( &xJSONReader,
                                            az_span_ptr( xAzureIoTProvisioningClient._internal.xRegisterResponse.registration_state.payload ),
@@ -763,9 +763,9 @@ static void prvAzureDemoTask( void * pvParameters )
         xResult = AzureIoTCARecovery_ParseRecoveryPayload( &xJSONReader, &xRecoveryPayload );
         configASSERT( xResult == eAzureIoTSuccess );
 
-        LogInfo( ( "Parsed Bundle: Version %i | Length %i\r\n",
-                   xRecoveryPayload.xTrustBundle.ulVersion,
-                   xRecoveryPayload.xTrustBundle.ulCertificatesLength ) );
+        LogInfo( ( "Parsed Bundle: Version %u | Length %u\r\n",
+                   ( unsigned int ) xRecoveryPayload.xTrustBundle.ulVersion,
+                   ( unsigned int ) xRecoveryPayload.xTrustBundle.ulCertificatesLength ) );
 
         LogInfo( ( "Validating trust bundle signature\r\n" ) );
         xResult = AzureIoTSample_RS256Verify( ( uint8_t * ) xRecoveryPayload.pucTrustBundleJSONObjectText,
@@ -787,8 +787,8 @@ static void prvAzureDemoTask( void * pvParameters )
 
         if( xRecoveryPayload.xTrustBundle.ulVersion <= ulCurrentBundleVersion )
         {
-            LogError( ( "Invalid bundle version: current version = %i received version = %i\r\n",
-                        ulCurrentBundleVersion, xRecoveryPayload.xTrustBundle.ulVersion ) );
+            LogError( ( "Invalid bundle version: current version = %u received version = %u\r\n",
+                        ( unsigned int ) ulCurrentBundleVersion, ( unsigned int ) xRecoveryPayload.xTrustBundle.ulVersion ) );
             configASSERT( false );
         }
         else
@@ -815,7 +815,7 @@ static void prvAzureDemoTask( void * pvParameters )
                                                 xRecoveryPayload.xTrustBundle.ulCertificatesLength );
         xUnescapeSpan = az_json_string_unescape( xUnescapeSpan, xUnescapeSpan );
 
-        LogInfo( ( "Unescaped bundle length %i value\r\n%.*s", az_span_size( xUnescapeSpan ), az_span_size( xUnescapeSpan ), az_span_ptr( xUnescapeSpan ) ) );
+        LogInfo( ( "Unescaped bundle length %i value\r\n%.*s", ( int ) az_span_size( xUnescapeSpan ), ( int ) az_span_size( xUnescapeSpan ), az_span_ptr( xUnescapeSpan ) ) );
 
         LogInfo( ( "Writing trust bundle to NVS\r\n" ) );
         xResult = AzureIoTCAStorage_WriteTrustBundle( az_span_ptr( xUnescapeSpan ),
@@ -859,7 +859,7 @@ static TlsTransportStatus_t prvConnectToServerWithBackoffRetries( const char * p
      */
     do
     {
-        LogInfo( ( "Creating a TLS connection to %s:%u.\r\n", pcHostName, port ) );
+        LogInfo( ( "Creating a TLS connection to %s:%u.\r\n", pcHostName, ( unsigned int ) port ) );
         /* Attempt to create a mutually authenticated TLS connection. */
         xNetworkStatus = TLS_Socket_Connect( pxNetworkContext,
                                              pcHostName, port,
