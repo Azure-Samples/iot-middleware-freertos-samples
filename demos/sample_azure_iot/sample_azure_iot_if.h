@@ -15,4 +15,4 @@
 
 bool xIsSampleConnectedToInternet( void );
 
-#endif // SAMPLE_AZURE_IOT_IF_H
+#endif /* SAMPLE_AZURE_IOT_IF_H */

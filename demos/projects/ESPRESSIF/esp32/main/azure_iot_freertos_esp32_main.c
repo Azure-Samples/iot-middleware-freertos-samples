@@ -103,7 +103,6 @@ static void on_got_ip( void * arg,
     memcpy( &s_ip_addr, &event->ip_info.ip, sizeof( s_ip_addr ) );
     s_is_sample_connected_to_internet = true;
     xSemaphoreGive( s_semph_get_ip_addrs );
-
 }
 /*-----------------------------------------------------------*/
 
@@ -273,7 +272,7 @@ static esp_err_t example_connect( void )
     return ESP_OK;
 }
 /*-----------------------------------------------------------*/
-bool xIsSampleConnectedToInternet( )
+bool xIsSampleConnectedToInternet()
 {
     return s_is_sample_connected_to_internet;
 }
