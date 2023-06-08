@@ -42,6 +42,7 @@ set(COMPONENT_INCLUDE_DIRS
     ${MBEDTLS_DIR}/mbedtls/include
     ${ROOT_PATH}/demos/common/transport
     ${ROOT_PATH}/demos/common/utilities
+    ${ROOT_PATH}/demos/sample_azure_iot
 )
 
 if (DEFINED CONFIG_AZURE_SAMPLE_USE_PLUG_AND_PLAY AND CONFIG_AZURE_SAMPLE_USE_PLUG_AND_PLAY MATCHES "y")
