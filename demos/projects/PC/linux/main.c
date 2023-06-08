@@ -110,7 +110,7 @@ void vLoggingPrintf( const char * pcFormat,
     va_end( arg );
 }
 
-bool xIsSampleConnectedToInternet( )
+bool xIsSampleConnectedToInternet()
 {
     return true;
 }
