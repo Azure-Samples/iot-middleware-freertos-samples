@@ -14,6 +14,9 @@ if(NOT (TARGET SAMPLE::AZUREIOT))
 
     target_sources(SAMPLE::AZUREIOT INTERFACE 
       ${CMAKE_CURRENT_SOURCE_DIR}/sample_azure_iot/sample_azure_iot.c)
+
+    target_include_directories(SAMPLE::AZUREIOT INTERFACE
+        ${CMAKE_CURRENT_SOURCE_DIR}/sample_azure_iot)
 endif()
 
 # Target for sample task
