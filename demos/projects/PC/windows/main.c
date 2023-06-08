@@ -24,6 +24,9 @@
 /* Demo Specific configs. */
 #include "demo_config.h"
 
+/* Demo Sample Interface. */
+#include "sample_azure_iot_if.h"
+
 #define mainHOST_NAME           "RTOSDemo"
 #define mainDEVICE_NICK_NAME    "windows_demo"
 
@@ -105,6 +108,11 @@ void vLoggingPrintf( const char * pcFormat,
     va_start( arg, pcFormat );
     vprintf( pcFormat, arg );
     va_end( arg );
+}
+
+bool xIsSampleConnectedToInternet( )
+{
+    return true;
 }
 
 int main( void )
