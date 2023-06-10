@@ -13,7 +13,7 @@
 #include "demo_config.h"
 
 /* Demo Specific Interface Functions. */
-#include "sample_azure_iot_if.h"
+#include "azure_sample_connection.h"
 
 /* Azure Provisioning/IoT Hub library includes */
 #include "azure_iot_hub_client.h"
@@ -356,7 +356,7 @@ static void prvAzureDemoTask( void * pvParameters )
 
     for( ; ; )
     {
-        if( xIsSampleConnectedToInternet() )
+        if( xAzureSample_IsConnectedToInternet() )
         {
             /* Attempt to establish TLS session with IoT Hub. If connection fails,
              * retry after a timeout. Timeout value will be exponentially increased
@@ -446,7 +446,7 @@ static void prvAzureDemoTask( void * pvParameters )
 
             /* Publish messages with QoS1, send and process Keep alive messages. */
             for( lPublishCount = 0;
-                 lPublishCount < lMaxPublishCount && xIsSampleConnectedToInternet();
+                 lPublishCount < lMaxPublishCount && xAzureSample_IsConnectedToInternet();
                  lPublishCount++ )
             {
                 ulScratchBufferLength = snprintf( ( char * ) ucScratchBuffer, sizeof( ucScratchBuffer ),
@@ -477,7 +477,7 @@ static void prvAzureDemoTask( void * pvParameters )
                 vTaskDelay( sampleazureiotDELAY_BETWEEN_PUBLISHES_TICKS );
             }
 
-            if( xIsSampleConnectedToInternet() )
+            if( xAzureSample_IsConnectedToInternet() )
             {
                 xResult = AzureIoTHubClient_UnsubscribeProperties( &xAzureIoTHubClient );
                 configASSERT( xResult == eAzureIoTSuccess );

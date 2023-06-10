@@ -97,6 +97,13 @@ if(NOT (TARGET SAMPLE::TRANSPORT::MBEDTLS))
         ${CMAKE_CURRENT_SOURCE_DIR}/common/utilities/)
 endif()
 
+# Target for sample connection module
+if(NOT (TARGET SAMPLE::COMMON::CONNECTION))
+    add_library(SAMPLE::COMMON::CONNECTION INTERFACE IMPORTED)
+    target_include_directories(SAMPLE::COMMON::CONNECTION INTERFACE
+        ${CMAKE_CURRENT_SOURCE_DIR}/common/connection/)
+endif()
+
 # Add board specific demo
 if(BOARD_L STREQUAL "stm32h745i-disco")
     set(BOARD_SOURCE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/projects/${VENDOR}/${BOARD_L}/cm7)

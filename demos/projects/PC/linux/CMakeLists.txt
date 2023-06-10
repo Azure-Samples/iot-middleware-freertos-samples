@@ -38,6 +38,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     az::iot_middleware::freertos
     pthread
     pcap
+    SAMPLE::COMMON::CONNECTION
     SAMPLE::AZUREIOT
     SAMPLE::TRANSPORT::MBEDTLS
     SAMPLE::SOCKET::FREERTOSTCPIP)
@@ -63,6 +64,7 @@ target_link_libraries(${PROJECT_NAME}-adu PRIVATE
     azure_iot_core_http
     pthread
     pcap
+    SAMPLE::COMMON::CONNECTION
     SAMPLE::AZUREIOTADU
     SAMPLE::TRANSPORT::MBEDTLS
     SAMPLE::TRANSPORT::SOCKET
@@ -91,6 +93,7 @@ target_link_libraries(${PROJECT_NAME}-pnp PRIVATE
     az::iot_middleware::core_http
     pthread
     pcap
+    SAMPLE::COMMON::CONNECTION
     SAMPLE::AZUREIOTPNP
     SAMPLE::TRANSPORT::MBEDTLS
     SAMPLE::SOCKET::FREERTOSTCPIP)
@@ -124,6 +127,7 @@ target_link_libraries(test_ca_recovery PRIVATE
     az::iot_middleware::core_http
     pthread
     pcap
+    SAMPLE::COMMON::CONNECTION
     SAMPLE::AZUREIOTPNP
     SAMPLE::TRANSPORT::MBEDTLS
     SAMPLE::SOCKET::FREERTOSTCPIP)

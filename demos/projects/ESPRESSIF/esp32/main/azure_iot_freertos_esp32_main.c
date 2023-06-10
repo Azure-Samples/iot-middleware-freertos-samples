@@ -6,7 +6,7 @@
 #include <stdarg.h>
 #include <string.h>
 
-#include "sample_azure_iot_if.h"
+#include "azure_sample_connection.h"
 
 #include "sdkconfig.h"
 #include "esp_event.h"
@@ -272,7 +272,7 @@ static esp_err_t example_connect( void )
     return ESP_OK;
 }
 /*-----------------------------------------------------------*/
-bool xIsSampleConnectedToInternet()
+bool xAzureSample_IsConnectedToInternet()
 {
     return s_is_sample_connected_to_internet;
 }
