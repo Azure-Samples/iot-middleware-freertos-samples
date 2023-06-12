@@ -15,6 +15,9 @@
 #include "lwip.h"
 #include "lwip/apps/sntp.h"
 
+/* Demo Sample Common Interfaces. */
+#include "azure_sample_connection.h"
+
 /*-----------------------------------------------------------*/
 
 void vApplicationDaemonTaskStartupHook( void );
@@ -107,6 +110,15 @@ void vLoggingPrintf( const char * pcFormat,
 
     va_end( vargs );
 }
+
+/*-----------------------------------------------------------*/
+
+bool xAzureSample_IsConnectedToInternet()
+{
+    return true;
+}
+
+/*-----------------------------------------------------------*/
 
 /**
  * @brief Application runtime entry point.
