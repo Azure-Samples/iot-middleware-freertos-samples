@@ -24,6 +24,9 @@
 /* Demo Specific configs. */
 #include "demo_config.h"
 
+/* Demo Sample Interface. */
+#include "azure_sample_connection.h"
+
 #define mainHOST_NAME           "RTOSDemo"
 #define mainDEVICE_NICK_NAME    "windows_demo"
 
@@ -105,6 +108,15 @@ void vLoggingPrintf( const char * pcFormat,
     va_start( arg, pcFormat );
     vprintf( pcFormat, arg );
     va_end( arg );
+}
+
+/*
+ * This function is not tracking disconnections in this sample.
+ * It is implemented as such for compatibility with the base sample module used by this sample.
+ */
+bool xAzureSample_IsConnectedToInternet()
+{
+    return true;
 }
 
 int main( void )

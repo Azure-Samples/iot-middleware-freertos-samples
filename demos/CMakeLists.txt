@@ -14,6 +14,9 @@ if(NOT (TARGET SAMPLE::AZUREIOT))
 
     target_sources(SAMPLE::AZUREIOT INTERFACE 
       ${CMAKE_CURRENT_SOURCE_DIR}/sample_azure_iot/sample_azure_iot.c)
+
+    target_include_directories(SAMPLE::AZUREIOT INTERFACE
+        ${CMAKE_CURRENT_SOURCE_DIR}/sample_azure_iot)
 endif()
 
 # Target for sample task
@@ -92,6 +95,13 @@ if(NOT (TARGET SAMPLE::TRANSPORT::MBEDTLS))
     target_include_directories(SAMPLE::TRANSPORT::MBEDTLS INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}/common/transport/
         ${CMAKE_CURRENT_SOURCE_DIR}/common/utilities/)
+endif()
+
+# Target for sample connection module
+if(NOT (TARGET SAMPLE::COMMON::CONNECTION))
+    add_library(SAMPLE::COMMON::CONNECTION INTERFACE IMPORTED)
+    target_include_directories(SAMPLE::COMMON::CONNECTION INTERFACE
+        ${CMAKE_CURRENT_SOURCE_DIR}/common/connection/)
 endif()
 
 # Add board specific demo

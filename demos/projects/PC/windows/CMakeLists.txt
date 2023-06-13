@@ -35,6 +35,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     az::iot_middleware::freertos
     ${CMAKE_CURRENT_SOURCE_DIR}/WinPCap/wpcap.lib
     Bcrypt.lib
+    SAMPLE::COMMON::CONNECTION
     SAMPLE::AZUREIOT
     SAMPLE::TRANSPORT::MBEDTLS
     SAMPLE::SOCKET::FREERTOSTCPIP)
@@ -57,6 +58,7 @@ target_link_libraries(${PROJECT_NAME}-pnp PRIVATE
     az::iot_middleware::freertos
     ${CMAKE_CURRENT_SOURCE_DIR}/WinPCap/wpcap.lib
     Bcrypt.lib
+    SAMPLE::COMMON::CONNECTION
     SAMPLE::AZUREIOTPNP
     SAMPLE::TRANSPORT::MBEDTLS
     SAMPLE::SOCKET::FREERTOSTCPIP)

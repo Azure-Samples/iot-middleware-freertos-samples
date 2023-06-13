@@ -64,6 +64,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     BSP::STM32::L4::LPS22HB
     STM32::NoSys
     az::iot_middleware::freertos
+    SAMPLE::COMMON::CONNECTION
     SAMPLE::AZUREIOT
     SAMPLE::TRANSPORT::MBEDTLS)
 
@@ -114,6 +115,7 @@ target_link_libraries(${PROJECT_NAME}-pnp PRIVATE
     STM32::Nano::FloatScan
     STM32::Nano::FloatPrint
     az::iot_middleware::freertos
+    SAMPLE::COMMON::CONNECTION
     SAMPLE::AZUREIOTPNP
     SAMPLE::TRANSPORT::MBEDTLS)
 
@@ -170,6 +172,7 @@ target_link_libraries(${PROJECT_NAME}-adu PRIVATE
     STM32::Nano::FloatPrint
     az::iot_middleware::freertos
     az::iot_middleware::core_http
+    SAMPLE::COMMON::CONNECTION
     SAMPLE::AZUREIOTADU
     SAMPLE::TRANSPORT::MBEDTLS
     )

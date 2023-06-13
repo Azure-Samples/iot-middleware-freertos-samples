@@ -47,6 +47,9 @@
 
 #include "fsl_common.h"
 
+#include "azure_sample_connection.h"
+
+
 #if defined( FSL_FEATURE_SOC_LTC_COUNT ) && ( FSL_FEATURE_SOC_LTC_COUNT > 0 )
     #include "fsl_ltc.h"
 #endif
@@ -238,6 +241,16 @@ void CRYPTO_InitHardware( void )
             RNGA_Seed( RNG, SIM->UIDL );
         #endif /* if defined( FSL_FEATURE_SOC_TRNG_COUNT ) && ( FSL_FEATURE_SOC_TRNG_COUNT > 0 ) */
     }
+}
+/*-----------------------------------------------------------*/
+
+/*
+ * This function is not tracking disconnections in this sample.
+ * It is implemented as such for compatibility with the base sample module used by this sample.
+ */
+bool xAzureSample_IsConnectedToInternet()
+{
+    return true;
 }
 /*-----------------------------------------------------------*/
 

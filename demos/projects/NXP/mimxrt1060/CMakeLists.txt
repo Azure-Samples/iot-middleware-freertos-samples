@@ -134,6 +134,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     az::iot_middleware::freertos
     LWIP
     SAMPLE::SOCKET::LWIP
+    SAMPLE::COMMON::CONNECTION
     SAMPLE::AZUREIOT
     SAMPLE::TRANSPORT::MBEDTLS
     ${MCUX_SDK_PROJECT_NAME}
@@ -162,6 +163,7 @@ target_link_libraries(${PROJECT_NAME}-pnp PRIVATE
     az::iot_middleware::freertos
     LWIP
     SAMPLE::SOCKET::LWIP
+    SAMPLE::COMMON::CONNECTION
     SAMPLE::AZUREIOTPNP
     SAMPLE::TRANSPORT::MBEDTLS
     ${MCUX_SDK_PROJECT_NAME}
@@ -198,6 +200,7 @@ target_link_libraries(${PROJECT_NAME}-adu PRIVATE
     az::iot_middleware::core_http
     LWIP
     SAMPLE::SOCKET::LWIP
+    SAMPLE::COMMON::CONNECTION
     SAMPLE::AZUREIOTADU
     SAMPLE::TRANSPORT::MBEDTLS
     ${MCUX_SDK_PROJECT_NAME}

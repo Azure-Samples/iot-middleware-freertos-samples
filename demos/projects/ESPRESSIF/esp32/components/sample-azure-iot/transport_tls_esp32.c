@@ -269,73 +269,83 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pNetworkContext,
         return eTLSTransportInvalidParameter;
     }
 
-    EspTlsTransportParams_t * pxEspTlsTransport = (EspTlsTransportParams_t*) pvPortMalloc(sizeof(EspTlsTransportParams_t));
+    EspTlsTransportParams_t * pxEspTlsTransport;
 
-    if(pxEspTlsTransport == NULL)
+    if ( pxTlsParams->xSSLContext != NULL )
     {
-      return eTLSTransportInsufficientMemory;
+        pxEspTlsTransport = pxTlsParams->xSSLContext;
     }
-
-    // Create a transport list into which we put the transport.
-    pxEspTlsTransport->xTransportList = esp_transport_list_init();
-    pxEspTlsTransport->xTransport = esp_transport_ssl_init( );
-    pxEspTlsTransport->ulReceiveTimeoutMs = ulReceiveTimeoutMs;
-    pxEspTlsTransport->ulSendTimeoutMs = ulSendTimeoutMs;
-
-    esp_transport_ssl_enable_global_ca_store(pxEspTlsTransport->xTransport);
-
-    esp_transport_list_add(pxEspTlsTransport->xTransportList, pxEspTlsTransport->xTransport, "_ssl");
-
-    pxTlsParams->xSSLContext = (void*)pxEspTlsTransport;
-
-    if ( pNetworkCredentials->ppcAlpnProtos )
+    else
     {
-        esp_transport_ssl_set_alpn_protocol( pxEspTlsTransport->xTransport, pNetworkCredentials->ppcAlpnProtos );
-    }
+        pxEspTlsTransport = (EspTlsTransportParams_t*) pvPortMalloc(sizeof(EspTlsTransportParams_t));
 
-    if ( pNetworkCredentials->xDisableSni )
-    {
-        esp_transport_ssl_skip_common_name_check( pxEspTlsTransport->xTransport );
-    }
+        if(pxEspTlsTransport == NULL)
+        {
+            return eTLSTransportInsufficientMemory;
+        }
 
-    if ( pNetworkCredentials->pucRootCa )
-    {
-        esp_tls_set_global_ca_store( ( const unsigned char * ) pNetworkCredentials->pucRootCa, pNetworkCredentials->xRootCaSize );
-    }
+        // Create a transport list into which we put the transport.
+        pxEspTlsTransport->xTransportList = esp_transport_list_init();
+        pxEspTlsTransport->xTransport = esp_transport_ssl_init( );
+        pxEspTlsTransport->ulReceiveTimeoutMs = ulReceiveTimeoutMs;
+        pxEspTlsTransport->ulSendTimeoutMs = ulSendTimeoutMs;
+
+        esp_transport_ssl_enable_global_ca_store(pxEspTlsTransport->xTransport);
+
+        esp_transport_list_add(pxEspTlsTransport->xTransportList, pxEspTlsTransport->xTransport, "_ssl");
+
+        pxTlsParams->xSSLContext = (void*)pxEspTlsTransport;
+
+        if ( pNetworkCredentials->ppcAlpnProtos )
+        {
+            esp_transport_ssl_set_alpn_protocol( pxEspTlsTransport->xTransport, pNetworkCredentials->ppcAlpnProtos );
+        }
+
+        if ( pNetworkCredentials->xDisableSni )
+        {
+            esp_transport_ssl_skip_common_name_check( pxEspTlsTransport->xTransport );
+        }
+
+        if ( pNetworkCredentials->pucRootCa )
+        {
+            ESP_LOGI( TAG, "Setting CA store");
+            esp_tls_set_global_ca_store( ( const unsigned char * ) pNetworkCredentials->pucRootCa, pNetworkCredentials->xRootCaSize );
+        }
 #ifdef democonfigUSE_HSM
 
-    esp_transport_ssl_use_secure_element( pxEspTlsTransport->xTransport );
+        esp_transport_ssl_use_secure_element( pxEspTlsTransport->xTransport );
 
-    #if defined(CONFIG_ATECC608A_TCUSTOM) || defined(CONFIG_ATECC608A_TFLEX)
-        /*  This is TrustCUSTOM or TrustFLEX chip - the private key will be used from the ATECC608 device slot 0.
-            We will plug in your custom device certificate here (should be in DER format).
-        */
+        #if defined(CONFIG_ATECC608A_TCUSTOM) || defined(CONFIG_ATECC608A_TFLEX)
+            /*  This is TrustCUSTOM or TrustFLEX chip - the private key will be used from the ATECC608 device slot 0.
+                We will plug in your custom device certificate here (should be in DER format).
+            */
+            if ( pNetworkCredentials->pucClientCert )
+            {
+                esp_transport_ssl_set_client_cert_data_der( pxEspTlsTransport->xTransport, ( const char *) pNetworkCredentials->pucClientCert, pNetworkCredentials->xClientCertSize );
+            }
+
+        
+        #else
+            /*  This is the Trust&GO chip - the private key will be used from ATECC608 device slot 0.
+                We don't need to add certs to the network context as the esp-tls does that for us using cryptoauthlib API.
+            */
+
+        #endif
+
+#else
+
         if ( pNetworkCredentials->pucClientCert )
         {
             esp_transport_ssl_set_client_cert_data_der( pxEspTlsTransport->xTransport, ( const char *) pNetworkCredentials->pucClientCert, pNetworkCredentials->xClientCertSize );
         }
 
-       
-    #else
-        /*  This is the Trust&GO chip - the private key will be used from ATECC608 device slot 0.
-            We don't need to add certs to the network context as the esp-tls does that for us using cryptoauthlib API.
-        */
-
-    #endif
-
-#else
-
-    if ( pNetworkCredentials->pucClientCert )
-    {
-        esp_transport_ssl_set_client_cert_data_der( pxEspTlsTransport->xTransport, ( const char *) pNetworkCredentials->pucClientCert, pNetworkCredentials->xClientCertSize );
-    }
-
-    if ( pNetworkCredentials->pucPrivateKey )
-    {
-        esp_transport_ssl_set_client_key_data_der( pxEspTlsTransport->xTransport, (const char *) pNetworkCredentials->pucPrivateKey, pNetworkCredentials->xPrivateKeySize );
-    }
+        if ( pNetworkCredentials->pucPrivateKey )
+        {
+            esp_transport_ssl_set_client_key_data_der( pxEspTlsTransport->xTransport, (const char *) pNetworkCredentials->pucPrivateKey, pNetworkCredentials->xPrivateKeySize );
+        }
 
 #endif
+    }
 
     if ( esp_transport_connect( pxEspTlsTransport->xTransport, pHostName, usPort, ulReceiveTimeoutMs ) < 0 )
     {
@@ -353,6 +363,7 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pNetworkContext,
         if( pxEspTlsTransport != NULL )
         {
             esp_transport_close( pxEspTlsTransport->xTransport );
+            esp_tls_free_global_ca_store( );
             esp_transport_list_destroy(pxEspTlsTransport->xTransportList);
             vPortFree(pxEspTlsTransport);
             pxTlsParams->xSSLContext = NULL;
@@ -389,6 +400,9 @@ void TLS_Socket_Disconnect( NetworkContext_t * pNetworkContext )
 
     /* Attempting to terminate TLS connection. */
     esp_transport_close( pxEspTlsTransport->xTransport );
+
+    /* Clear CA store. */
+    esp_tls_free_global_ca_store( );
 
     /* Free TLS contexts. */
     esp_transport_list_destroy(pxEspTlsTransport->xTransportList);

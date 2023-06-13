@@ -33,6 +33,7 @@ set(COMPONENT_INCLUDE_DIRS
     ${MBEDTLS_DIR}/mbedtls/include
     ${ROOT_PATH}/demos/common/transport
     ${ROOT_PATH}/demos/common/utilities
+    ${ROOT_PATH}/demos/common/connection
     ${ROOT_PATH}/demos/sample_azure_iot_pnp
 )
 

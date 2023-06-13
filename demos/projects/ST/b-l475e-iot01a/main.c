@@ -22,6 +22,9 @@
 /* Demo includes */
 #include "demo_config.h"
 
+/* Demo Sample Common Interfaces. */
+#include "azure_sample_connection.h"
+
 /* WiFi driver includes. */
 #include "es_wifi.h"
 #include "wifi.h"
@@ -115,6 +118,17 @@ void vLoggingPrintf( const char * pcFormat,
     vprintf( pcFormat, vargs );
     va_end( vargs );
 }
+/*-----------------------------------------------------------*/
+
+/*
+ * This function is not tracking disconnections in this sample.
+ * It is implemented as such for compatibility with the base sample module used by this sample.
+ */
+bool xAzureSample_IsConnectedToInternet()
+{
+    return true;
+}
+/*-----------------------------------------------------------*/
 
 /**
  * @brief Application runtime entry point.
