@@ -244,6 +244,10 @@ void CRYPTO_InitHardware( void )
 }
 /*-----------------------------------------------------------*/
 
+/*
+ * This function is not tracking disconnections in this sample.
+ * It is implemented as such for compatibility with the base sample module used by this sample.
+ */
 bool xAzureSample_IsConnectedToInternet()
 {
     return true;

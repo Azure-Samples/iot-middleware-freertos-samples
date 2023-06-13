@@ -281,7 +281,7 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pNetworkContext,
 
         if(pxEspTlsTransport == NULL)
         {
-        return eTLSTransportInsufficientMemory;
+            return eTLSTransportInsufficientMemory;
         }
 
         // Create a transport list into which we put the transport.
@@ -308,7 +308,7 @@ TlsTransportStatus_t TLS_Socket_Connect( NetworkContext_t * pNetworkContext,
 
         if ( pNetworkCredentials->pucRootCa )
         {
-            ESP_LOGI( TAG, "[Debug] Setting CA store");
+            ESP_LOGI( TAG, "Setting CA store");
             esp_tls_set_global_ca_store( ( const unsigned char * ) pNetworkCredentials->pucRootCa, pNetworkCredentials->xRootCaSize );
         }
 #ifdef democonfigUSE_HSM

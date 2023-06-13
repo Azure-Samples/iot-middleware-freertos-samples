@@ -79,7 +79,7 @@ static bool xTimeInitialized = false;
 
 static xSemaphoreHandle xSemphGetIpAddrs;
 static esp_ip4_addr_t xIpAddress;
-static bool s_is_sample_connected_to_internet = false;
+static bool s_is_connected_to_internet = false;
 
 /*-----------------------------------------------------------*/
 
@@ -115,7 +115,7 @@ static void prvOnGotIpAddress( void * pvArg,
     ESP_LOGI( TAG, "Got IPv4 event: Interface \"%s\" address: " IPSTR,
               esp_netif_get_desc( pxEvent->esp_netif ), IP2STR( &pxEvent->ip_info.ip ) );
     memcpy( &xIpAddress, &pxEvent->ip_info.ip, sizeof( xIpAddress ) );
-    s_is_sample_connected_to_internet = true;
+    s_is_connected_to_internet = true;
     xSemaphoreGive( xSemphGetIpAddrs );
 }
 /*-----------------------------------------------------------*/
@@ -126,7 +126,7 @@ static void prvOnWifiDisconnect( void * pvArg,
                                  void * pvEventData )
 {
     ESP_LOGI( TAG, "Wi-Fi disconnected, trying to reconnect..." );
-    s_is_sample_connected_to_internet = false;
+    s_is_connected_to_internet = false;
     esp_err_t xError = esp_wifi_connect();
 
     if( xError == ESP_ERR_WIFI_NOT_STARTED )
@@ -212,7 +212,7 @@ static esp_netif_t * prvWifiStart( void )
 
 static void prvWifiStop( void )
 {
-    s_is_sample_connected_to_internet = false;
+    s_is_connected_to_internet = false;
 
     esp_netif_t * pxWifiNetif = prvGetExampleNetifFromDesc( "sta" );
 
@@ -279,7 +279,7 @@ static esp_err_t prvConnectNetwork( void )
 /*-----------------------------------------------------------*/
 bool xAzureSample_IsConnectedToInternet()
 {
-    return s_is_sample_connected_to_internet;
+    return s_is_connected_to_internet;
 }
 
 /*-----------------------------------------------------------*/
