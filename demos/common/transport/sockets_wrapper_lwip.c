@@ -60,7 +60,7 @@ static void lwip_dns_found_callback( const char * ucName,
                                      const ip_addr_t * xIPAddr,
                                      void * pvCallbackArg )
 {
-    if (xDNSResolutionTaskHandle != NULL)
+    if( xDNSResolutionTaskHandle != NULL )
     {
         uint32_t * ulAddr = ( uint32_t * ) pvCallbackArg;
 
@@ -84,6 +84,7 @@ uint32_t prvGetHostByName( const char * pcHostName )
     err_t xLwipError = ERR_OK;
     ip_addr_t xLwipIpv4Address;
     uint32_t ulDNSNotificationValue = 0;
+
     xDNSResolutionTaskHandle = xTaskGetCurrentTaskHandle();
 
     if( strlen( pcHostName ) <= ( size_t ) SOCKETS_MAX_HOST_NAME_LENGTH )
@@ -107,8 +108,8 @@ uint32_t prvGetHostByName( const char * pcHostName )
                  */
                 ulDNSNotificationValue = ulTaskNotifyTake( pdTRUE, ( lwipdnsresolverMAX_WAIT_SECONDS * 1000 ) / portTICK_PERIOD_MS );
                 xDNSResolutionTaskHandle = NULL;
-                
-                if (ulDNSNotificationValue != 1 || ulAddr == 0)
+
+                if( ( ulDNSNotificationValue != 1 ) || ( ulAddr == 0 ) )
                 {
                     /* DNS resolution timed out */
                     configPRINTF( ( "Unable to resolve (%s) within (%lu) seconds",
