@@ -31,12 +31,6 @@
     #define lwipdnsresolverMAX_WAIT_SECONDS    ( 20 )
 #endif
 
-#define lwipdnsresolverLOOP_DELAY_MS           ( 250 )
-#define lwipdnsresolverLOOP_DELAY_TICKS        ( ( TickType_t ) lwipdnsresolverLOOP_DELAY_MS / portTICK_PERIOD_MS )
-#define lwipdnsresolverMAX_WAIT_CYCLES                 \
-    ( ( ( lwipdnsresolverMAX_WAIT_SECONDS ) * 1000 ) / \
-      ( lwipdnsresolverLOOP_DELAY_MS ) )
-
 /*
  * convert from system ticks to seconds.
  */
