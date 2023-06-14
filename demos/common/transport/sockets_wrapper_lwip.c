@@ -49,6 +49,13 @@
 /*-----------------------------------------------------------*/
 
 /*
+ * Task handle to use for DNS resolution.
+ */
+static TaskHandle_t xDNSResolutionTaskHandle = NULL;
+
+/*-----------------------------------------------------------*/
+
+/*
  * Lwip DNS Found callback, compatible with type "dns_found_callback"
  * declared in lwip/dns.h.
  *
@@ -59,15 +66,20 @@ static void lwip_dns_found_callback( const char * ucName,
                                      const ip_addr_t * xIPAddr,
                                      void * pvCallbackArg )
 {
-    uint32_t * ulAddr = ( uint32_t * ) pvCallbackArg;
+    if (xDNSResolutionTaskHandle != NULL)
+    {
+        uint32_t * ulAddr = ( uint32_t * ) pvCallbackArg;
 
-    if( xIPAddr != NULL )
-    {
-        *ulAddr = *( ( uint32_t * ) xIPAddr ); /* NOTE: IPv4 addresses only */
-    }
-    else
-    {
-        *ulAddr = 0;
+        if( xIPAddr != NULL )
+        {
+            *ulAddr = *( ( uint32_t * ) xIPAddr ); /* NOTE: IPv4 addresses only */
+        }
+        else
+        {
+            *ulAddr = 0;
+        }
+
+        xTaskNotifyGive( xDNSResolutionTaskHandle );
     }
 }
 /*-----------------------------------------------------------*/
@@ -77,7 +89,8 @@ uint32_t prvGetHostByName( const char * pcHostName )
     uint32_t ulAddr = 0;
     err_t xLwipError = ERR_OK;
     ip_addr_t xLwipIpv4Address;
-    uint32_t ulDnsResolutionWaitCycles = 0;
+    uint32_t ulDNSNotificationValue = 0;
+    xDNSResolutionTaskHandle = xTaskGetCurrentTaskHandle();
 
     if( strlen( pcHostName ) <= ( size_t ) SOCKETS_MAX_HOST_NAME_LENGTH )
     {
@@ -98,13 +111,12 @@ uint32_t prvGetHostByName( const char * pcHostName )
                  * or time out; print a timeout error message if configured for debug
                  * printing.
                  */
-                do
+                ulDNSNotificationValue = ulTaskNotifyTake( pdTRUE, ( lwipdnsresolverMAX_WAIT_SECONDS * 1000 ) / portTICK_PERIOD_MS );
+                xDNSResolutionTaskHandle = NULL;
+                
+                if (ulDNSNotificationValue != 1 || ulAddr == 0)
                 {
-                    vTaskDelay( lwipdnsresolverLOOP_DELAY_TICKS );
-                }   while( ( ulDnsResolutionWaitCycles++ < lwipdnsresolverMAX_WAIT_CYCLES ) && ulAddr == 0 );
-
-                if( ulAddr == 0 )
-                {
+                    /* DNS resolution timed out */
                     configPRINTF( ( "Unable to resolve (%s) within (%lu) seconds",
                                     pcHostName, lwipdnsresolverMAX_WAIT_SECONDS ) );
                 }
