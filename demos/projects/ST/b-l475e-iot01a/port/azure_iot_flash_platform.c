@@ -91,7 +91,7 @@ AzureIoTResult_t AzureIoTPlatform_WriteBlock( AzureADUImage_t * const pxAduImage
     uint8_t * pucNextWriteAddr = pxAduImage->xUpdatePartition + ulOffset;
     uint8_t * pucNextReadAddr = pData;
     AzureIoTResult_t xResult = eAzureIoTSuccess;
-    uint32_t ulEndOfBlock = pxAduImage->xUpdatePartition + ulOffset + ulBlockSize;
+    uint8_t * ulEndOfBlock = pxAduImage->xUpdatePartition + ulOffset + ulBlockSize;
 
     HAL_FLASH_Unlock();
 
