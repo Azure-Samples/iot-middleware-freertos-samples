@@ -7,6 +7,11 @@
 /* FreeRTOS config include. */
 #include "FreeRTOSConfig.h"
 
+// SAGAR: This is to allow me to work both at home and office.
+// In actual pilot or test setup, we need to hardcode the Wi-Fi credentials and
+// other necessary stuffs.
+// #define HOME_SETUP
+
 /*
  * This plug-and-play model can be found at:
  * https://github.com/Azure/iot-plugandplay-models/blob/main/dtmi/com/example/thermostat-1.json
@@ -75,8 +80,10 @@ extern void vLoggingPrintf( const char * pcFormatString,
  *
  * @note https://docs.microsoft.com/azure/iot-dps/concepts-service#id-scope
  *
+ * @note This is the DPS ID Scope we have in Skytree Azure backend
+ * 
  */
-    #define democonfigID_SCOPE           "<YOUR ID SCOPE HERE>"
+    #define democonfigID_SCOPE           "0ne00AFD579"
 
 /**
  * @brief Registration Id of provisioning service
@@ -85,7 +92,15 @@ extern void vLoggingPrintf( const char * pcFormatString,
  *
  *  @note https://docs.microsoft.com/azure/iot-dps/concepts-service#registration-id
  */
-    #define democonfigREGISTRATION_ID    "<YOUR REGISTRATION ID HERE>"
+
+    // SAGAR: This is to allow me to work both at home and office.
+    // In actual pilot/ test we need to define a registration id per individual enrollment
+    // for ease. @note - The same name is used as device id
+    #ifdef HOME_SETUP
+        #define democonfigREGISTRATION_ID    "skytree_iotkit_home" // home
+    #else
+        #define democonfigREGISTRATION_ID    "skytree_iotkit_ofc" // office
+    #endif
 
 #endif /* democonfigENABLE_DPS_SAMPLE */
 
@@ -112,7 +127,12 @@ extern void vLoggingPrintf( const char * pcFormatString,
  * @brief Device symmetric key
  *
  */
-#define democonfigDEVICE_SYMMETRIC_KEY    "<Symmetric key>"
+// SAGAR: This is to allow me to work both at home and office.
+#ifdef HOME_SETUP
+    #define democonfigDEVICE_SYMMETRIC_KEY    "5Y53mc7C7vwmhumMCgj441h7CvdXo+Kr4xxSFUJzYP67vhCWrPvEzMeHIJISFqEp4hO4r6gJykKfW2OzQkjb/w==" // home device
+#else
+    #define democonfigDEVICE_SYMMETRIC_KEY    "dmazjdey+JxsIW6IUTgqQaS38sHg2ONV42T30VxrfqNtVyNVj8YJa7i8e7CbsJnwL1TYhCFCyUqWoy2bSf72ZQ==" // Office device
+#endif
 
 /**
  * @brief Client's X509 Certificate.
@@ -235,13 +255,23 @@ extern void vLoggingPrintf( const char * pcFormatString,
  * @brief Wifi SSID
  *
  */
-#define WIFI_SSID                            "<SSID>"
+// SAGAR: This is to allow me to work both at home and office.
+#ifdef HOME_SETUP
+    #define WIFI_SSID                            "TMNL-8D9B4C" // home
+#else
+    #define WIFI_SSID                            "Skytree" // office
+#endif
 
 /**
  * @brief Wifi Password
  *
  */
-#define WIFI_PASSWORD                        "<Password>"
+// SAGAR: This is to allow me to work both at home and office.
+#ifdef HOME_SETUP
+    #define WIFI_PASSWORD                        "XYXMNAELRS65BH8A" // home
+#else
+    #define WIFI_PASSWORD                        "5kytr335t4ff" // office
+#endif
 
 /**
  * @brief WIFI Security type, the security types are defined in wifi.h.

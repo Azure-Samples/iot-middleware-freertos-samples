@@ -2309,7 +2309,7 @@ ES_WIFI_Status_t ES_WIFI_ReceiveData(ES_WIFIObject_t *Obj, uint8_t Socket, uint8
           ret = AT_RequestReceiveData(Obj, Obj->CmdData, (char *)pdata, Reqlen, Receivedlen);
           if (ret != ES_WIFI_STATUS_OK)
           {
-            DEBUG("AT_RequestReceiveData  failed\n");
+            DEBUG("AT_RequestReceiveData  failed - ret=%d\n", ret);
           }
         }
         else
