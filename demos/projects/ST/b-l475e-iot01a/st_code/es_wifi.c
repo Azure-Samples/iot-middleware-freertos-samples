@@ -1900,7 +1900,7 @@ ES_WIFI_Status_t  ES_WIFI_WaitServerConnection(ES_WIFIObject_t *Obj,uint32_t tim
     }
     else
     {
-      DEBUG("P? command failed %s\n", Obj->CmdData);
+      DEBUG("P? command failed %s with ret = %s\n", Obj->CmdData, ES_WIFI_Status_Stringified[ret]);
       UNLOCK_WIFI();
       return ES_WIFI_STATUS_ERROR;
     }
@@ -1928,7 +1928,7 @@ ES_WIFI_Status_t ES_WIFI_CloseServerConnection(ES_WIFIObject_t *Obj, int socket)
   ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
   if(ret != ES_WIFI_STATUS_OK)
   {
-    DEBUG(" Can not select socket %s\n", Obj->CmdData);
+    DEBUG(" Can not select socket %s with ret = %s\n", Obj->CmdData, ES_WIFI_Status_Stringified[ret]);
     UNLOCK_WIFI();
     return ret;
   }
@@ -1937,7 +1937,7 @@ ES_WIFI_Status_t ES_WIFI_CloseServerConnection(ES_WIFIObject_t *Obj, int socket)
   ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
   if(ret != ES_WIFI_STATUS_OK)
   {
-    DEBUG(" Open next failed %s\n", Obj->CmdData);
+    DEBUG(" Open next failed %s with ret = %s\n", Obj->CmdData, ES_WIFI_Status_Stringified[ret]);
   }
 
   UNLOCK_WIFI();
@@ -1959,7 +1959,7 @@ ES_WIFI_Status_t ES_WIFI_StopServerSingleConn(ES_WIFIObject_t *Obj, int socket)
   ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
   if(ret != ES_WIFI_STATUS_OK)
   {
-    DEBUG("Selecting socket failed: %s\n", Obj->CmdData);
+    DEBUG("Selecting socket failed: %s with ret = %s\n", Obj->CmdData, ES_WIFI_Status_Stringified[ret]);
     UNLOCK_WIFI();
     return ret;
   }
@@ -1968,7 +1968,7 @@ ES_WIFI_Status_t ES_WIFI_StopServerSingleConn(ES_WIFIObject_t *Obj, int socket)
   ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
   if(ret != ES_WIFI_STATUS_OK)
   {
-    DEBUG("Stopping server failed %s\n", Obj->CmdData);
+    DEBUG("Stopping server failed %s with ret = %s\n", Obj->CmdData, ES_WIFI_Status_Stringified[ret]);
     UNLOCK_WIFI();
     return ret;
   }
@@ -2148,23 +2148,23 @@ ES_WIFI_Status_t ES_WIFI_SendData(ES_WIFIObject_t *Obj, uint8_t Socket, uint8_t 
       {
         if(strstr((char *)Obj->CmdData,"-1\r\n"))
         {
-          DEBUG("Send Data detect error %s\n", (char *)Obj->CmdData);
+          DEBUG("Send Data detect error %s with ret = %s\n", (char *)Obj->CmdData, ES_WIFI_Status_Stringified[ret]);
           ret = ES_WIFI_STATUS_ERROR;
         }
       }
       else
       {
-        DEBUG("Send Data command failed\n");
+        DEBUG("Send Data command failed with ret = %s\n", ES_WIFI_Status_Stringified[ret]);
       }
     }
     else
     {
-      DEBUG("S2 command failed\n");
+      DEBUG("S2 command failed with ret = %s\n", ES_WIFI_Status_Stringified[ret]);
     }
   }
   else
   {
-   DEBUG("P0 command failed\n");
+   DEBUG("P0 command failed with ret = %s\n", ES_WIFI_Status_Stringified[ret]);
   }
 
   if (ret == ES_WIFI_STATUS_ERROR)
@@ -2256,7 +2256,7 @@ ES_WIFI_Status_t  ES_WIFI_SendDataTo(ES_WIFIObject_t *Obj, uint8_t Socket, uint8
   }
   else
   {
-    DEBUG("Send error:\n%s\n", Obj->CmdData);
+    DEBUG("Send error:%s with ret = %s\n", Obj->CmdData, ES_WIFI_Status_Stringified[ret]);
     *SentLen = 0;
   }
 
@@ -2309,23 +2309,23 @@ ES_WIFI_Status_t ES_WIFI_ReceiveData(ES_WIFIObject_t *Obj, uint8_t Socket, uint8
           ret = AT_RequestReceiveData(Obj, Obj->CmdData, (char *)pdata, Reqlen, Receivedlen);
           if (ret != ES_WIFI_STATUS_OK)
           {
-            DEBUG("AT_RequestReceiveData  failed - ret=%d\n", ret);
+            DEBUG("AT_RequestReceiveData failed with ret = %s\n", ES_WIFI_Status_Stringified[ret]);
           }
         }
         else
         {
-         DEBUG("setting timeout failed\n");
+         DEBUG("setting timeout failed with ret = %s\n", ES_WIFI_Status_Stringified[ret]);
         }
       }
       else
       {
-        DEBUG("setting requested len failed\n");
+        DEBUG("setting requested len failed with ret = %s\n", ES_WIFI_Status_Stringified[ret]);
         *Receivedlen = 0;
       }
     }
     else
     {
-      DEBUG("setting socket for read failed\n");
+      DEBUG("setting socket for read failed with ret = %s\n", ES_WIFI_Status_Stringified[ret]);
       issue15++;
     }
   }
@@ -2366,7 +2366,7 @@ ES_WIFI_Status_t  ES_WIFI_ReceiveDataFrom(ES_WIFIObject_t *Obj, uint8_t Socket, 
   }
   else
   {
-    DEBUG("P0 failed.\n");
+    DEBUG("P0 failed with ret = %s\n", ES_WIFI_Status_Stringified[ret]);
   }
 
   if(ret == ES_WIFI_STATUS_OK)
@@ -2376,7 +2376,7 @@ ES_WIFI_Status_t  ES_WIFI_ReceiveDataFrom(ES_WIFIObject_t *Obj, uint8_t Socket, 
   }
   else
   {
-    DEBUG("R1 failed.\n");
+    DEBUG("R1 failed with ret = %s\n", ES_WIFI_Status_Stringified[ret]);
   }
 
   if(ret == ES_WIFI_STATUS_OK)
@@ -2386,7 +2386,7 @@ ES_WIFI_Status_t  ES_WIFI_ReceiveDataFrom(ES_WIFIObject_t *Obj, uint8_t Socket, 
   }
   else
   {
-    DEBUG("R2 failed.\n");
+    DEBUG("R2 failed with ret = %s\n", ES_WIFI_Status_Stringified[ret]);
   }
 
   if (ret == ES_WIFI_STATUS_OK)
@@ -2418,7 +2418,7 @@ ES_WIFI_Status_t  ES_WIFI_ReceiveDataFrom(ES_WIFIObject_t *Obj, uint8_t Socket, 
 
   if (ret != ES_WIFI_STATUS_OK)
   {
-    DEBUG("Read error:\n%s\n", Obj->CmdData);
+    DEBUG("Read error:\n%s with ret = %s\n", Obj->CmdData, ES_WIFI_Status_Stringified[ret]);
     *Receivedlen = 0;
   }
   UNLOCK_WIFI();

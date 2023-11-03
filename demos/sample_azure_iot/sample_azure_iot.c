@@ -31,6 +31,21 @@
 /* Azure JSON includes */
 #include "azure_iot_json_writer.h"
 
+// Overriding the asserts to let IoT connectivity continue.
+// @todo: Before restarting unsubscribing and TLS disconnect might not
+//        need to be done because the assert might be because of
+//        several software reasons (just not TLS/ socket disconnection).
+// @todo: We may not need this in PCBA but it might be good to check
+//        if the TLS issue happens with ethernet too.
+#include "stm32l4xx_hal.h"
+#undef configASSERT
+#define configASSERT( x )                                                    \
+    if( ( x ) == 0 )                                                         \
+    {                                                                        \
+        vLoggingPrintf( "[FATAL] [%s:%d] %s\r\n", __func__, __LINE__, # x ); \
+        NVIC_SystemReset();                                                  \
+    }
+
 /*-----------------------------------------------------------*/
 
 /* Compile time error for undefined configs. */
@@ -166,7 +181,7 @@
  * Note that the process loop also has a timeout, so the total time between
  * publishes is the sum of the two delays.
  */
-#define sampleazureiotDELAY_BETWEEN_PUBLISHES_TICKS           ( pdMS_TO_TICKS( 2000U ) )
+#define sampleazureiotDELAY_BETWEEN_PUBLISHES_TICKS           ( pdMS_TO_TICKS( 30000U ) )
 
 /**
  * @brief Transport timeout in milliseconds for transport send and receive.
@@ -354,7 +369,7 @@ static uint32_t prvSetupNetworkCredentials( NetworkCredentials_t * pxNetworkCred
 /*-----------------------------------------------------------*/
 
 
-// SAGAR-REVISIT:
+// @todo -REVISIT:
 // For now have the similated values
 
 // Skid
@@ -402,7 +417,7 @@ uint32_t prvCreateSkidPressureTelemetry( uint8_t * pucTelemetryData, uint32_t ul
     xResult = AzureIoTJSONWriter_AppendBeginObject( &xWriter );
     configASSERT( xResult == eAzureIoTSuccess );
 
-    // SAGAR-REVISIT - For now just hardcoding the stuff for simulation
+    // @todo - REVISIT: For now just hardcoding the stuff for simulation
     if (pressure1 > 16) pressure1 = 0;
     else pressure1++;
     if (pressure2 > 16) pressure2 = 0;
@@ -447,7 +462,7 @@ uint32_t prvCreateSkidTelemetry( uint8_t * pucTelemetryData, uint32_t ulTelemetr
     xResult = AzureIoTJSONWriter_AppendBeginObject( &xWriter );
     configASSERT( xResult == eAzureIoTSuccess );
     
-    // SAGAR-REVISIT - For now just hardcoding the stuff for simulation
+    // @todo-REVISIT - For now just hardcoding the stuff for simulation
     if (mass_flow > 50) mass_flow = 0;
     else mass_flow++;
     temperature_skid += 0.5;
@@ -507,7 +522,7 @@ uint32_t prvCreateUnit1TemperatureTelemetry( uint8_t * pucTelemetryData, uint32_
     xResult = AzureIoTJSONWriter_AppendBeginObject( &xWriter );
     configASSERT( xResult == eAzureIoTSuccess );
 
-    // SAGAR-REVISIT - For now just hardcoding the stuff for simulation
+    // @todo-REVISIT - For now just hardcoding the stuff for simulation
     cartridge11 += 0.4;
     cartridge12 += 1.7;
     cartridge21 += 0.8;
@@ -564,7 +579,7 @@ uint32_t prvCreateUnit1Telemetry( uint8_t * pucTelemetryData, uint32_t ulTelemet
     xResult = AzureIoTJSONWriter_AppendBeginObject( &xWriter );
     configASSERT( xResult == eAzureIoTSuccess );
 
-    // SAGAR-REVISIT - For now just hardcoding the stuff for simulation
+    // @todo-REVISIT - For now just hardcoding the stuff for simulation
     humidity += 5;
     if (humidity > 100) {
         humidity -= 100;
@@ -672,7 +687,7 @@ uint32_t prvCreateExternalTelemetry( uint8_t * pucTelemetryData, uint32_t ulTele
     xResult = AzureIoTJSONWriter_AppendBeginObject( &xWriter );
     configASSERT( xResult == eAzureIoTSuccess );
 
-    // SAGAR-REVISIT - For now just hardcoding the stuff for simulation
+    // @todo-REVISIT - For now just hardcoding the stuff for simulation
     temperature_ext += 0.5;
 
     xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( &xWriter, ( uint8_t * ) sampleazureiotTELEMETRY_TEMPERATURE, lengthof( sampleazureiotTELEMETRY_TEMPERATURE ), temperature_ext, 3 );
@@ -756,7 +771,7 @@ uint32_t prvCreateTelemetry( uint8_t * pucTelemetryData, uint32_t ulTelemetryDat
     }
     // Endof External
 
-    // SAGAR: Remove this and have nested stuff!!!
+    // @todo: Remove this and have nested stuff!!!
     // Temp Status
     xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) sampleazureiotTELEMETRY_STATUS, lengthof( sampleazureiotTELEMETRY_STATUS ), "Running", 7 );
     configASSERT( xResult == eAzureIoTSuccess );
@@ -828,7 +843,7 @@ static void prvAzureDemoTask( void * pvParameters )
     // strncpy(error_state, "no-error", strlen("no-error"));
 
     uint32_t ulScratchBufferLength = 0U;
-    const int lMaxPublishCount = 5;
+    const int lMaxPublishCount = 15;
     NetworkCredentials_t xNetworkCredentials = { 0 };
     AzureIoTTransportInterface_t xTransport;
     NetworkContext_t xNetworkContext = { 0 };
@@ -977,7 +992,7 @@ static void prvAzureDemoTask( void * pvParameters )
                 ulScratchBufferLength = prvCreateTelemetry( ucScratchBuffer, sizeof( ucScratchBuffer ) );
                 LogInfo( ( "ucScratchBuffer = %s and ulScratchBufferLength =%d\r\n", ucScratchBuffer, ulScratchBufferLength ) );
 
-                // SAGAR-REVISIT: ToDo: Read from Controllino
+                // @todo-REVISIT: ToDo: Read from Controllino
                 // getTelemetryData(); once ready
 
                 xResult = AzureIoTHubClient_SendTelemetry( &xAzureIoTHubClient,
@@ -992,7 +1007,7 @@ static void prvAzureDemoTask( void * pvParameters )
 
                 if( lPublishCount % 2 == 0 )
                 {
-                    // SAGAR-REVISIT: In actual code, we would like to send reported properties only when
+                    // @todo-REVISIT: In actual code, we would like to send reported properties only when
                     //                there is any change in state or error-state.
                     //                Proposed states & error-states:
                     //                To be added.....
@@ -1001,13 +1016,14 @@ static void prvAzureDemoTask( void * pvParameters )
                     //     memset(error_state, '\0', sizeof(error_state));
                     //     strncpy(error_state, "HardwareComponetErrors", strlen("HardwareComponetErrors"));
                     // }
-                    // LogInfo( ( "SAGAR: error_state = %s \r\n", error_state ) );
+                    // LogInfo( ( "error_state = %s \r\n", error_state ) );
                     // ulScratchBufferLength = snprintf( ( char * ) ucScratchBuffer, sizeof( ucScratchBuffer ),
                     //                               sampleazureiotPROPERTY, lPublishCount / 2 + 1, error_state );
 
                     /* Send reported property every other cycle */
                     ulScratchBufferLength = snprintf( ( char * ) ucScratchBuffer, sizeof( ucScratchBuffer ),
                                                       sampleazureiotPROPERTY, lPublishCount / 2 + 1 );
+                    LogInfo( ( "Attempt to send reported properties from IoT Hub.\r\n" ) );
                     xResult = AzureIoTHubClient_SendPropertiesReported( &xAzureIoTHubClient,
                                                                         ucScratchBuffer, ulScratchBufferLength,
                                                                         NULL );
@@ -1015,7 +1031,7 @@ static void prvAzureDemoTask( void * pvParameters )
                 }
 
                 /* Leave Connection Idle for some time. */
-                LogInfo( ( "Keeping Connection Idle...\r\n\r\n" ) );
+                LogInfo( ( "Keeping Connection Idle for %d seconds...\r\n\r\n", sampleazureiotDELAY_BETWEEN_PUBLISHES_TICKS / 1000 ) );
                 vTaskDelay( sampleazureiotDELAY_BETWEEN_PUBLISHES_TICKS );
             }
 
@@ -1043,10 +1059,10 @@ static void prvAzureDemoTask( void * pvParameters )
 
             /* Wait for some time between two iterations to ensure that we do not
              * bombard the IoT Hub. */
-            LogInfo( ( "Demo completed successfully.\r\n" ) );
+            // LogInfo( ( "Demo completed successfully.\r\n" ) );
         }
 
-        LogInfo( ( "Short delay before starting the next iteration.... \r\n\r\n" ) );
+        LogInfo( ( "Short delay (%d seconds) before starting the next iteration.... \r\n\r\n", sampleazureiotDELAY_BETWEEN_DEMO_ITERATIONS_TICKS / 1000 ) );
         vTaskDelay( sampleazureiotDELAY_BETWEEN_DEMO_ITERATIONS_TICKS );
     }
 }

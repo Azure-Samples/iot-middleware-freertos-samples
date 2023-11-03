@@ -88,6 +88,18 @@ typedef enum {
   ES_WIFI_STATUS_MODULE_CRASH   = 6
 } ES_WIFI_Status_t;
 
+
+const char* ES_WIFI_Status_Stringified[] = {
+    "ES_WIFI_STATUS_OK",                        // 0
+    "ES_WIFI_STATUS_REQ_DATA_STAGE",            // 1
+    "ES_WIFI_STATUS_ERROR",                     // 2
+    "ES_WIFI_STATUS_TIMEOUT",                   // 3
+    "ES_WIFI_STATUS_IO_ERROR",                  // 4
+    "ES_WIFI_STATUS_UNEXPECTED_CLOSED_SOCKET",  // 5
+    "ES_WIFI_STATUS_MODULE_CRASH"               // 6
+};
+
+
 #define ES_WIFI_ERROR_SPI_FAILED                    -1
 #define ES_WIFI_ERROR_WAITING_DRDY_RISING           -2
 #define ES_WIFI_ERROR_WAITING_DRDY_FALLING          -3
