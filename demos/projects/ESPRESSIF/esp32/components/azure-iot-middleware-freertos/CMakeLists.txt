@@ -1,6 +1,8 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # SPDX-License-Identifier: MIT
 
+cmake_minimum_required(VERSION 3.19)
+
 set(ROOT_PATH
     ${CMAKE_CURRENT_LIST_DIR}/../../../../../..
 )
