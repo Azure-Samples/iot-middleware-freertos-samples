@@ -22,7 +22,10 @@ set(PROJECT_SOURCES
     ${STCODE_SOURCES}
     port/sockets_wrapper_stm32l475.c
     sample_gsg_device.c
-    main.c)
+    main.c
+    uart_api.c
+    gui_comm_api.c
+    system_data.c)
 
 stm32_add_linker_script(CMSIS::STM32::L4 INTERFACE
     "${CMAKE_CURRENT_SOURCE_DIR}/STM32L475VGTx_FLASH.ld")
