@@ -2,7 +2,7 @@
  * Licensed under the MIT License. */
 
 //++++++++++++++++++++++++++++++++ OUR DEFINES
-//#define WIFI_ENABLED // If uncommented enables WiFi init and Azure demo task vStartDemoTask();
+#define WIFI_ENABLED // If uncommented enables WiFi init and Azure demo task vStartDemoTask();
 
 //++++++++++++++++++++++++++++++++
 
@@ -186,11 +186,10 @@ void vApplicationDaemonTaskStartupHook( void )
 
     /* Demos that use the network are created after the network is
      * up. */
-    configPRINTF( ( "---------STARTING DEMO---------\r\n" ) );
+    configPRINTF( ( "---------STARTING IoT---------\r\n" ) );
 
     #ifdef WIFI_ENABLED
         vStartDemoTask();
-
     #endif
 }
 /*-----------------------------------------------------------*/
@@ -640,11 +639,19 @@ static void RTC_Init( void )
  */
 void Error_Handler( void )
 {
+    BSP_LED_Toggle( LED_GREEN );
+
+    // Force reset to retry
+    vLoggingPrintf( "[FATAL] Reset device, hack to continue [%s:%d] \r\n", __func__, __LINE__ );
+    NVIC_SystemReset();
+
+    #if 0
     while( 1 )
     {
         BSP_LED_Toggle( LED_GREEN );
         HAL_Delay( 200 );
     }
+    #endif
 }
 /*-----------------------------------------------------------*/
 

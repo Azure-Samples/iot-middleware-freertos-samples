@@ -1,4 +1,7 @@
 {
     "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
-    "cmake.generator": "Ninja"
+    "cmake.generator": "Ninja",
+    "files.associations": {
+        "limits": "c"
+    }
 }
