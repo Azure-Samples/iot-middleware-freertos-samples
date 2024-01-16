@@ -292,7 +292,7 @@ static void prvHandleProperties( AzureIoTHubClientPropertiesResponse_t * pxMessa
             break;
 
         default:
-            LogError( ( "Unknown property message: 0x%08x", pxMessage->xMessageType ) );
+            LogError( ( "Unknown property message: 0x%08x", ( uint16_t ) pxMessage->xMessageType ) );
             configASSERT( false );
     }
 }
@@ -361,7 +361,7 @@ static void prvAzureDemoTask( void * pvParameters )
                                            &pulIothubHostnameLength, &pucIotHubDeviceId,
                                            &pulIothubDeviceIdLength ) ) != 0 )
         {
-            LogError( ( "Failed on sample_dps_entry!: error code = 0x%08x\r\n", ulStatus ) );
+            LogError( ( "Failed on sample_dps_entry!: error code = 0x%08x\r\n", ( uint16_t ) ulStatus ) );
             return;
         }
     #endif /* democonfigENABLE_DPS_SAMPLE */
