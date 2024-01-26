@@ -7,10 +7,14 @@
 /* FreeRTOS config include. */
 #include "FreeRTOSConfig.h"
 
-// SAGAR: This is to allow me to work both at home and office.
 // In actual pilot or test setup, we need to hardcode the Wi-Fi credentials and
 // other necessary stuffs.
-// #define HOME_SETUP
+// #define HOME_SETUP 1
+// #define OFC_SETUP 1
+#define WUR_SETUP 1
+// #define GROWY_SETUP 1
+// #define FIELDLESS_SETUP 1
+
 
 /*
  * This plug-and-play model can be found at:
@@ -98,9 +102,15 @@ extern void vLoggingPrintf( const char * pcFormatString,
     // for ease. @note - The same name is used as device id
     #ifdef HOME_SETUP
         #define democonfigREGISTRATION_ID    "skytree_iotkit_home" // home
-    #else
-        #define democonfigREGISTRATION_ID    "skytree_iotkit_ofc" // office
-    #endif
+    #elif defined(OFC_SETUP)
+        #define democonfigREGISTRATION_ID    "skytree_iotkit_office" // office
+    #elif defined(WUR_SETUP)
+        #define democonfigREGISTRATION_ID    "skytree_iotkit_wur" // WUR
+    #elif defined(GROWY_SETUP)
+        #define democonfigREGISTRATION_ID    "skytree_iotkit_growy" // Growy
+    #elif defined(FIELDLESS_SETUP)
+        #define democonfigREGISTRATION_ID    "skytree_iotkit_fieldless" // Fieldless
+    #endif    
 
 #endif /* democonfigENABLE_DPS_SAMPLE */
 
@@ -130,10 +140,15 @@ extern void vLoggingPrintf( const char * pcFormatString,
 // SAGAR: This is to allow me to work both at home and office.
 #ifdef HOME_SETUP
     #define democonfigDEVICE_SYMMETRIC_KEY    "5Y53mc7C7vwmhumMCgj441h7CvdXo+Kr4xxSFUJzYP67vhCWrPvEzMeHIJISFqEp4hO4r6gJykKfW2OzQkjb/w==" // home device
-#else
-    #define democonfigDEVICE_SYMMETRIC_KEY    "dmazjdey+JxsIW6IUTgqQaS38sHg2ONV42T30VxrfqNtVyNVj8YJa7i8e7CbsJnwL1TYhCFCyUqWoy2bSf72ZQ==" // Office device
+#elif defined(OFC_SETUP)
+    #define democonfigDEVICE_SYMMETRIC_KEY    "PLbvN5Tlmu0pViNPBlUDioXvwAzjzeGTCJOVb36Z5QZ6GDZzDRKehzqtERJlIAnl8QFbAUB0PtkMO7y11tIiUw==" // Office device
+#elif defined(WUR_SETUP)
+    #define democonfigDEVICE_SYMMETRIC_KEY    "xpEawa5WwBPLLKKZmqbFea9m3mcyLxFDETZpPqT/w9LReyhGprneLbrnmd3xnn5tURkW2eaxUDkcE1eDOwdMtw==" // WUR
+#elif defined(GROWY_SETUP)
+    #define democonfigDEVICE_SYMMETRIC_KEY    "IZSNRvTXMzvXRjvB345XEYJF7Q1S9wM1QpgWQ45NE605OrKvA3bNHRAr4ygYGQmlixAEsHfcFyQ0VFdxhY3Byw==" // Growy
+#elif defined(FIELDLESS_SETUP)
+    #define democonfigDEVICE_SYMMETRIC_KEY    "Mi3+4/7x2tPkSin3m42/2EHDTWbvYrPRqUHIJRKhgtlvoy3XnerG+bORK0VW1mbe51EiRK9kEdRBWjZU+POgMw==" // Fieldless
 #endif
-
 /**
  * @brief Client's X509 Certificate.
  *
@@ -258,8 +273,15 @@ extern void vLoggingPrintf( const char * pcFormatString,
 // SAGAR: This is to allow me to work both at home and office.
 #ifdef HOME_SETUP
     #define WIFI_SSID                            "TMNL-8D9B4C" // home
-#else
+#elif defined(OFC_SETUP)
     #define WIFI_SSID                            "Skytree" // office
+#elif defined(WUR_SETUP)
+    #define WIFI_SSID                            "TP-Link_Sagar" // 4G router
+#elif defined(GROWY_SETUP)
+    #define WIFI_SSID                            "Skytree" // office
+    // #define WIFI_SSID                            "TMNL-8D9B4C" // home
+#elif defined(FIELDLESS_SETUP)
+    #define WIFI_SSID                            "Fieldless Farms Systems" // Fieldless location
 #endif
 
 /**
@@ -269,8 +291,15 @@ extern void vLoggingPrintf( const char * pcFormatString,
 // SAGAR: This is to allow me to work both at home and office.
 #ifdef HOME_SETUP
     #define WIFI_PASSWORD                        "XYXMNAELRS65BH8A" // home
-#else
+#elif defined(OFC_SETUP)
     #define WIFI_PASSWORD                        "5kytr335t4ff" // office
+#elif defined(WUR_SETUP)
+    #define WIFI_PASSWORD                        "skytree12345" // 4G router
+#elif defined(GROWY_SETUP)
+    #define WIFI_PASSWORD                        "5kytr335t4ff" // office
+    // #define WIFI_PASSWORD                        "XYXMNAELRS65BH8A" // home
+#elif defined(FIELDLESS_SETUP)
+    #define WIFI_PASSWORD                        "779j4Cy@%R" // home
 #endif
 
 /**

@@ -1,6 +1,11 @@
 /* Copyright (c) Microsoft Corporation.
  * Licensed under the MIT License. */
 
+//++++++++++++++++++++++++++++++++ OUR DEFINES
+#define WIFI_ENABLED // If uncommented enables WiFi init and Azure demo task vStartDemoTask();
+
+//++++++++++++++++++++++++++++++++
+
 #include "main.h"
 #include <stdint.h>
 #include <stdio.h>
@@ -28,6 +33,9 @@
 /* WiFi driver includes. */
 #include "es_wifi.h"
 #include "wifi.h"
+
+#include "gui_comm_api.h"
+#include "system_data.h"
 
 /* Define the default wifi ssid and password.
  * User must override this in demo_config.h
@@ -86,6 +94,7 @@ extern void vStartDemoTask( void );
  * Get board specific unix time.
  */
 uint64_t ullGetUnixTime( void );
+//
 
 /**
  * @brief Initializes the STM32L475 IoT node board.
@@ -103,11 +112,13 @@ static void prvMiscInitialization( void );
 static void prvInitializeHeap( void );
 /*-----------------------------------------------------------*/
 
-static BaseType_t prvInitializeWifi( void );
-/*-----------------------------------------------------------*/
+#ifdef WIFI_ENABLED
+    static BaseType_t prvInitializeWifi( void );
+    /*-----------------------------------------------------------*/
 
-static BaseType_t prvInitializeSNTP( void );
-/*-----------------------------------------------------------*/
+    static BaseType_t prvInitializeSNTP( void );
+    /*-----------------------------------------------------------*/
+#endif
 
 void vLoggingPrintf( const char * pcFormat,
                      ... )
@@ -138,7 +149,7 @@ int main( void )
     /* Perform any hardware initialization that does not require the RTOS to be
      * running.  */
     prvMiscInitialization();
-
+    
     /* Start the scheduler.  Initialization that requires the OS to be running,
      * including the WiFi initialization, is performed in the RTOS daemon task
      * startup hook. */
@@ -175,8 +186,11 @@ void vApplicationDaemonTaskStartupHook( void )
 
     /* Demos that use the network are created after the network is
      * up. */
-    configPRINTF( ( "---------STARTING DEMO---------\r\n" ) );
-    vStartDemoTask();
+    configPRINTF( ( "---------STARTING IoT---------\r\n" ) );
+
+    #ifdef WIFI_ENABLED
+        vStartDemoTask();
+    #endif
 }
 /*-----------------------------------------------------------*/
 
@@ -376,6 +390,22 @@ int __io_putchar( int ch )
 
 /*-----------------------------------------------------------*/
 
+void uart_loop(void* arg){
+    system_data_init();
+
+    while(1){
+        read_incoming_system_data();
+    }
+}
+
+void test_loop(void* arg){
+    while(1){
+        //send_lock_status();
+        //send_unlock_status();
+        vTaskDelay(2000 / portTICK_PERIOD_MS);
+    }
+}
+
 /**
  * @brief Initializes the board.
  */
@@ -392,7 +422,7 @@ static void prvMiscInitialization( void )
     prvInitializeHeap();
 
     BSP_LED_Init( LED_GREEN );
-    BSP_PB_Init( BUTTON_USER, BUTTON_MODE_EXTI );
+    BSP_PB_Init(BUTTON_USER, BUTTON_MODE_EXTI);
 
     /* RNG init function. */
     xHrng.Instance = RNG;
@@ -408,18 +438,23 @@ static void prvMiscInitialization( void )
     /* UART console init. */
     Console_UART_Init();
 
+    xTaskCreate(uart_loop, "uart_task", 256, NULL, 0, NULL);
+    xTaskCreate(test_loop, "test_task", 256, NULL, 0, NULL);
     /* Discovery and Initialize all the Target's Features */
     Init_MEM1_Sensors();
 
-    if( prvInitializeWifi() != 0 )
-    {
-        Error_Handler();
-    }
+    #ifdef WIFI_ENABLED
+        if( prvInitializeWifi() != 0 )
+        {
+            Error_Handler();
+        }
 
-    if( prvInitializeSNTP() != 0 )
-    {
-        Error_Handler();
-    }
+        if( prvInitializeSNTP() != 0 )
+        {
+            Error_Handler();
+        }
+
+    #endif 
 }
 /*-----------------------------------------------------------*/
 
@@ -533,7 +568,7 @@ static void SystemClock_Config( void )
 }
 /*-----------------------------------------------------------*/
 
-/**
+/**`
  * @brief UART console initialization function.
  */
 static void Console_UART_Init( void )
@@ -604,11 +639,19 @@ static void RTC_Init( void )
  */
 void Error_Handler( void )
 {
+    BSP_LED_Toggle( LED_GREEN );
+
+    // Force reset to retry
+    vLoggingPrintf( "[FATAL] Reset device, hack to continue [%s:%d] \r\n", __func__, __LINE__ );
+    NVIC_SystemReset();
+
+    #if 0
     while( 1 )
     {
         BSP_LED_Toggle( LED_GREEN );
         HAL_Delay( 200 );
     }
+    #endif
 }
 /*-----------------------------------------------------------*/
 
@@ -735,13 +778,14 @@ static void prvInitializeHeap( void )
 
 /*-----------------------------------------------------------*/
 
-
+// uint8_t data[6] = "DONE\n\r";
 /**
  * @brief  EXTI line detection callback.
  *
  * @param  GPIO_Pin: Specifies the port pin connected to corresponding EXTI line.
  */
-void HAL_GPIO_EXTI_Callback( uint16_t GPIO_Pin )
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) 
+    
 {
     switch( GPIO_Pin )
     {
@@ -749,6 +793,11 @@ void HAL_GPIO_EXTI_Callback( uint16_t GPIO_Pin )
          * ready pin. */
         case ( GPIO_PIN_1 ):
             SPI_WIFI_ISR();
+            break;
+
+        case (USER_BUTTON_PIN):
+            BSP_LED_Toggle(LED_GREEN);
+            // gui_comm_send_data(data, 6, NULL, NULL, NULL);
             break;
 
         default:
