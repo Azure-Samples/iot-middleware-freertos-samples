@@ -11,6 +11,7 @@
 #include "semphr.h"
 #include <memory.h>
 #include <stdbool.h>
+#include <stdlib.h>
 
 //========================================================================================================== DEFINITIONS AND MACROS
 #define MUTEX_MAX_BLOCKING_TIME 1000
@@ -38,7 +39,7 @@ void read_skid_status(uint8_t incoming_data[]);
 uint8_t CalcCrc(uint8_t data[], uint8_t nbrOfBytes);
 
 uint8_t get_latest_index(bool skid);
-void sensor_average_max_min(sensor_name_t name, uint8_t heater_index, double* avg, double* max, double* min);
+void sensor_average_max_min(sensor_name_t name, uint8_t heater_index, sensor_info_t* sensor_info);
 
 //========================================================================================================== FUNCTIONS DEFINITIONS
 void system_data_init(void){
@@ -334,29 +335,54 @@ double get_sensor_value(uint8_t sample_index, sensor_name_t name, uint8_t heater
   return sensor_value;
 }
 
-void sensor_average_max_min(sensor_name_t name, uint8_t heater_index, double* avg, double* max, double* min){
+// #if 0 // @todo median
+// Predicate for qsort used to get to media
+int compare_for_sort(const void *a, const void *b) {
+    return (*(double *)a - *(double *)b);
+}
+
+double get_median(double sensor_samples[]){
+  qsort(sensor_samples, NUMBER_OF_SAMPLES, sizeof(double), compare_for_sort);
+
+  if (NUMBER_OF_SAMPLES % 2 == 0) {
+      // If the number of elements is even
+      return (sensor_samples[NUMBER_OF_SAMPLES / 2 - 1] + sensor_samples[NUMBER_OF_SAMPLES / 2]) / 2.0;
+  } else {
+      // If the number of elements is odd
+      return skid_status[NUMBER_OF_SAMPLES / 2].o2_sensor;
+  }
+}
+// #endif
+
+void sensor_average_max_min(sensor_name_t name, uint8_t heater_index, sensor_info_t* sensor_info){
   double total = 0.0;
-  total = *avg = *max = *min = get_sensor_value(0, name, heater_index);
+  double sensor_samples[NUMBER_OF_SAMPLES];
+  total = sensor_samples[0] = sensor_info->stats.avg = sensor_info->stats.max
+    = sensor_info->stats.min = sensor_info->stats.median = get_sensor_value(0, name, heater_index);
   // uint8_t num_of_valid_samples = 0;
 
   for(uint8_t i=1;i<NUMBER_OF_SAMPLES;++i){
-    double sensor_value = get_sensor_value(i, name, heater_index);
+    double sensor_value = sensor_samples[i] = get_sensor_value(i, name, heater_index);
 
     // if(sensor_value != __DBL_MAX__){
       total += sensor_value;
 
-      if(sensor_value > *max){
-        *max = sensor_value;
+      if(sensor_value > sensor_info->stats.max){
+        sensor_info->stats.max = sensor_value;
       }
-      if(sensor_value < *min) {
-        *min = sensor_value;
+      if(sensor_value < sensor_info->stats.min) {
+        sensor_info->stats.min = sensor_value;
       }
       // num_of_valid_samples++;
     // }
-
   }
 
-  *avg = total / NUMBER_OF_SAMPLES;
+  // get median from the samples
+  // We are collecting the samples in a separate array to avoid updating the original
+  sensor_info->stats.median = get_median(sensor_samples);
+
+  // get avg
+  sensor_info->stats.avg = total / NUMBER_OF_SAMPLES;
 }
 
 SKID_iot_status_t get_skid_status(void){
@@ -383,13 +409,13 @@ SKID_iot_status_t get_skid_status(void){
   tmp.condenser = (skid_status[index].outputs_status & 0x0100) ? ONE:ZERO;
 
   // The transformed ones (Avg, Max and Min)
-  sensor_average_max_min(SKID_O2, 0, &tmp.o2_sensor.avg, &tmp.o2_sensor.max, &tmp.o2_sensor.min);
-  sensor_average_max_min(SKID_MASS_FLOW, 0, &tmp.mass_flow.avg, &tmp.mass_flow.max, &tmp.mass_flow.min);
-  sensor_average_max_min(SKID_CO2, 0, &tmp.co2_sensor.avg, &tmp.co2_sensor.max, &tmp.co2_sensor.min);
-  sensor_average_max_min(SKID_TANK_PRESSURE, 0, &tmp.tank_pressure.avg, &tmp.tank_pressure.max, &tmp.tank_pressure.min);
-  sensor_average_max_min(SKID_PROPOTIONAL_VALVE_SENSOR, 0, &tmp.proportional_valve_pressure.avg, &tmp.proportional_valve_pressure.max, &tmp.proportional_valve_pressure.min);
-  sensor_average_max_min(SKID_TEMPERATURE, 0, &tmp.temperature.avg, &tmp.temperature.max, &tmp.temperature.min);
-  sensor_average_max_min(SKID_HUMIDITY, 0, &tmp.humidity.avg, &tmp.humidity.max, &tmp.humidity.min);
+  sensor_average_max_min(SKID_O2, 0, &tmp.o2_sensor);
+  sensor_average_max_min(SKID_MASS_FLOW, 0, &tmp.mass_flow);
+  sensor_average_max_min(SKID_CO2, 0, &tmp.co2_sensor);
+  sensor_average_max_min(SKID_TANK_PRESSURE, 0, &tmp.tank_pressure);
+  sensor_average_max_min(SKID_PROPOTIONAL_VALVE_SENSOR, 0, &tmp.proportional_valve_pressure);
+  sensor_average_max_min(SKID_TEMPERATURE, 0, &tmp.temperature);
+  sensor_average_max_min(SKID_HUMIDITY, 0, &tmp.humidity);
 
   xSemaphoreGive(skid_status_rw_mutex);
 
@@ -414,7 +440,7 @@ UNIT_iot_status_t get_unit_status(void){
   for(uint8_t i=0;i<NUMBER_OF_HEATERS;++i){
     tmp.heater_info[i].status = (unit_status[index].heater_status & (1 << i)) ? ONE:ZERO;
 
-    sensor_average_max_min(UNIT_HEATER, i, &tmp.heater_info[i].sensor_info.avg, &tmp.heater_info[i].sensor_info.max, &tmp.heater_info[i].sensor_info.min);
+    sensor_average_max_min(UNIT_HEATER, i, &tmp.heater_info[i]);
   }
 
   tmp.fan_status = (unit_status[index].valve_status & 0x01) ? ONE:ZERO;
@@ -422,9 +448,9 @@ UNIT_iot_status_t get_unit_status(void){
   tmp.butterfly_valve_2_status = (unit_status[index].valve_status & 0x04) ? ONE:ZERO;
 
   // The transformed ones (Avg, Max and Min)
-  sensor_average_max_min(UNIT_VACUUM_SENSOR, 0, &tmp.vacuum_sensor.avg, &tmp.vacuum_sensor.max, &tmp.vacuum_sensor.min);
-  sensor_average_max_min(UNIT_AMBIENT_HUMIDITY, 0, &tmp.ambient_humidity.avg, &tmp.ambient_humidity.max, &tmp.ambient_humidity.min);
-  sensor_average_max_min(UNIT_AMBIENT_TEMPERATURE, 0, &tmp.ambient_temperature.avg, &tmp.ambient_temperature.max, &tmp.ambient_temperature.min);
+  sensor_average_max_min(UNIT_VACUUM_SENSOR, 0, &tmp.vacuum_sensor);
+  sensor_average_max_min(UNIT_AMBIENT_HUMIDITY, 0, &tmp.ambient_humidity);
+  sensor_average_max_min(UNIT_AMBIENT_TEMPERATURE, 0, &tmp.ambient_temperature);
 
   xSemaphoreGive(unit_status_rw_mutex);
 

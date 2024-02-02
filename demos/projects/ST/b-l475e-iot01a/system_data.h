@@ -22,6 +22,8 @@
 #define MESSAGE_LENGTH_SKID_STATUS 37 //SKID_status 32 bytes + header 4 bytes + crc 1 byte = 37 bytes
 #define MESSAGE_LENGTH_IOT_COMMAND 6 //IOT_COMMAND header 5 bytes + crc 1 byte = 6 bytes
 #define NUMBER_OF_HEATERS 9
+#define NUMBER_OF_CARTRIDGES 3 // For now we have hardcoded this as skid also has hardcoded 9 heaters
+#define NUMBER_OF_ZONES_PER_CARTRIDGE 3 // This is hardcoded as well
 
 #if 0
 // Structures in controllino for reference
@@ -86,7 +88,8 @@ typedef struct{
     double avg;
     double max;
     double min;
-}sensor_info_t;
+    double median;
+}sensor_stats_t;
 
 typedef enum{
     ZERO,
@@ -94,17 +97,17 @@ typedef enum{
 }component_status_t;
 typedef struct{
     component_status_t status;
-    sensor_info_t sensor_info; 
-}heater_info_t;
+    sensor_stats_t stats; 
+}sensor_info_t;
 
 const char* valve_status_stringified[] = {
     "CLOSED",        // 0
     "OPENED"         // 1
 };
 
-const char* three_way_vacuum_release_valve_before_condensator_stringified[] = {
-    "three_way_vacuum_release_valve_before_condensator_to_TANK",        // 0
-    "three_way_vacuum_release_valve_before_condensator_to_AIR"          // 1
+const char* three_way_vacuum_release_valve_before_condenser_stringified[] = {
+    "three_way_vacuum_release_valve_before_condenser_to_TANK",        // 0
+    "three_way_vacuum_release_valve_before_condenser_to_AIR"          // 1
 };
 
 const char* three_way_valve_after_vacuum_pump_stringified[] = {
@@ -164,30 +167,6 @@ typedef enum{
     UNIT_HEATER
 }sensor_name_t;
 
-typedef enum{
-    CATRIDGE11,
-    CATRIDGE12,
-    CATRIDGE13,
-    CATRIDGE21,
-    CATRIDGE22,
-    CATRIDGE23,
-    CATRIDGE31,
-    CATRIDGE32,
-    CATRIDGE33
-}heater_index_t;
-
-const char* catridge_index_stringified[] = {
-    "CATRIDGE11",
-    "CATRIDGE12",
-    "CATRIDGE13",
-    "CATRIDGE21",
-    "CATRIDGE22",
-    "CATRIDGE23",
-    "CATRIDGE31",
-    "CATRIDGE32",
-    "CATRIDGE33"
-};
-
 typedef struct{
 	// uint8_t unit_status; //Flags//000//setup_state_synching_flag//just_started_flag//reset_flag//halt_flag//error_flag
     flag_state_t error_flag;
@@ -199,7 +178,7 @@ typedef struct{
     sequence_state_t unit_state;
     // uint16_t heater_status;  //Heater//000000//9//8//7//6//5//4//3//2//1
     // uint32_t heater_temperatures[9];
-    heater_info_t heater_info[NUMBER_OF_HEATERS];
+    sensor_info_t heater_info[NUMBER_OF_HEATERS];
     // uint8_t valve_status; //00000//Butterfly2//Butterfly1//Fan1
     component_status_t fan_status;
     component_status_t butterfly_valve_1_status;
@@ -241,7 +220,7 @@ typedef struct{
     sensor_info_t o2_sensor;
     sensor_info_t mass_flow;
     sensor_info_t co2_sensor;
-    sensor_info_t tank_pressure;
+    sensor_info_t tank_pressure;    // @todo: Do we move to tank structure?
     sensor_info_t proportional_valve_pressure;
     sensor_info_t temperature;
     sensor_info_t humidity;
