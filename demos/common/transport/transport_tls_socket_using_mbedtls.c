@@ -879,6 +879,15 @@ int32_t TLS_Socket_Recv( NetworkContext_t * pxNetworkContext,
         LogError( ( "Failed to read data: mbedTLSError[%d]= %s : %s.",
                     lMbedtlsError, mbedtlsHighLevelCodeOrDefault( lMbedtlsError ),
                     mbedtlsLowLevelCodeOrDefault( lMbedtlsError ) ) );
+        
+        int lMbedResetError = mbedtls_ssl_session_reset( &( pxSSLContext->context ) );
+
+        if ( lMbedResetError != 0 )
+        {
+            LogError( ( "Failed to reset mbed session: [%d]= %s : %s.",
+                lMbedResetError, mbedtlsHighLevelCodeOrDefault( lMbedResetError ),
+                mbedtlsLowLevelCodeOrDefault( lMbedResetError ) ) );
+        }
     }
     else
     {
