@@ -580,6 +580,13 @@ static void prvAzureDemoTask( void * pvParameters )
             configASSERT( xResult == eAzureIoTSuccess );
         #endif /* democonfigDEVICE_SYMMETRIC_KEY */
 
+        #ifdef democonfigCERTIFICATE_SIGNING_REQUEST
+            xResult = AzureIoTProvisioningClient_SetRegistrationCertificateSigningRequest( &xAzureIoTProvisioningClient,
+                                                                  ( const uint8_t * ) democonfigCERTIFICATE_SIGNING_REQUEST,
+                                                                  sizeof( democonfigCERTIFICATE_SIGNING_REQUEST ) - 1 );
+            configASSERT( xResult == eAzureIoTSuccess );
+        #endif /* democonfigCERTIFICATE_SIGNING_REQUEST */
+
         do
         {
             xResult = AzureIoTProvisioningClient_Register( &xAzureIoTProvisioningClient,
@@ -592,6 +599,19 @@ static void prvAzureDemoTask( void * pvParameters )
                                                               ucSampleIotHubHostname, &ucSamplepIothubHostnameLength,
                                                               ucSampleIotHubDeviceId, &ucSamplepIothubDeviceIdLength );
         configASSERT( xResult == eAzureIoTSuccess );
+
+        #ifdef democonfigCERTIFICATE_SIGNING_REQUEST
+        uint8_t pucSignedCertificate[1024];
+        uint32_t ucsignedCertificate_length = 1024;
+        xResult = AzureIoTProvisioningClient_GetIssuedCertificate( &xAzureIoTProvisioningClient, 0, pucSignedCertificate, &ucsignedCertificate_length );
+
+        configASSERT( xResult == eAzureIoTSuccess );
+
+        LogInfo( ( "SIGNED CERTIFICATE: %*.s\r\n\r\n", ucsignedCertificate_length, pucSignedCertificate ) );
+
+        #endif /* democonfigCERTIFICATE_SIGNING_REQUEST */
+
+
 
         AzureIoTProvisioningClient_Deinit( &xAzureIoTProvisioningClient );
 

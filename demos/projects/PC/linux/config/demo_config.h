@@ -87,6 +87,10 @@ extern void vLoggingPrintf( const char * pcFormatString,
  */
     #define democonfigREGISTRATION_ID    "<YOUR REGISTRATION ID HERE>"
 
+/**
+ * @brief Certificate Signing Request to be sent to device provisioning service.
+ */
+    // #define democonfigCERTIFICATE_SIGNING_REQUEST    "<BASE64-ENCODED CERTIFICATE SIGNING REQUEST>"    
 #endif /* democonfigENABLE_DPS_SAMPLE */
 
 /**
