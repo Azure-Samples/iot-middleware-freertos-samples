@@ -229,7 +229,7 @@ extern void vLoggingPrintf( const char * pcFormatString,
 /**
  * @brief Size of the network buffer for MQTT packets.
  */
-#define democonfigNETWORK_BUFFER_SIZE        ( 5 * 1024U )
+#define democonfigNETWORK_BUFFER_SIZE        ( 10 * 1024U )
 
 /**
  * @brief IoTHub endpoint port.

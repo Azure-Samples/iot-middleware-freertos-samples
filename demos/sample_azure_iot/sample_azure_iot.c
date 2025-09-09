@@ -601,13 +601,13 @@ static void prvAzureDemoTask( void * pvParameters )
         configASSERT( xResult == eAzureIoTSuccess );
 
         #ifdef democonfigCERTIFICATE_SIGNING_REQUEST
-        uint8_t pucSignedCertificate[1024];
-        uint32_t ucsignedCertificate_length = 1024;
+        uint8_t pucSignedCertificate[2048]; // TODO: move to config
+        uint32_t ucsignedCertificate_length = 2048; // TODO: move to config
         xResult = AzureIoTProvisioningClient_GetIssuedCertificate( &xAzureIoTProvisioningClient, 0, pucSignedCertificate, &ucsignedCertificate_length );
 
         configASSERT( xResult == eAzureIoTSuccess );
 
-        LogInfo( ( "SIGNED CERTIFICATE: %*.s\r\n\r\n", ucsignedCertificate_length, pucSignedCertificate ) );
+        LogInfo( ( "SIGNED CERTIFICATE: %.*s\r\n\r\n", ucsignedCertificate_length, pucSignedCertificate ) );
 
         #endif /* democonfigCERTIFICATE_SIGNING_REQUEST */
 

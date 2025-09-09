@@ -49,4 +49,10 @@ extern void vLoggingPrintf( const char * pcFormatString,
 #include "logging_stack.h"
 /************ End of logging configuration ****************/
 
+/**
+ * @brief Set the config value to a larger value to receive the recovery payload
+ *
+ */
+#define azureiotconfigPROVISIONING_REQUEST_PAYLOAD_MAX    ( 4700 )
+
 #endif /* AZURE_IOT_CONFIG_H */
