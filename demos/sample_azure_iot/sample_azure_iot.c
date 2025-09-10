@@ -148,6 +148,9 @@ uint64_t ullGetUnixTime( void );
     static uint8_t ucSampleIotHubHostname[ 128 ];
     static uint8_t ucSampleIotHubDeviceId[ 128 ];
     static AzureIoTProvisioningClient_t xAzureIoTProvisioningClient;
+#ifdef democonfigCERTIFICATE_SIGNING_REQUEST
+    static uint8_t ucSampleIssuedCertificate[ 2048 ];
+#endif // democonfigCERTIFICATE_SIGNING_REQUEST
 #endif /* democonfigENABLE_DPS_SAMPLE */
 
 static uint8_t ucPropertyBuffer[ 80 ];
@@ -179,6 +182,11 @@ static AzureIoTHubClient_t xAzureIoTHubClient;
                                       uint32_t * pulIothubHostnameLength,
                                       uint8_t ** ppucIothubDeviceId,
                                       uint32_t * pulIothubDeviceIdLength );
+
+#ifdef democonfigCERTIFICATE_SIGNING_REQUEST
+#define BEGIN_CERTIFICATE_HEADER    "-----BEGIN CERTIFICATE-----\r\n"
+#define END_CERTIFICATE_FOOTER      "\r\n-----END CERTIFICATE-----\r\n"
+#endif // democonfigCERTIFICATE_SIGNING_REQUEST
 
 #endif /* democonfigENABLE_DPS_SAMPLE */
 
@@ -294,6 +302,8 @@ static uint32_t prvSetupNetworkCredentials( NetworkCredentials_t * pxNetworkCred
     #ifdef democonfigCLIENT_CERTIFICATE_PEM
         pxNetworkCredentials->pucClientCert = ( const unsigned char * ) democonfigCLIENT_CERTIFICATE_PEM;
         pxNetworkCredentials->xClientCertSize = sizeof( democonfigCLIENT_CERTIFICATE_PEM );
+    #endif
+    #ifdef democonfigCLIENT_PRIVATE_KEY_PEM
         pxNetworkCredentials->pucPrivateKey = ( const unsigned char * ) democonfigCLIENT_PRIVATE_KEY_PEM;
         pxNetworkCredentials->xPrivateKeySize = sizeof( democonfigCLIENT_PRIVATE_KEY_PEM );
     #endif
@@ -601,17 +611,20 @@ static void prvAzureDemoTask( void * pvParameters )
         configASSERT( xResult == eAzureIoTSuccess );
 
         #ifdef democonfigCERTIFICATE_SIGNING_REQUEST
-        uint8_t pucSignedCertificate[2048]; // TODO: move to config
-        uint32_t ucsignedCertificate_length = 2048; // TODO: move to config
-        xResult = AzureIoTProvisioningClient_GetIssuedCertificate( &xAzureIoTProvisioningClient, 0, pucSignedCertificate, &ucsignedCertificate_length );
-
+        uint32_t ulSignedCertificateChainLength = 0;
+        xResult = AzureIoTProvisioningClient_GetIssuedCertificateChainLength( &xAzureIoTProvisioningClient, &ulSignedCertificateChainLength );
         configASSERT( xResult == eAzureIoTSuccess );
+        configASSERT( ulSignedCertificateChainLength > 0 );
 
-        LogInfo( ( "SIGNED CERTIFICATE: %.*s\r\n\r\n", ucsignedCertificate_length, pucSignedCertificate ) );
-
+        (void)memcpy( ucSampleIssuedCertificate, BEGIN_CERTIFICATE_HEADER, sizeof( BEGIN_CERTIFICATE_HEADER ) - 1 ); /* Do not copy BEGIN_CERTIFICATE_HEADER null terminator. */
+        uint32_t ulSampleIssuedCertificateLength = sizeof( ucSampleIssuedCertificate ) - ( sizeof( BEGIN_CERTIFICATE_HEADER ) - 1 );  /* Do not account for BEGIN_CERTIFICATE_HEADER null terminator. */
+        xResult = AzureIoTProvisioningClient_GetIssuedCertificate( &xAzureIoTProvisioningClient, 0, ucSampleIssuedCertificate + ( sizeof( BEGIN_CERTIFICATE_HEADER ) - 1 ), &ulSampleIssuedCertificateLength );
+        configASSERT( xResult == eAzureIoTSuccess );
+        (void)memcpy( ucSampleIssuedCertificate + ( sizeof( BEGIN_CERTIFICATE_HEADER ) - 1 ) + ulSampleIssuedCertificateLength, END_CERTIFICATE_FOOTER, sizeof( END_CERTIFICATE_FOOTER ) ); /* write null terminator at the end. */
+        
+        pXNetworkCredentials->pucClientCert = ( const unsigned char * ) ucSampleIssuedCertificate;
+        pXNetworkCredentials->xClientCertSize = ulSampleIssuedCertificateLength + ( sizeof( BEGIN_CERTIFICATE_HEADER ) - 1 ) + ( sizeof( END_CERTIFICATE_FOOTER ) ); /* size must account for null terminator. */
         #endif /* democonfigCERTIFICATE_SIGNING_REQUEST */
-
-
 
         AzureIoTProvisioningClient_Deinit( &xAzureIoTProvisioningClient );
 
