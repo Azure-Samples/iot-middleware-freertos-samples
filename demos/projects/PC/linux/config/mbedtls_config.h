@@ -107,4 +107,7 @@ int mbedtls_platform_entropy_poll( void * data,
 
 #include "mbedtls/check_config.h"
 
+#define MBEDTLS_X509_ALLOW_UNSUPPORTED_CRITICAL_EXTENSION
+#define MBEDTLS_X509_ALLOW_EXTENSIONS_NON_V3
+
 #endif /* ifndef MBEDTLS_CONFIG_H */
