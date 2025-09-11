@@ -77,6 +77,19 @@ Parameter | Value
 
  *For group enrollment, generate the device symmetric key using the registration ID and the group primary key. See the [official instructions](https://learn.microsoft.com/en-us/azure/iot-dps/how-to-legacy-device-symm-key?tabs=windows&pivots=programming-language-csharp#derive-a-device-key) for details.
 
+To use the **DPS** Certificate Signing Request feature, provide also the following parameters:
+
+Parameter | Value
+---------|----------
+ `democonfigCLIENT_PRIVATE_KEY_PEM` | _{The client certificate private key}_
+ `democonfigCERTIFICATE_SIGNING_REQUEST` | _{A Certificate Signing Request generated using the client private key}_
+
+**For non-production purposes (i.e., for test-only)**, the parameters above can be generated using the [New-CSRSampleConfig.ps1](../../../../tools/New-CSRSampleConfig.ps1) powershell script. Run it using the same `democonfigREGISTRATION_ID` parameter provided in the configuration:
+
+```powershell
+PS C:\> .\New-CSRSampleConfig.ps1 -RegistrationId <democonfigREGISTRATION_ID>
+```
+
 ### Set the Virtual Ethernet Interface
 
 Execute the command below to find which index you got for the `rtosveth1` (index is the number to the left of the interface). Make a note of the number for the next step.
