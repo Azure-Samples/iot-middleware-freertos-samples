@@ -45,7 +45,7 @@ sudo .github/scripts/init_linux_port_vm_network.sh
 IoT Hub | DPS
 ---------|----------
 Have an [Azure IoT Hub](https://docs.microsoft.com/azure/iot-hub/iot-hub-create-through-portal) created | Have an instance of [IoT Hub Device Provisioning Service](https://docs.microsoft.com/azure/iot-dps/quick-setup-auto-provision#create-a-new-iot-hub-device-provisioning-service)
-Have a [logical device](https://docs.microsoft.com/azure/iot-hub/iot-hub-create-through-portal#register-a-new-device-in-the-iot-hub) created in your Azure IoT Hub using your preferred authentication method* | Have an [individual enrollment](https://docs.microsoft.com/azure/iot-dps/how-to-manage-enrollments#create-a-device-enrollment) created in your instance of DPS using your preferred authentication method*
+Have a [logical device](https://docs.microsoft.com/azure/iot-hub/iot-hub-create-through-portal#register-a-new-device-in-the-iot-hub) created in your Azure IoT Hub using your preferred authentication method* | Have an [individual or group enrollment](https://docs.microsoft.com/azure/iot-dps/how-to-manage-enrollments#create-a-device-enrollment) created in your instance of DPS using your preferred authentication method*
 
 *While this sample supports SAS keys and Certificates, this guide will refer only to SAS keys.
 
@@ -67,13 +67,15 @@ Parameter | Value
  `democonfigHOSTNAME` | _{Your Host name value}_
  `democonfigDEVICE_SYMMETRIC_KEY` | _{Your Primary Key value}_
 
-If you're using **DPS** with an individual enrollment with SAS authentication, set the following parameters:
+If you're using **DPS** with an individual or group enrollment with SAS authentication, set the following parameters:
 
 Parameter | Value
 ---------|----------
  `democonfigID_SCOPE` | _{Your ID scope value}_
  `democonfigREGISTRATION_ID` | _{Your Device Registration ID value}_
- `democonfigDEVICE_SYMMETRIC_KEY` | _{Your Primary Key value}_
+ `democonfigDEVICE_SYMMETRIC_KEY` | _{Your Primary Key value}_*
+
+ *For group enrollment, generate the device symmetric key using the registration ID and the group primary key. See the [official instructions](https://learn.microsoft.com/en-us/azure/iot-dps/how-to-legacy-device-symm-key?tabs=windows&pivots=programming-language-csharp#derive-a-device-key) for details.
 
 ### Set the Virtual Ethernet Interface
 
