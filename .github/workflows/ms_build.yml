@@ -12,7 +12,7 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v5
 
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - name: submodules-init
