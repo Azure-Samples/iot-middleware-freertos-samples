@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: docker://espressif/idf:v5.0
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v5
     - name: Submodules Init
       uses: snickerbockers/submodules-init@v4
     - name: Build ESP32 Samples (ESP-IDF v5.0)
