@@ -81,14 +81,48 @@ To use the **DPS** Certificate Signing Request feature, provide also the followi
 
 Parameter | Value
 ---------|----------
- `democonfigCLIENT_PRIVATE_KEY_PEM` | _{The client certificate private key}_
+ `democonfigCERTIFICATE_SIGNING_REQUEST_PRIVATE_KEY_PEM` | _{The certificate private key used to generate the certificate signing request}_
  `democonfigCERTIFICATE_SIGNING_REQUEST` | _{A Certificate Signing Request generated using the client private key}_
 
-**For non-production purposes (i.e., for test-only)**, the parameters above can be generated using the [New-CSRSampleConfig.ps1](../../../../tools/New-CSRSampleConfig.ps1) powershell script. Run it using the same `democonfigREGISTRATION_ID` parameter provided in the configuration:
+**For non-production purposes (i.e., for test-only)**, the parameters above can be generated using the script below:
+
+Linux:
+
+```bash
+REGISTRATION_ID="your registration id"
+CSR_KEY_PEM_FILE_PATH=$(pwd)/${REGISTRATION_ID}-csr-private-key.pem
+
+openssl ecparam -name prime256v1 -genkey -noout | openssl pkcs8 -topk8 -nocrypt -out $CSR_KEY_PEM_FILE_PATH
+CSR_BASE64=$(openssl req -new -key $CSR_KEY_PEM_FILE_PATH -subj "/CN=$REGISTRATION_ID" -outform DER | openssl base64 -A)
+
+echo "#define democonfigCERTIFICATE_SIGNING_REQUEST_PRIVATE_KEY_PEM \\"; cat $CSR_KEY_PEM_FILE_PATH | sed "s/^/\"/g" | sed "s/$/\\\r\\\n\" \\\/g" | sed '$s/ \\$//'
+
+echo "#define democonfigCERTIFICATE_SIGNING_REQUEST    \"$CSR_BASE64\""
+```
+
+Windows (PowerShell):
 
 ```powershell
-PS C:\> .\New-CSRSampleConfig.ps1 -RegistrationId <democonfigREGISTRATION_ID>
+$REGISTRATION_ID = "your registration id";
+
+$privateKey = [System.Security.Cryptography.ECDsa]::Create([System.Security.Cryptography.ECCurve]::CreateFromFriendlyName("nistP256"))
+if ($PSVersionTable.PSVersion.Major -lt 7) {
+  $base64pkcs8PrivateKey = [Convert]::ToBase64String($privateKey.Key.Export([System.Security.Cryptography.CngKeyBlobFormat]::Pkcs8PrivateBlob), 'InsertLineBreaks')
+} else {
+  $base64pkcs8PrivateKey = [Convert]::ToBase64String($privateKey.ExportPkcs8PrivateKey(), 'InsertLineBreaks')
+}
+
+$dn = New-Object System.Security.Cryptography.X509Certificates.X500DistinguishedName("CN=$REGISTRATION_ID")
+$csr = New-Object System.Security.Cryptography.X509Certificates.CertificateRequest($dn, $privateKey, [System.Security.Cryptography.HashAlgorithmName]::SHA256)
+$CSR_BASE64 = [Convert]::ToBase64String($csr.CreateSigningRequest())
+
+$FORMATTED_CSR_KEY_PEM = "`"-----BEGIN PRIVATE KEY-----\r\n`" \`n`"" + $($base64pkcs8PrivateKey -replace "[`r]*`n", "\r\n`" \`n`"") + "\r\n`"`n`"-----END PRIVATE KEY-----\r\n`"";
+
+echo "#define democonfigCERTIFICATE_SIGNING_REQUEST_PRIVATE_KEY_PEM \`n$FORMATTED_CSR_KEY_PEM"
+
+echo "#define democonfigCERTIFICATE_SIGNING_REQUEST    `"$CSR_BASE64`""
 ```
+
 
 ### Set the Virtual Ethernet Interface
 

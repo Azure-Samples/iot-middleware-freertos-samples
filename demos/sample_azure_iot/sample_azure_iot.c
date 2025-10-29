@@ -624,8 +624,8 @@ static void prvAzureDemoTask( void * pvParameters )
         
         pXNetworkCredentials->pucClientCert = ( const unsigned char * ) ucSampleIssuedCertificate;
         pXNetworkCredentials->xClientCertSize = ulSampleIssuedCertificateLength + ( sizeof( BEGIN_CERTIFICATE_HEADER ) - 1 ) + ( sizeof( END_CERTIFICATE_FOOTER ) ); /* size must account for null terminator. */
-        pxNetworkCredentials->pucPrivateKey = ( const unsigned char * ) democonfigCERTIFICATE_SIGNING_REQUEST_PRIVATE_KEY_PEM;
-        pxNetworkCredentials->xPrivateKeySize = sizeof( democonfigCERTIFICATE_SIGNING_REQUEST_PRIVATE_KEY_PEM );
+        pXNetworkCredentials->pucPrivateKey = ( const unsigned char * ) democonfigCERTIFICATE_SIGNING_REQUEST_PRIVATE_KEY_PEM;
+        pXNetworkCredentials->xPrivateKeySize = sizeof( democonfigCERTIFICATE_SIGNING_REQUEST_PRIVATE_KEY_PEM );
         #endif /* democonfigCERTIFICATE_SIGNING_REQUEST */
 
         AzureIoTProvisioningClient_Deinit( &xAzureIoTProvisioningClient );
