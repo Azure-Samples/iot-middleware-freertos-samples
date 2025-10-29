@@ -90,7 +90,12 @@ extern void vLoggingPrintf( const char * pcFormatString,
 /**
  * @brief Certificate Signing Request to be sent to device provisioning service.
  */
-    // #define democonfigCERTIFICATE_SIGNING_REQUEST    "<BASE64-ENCODED CERTIFICATE SIGNING REQUEST>"    
+    /* #define democonfigCERTIFICATE_SIGNING_REQUEST    "<BASE64-ENCODED CERTIFICATE SIGNING REQUEST>" */
+ 
+ /**
+ * @brief Certificate private key used to generate the certificate signing request.
+ */
+    /* #define democonfigCERTIFICATE_SIGNING_REQUEST_PRIVATE_KEY_PEM    "<YOUR CSR PRIVATE KEY HERE>" */
 #endif /* democonfigENABLE_DPS_SAMPLE */
 
 /**
