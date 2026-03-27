@@ -41,6 +41,15 @@
                 "VENDOR": "NXP",
                 "BOARD": "mimxrt1060"
             }
+        },
+        {
+            "name": "linux",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/linux",
+            "cacheVariables": {
+                "VENDOR": "PC",
+                "BOARD": "linux"
+            }
         }
     ],
     "buildPresets": [
@@ -59,6 +68,10 @@
         {
             "name": "mimxrt1060",
             "configurePreset": "mimxrt1060"
+        },
+        {
+            "name": "linux",
+            "configurePreset": "linux"
         }
     ]
 }
