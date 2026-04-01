@@ -223,11 +223,6 @@ static AzureIoTHubClient_t xAzureIoTHubClient;
     static volatile bool xCSRError     = false;
     static volatile uint16_t usCSRErrorStatus = 0;
 
-    static bool prvConvertJsonCertsToPem( const uint8_t * pucJsonPayload,
-                                          uint32_t ulJsonLength,
-                                          uint8_t * pucPemBuffer,
-                                          uint32_t ulPemBufferSize,
-                                          uint32_t * pulPemLength );
 #endif /* democonfigENABLE_IOT_HUB_CSR */
 /*-----------------------------------------------------------*/
 
@@ -255,50 +250,6 @@ static AzureIoTHubClient_t xAzureIoTHubClient;
 #if defined( democonfigENABLE_DPS_CSR ) || defined( democonfigENABLE_IOT_HUB_CSR )
     static const char pcPemCertBegin[] = "-----BEGIN CERTIFICATE-----\r\n";
     static const char pcPemCertEnd[]   = "\r\n-----END CERTIFICATE-----\r\n";
-
-/**
- * @brief Wrap a single base64 DER certificate blob in PEM headers/footers.
- *
- * Appends BEGIN header + base64 data + END footer to the output buffer
- * at the current write offset.
- *
- * @param[in]     pucBase64Data     The base64-encoded certificate data.
- * @param[in]     ulBase64Length    Length of the base64 data.
- * @param[out]    pucPemBuffer      Output buffer.
- * @param[in]     ulPemBufferSize   Total size of the output buffer.
- * @param[in,out] pulWritten        Current write offset; updated on success.
- *
- * @return true on success, false if the buffer is too small.
- */
-static bool prvWrapSingleCertPem( const uint8_t * pucBase64Data,
-                                   uint32_t ulBase64Length,
-                                   uint8_t * pucPemBuffer,
-                                   uint32_t ulPemBufferSize,
-                                   uint32_t * pulWritten )
-{
-    uint32_t ulNeeded = ( uint32_t ) ( sizeof( pcPemCertBegin ) - 1 +
-                                        ulBase64Length +
-                                        sizeof( pcPemCertEnd ) - 1 );
-
-    if( ( *pulWritten + ulNeeded + 1 ) > ulPemBufferSize ) /* +1 for null terminator */
-    {
-        LogError( ( "[CSR] PEM buffer too small: need %u, have %u",
-                    ( unsigned ) ( *pulWritten + ulNeeded + 1 ),
-                    ( unsigned ) ulPemBufferSize ) );
-        return false;
-    }
-
-    memcpy( pucPemBuffer + *pulWritten, pcPemCertBegin, sizeof( pcPemCertBegin ) - 1 );
-    *pulWritten += ( uint32_t ) ( sizeof( pcPemCertBegin ) - 1 );
-
-    memcpy( pucPemBuffer + *pulWritten, pucBase64Data, ulBase64Length );
-    *pulWritten += ulBase64Length;
-
-    memcpy( pucPemBuffer + *pulWritten, pcPemCertEnd, sizeof( pcPemCertEnd ) - 1 );
-    *pulWritten += ( uint32_t ) ( sizeof( pcPemCertEnd ) - 1 );
-
-    return true;
-}
 #endif /* democonfigENABLE_DPS_CSR || democonfigENABLE_IOT_HUB_CSR */
 
 /**
@@ -426,31 +377,96 @@ static void prvHandleCSRResponse( AzureIoTHubClientCertificateSigningResponse_t 
             break;
 
         case eAzureIoTHubClientCertificateSigningResponseCompleted:
+        {
             LogInfo( ( "[CSR] Completed (200). Certificate received (%u bytes).",
                        ( unsigned ) pxResponse->ulPayloadLength ) );
-            LogInfo( ( "[CSR] Certificate payload: %.*s",
-                       ( int ) pxResponse->ulPayloadLength,
-                       ( const char * ) pxResponse->pvMessagePayload ) );
 
-            /* Store the issued certificate for reconnecting with new credentials.
-             * The payload is a JSON array of base64 DER certs — convert to PEM. */
-            if( prvConvertJsonCertsToPem( ( const uint8_t * ) pxResponse->pvMessagePayload,
-                                          pxResponse->ulPayloadLength,
-                                          ucCSRIssuedCertBuffer,
-                                          sizeof( ucCSRIssuedCertBuffer ),
-                                          &ulCSRIssuedCertLength ) )
+            /* Use the accessor functions to retrieve the parsed certificate chain.
+             * The middleware auto-parses the completed response; the accessor data
+             * is only valid until the next ProcessLoop call. */
+            uint32_t ulChainLength = 0;
+            AzureIoTResult_t xAccessorResult;
+
+            xAccessorResult = AzureIoTHubClient_GetIssuedCertificateChainLength(
+                                  &xAzureIoTHubClient, &ulChainLength );
+
+            if( ( xAccessorResult != eAzureIoTSuccess ) || ( ulChainLength == 0 ) )
             {
-                LogInfo( ( "[CSR] Converted certificate chain to PEM (%u bytes).",
+                LogError( ( "[CSR] Failed to get certificate chain length or chain is empty." ) );
+                ulCSRIssuedCertLength = 0;
+            xCSRCompleted = true;
+            break;
+            }
+
+            LogInfo( ( "[CSR] Issued certificate chain contains %u certificate(s).",
+                       ( unsigned ) ulChainLength ) );
+
+    uint32_t ulWritten = 0;
+
+            for( uint32_t i = 0; i < ulChainLength; i++ )
+            {
+                /* Write PEM header at the current offset, then let the API fill
+                 * the base64 data immediately after the header, then append footer. */
+                uint32_t ulHeaderLen = ( uint32_t ) ( sizeof( pcPemCertBegin ) - 1 );
+                uint32_t ulFooterLen = ( uint32_t ) ( sizeof( pcPemCertEnd ) - 1 );
+
+                /* Ensure space for at least header + footer + null term. */
+                if( ( ulWritten + ulHeaderLen + ulFooterLen + 1 ) >= sampleazureiotCSR_ISSUED_CERT_BUFFER_SIZE )
+    {
+                    LogError( ( "[CSR] PEM buffer too small for certificate %u.", ( unsigned ) i ) );
+                    ulWritten = 0;
+                    break;
+    }
+
+                /* Write header. */
+                memcpy( ucCSRIssuedCertBuffer + ulWritten, pcPemCertBegin, ulHeaderLen );
+
+                /* GetIssuedCertificate fills base64 data after the header. */
+                uint32_t ulRawLen = sampleazureiotCSR_ISSUED_CERT_BUFFER_SIZE - ulWritten - ulHeaderLen - ulFooterLen - 1;
+                xAccessorResult = AzureIoTHubClient_GetIssuedCertificate(
+                                      &xAzureIoTHubClient, i,
+                                      ucCSRIssuedCertBuffer + ulWritten + ulHeaderLen,
+                                      &ulRawLen );
+
+                if( xAccessorResult != eAzureIoTSuccess )
+                {
+                    LogError( ( "[CSR] Failed to get certificate at position %u: %d",
+                                ( unsigned ) i, xAccessorResult ) );
+                    ulWritten = 0;
+            break;
+        }
+
+                /* Append footer after the base64 data. */
+                memcpy( ucCSRIssuedCertBuffer + ulWritten + ulHeaderLen + ulRawLen,
+                        pcPemCertEnd, ulFooterLen );
+
+                ulWritten += ulHeaderLen + ulRawLen + ulFooterLen;
+
+                /* Log the certificate in PEM format. */
+                LogInfo( ( "[CSR] Certificate[%u]:\r\n%.*s",
+                           ( unsigned ) i,
+                           ( int ) ( ulHeaderLen + ulRawLen + ulFooterLen ),
+                           ( const char * ) ( ucCSRIssuedCertBuffer + ulWritten - ulHeaderLen - ulRawLen - ulFooterLen ) ) );
+        }
+
+            if( ulWritten > 0 )
+            {
+    /* Null-terminate (required by mbedTLS PEM parser). */
+                ucCSRIssuedCertBuffer[ ulWritten ] = '\0';
+    ulWritten++;
+                ulCSRIssuedCertLength = ulWritten;
+
+                LogInfo( ( "[CSR] Certificate chain converted to PEM (%u bytes).",
                            ( unsigned ) ulCSRIssuedCertLength ) );
             }
             else
             {
-                LogError( ( "[CSR] Failed to convert certificate chain to PEM." ) );
                 ulCSRIssuedCertLength = 0;
             }
 
             xCSRCompleted = true;
             break;
+        }
 
         case eAzureIoTHubClientCertificateSigningResponseError:
             LogError( ( "[CSR] Error (%u). Payload: %.*s",
@@ -466,101 +482,6 @@ static void prvHandleCSRResponse( AzureIoTHubClientCertificateSigningResponse_t 
                         ( int ) pxResponse->xResponseType ) );
             break;
     }
-}
-/*-----------------------------------------------------------*/
-
-/**
- * @brief Convert a JSON array of base64-encoded DER certificates to PEM format.
- *
- * The CSR response payload is a JSON array like:
- *   ["<base64-cert-1>","<base64-cert-2>","<base64-cert-3>"]
- *
- * This function converts each element to PEM by wrapping it with
- * -----BEGIN CERTIFICATE----- / -----END CERTIFICATE----- headers.
- * The output is null-terminated (required by mbedTLS PEM parser).
- *
- * @param[in]  pucJsonPayload   The JSON array payload.
- * @param[in]  ulJsonLength     Length of the JSON payload.
- * @param[out] pucPemBuffer     Output buffer for the PEM certificate chain.
- * @param[in]  ulPemBufferSize  Size of the output buffer.
- * @param[out] pulPemLength     Written PEM length (including null terminator).
- *
- * @return true on success, false if the buffer is too small or parsing fails.
- */
-static bool prvConvertJsonCertsToPem( const uint8_t * pucJsonPayload,
-                                      uint32_t ulJsonLength,
-                                      uint8_t * pucPemBuffer,
-                                      uint32_t ulPemBufferSize,
-                                      uint32_t * pulPemLength )
-{
-    const uint8_t * pucPos = pucJsonPayload;
-    const uint8_t * pucEnd = pucJsonPayload + ulJsonLength;
-    uint32_t ulWritten = 0;
-
-    /* Skip whitespace and opening bracket. */
-    while( ( pucPos < pucEnd ) && ( *pucPos != '[' ) )
-    {
-        pucPos++;
-    }
-
-    if( pucPos >= pucEnd )
-    {
-        return false;
-    }
-
-    pucPos++; /* skip '[' */
-
-    while( pucPos < pucEnd )
-    {
-        /* Skip whitespace and commas. */
-        while( ( pucPos < pucEnd ) && ( ( *pucPos == ' ' ) || ( *pucPos == ',' ) || ( *pucPos == '\n' ) || ( *pucPos == '\r' ) || ( *pucPos == '\t' ) ) )
-        {
-            pucPos++;
-        }
-
-        if( ( pucPos >= pucEnd ) || ( *pucPos == ']' ) )
-        {
-            break;
-        }
-
-        /* Expect opening quote. */
-        if( *pucPos != '"' )
-        {
-            return false;
-        }
-
-        pucPos++; /* skip opening '"' */
-
-        /* Find closing quote. */
-        const uint8_t * pucCertStart = pucPos;
-
-        while( ( pucPos < pucEnd ) && ( *pucPos != '"' ) )
-        {
-            pucPos++;
-        }
-
-        if( pucPos >= pucEnd )
-        {
-            return false;
-        }
-
-        uint32_t ulCertBase64Len = ( uint32_t ) ( pucPos - pucCertStart );
-        pucPos++; /* skip closing '"' */
-
-        /* Use the shared helper to wrap this cert in PEM headers. */
-        if( !prvWrapSingleCertPem( pucCertStart, ulCertBase64Len,
-                                    pucPemBuffer, ulPemBufferSize, &ulWritten ) )
-        {
-            return false;
-        }
-    }
-
-    /* Null-terminate (required by mbedTLS PEM parser). */
-    pucPemBuffer[ ulWritten ] = '\0';
-    ulWritten++;
-
-    *pulPemLength = ulWritten;
-    return ( ulWritten > 1 );
 }
 /*-----------------------------------------------------------*/
 
