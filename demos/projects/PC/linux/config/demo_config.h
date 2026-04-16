@@ -247,7 +247,7 @@ extern void vLoggingPrintf( const char * pcFormatString,
  *
  * When defined, the device sends a Certificate Signing Request as part of
  * the DPS registration and uses the issued certificate to connect to IoT Hub.
- * Requires democonfigENABLE_DPS_SAMPLE.
+ * Automatically enables DPS provisioning (democonfigENABLE_DPS_SAMPLE).
  */
 /* #define democonfigENABLE_DPS_CSR */
 

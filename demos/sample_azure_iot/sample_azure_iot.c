@@ -47,25 +47,21 @@
     #error "Please define only one auth democonfigDEVICE_SYMMETRIC_KEY or democonfigCLIENT_CERTIFICATE_PEM in demo_config.h."
 #endif
 
+/* DPS CSR implies DPS provisioning — auto-enable it. */
+#if defined( democonfigENABLE_DPS_CSR ) && !defined( democonfigENABLE_DPS_SAMPLE )
+    #define democonfigENABLE_DPS_SAMPLE
+#endif
+
 #if !defined( democonfigDEVICE_SYMMETRIC_KEY ) && \
     !defined( democonfigCLIENT_CERTIFICATE_PEM ) && \
-    !defined( democonfigENABLE_DPS_CSR ) && \
-    !defined( democonfigENABLE_IOT_HUB_CSR )
-    #error "Please define one of: democonfigDEVICE_SYMMETRIC_KEY, democonfigCLIENT_CERTIFICATE_PEM, or enable CSR (democonfigENABLE_DPS_CSR / democonfigENABLE_IOT_HUB_CSR)."
-#endif
-
-#if defined( democonfigENABLE_DPS_CSR ) && !defined( democonfigENABLE_DPS_SAMPLE )
-    #error "democonfigENABLE_DPS_CSR requires democonfigENABLE_DPS_SAMPLE."
+    !defined( democonfigENABLE_DPS_CSR )
+    #error "Please define one of: democonfigDEVICE_SYMMETRIC_KEY, democonfigCLIENT_CERTIFICATE_PEM, or democonfigENABLE_DPS_CSR."
 #endif
 
 #if ( defined( democonfigENABLE_DPS_CSR ) || defined( democonfigENABLE_IOT_HUB_CSR ) ) && \
-    !defined( democonfigCERTIFICATE_SIGNING_REQUEST_DATA )
-    #error "CSR is enabled but democonfigCERTIFICATE_SIGNING_REQUEST_DATA is not defined."
-#endif
-
-#if ( defined( democonfigENABLE_DPS_CSR ) || defined( democonfigENABLE_IOT_HUB_CSR ) ) && \
-    !defined( democonfigCERTIFICATE_SIGNING_REQUEST_PRIVATE_KEY_PEM )
-    #error "CSR is enabled but democonfigCERTIFICATE_SIGNING_REQUEST_PRIVATE_KEY_PEM is not defined."
+    ( !defined( democonfigCERTIFICATE_SIGNING_REQUEST_DATA ) || \
+      !defined( democonfigCERTIFICATE_SIGNING_REQUEST_PRIVATE_KEY_PEM ) )
+    #error "CSR is enabled but democonfigCERTIFICATE_SIGNING_REQUEST_DATA and/or democonfigCERTIFICATE_SIGNING_REQUEST_PRIVATE_KEY_PEM is not defined."
 #endif
 
 #if defined( democonfigENABLE_IOT_HUB_CSR ) && !defined( democonfigCERTIFICATE_SIGNING_REQUEST_ID )
