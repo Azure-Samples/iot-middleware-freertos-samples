@@ -18,6 +18,19 @@ jobs:
       run: .github/scripts/code_style.sh check
     - name: Submodules Init
       uses: snickerbockers/submodules-init@v4
+    - name: Free disk space
+      run: |
+        set -eux
+        df -h
+        sudo rm -rf /usr/local/lib/android || true
+        sudo rm -rf /opt/ghc || true
+        sudo rm -rf /usr/share/dotnet || true
+        sudo rm -rf /usr/local/share/boost || true
+        sudo rm -rf /usr/local/.ghcup || true
+        sudo apt-get clean
+        sudo rm -rf /var/lib/apt/lists/*
+        sudo rm -rf /tmp/*
+        df -h
     - name: Configure
       run: .github/scripts/install_software.sh
     - name: Install ARM GCC 11.2
@@ -28,6 +41,12 @@ jobs:
       run: sudo bash -c ".github/scripts/ci_tests.sh -nxp"
     - name: Build ST Samples
       run: sudo bash -c ".github/scripts/ci_tests.sh -st"
+    - name: Cleanup before ESP32 builds
+      run: |
+        set -eux
+        sudo rm -rf build_* || true
+        sudo rm -rf /tmp/*
+        df -h
     - name: Build ESP32 Samples (ESP-IDF v4.4.3)
       run: docker run -v "${PWD}:/iot-middleware-freertos-samples" -w /iot-middleware-freertos-samples espressif/idf:v4.4.3 .github/scripts/ci_tests.sh -esp
     - name: Build ESP32-ATECC Samples (ESP-IDF v4.4.3)
