@@ -268,14 +268,14 @@ extern void vLoggingPrintf( const char * pcFormatString,
  * @note In a real application, generate this from the device's keypair.
  *       Used by both DPS CSR and IoT Hub CSR flows.
  */
-    #define democonfigCERTIFICATE_SIGNING_REQUEST_DATA    "<YOUR BASE64-ENCODED PKCS#10 CSR>"
+    #define democonfigCERTIFICATE_SIGNING_REQUEST_DATA               "<YOUR BASE64-ENCODED PKCS#10 CSR>"
 
 /**
  * @brief Private key (PEM) used to generate the CSR.
  *
  * @note Used for TLS authentication after the issued certificate is received.
  */
-    #define democonfigCERTIFICATE_SIGNING_REQUEST_PRIVATE_KEY_PEM   "<YOUR CSR PRIVATE KEY HERE>"
+    #define democonfigCERTIFICATE_SIGNING_REQUEST_PRIVATE_KEY_PEM    "<YOUR CSR PRIVATE KEY HERE>"
 
 #endif /* democonfigENABLE_DPS_CSR || democonfigENABLE_IOT_HUB_CSR */
 
@@ -286,7 +286,7 @@ extern void vLoggingPrintf( const char * pcFormatString,
  *
  * @note Only used for IoT Hub CSR (not DPS).
  */
-    #define democonfigCERTIFICATE_SIGNING_REQUEST_ID     "<YOUR CSR REQUEST ID>"
+    #define democonfigCERTIFICATE_SIGNING_REQUEST_ID    "<YOUR CSR REQUEST ID>"
 
 #endif /* democonfigENABLE_IOT_HUB_CSR */
 
