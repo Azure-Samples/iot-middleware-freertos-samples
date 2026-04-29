@@ -81,8 +81,20 @@ To use the **DPS** Certificate Signing Request feature, provide also the followi
 
 Parameter | Value
 ---------|----------
+ `democonfigENABLE_DPS_CSR` | _{Uncomment/define to enable DPS CSR}_
  `democonfigCERTIFICATE_SIGNING_REQUEST_PRIVATE_KEY_PEM` | _{The certificate private key used to generate the certificate signing request}_
- `democonfigCERTIFICATE_SIGNING_REQUEST` | _{A Certificate Signing Request generated using the client private key}_
+ `democonfigCERTIFICATE_SIGNING_REQUEST_DATA` | _{A Certificate Signing Request generated using the client private key}_
+
+To use the **IoT Hub** Certificate Signing Request feature (CSR sent after IoT Hub connection), provide also the following parameters:
+
+Parameter | Value
+---------|----------
+ `democonfigENABLE_IOT_HUB_CSR` | _{Uncomment/define to enable IoT Hub CSR}_
+ `democonfigCERTIFICATE_SIGNING_REQUEST_PRIVATE_KEY_PEM` | _{The certificate private key used to generate the certificate signing request}_
+ `democonfigCERTIFICATE_SIGNING_REQUEST_DATA` | _{A Certificate Signing Request generated using the client private key}_
+ `democonfigCERTIFICATE_SIGNING_REQUEST_ID` | _{A unique request ID (4-36 ASCII alphanumeric chars and dashes)}_
+
+> **Note**: You can enable both `democonfigENABLE_DPS_CSR` and `democonfigENABLE_IOT_HUB_CSR` to perform CSR during DPS provisioning and then again after connecting to IoT Hub. The `democonfigCERTIFICATE_SIGNING_REQUEST_DATA` and `democonfigCERTIFICATE_SIGNING_REQUEST_PRIVATE_KEY_PEM` macros are shared by both flows.
 
 **For non-production purposes (i.e., for test-only)**, the parameters above can be generated using the script below:
 
@@ -97,7 +109,7 @@ CSR_BASE64=$(openssl req -new -key $CSR_KEY_PEM_FILE_PATH -subj "/CN=$REGISTRATI
 
 echo "#define democonfigCERTIFICATE_SIGNING_REQUEST_PRIVATE_KEY_PEM \\"; cat $CSR_KEY_PEM_FILE_PATH | sed "s/^/\"/g" | sed "s/$/\\\r\\\n\" \\\/g" | sed '$s/ \\$//'
 
-echo "#define democonfigCERTIFICATE_SIGNING_REQUEST    \"$CSR_BASE64\""
+echo "#define democonfigCERTIFICATE_SIGNING_REQUEST_DATA    \"$CSR_BASE64\""
 ```
 
 Windows (PowerShell):
@@ -120,7 +132,7 @@ $FORMATTED_CSR_KEY_PEM = "`"-----BEGIN PRIVATE KEY-----\r\n`" \`n`"" + $($base64
 
 echo "#define democonfigCERTIFICATE_SIGNING_REQUEST_PRIVATE_KEY_PEM \`n$FORMATTED_CSR_KEY_PEM"
 
-echo "#define democonfigCERTIFICATE_SIGNING_REQUEST    `"$CSR_BASE64`""
+echo "#define democonfigCERTIFICATE_SIGNING_REQUEST_DATA    `"$CSR_BASE64`""
 ```
 
 

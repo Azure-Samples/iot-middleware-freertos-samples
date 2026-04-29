@@ -87,15 +87,6 @@ extern void vLoggingPrintf( const char * pcFormatString,
  */
     #define democonfigREGISTRATION_ID    "<YOUR REGISTRATION ID HERE>"
 
-/**
- * @brief Certificate Signing Request to be sent to device provisioning service.
- */
-    /* #define democonfigCERTIFICATE_SIGNING_REQUEST    "<BASE64-ENCODED CERTIFICATE SIGNING REQUEST>" */
- 
- /**
- * @brief Certificate private key used to generate the certificate signing request.
- */
-    /* #define democonfigCERTIFICATE_SIGNING_REQUEST_PRIVATE_KEY_PEM    "<YOUR CSR PRIVATE KEY HERE>" */
 #endif /* democonfigENABLE_DPS_SAMPLE */
 
 /**
@@ -121,7 +112,7 @@ extern void vLoggingPrintf( const char * pcFormatString,
  * @brief Device symmetric key
  *
  */
-#define democonfigDEVICE_SYMMETRIC_KEY    "<Symmetric key>"
+#define democonfigDEVICE_SYMMETRIC_KEY    "<YOUR DEVICE SYMMETRIC KEY>"
 
 /**
  * @brief Client's X509 Certificate.
@@ -250,5 +241,53 @@ extern void vLoggingPrintf( const char * pcFormatString,
 #define democonfigADU_UPDATE_NAME            "Linux"
 #define democonfigADU_UPDATE_VERSION         "1.0"
 #define democonfigADU_UPDATE_NEW_VERSION     "1.1"
+
+/**
+ * @brief Enable Certificate Signing Request (CSR) during DPS provisioning.
+ *
+ * When defined, the device sends a Certificate Signing Request as part of
+ * the DPS registration and uses the issued certificate to connect to IoT Hub.
+ * Automatically enables DPS provisioning (democonfigENABLE_DPS_SAMPLE).
+ */
+/* #define democonfigENABLE_DPS_CSR */
+
+/**
+ * @brief Enable Certificate Signing Request (CSR) via IoT Hub after connecting.
+ *
+ * When defined, the device sends a Certificate Signing Request to IoT Hub
+ * after establishing the MQTT connection. The device then reconnects using
+ * the issued certificate.
+ */
+/* #define democonfigENABLE_IOT_HUB_CSR */
+
+#if defined( democonfigENABLE_DPS_CSR ) || defined( democonfigENABLE_IOT_HUB_CSR )
+
+/**
+ * @brief Base64-encoded PKCS#10 CSR (no PEM headers/footers, no newlines).
+ *
+ * @note In a real application, generate this from the device's keypair.
+ *       Used by both DPS CSR and IoT Hub CSR flows.
+ */
+    #define democonfigCERTIFICATE_SIGNING_REQUEST_DATA               "<YOUR BASE64-ENCODED PKCS#10 CSR>"
+
+/**
+ * @brief Private key (PEM) used to generate the CSR.
+ *
+ * @note Used for TLS authentication after the issued certificate is received.
+ */
+    #define democonfigCERTIFICATE_SIGNING_REQUEST_PRIVATE_KEY_PEM    "<YOUR CSR PRIVATE KEY HERE>"
+
+#endif /* democonfigENABLE_DPS_CSR || democonfigENABLE_IOT_HUB_CSR */
+
+#ifdef democonfigENABLE_IOT_HUB_CSR
+
+/**
+ * @brief CSR request ID (4-36 ASCII alphanumeric chars and dashes).
+ *
+ * @note Only used for IoT Hub CSR (not DPS).
+ */
+    #define democonfigCERTIFICATE_SIGNING_REQUEST_ID    "<YOUR CSR REQUEST ID>"
+
+#endif /* democonfigENABLE_IOT_HUB_CSR */
 
 #endif /* DEMO_CONFIG_H */

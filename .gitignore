@@ -358,6 +358,7 @@ build/
 /b-l475e-iot01a
 /b-l4s5i-iot01a
 /stm32h745i-disco
+/linux
 
 # ESP-IDF config files
 sdkconfig*
