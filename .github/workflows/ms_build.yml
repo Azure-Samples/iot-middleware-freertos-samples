@@ -23,6 +23,9 @@ jobs:
 
     - name: Get specific version CMake, v3.21.1
       uses: lukka/get-cmake@v3.21.1
+      with:
+        useLocalCache: false
+        useCloudCache: false
 
     - name: Build
       working-directory: ${{env.GITHUB_WORKSPACE}}
