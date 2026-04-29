@@ -21,11 +21,8 @@ jobs:
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v1.1
 
-    - name: Get specific version CMake, v3.21.1
-      uses: lukka/get-cmake@v3.21.1
-      with:
-        useLocalCache: false
-        useCloudCache: false
+    - name: Show CMake version
+      run: cmake --version
 
     - name: Build
       working-directory: ${{env.GITHUB_WORKSPACE}}
