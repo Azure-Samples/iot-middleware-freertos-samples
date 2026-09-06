@@ -12,17 +12,17 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@0717577d45739eb3c851188b29f50ed6c0b2194e # v2.8.0
 
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - name: submodules-init
-      uses: snickerbockers/submodules-init@v4
+      uses: snickerbockers/submodules-init@74927a8bb0fe1bb0f1f1e4d102384a8e69f19171 # v4
 
     - name: Add MSBuild to PATH
-      uses: microsoft/setup-msbuild@v1.1
+      uses: microsoft/setup-msbuild@34cfbaee7f672c76950673338facd8a73f637506 # v1.1.3
 
     - name: Get specific version CMake, v3.21.1
-      uses: lukka/get-cmake@v3.21.1
+      uses: lukka/get-cmake@51e282059f5fa3651e4414208ce2c0bdfbcf9c80 # v3.21.1
 
     - name: Build
       working-directory: ${{env.GITHUB_WORKSPACE}}
