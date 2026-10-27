@@ -9,7 +9,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: windows-2022
 
     steps:
     - uses: actions/checkout@v2
@@ -22,7 +22,9 @@ jobs:
       uses: microsoft/setup-msbuild@v1.1
 
     - name: Get specific version CMake, v3.21.1
-      uses: lukka/get-cmake@v3.21.1
+      uses: lukka/get-cmake@fffaaafeea488556c2c12dad60690008bc1caacb # v4.4.2
+      with:
+        cmakeVersion: 3.21.1
 
     - name: Build
       working-directory: ${{env.GITHUB_WORKSPACE}}
